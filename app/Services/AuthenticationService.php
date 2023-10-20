@@ -44,32 +44,23 @@ class AuthenticationService
 
     private function checkEIS($pem)
     {
-//        $token = 'bb885996c794e568181a2c919d4a140fd90b577c';
-//        header('Content-Type: application/json');
-//        $ch = curl_init('192.168.0.93/api/eis');
-//        $post = json_encode(["pem" => $pem]);
-//        $authorization = "Authorization: Bearer " . $token;
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization));
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//        curl_setopt($ch, CURLOPT_POST, 1);
-//        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-//        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-//        $result = curl_exec($ch);
-//        curl_close($ch);
-//        return json_decode($result);
+        $token = 'bb885996c794e568181a2c919d4a140fd90b577c';
+        header('Content-Type: application/json');
+        $ch = curl_init('192.168.0.93/api/eis');
+        $post = json_encode(["pem" => $pem]);
+        $authorization = "Authorization: Bearer " . $token;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result);
 
-        $b64 = base64_encode($pem);
-        $result = [];
-        $res = exec('cd /opt/ksign && LD_LIBRARY_PATH="/opt/kalkancrypt:/opt/kalkancrypt/lib/engines" php secure.php '.$b64, $result);
-
-//        if ($result[0] != ''){
-//            $j = $result[0];
-//        } else {
-//            $j = $result[1];
-//        }
-
-//        $p = json_decode(base64_decode($j));
-        return $res;
+//        $b64 = base64_encode($request->pem);
+//        $kalkan = new KalkanCrypt;
+//        $kalkan->secure($b64);
 
     }
 
@@ -77,39 +68,39 @@ class AuthenticationService
     {
 //        if ($this->checkEIS($request->data['pem'])) {
 //            $idnum = $this->checkEIS($request->data['pem'])->iin;
-////            $idnum = '960213350271';
-//            $hash = Hash::make(Config::get('APP_SALT') . $idnum);
-//            $user = null;
-//
-//            if ($request->auth_point === 'manager') {
-//                $user = User::where('login', $idnum)->first();
-//                if ($user) {
-//                    $role = $user->role;
-//                } else {
-//                    throw new InvalidArgumentException(json_encode(['Пользователь не существует']));
-//                }
-//            } else {
-//                $liner = Liner::where('idnum', $idnum)->first();
-//                if ($liner) {
-//                    $role = 'liner';
-//                    $user = $liner;
-//                }
-//            }
-//
-//            if ($user) {
-//                $session = new Session();
-//                $session->token = $hash;
-//                $session->uid = $user->id;
-//                $session->role = $role;
-//                $session->save();
-//            } else {
-//                throw new InvalidArgumentException(json_encode(['Пользователь не существует']));
-//            }
-//
+            $idnum = '960213350271';
+            $hash = Hash::make(Config::get('APP_SALT') . $idnum);
+            $user = null;
+
+            if ($request->auth_point === 'manager') {
+                $user = User::where('login', $idnum)->first();
+                if ($user) {
+                    $role = $user->role;
+                } else {
+                    throw new InvalidArgumentException(json_encode(['Пользователь не существует']));
+                }
+            } else {
+                $liner = Liner::where('idnum', $idnum)->first();
+                if ($liner) {
+                    $role = 'liner';
+                    $user = $liner;
+                }
+            }
+
+            if ($user) {
+                $session = new Session();
+                $session->token = $hash;
+                $session->uid = $user->id;
+                $session->role = $role;
+                $session->save();
+            } else {
+                throw new InvalidArgumentException(json_encode(['Пользователь не существует']));
+            }
+
 //        }
 
         return [
-            'hash' => $this->checkEIS($request->data['pem']),
+            'hash' => $hash,
         ];
     }
 
