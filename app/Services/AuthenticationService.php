@@ -62,14 +62,14 @@ class AuthenticationService
         $result = [];
         $res = exec('cd /opt/ksign && LD_LIBRARY_PATH="/opt/kalkancrypt:/opt/kalkancrypt/lib/engines" php secure.php '.$b64, $result);
 
-        if ($result[0] != ''){
-            $j = $result[0];
-        } else {
-            $j = $result[1];
-        }
+//        if ($result[0] != ''){
+//            $j = $result[0];
+//        } else {
+//            $j = $result[1];
+//        }
 
-        $p = json_decode(base64_decode($j));
-        return $p;
+//        $p = json_decode(base64_decode($j));
+        return $res;
 
     }
 
