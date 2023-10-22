@@ -74,7 +74,7 @@
                     </q-input>
                 </div>
 
-                <div class="col col-lg-2 col-md-4 col-xs-12" v-if="!blocked">
+                <div class="col col-lg-2 col-md-4 col-xs-12" v-if="!blocked && item.factory_id">
                     <q-btn label="Забронировать" color="indigo-8" push @click="bookingOrder"/>
                 </div>
 
