@@ -47,16 +47,26 @@
                     </q-icon>
                 </div>
 
-                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10" v-if="item.video">
-                    <q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon>
-                    <a :href="'/storage/uploads/order/files/' + item.order_id + '/' + item.video.original_name" class="text-dark">
+                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10" v-if="item.video"  v-for="(video, i) in item.video"
+                     :key="i">
+                    <q-icon name="videocam" class="q-mr-sm" size="sm"></q-icon>
+                    <a :href="'/storage/uploads/order/files/' + item.order_id + '/' + video.original_name" class="text-dark">
                         {{ getFileTypeTitle(29) }}
                     </a>
                     <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
                             color="negative"
-                             @click="deleteVideoFile({type: 'doc', id: item.video.id })">
+                             @click="deleteVideoFile({type: 'doc', id: video.id })" v-if="!blockedVideo">
                     </q-icon>
                 </div>
+
+                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10" v-if="item.order && item.order.transfer && item.order.transfer.closed === 2">
+                    <q-btn flat dense :loading="loading"><q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon></q-btn>
+                    <a href="#" class="text-dark" @click="generatePFS">
+                        Договор купли-продажи вышедшего из эксплуатации транспортного средства/самоходной сельскохозяйственной техники
+                    </a>
+                </div>
+
+
             </template>
 
             <q-carousel
@@ -92,15 +102,16 @@
 import {ref} from 'vue'
 import {
     deleteOrderFile,
-    deletePreOrderFile,
+    deletePreOrderFile, generateOrderPFS,
     getFileTypeList,
     getPreOrderFileList,
     storePreOrderFile
 } from "../../services/file";
+import FileDownload from "js-file-download";
 
 export default {
 
-    props: ['data', 'blocked', 'onlyPhoto'],
+    props: ['data', 'blocked', 'onlyPhoto', 'blockedVideo'],
 
     setup() {
         return {
@@ -180,12 +191,12 @@ export default {
 
         deleteFile(value) {
             if (value.type === 'doc') {
-                const objWithIdIndex = this.filesDoc.findIndex((obj) => obj.id === value.id);
+                let objWithIdIndex = this.filesDoc.findIndex((obj) => obj.id === value.id);
                 if (objWithIdIndex > -1) {
                     this.filesDoc.splice(objWithIdIndex, 1);
                 }
             } else if (value.type === 'photo') {
-                const objWithIdIndex = this.filesPhoto.findIndex((obj) => obj.id === value.id);
+                let objWithIdIndex = this.filesPhoto.findIndex((obj) => obj.id === value.id);
                 if (objWithIdIndex > -1) {
                     this.filesPhoto.splice(objWithIdIndex, 1);
                     this.slide = 1
@@ -204,7 +215,10 @@ export default {
                 order_id: this.data.order_id,
                 file_id: value.id
             }).then(() => {
-                this.item.video = ''
+                let objWithIdIndex = this.item.video.findIndex((obj) => obj.id === value.id);
+                if (objWithIdIndex > -1) {
+                    this.item.video.splice(objWithIdIndex, 1);
+                }
             });
         },
 
@@ -224,6 +238,15 @@ export default {
                 this.loading = false
             })
 
+        },
+
+        generatePFS(){
+            this.loading = true
+            console.log(this.data)
+            generateOrderPFS(this.data.order_id, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'pfs.pdf')
+                this.loading = false
+            })
         }
     },
 

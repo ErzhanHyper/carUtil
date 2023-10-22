@@ -89,4 +89,12 @@ class PreOrderController extends Controller
 
         return response()->json($data);
     }
+
+    public function booking(Request $request, $id)
+    {
+        $data = app(PreOrderService::class)->booking($request, $id);
+        return response()->json($data);
+    }
+
+
 }

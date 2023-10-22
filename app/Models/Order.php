@@ -34,6 +34,6 @@ class Order extends Model
 
     public function transfer()
     {
-        return $this->belongsTo(TransferOrder::class, 'order_id', 'id');
+        return $this->belongsTo(TransferOrder::class, 'id', 'order_id');
     }
 }

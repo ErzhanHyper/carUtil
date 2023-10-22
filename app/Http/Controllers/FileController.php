@@ -8,11 +8,36 @@ use App\Models\CarFile;
 use App\Models\File;
 use App\Models\Order;
 use App\Models\PreOrderCar;
-use Illuminate\Database\Eloquent\Model;
+use App\Services\AuthenticationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use PDF;
 
 class FileController extends Controller
 {
+
+    public function generateOrderPFS($id)
+    {
+
+        $user = app(AuthenticationService::class)->auth();
+
+        $data = PreOrderCar::where('order_id', $id)->first();
+        if ($user) {
+            if (($user->role === 'liner' && $user->id === $data->liner_id) || ($user->role === 'moderator') || $user->role === 'operator')
+                if ($data && $data->order_id) {
+                    $folder = public_path('/storage/uploads/order/pfs');
+                    if (!file_exists($folder)) {
+                        mkdir($folder, 0777, true);
+                    }
+
+                    $pdf = PDF::loadView('templates.pfs');
+                    $pdf->setPaper('a4', 'portrait')->setWarnings(false);
+                    return $pdf->download('pfs.pdf');
+//            $pdf->save(public_path('storage/uploads/order/pfs/' . $data->order_id . '_pfs.pdf'));
+//            return $pdf->download($data->order_id . '_pfs.pdf');
+                }
+        }
+    }
 
     public function storeOrderFile(Request $request)
     {
@@ -43,20 +68,24 @@ class FileController extends Controller
 
     public function getOrderFile(Request $request)
     {
-        $order_id = $request->order_id;
-        $order = Order::find($order_id);
-        $files = [];
+        $user = app(AuthenticationService::class)->auth();
 
-        if ($order) {
-            $files = File::where('order_id', $order->id)->get();
+        if ($user) {
+            $order_id = $request->order_id;
+            $order = Order::find($order_id);
+            $files = [];
+
+            if ($order) {
+                $files = File::where('order_id', $order->id)->get();
+            }
+
+            return response()->json($files);
         }
-
-        return response()->json($files);
     }
 
     public function storePreOrderFile(Request $request)
     {
-        if($request->preorder_id) {
+        if ($request->preorder_id) {
             $file = $request->file;
             $original_name = time() . '_' . $file->getClientOriginalName();
             $extension = $file->extension();
@@ -100,15 +129,18 @@ class FileController extends Controller
         $file_id = $request->file_id;
 
         $preorder = PreOrderCar::find($preorder_id);
+        $message = ['status' => 'can`t delete'];
 
-
-        if ($preorder->recycle_type === 1) {
-            CarFile::where('preorder_id', $preorder_id)->where('id', $file_id)->delete();
-        } else if ($preorder->recycle_type === 2) {
-            AgroFile::where('preorder_id', $preorder_id)->where('id', $file_id)->delete();
+        if ($preorder && ($preorder->status === 0 || $preorder->status === 4)) {
+            if ($preorder->recycle_type === 1) {
+                CarFile::where('preorder_id', $preorder_id)->where('id', $file_id)->delete();
+            } else if ($preorder->recycle_type === 2) {
+                AgroFile::where('preorder_id', $preorder_id)->where('id', $file_id)->delete();
+            }
+            $message = ['status' => 'deleted'];
         }
 
-        return response()->json(['status', 'deleted']);
+        return response()->json($message);
     }
 
     public function deleteOrderFile(Request $request)
@@ -116,11 +148,21 @@ class FileController extends Controller
         $order_id = $request->order_id;
         $file_id = $request->file_id;
         $order = Order::find($order_id);
-        if ($order) {
+        $message = ['status' => 'can`t delete'];
+        if ($order && $order->status === 2) {
             File::where('order_id', $order->id)->where('id', $file_id)->delete();
+            $message = ['status' => 'deleted'];
         }
 
-        return response()->json(['status', 'deleted']);
+        return response()->json($message);
     }
 
+//    public function downloadOrderFile(Request $request, $id)
+//    {
+//        $user = app(AuthenticationService::class)->auth();
+//
+//        if($user) {
+//            return Storage::download('uploads/order/files/'.$id.'/'.$request->filename);
+//        }
+//    }
 }

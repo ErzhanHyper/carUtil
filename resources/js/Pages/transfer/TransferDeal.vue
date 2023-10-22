@@ -45,7 +45,7 @@
         </tbody>
     </q-markup-table>
 
-    <template v-else>Нет предложении</template>
+    <template v-else>Пока предложений нет</template>
 
 </template>
 
@@ -102,6 +102,7 @@ export default {
         closeDeal(id) {
             closeTransferDeal(id).then(() => {
                 this.getData()
+                this.showAccept = true
             })
         }
     },

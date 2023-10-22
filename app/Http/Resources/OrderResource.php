@@ -59,6 +59,12 @@ class OrderResource extends JsonResource
             }
         }
 
+        $video = false;
+        $orderFile = File::where('order_id', $this->id)->where('file_type_id', 29)->first();
+        if($orderFile) {
+            $video = true;
+        }
+
         return [
             'id' => $this->id,
             'car' => new CarResource($this->car),
@@ -85,7 +91,8 @@ class OrderResource extends JsonResource
             'setCert' => ($this->approve === 3 && $find_video && $user->role === 'moderator' && $this->car->certificate == '') ? true : false,
             'recycle_type' => $recycle_type,
             'categories' => $categories,
-            'transfer' => $this->transfer
+            'transfer' => $this->transfer,
+            'videoUploaded' => $video
         ];
     }
 }

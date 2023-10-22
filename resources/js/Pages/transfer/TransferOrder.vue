@@ -89,6 +89,7 @@
 <script>
 import {getTransferList} from "../../services/transfer";
 import TransferOrderCurrent from "./TransferOrderCurrent.vue";
+import {mapGetters} from "vuex";
 
 export default {
     components: {TransferOrderCurrent},
@@ -98,6 +99,13 @@ export default {
             transferTermsDialog: true,
             items: [],
         }
+    },
+
+    computed: {
+        ...mapGetters({
+            authenticated: 'auth/authenticated',
+            user: 'auth/user'
+        })
     },
 
     methods: {

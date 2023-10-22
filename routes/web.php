@@ -1,5 +1,8 @@
 <?php
 
+use App\Services\AuthenticationService;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,14 +28,13 @@ Route::prefix('app')->group(function () {
 
         Route::prefix('preorder')->group(function () {
             Route::get('/', [\App\Http\Controllers\PreOrderController::class, 'get'])->name('preorder');
-            Route::get('{id}/get', [\App\Http\Controllers\PreOrderController::class, 'getById']);
-
             Route::post('store', [\App\Http\Controllers\PreOrderController::class, 'store']);
             Route::post('delete', [\App\Http\Controllers\PreOrderController::class, 'delete']);
 
+            Route::get('{id}/get', [\App\Http\Controllers\PreOrderController::class, 'getById']);
             Route::post('{id}/send', [\App\Http\Controllers\PreOrderController::class, 'send']);
             Route::post('{id}/moderator/approve', [\App\Http\Controllers\PreOrderController::class, 'moderatorApprove']);
-
+            Route::post('{id}/booking', [\App\Http\Controllers\PreOrderController::class, 'booking']);
             Route::post('checkVehicle', [\App\Http\Controllers\PreOrderController::class, 'searchFromKap']);
         });
 
@@ -48,20 +50,6 @@ Route::prefix('app')->group(function () {
         Route::prefix('certificate')->group(function () {
             Route::get('/', [\App\Http\Controllers\CertificateController::class, 'get'])->name('certificate');
         });
-
-
-        Route::get('region', [\App\Http\Controllers\RegionController::class, 'get'])->name('region');
-
-        Route::get('fileType', [\App\Http\Controllers\FileTypeController::class, 'get']);
-
-        Route::get('factory', [\App\Http\Controllers\FactoryController::class, 'get']);
-
-        Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);
-
-        Route::get('client', [\App\Http\Controllers\ClientController::class, 'get'])->name('client');
-        Route::get('client/{id}', [\App\Http\Controllers\ClientController::class, 'showById']);
-
-        Route::get('report', [\App\Http\Controllers\ReportController::class, 'index'])->name('report');
 
         Route::prefix('transfer')->group(function () {
             Route::get('/order', [\App\Http\Controllers\TransferOrderController::class, 'get']);
@@ -83,6 +71,7 @@ Route::prefix('app')->group(function () {
             Route::post('/order/store', [\App\Http\Controllers\FileController::class, 'storeOrderFile']);
             Route::post('/order/get', [\App\Http\Controllers\FileController::class, 'getOrderFile']);
             Route::post('/order/delete', [\App\Http\Controllers\FileController::class, 'deleteOrderFile']);
+            Route::get('/order/{id}/generatePFS', [\App\Http\Controllers\FileController::class, 'generateOrderPFS']);
 
             Route::post('/preorder/store', [\App\Http\Controllers\FileController::class, 'storePreOrderFile']);
             Route::post('/preorder/get', [\App\Http\Controllers\FileController::class, 'getPreOrderFile']);
@@ -93,8 +82,21 @@ Route::prefix('app')->group(function () {
             Route::post('/order/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
         });
 
+        Route::get('region', [\App\Http\Controllers\RegionController::class, 'get'])->name('region');
+
+        Route::get('fileType', [\App\Http\Controllers\FileTypeController::class, 'get']);
+
+        Route::get('factory', [\App\Http\Controllers\FactoryController::class, 'get']);
+
+        Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);
+
+        Route::get('client', [\App\Http\Controllers\ClientController::class, 'get'])->name('client');
+        Route::get('client/{id}', [\App\Http\Controllers\ClientController::class, 'showById']);
+
+        Route::get('report', [\App\Http\Controllers\ReportController::class, 'index'])->name('report');
     });
 });
+
 
 Route::get('/{any}', function () {
     return view('app');

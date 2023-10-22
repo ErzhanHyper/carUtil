@@ -14,6 +14,7 @@ use App\Models\PreOrderCar;
 use App\Models\TransferDeal;
 use App\Models\TransferOrder;
 use App\Services\AuthenticationService;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransferService
 {
@@ -41,7 +42,14 @@ class TransferService
         $user = app(AuthenticationService::class)->auth();
         if ($user && $user->role === 'liner') {
             $order = TransferOrder::find($id);
-            return new TransferOrderResource($order);
+
+            if ($order->closed === 0) {
+                return new TransferOrderResource($order);
+            } else {
+                if ($order->owner_liner_id === $user->id || $order->recipient_liner_id === $user->id) {
+                    return new TransferOrderResource($order);
+                }
+            }
         }
     }
 
@@ -69,7 +77,10 @@ class TransferService
             $transfer->recipient_sign = null;
             $transfer->owner_sign_time = null;
             $transfer->recipient_sign_time = null;
-            $transfer->save();
+            if ($transfer->save()) {
+                $order->blocked = 1;
+                $order->save();
+            }
             return ['created'];
         }
 
@@ -97,15 +108,19 @@ class TransferService
 
         $transferOrder = TransferOrder::find($transfer_order_id);
 
-        if ($user->id !== $transferOrder->ownner_liner_id) {
-            $deal = new TransferDeal;
-            $deal->liner_id = $user->id;
-            $deal->transfer_order_id = $transfer_order_id;
-            $deal->amount = $amount;
-            $deal->date = time();
-            $deal->save();
+        if ($amount) {
+            if ($user->id !== $transferOrder->ownner_liner_id) {
+                $deal = new TransferDeal;
+                $deal->liner_id = $user->id;
+                $deal->transfer_order_id = $transfer_order_id;
+                $deal->amount = $amount;
+                $deal->date = time();
+                $deal->save();
 
-            return ['Сделка отправлена'];
+                return ['status' => true];
+            }
+        }else{
+            return ['status' => false];
         }
     }
 
@@ -120,8 +135,9 @@ class TransferService
             $transferOrder->recipient_liner_id = $transferDeal->liner_id;
             $transferOrder->closed = 1;
             $transferOrder->save();
-
-            return ['Сделка выбрана'];
+            return ['status' => true];
+        }else{
+            return ['status' => false];
         }
     }
 
@@ -131,13 +147,16 @@ class TransferService
         $transferDeal = TransferDeal::find($id);
         $transferOrder = $transferDeal->transfer_order;
 
-        if ($user->id !== $transferOrder->owner_liner_id) {
-            $transferOrder->transfer_deal_id = null;
-            $transferOrder->recipient_liner_id = null;
-            $transferOrder->closed = 0;
-            $transferOrder->save();
-
-            return ['Сделка выбрана'];
+        if($user) {
+            if ($user->id === $transferOrder->owner_liner_id) {
+                $transferOrder->transfer_deal_id = null;
+                $transferOrder->recipient_liner_id = null;
+                $transferOrder->closed = 0;
+                $transferOrder->save();
+                return ['status' => true];
+            } else {
+                return ['status' => false];
+            }
         }
     }
 
@@ -169,6 +188,7 @@ class TransferService
                 $car->cert_idnum = $client->idnum;
                 $car->save();
 
+                $order->blocked = 0;
                 $order->client_id = $client->id;
                 $order->save();
             }
@@ -206,7 +226,7 @@ class TransferService
 
         $transferOrder = TransferOrder::find($transfer_order_id);
 
-        if ($user->id === $transferOrder->owner_liner_id) {
+        if ($user->id === $transferOrder->owner_liner_id && $transferOrder->closed !== 2) {
             $transferOrder->delete();
             return ['закрыта'];
         }

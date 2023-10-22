@@ -50,6 +50,11 @@
                             class="text-overline">
                         {{ item.status.title }}
                     </q-chip>
+
+                    <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-ml-md">
+                        Выставлена на продажу
+                    </q-badge>
+
                 </td>
                 <td>
 <!--                    <q-btn icon="verified" unelevated dense size="sm" class="text-green-10" label="Скидочный сертификат"-->

@@ -17,7 +17,6 @@
                 <th class="text-left">Дата создания</th>
                 <th class="text-left">Статус</th>
                 <th class="text-left"></th>
-                <th class="text-left"></th>
             </tr>
             </thead>
             <tbody>
@@ -40,16 +39,16 @@
                 <td class="text-left">{{ (item.client) ? item.client.region_id : '-' }}</td>
                 <td class="text-left">{{ (item.created) ? item.created : '-' }}</td>
                 <td class="text-left">
-                    <div class="q-gutter-sm">
+
+                    <div class="q-gutter-sm" v-if="user.role === 'moderator'">
                         <q-chip dark :color="setStatusColor(item.status.id)"
                                 v-if="item.status"
                                 class="text-overline">
                             {{ item.status.title }}
                         </q-chip>
                     </div>
-                </td>
-                <td>
-                    <q-badge :color="setApproveColor(item.approve.id)" v-if="item.approve">
+
+                    <q-badge :color="setApproveColor(item.approve.id)" v-if="item.approve && user.role === 'operator'">
                         {{ item.approve.title }}
                     </q-badge>
 <!--                    <q-space class="q-my-xs"/>-->
@@ -84,6 +83,7 @@
 <script>
 import {getOrderList} from "../../services/order";
 import {generateCertOrder} from "../../services/certificate";
+import {mapGetters} from "vuex";
 
 export default {
 
@@ -101,7 +101,6 @@ export default {
             page: 1,
 
             params: {},
-            user: JSON.parse(localStorage.getItem('user')),
             recycleTypeRules: {},
             item: {},
 
@@ -120,6 +119,14 @@ export default {
                 }
             ]
         }
+    },
+
+
+    computed: {
+        ...mapGetters({
+            authenticated: 'auth/authenticated',
+            user: 'auth/user'
+        })
     },
 
     methods: {

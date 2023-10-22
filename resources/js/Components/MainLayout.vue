@@ -1,7 +1,10 @@
 <template>
-    <q-linear-progress query />
+<!--    <q-linear-progress query />-->
+
     <q-layout view="lHh LpR fFf" v-if="authenticated">
+
         <q-header elevated class="bg-white text-dark">
+            <q-linear-progress indeterminate color="warning" size="md" v-if="contentLoad"/>
             <q-toolbar>
                 <q-btn dense flat round icon="menu" @click="toggleLeftDrawer"/>
 
@@ -83,8 +86,7 @@ export default {
 
     data() {
         return {
-            authenticated: false,
-            user: {}
+            contentLoad: true
         }
     },
 
@@ -101,16 +103,12 @@ export default {
             this.$router.replace('/login')
         },
 
-        checkAuthenticated() {
-            getUser({}).then(res => {
-                this.authenticated = true
-                this.user = res
-            })
-        }
     },
 
     mounted() {
-       this.checkAuthenticated()
+        this.$emitter.on('contentLoaded', (value) => {
+            this.contentLoad = value
+        })
     }
 }
 </script>

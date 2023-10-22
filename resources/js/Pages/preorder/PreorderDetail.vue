@@ -21,7 +21,7 @@
                 </div>
             </template>
 
-            <template v-if="!item.transferShow && item.transfer">
+            <template v-if="!item.transferShow && item.transfer && item.transfer.closed !== 2">
                 <div class="text-blue-10">
                     ТС выставлен на продажу
                     <q-space/>
@@ -61,6 +61,9 @@
         </div>
     </q-banner>
 
+    <booking class="q-mt-md" :data="item.booking" :getBooking="getBooking"
+             v-if="showData && (user.role === 'liner' || user.role === 'moderator')" :blocked="blocked && (item.status.id === 1)"/>
+
     <div class="row q-col-gutter-md" v-if="showData">
 
         <div class="col col-md-8 col-sm-12 col-xs-12 ">
@@ -95,7 +98,8 @@
 
                             <div class="row q-col-gutter-md q-mt-xs" v-if="showProxy">
                                 <div class="col">
-                                    <q-input dense square outlined label="Номер доверенности" v-model="item.proxy_num"
+                                    <q-input dense square outlined label="Номер доверенности"
+                                             v-model="item.proxy_num"
                                              :readonly="blocked"/>
                                 </div>
                                 <div class="col">
@@ -108,8 +112,7 @@
                 </div>
 
                 <div class="col col-md-7 col-sm-12 col-xs-12">
-                    <booking class="q-mb-md" :data="item.booking" :getBooking="getBooking"
-                             v-if="user.role === 'liner' || user.role === 'moderator'" :blocked="blocked"/>
+
                     <car-card :data="item.car" :getCar="getCar" v-if="showData" :categories="item.categories"
                               :blocked="blocked" :order_id="item.id"/>
                 </div>
@@ -120,10 +123,11 @@
                 <q-timeline color="secondary">
                     <template v-for="(text, i) in item.comment">
                         <q-timeline-entry class="q-mb-sm" :body="text.created_at">
-                            <q-banner class="bg-purple-1" style="max-width: 380px">
+                            <q-banner :class="(text.action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
+                                      style="max-width: 380px">
                                 <div class="text-subtitle2 text-weight-bold">
-                                    <span v-if="text.action === 'approve'">Одобрено</span>
-                                    <span v-if="text.action === 'decline'">Отклонено</span>
+                                    <span v-if="text.action === 'approve'">Одобрена</span>
+                                    <span v-if="text.action === 'decline'">Отклонена</span>
                                     <span v-if="text.action === 'revision'">На доработку</span>
                                 </div>
                                 {{ text.text }}
@@ -136,14 +140,16 @@
         </div>
 
         <div class="col col-md-4 col-xs-12">
-            <PreorderFile :data="item.file" v-if="showFile" :files="item.files" :blocked="blocked"/>
+            <PreorderFile :data="item.file" v-if="showFile" :files="item.files" :blocked="blocked"
+                          :blockedVideo="item.blockedVideo"/>
         </div>
 
     </div>
 
 
     <div class="q-mt-md text-right" v-if="showData && user && user.role === 'liner'">
-        <q-btn icon="delete" label="Удалить заявку" square size="sm" color="negative" @click="showDeleteDialog = true"
+        <q-btn icon="delete" label="Удалить заявку" square size="sm" color="negative"
+               @click="showDeleteDialog = true"
                v-if="item.status.id === 0"/>
     </div>
 
@@ -252,6 +258,7 @@ export default {
             errors: [],
             showError: false,
             item: {
+                blockedVideo: false,
                 recycle_type: null,
                 category: null,
                 client: {},
@@ -330,13 +337,22 @@ export default {
                     client_id: res.client_id,
                     preorder_id: res.id,
                     video: res.video,
-                    order_id: res.order_id
+                    order_id: res.order_id,
+                    order: res.order
                 }
 
                 if (!this.item.client) {
                     this.item.client = {
                         idnum: this.user.idnum,
                         title: this.user.profile.fln
+                    }
+                }
+
+                if (this.item.booking) {
+                    this.item.booking.preorder_id = this.item.id
+                } else {
+                    this.item.booking = {
+                        preorder_id: this.item.id
                     }
                 }
 
@@ -374,6 +390,14 @@ export default {
             }).then(() => {
                 this.getData()
                 this.commentDialog = false
+
+                if (this.approveAction === 'approve') {
+                    Notify.create({
+                        message: 'Пред. заявка одобрена',
+                        position: 'bottom-right',
+                        type: 'positive'
+                    })
+                }
             }).finally(() => {
                 this.loading = false
             })

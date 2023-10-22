@@ -44,8 +44,8 @@ class PreOrderResource extends JsonResource
         }
         $video = '';
         if($this->order){
-            $orderFile = File::where('order_id', $this->order['id'])->where('file_type_id', 29)->first();
-            if($orderFile) {
+            $orderFile = File::where('order_id', $this->order['id'])->where('file_type_id', 29)->get();
+            if(count($orderFile) > 0) {
                 $video = $orderFile;
             }
         }
@@ -74,7 +74,8 @@ class PreOrderResource extends JsonResource
             'comment' => CommentResource::collection($this->comment),
             'transferShow' => $transferShow,
             'transfer' => $transfer,
-            'video' => $video
+            'video' => $video,
+            'blockedVideo' => $this->order && $this->order['status'] === 3
         ];
     }
 }

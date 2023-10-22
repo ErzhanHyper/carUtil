@@ -1,12 +1,12 @@
 <template>
-    <q-card>
+    <q-card flat bordered>
         <q-card-section class="q-pb-xs">
             <div class="text-body2">Бронирование</div>
         </q-card-section>
 
         <q-card-section>
-            <div class="row q-gutter-md">
-                <div class="col">
+            <div class="row q-col-gutter-md">
+                <div class="col col-lg-3 col-md-4 col-xs-12">
 
                     <q-select
                         square
@@ -37,7 +37,9 @@
                             </q-item>
                         </template>
                     </q-select>
+                </div>
 
+                <div class="col col-lg-2 col-md-4 col-xs-12">
                     <q-input outlined square dense v-model="item.datetime" v-if="item.factory_id" :readonly="blocked">
                         <template v-slot:prepend>
                             <q-icon name="event" class="cursor-pointer">
@@ -70,14 +72,13 @@
                             </q-icon>
                         </template>
                     </q-input>
-
-<!--                    <div v-if="item.datetime" class="q-mt-sm">-->
-<!--                        <span class="text-caption ">Дата: <b class="text-blue-5 text-body2">{{ $moment(item.datetime).format('YYYY-MM-DD') }}</b></span>-->
-<!--                        <br>-->
-<!--                        <span class="text-caption ">Время:<b class="text-blue-5 text-body2"> {{ $moment(item.datetime).format('HH:mm') }}</b></span>-->
-<!--                    </div>-->
-
                 </div>
+
+                <div class="col col-lg-2 col-md-4 col-xs-12" v-if="!blocked">
+                    <q-btn label="Забронировать" color="indigo-8" push @click="bookingOrder"/>
+                </div>
+
+
             </div>
         </q-card-section>
     </q-card>
@@ -86,6 +87,8 @@
 <script>
 import {getFactoryList} from "../../services/factory";
 import {getBookingOrderList} from "../../services/booking";
+import {bookingOrder} from "../../services/preorder";
+import {Notify} from "quasar";
 
 export default {
 
@@ -114,6 +117,26 @@ export default {
 
         setFactory() {
             this.getDateTime()
+        },
+
+        bookingOrder(){
+            bookingOrder(this.item.preorder_id, this.item).then(res => {
+                Notify.create({
+                    message: 'Дата и время забронирована',
+                    position: 'bottom-right',
+                    type: 'positive'
+                })
+            }).catch(err => {
+                let mess = 'Ошибка бронирование'
+                if(err.response.data) {
+                    mess = JSON.parse(err.response.data.message).booking
+                }
+                Notify.create({
+                    message: mess,
+                    position: 'bottom-right',
+                    type: 'warning'
+                })
+            })
         }
     },
 

@@ -17,20 +17,28 @@ class OrderService
     public function getCollection()
     {
         $user = app(AuthenticationService::class)->auth();
+        $factory_id = $user->factory_id;
 
         if ($user) {
-            $orders = Order::with(['car', 'client', 'preorder']);
-            if ($user->role === 'liner') {
-                $orders->where('liner_id', $user->id);
-            } else {
-                if ($user->role === 'moderator') {
-                    $orders->where('approve', '<>', 0);
-                } else if ($user->role === 'operator') {
-                    $orders->whereIn('approve', [0, 1, 2, 3, 4, 5]);;
-                }
-
+//            if ($user->role === 'liner') {
+//                $orders = Order::with(['car', 'client', 'preorder']);
+//                $orders->where('liner_id', $user->id);
+//            } else {
+            if ($user->role === 'moderator') {
+                $orders = Order::with(['car', 'client', 'preorder']);
+                $orders->where('approve', '<>', 0);
+            } else if ($user->role === 'operator') {
+                $orders = Order::with(['car', 'client', 'preorder', 'transfer'])->whereIn('approve', [0, 1, 2, 3, 4, 5])
+                    ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked')
+                    ->join('pre_order_car', 'order.id', 'pre_order_car.order_id')
+                    ->where('pre_order_car.factory_id', $factory_id)->where('blocked', 0);
             }
-            return OrderResource::collection($orders->orderByDesc('created')->paginate(10));
+//
+//            }
+
+            if ($orders) {
+                return OrderResource::collection($orders->orderByDesc('created')->where('created','>', 1697755551)->paginate(10));
+            }
         }
     }
 
@@ -94,8 +102,7 @@ class OrderService
                 $order->approve = 2;
                 $order->status = 3;
                 $order->save();
-            }
-            else if ($request->status === 'revision') {
+            } else if ($request->status === 'revision') {
                 $order->approve = 4;
                 $order->status = 1;
                 $order->save();

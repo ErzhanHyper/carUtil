@@ -23,10 +23,14 @@ class PreOrderService
         $user = app(AuthenticationService::class)->auth();
 
         $orders = PreOrderCar::with(['car', 'client']);
-        if ($user && $user->role === 'liner') {
-            $orders->where('liner_id', $user->id);
-        } else {
-            $orders->where('status', '<>', 0);
+        if ($user) {
+            if ($user->role === 'liner') {
+                $orders->where('liner_id', $user->id);
+            } else {
+                if ($user->role === 'moderator') {
+                    $orders->where('status', '<>', 0);
+                }
+            }
         }
 
         return PreOrderResource::collection($orders->orderByDesc('date')->paginate(15));
@@ -42,7 +46,6 @@ class PreOrderService
     public function send($request, $id)
     {
         $preorder = PreOrderCar::find($id);
-
 
         if ($preorder->status === 0 || $preorder->status === 4) {
             $client = Client::where('idnum', $request->client['idnum'])->first();
@@ -77,6 +80,7 @@ class PreOrderService
                 $preorder->client_id = $client->id;
                 $preorder->car_id = $car->id;
                 $preorder->booking_id = $booking->id;
+                $preorder->factory_id = $request->booking['factory_id'];
                 $preorder->status = 1;
                 $preorder->save();
             } else {
@@ -142,5 +146,25 @@ class PreOrderService
                 $preorder->delete();
             }
         }
+    }
+
+
+    public function booking($request, $id)
+    {
+        $preorder = PreOrderCar::find($id);
+
+        if($request->datetime && $request->factory_id) {
+            $booking = app(BookingOrderService::class)->store(new Request([
+                'preorder_id' => $preorder->id,
+                'datetime' => $request->datetime,
+                'factory_id' => $request->factory_id,
+            ]));
+
+            $preorder->booking_id = $booking->id;
+            $preorder->factory_id = $request->factory_id;
+            $preorder->save();
+
+        }
+        return $preorder;
     }
 }

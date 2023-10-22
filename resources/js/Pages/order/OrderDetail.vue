@@ -7,8 +7,11 @@
                 {{ (item.recycle_type) ? item.recycle_type : '-' }}
             </span> <span class="text-body1 text-blue-grey-7"> <b> - №{{ item.id }}</b></span>
             <div :class="'text-'+setStatusColor(item.approve.id)" v-if="item.approve"> {{ item.approve.title }}</div>
+            <div :class="'text-deep-orange'" v-if="item.approve && item.status.id === 2 && !item.videoUploaded">В ожидании получения видеозаписи ТС</div>
         </div>
     </div>
+
+<!--    <OrderTimeline class="q-mt-md"/>-->
 
     <div class="col col-md-12 q-mt-md"
          v-if="showData && user.role && (user.role === 'operator' || user.role === 'moderator')">
@@ -18,7 +21,6 @@
                    @click="getCert(item.car.id)"></q-btn>
         </template>
 
-        <!--        <OrderTimeline/>-->
         <div class="flex justify-between q-mt-md">
             <div class="q-gutter-sm">
                 <q-btn :loading="loading" square size="12px" color="light-green"

@@ -7,6 +7,7 @@ import 'quasar/src/css/index.sass'
 import '../sass/app.scss'
 import App from "./Components/App.vue";
 import middleware from '@/modules/middleware.js'
+import './services/interceptors'
 
 import moment from 'moment';
 import 'moment/dist/locale/ru'

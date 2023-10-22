@@ -58,7 +58,7 @@ export default {
             }
 
             try {
-                 await api.post('user').then(res => {
+                 await api.post('/user').then(res => {
                     commit('SET_USER', res.data)
                 }).catch(() => {
                      router.push('/login')
