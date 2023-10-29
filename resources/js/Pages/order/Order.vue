@@ -4,86 +4,102 @@
         <div class="text-h6 text-primary">Заявки</div>
     </div>
 
-    <template v-if="items.length > 0">
-        <q-markup-table flat bordered dense>
-            <thead>
-            <tr>
-                <th class="text-left">ID</th>
-                <th class="text-left">Категория</th>
-                <th class="text-left">VIN</th>
-                <th class="text-left">ФИО/Наименование</th>
-                <th class="text-left">ИИН/БИН</th>
-                <th class="text-left">Регион</th>
-                <th class="text-left">Дата создания</th>
-                <th class="text-left">Статус</th>
-                <th class="text-left"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(item, i) in items" :key="i">
-                <td class="text-left">
-                    <q-btn icon="open_in_new" dense flat :to="'/order/'+item.id" color="primary" :label="item.id"/>
-                </td>
-                <td class="text-left">
-                    <q-chip dark :color="(item.recycle_type === 'ВЭТС') ? 'teal-8' : 'orange-9'" size="12px"
-                            v-if="item.recycle_type">
-                        {{ (item.car) ? (item.car.category ? item.car.category.title_ru : '') : '-' }} | {{
-                            (item.recycle_type) ? item.recycle_type : '-'
-                        }}
-                    </q-chip>
-                </td>
-                <td class="text-left">{{ (item.car) ? item.car.vin : '-' }}</td>
-
-                <td class="text-left">{{ (item.client) ? item.client.title : '-' }}</td>
-                <td class="text-left">{{ (item.client) ? item.client.idnum : '-' }}</td>
-                <td class="text-left">{{ (item.client) ? item.client.region_id : '-' }}</td>
-                <td class="text-left">{{ (item.created) ? item.created : '-' }}</td>
-                <td class="text-left">
-
-                    <div class="q-gutter-sm" v-if="user.role === 'moderator'">
-                        <q-chip dark :color="setStatusColor(item.status.id)"
-                                v-if="item.status"
-                                class="text-overline">
-                            {{ item.status.title }}
+    <div v-if="show">
+        <template v-if="items.length > 0">
+            <q-markup-table flat bordered dense>
+                <thead>
+                <tr>
+                    <th class="text-left">ID</th>
+                    <th class="text-left">Категория</th>
+                    <th class="text-left">VIN</th>
+                    <th class="text-left">ГРНЗ</th>
+                    <th class="text-left">ФИО/Наименование</th>
+                    <th class="text-left">ИИН/БИН</th>
+                    <th class="text-left">Регион</th>
+                    <th class="text-left">Дата создания</th>
+                    <th class="text-left">Статус</th>
+                    <th class="text-left"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(item, i) in items" :key="i">
+                    <td class="text-left">
+                        <q-btn icon="open_in_new" dense flat :to="'/order/'+item.id" color="primary" :label="item.id"/>
+                    </td>
+                    <td class="text-left">
+                        <q-chip dark :color="(item.recycle_type === 'ВЭТС') ? 'teal-8' : 'orange-9'" size="12px"
+                                v-if="item.recycle_type">
+                            {{ (item.car) ? (item.car.category ? item.car.category.title_ru : '') : '-' }} | {{
+                                (item.recycle_type) ? item.recycle_type : '-'
+                            }}
                         </q-chip>
-                    </div>
+                    </td>
+                    <td class="text-left">{{ (item.car) ? item.car.vin : '-' }}</td>
+                    <td class="text-left">{{ (item.car) ? item.car.grnz : '-' }}</td>
 
-                    <q-badge :color="setApproveColor(item.approve.id)" v-if="item.approve && user.role === 'operator'">
-                        {{ item.approve.title }}
-                    </q-badge>
-<!--                    <q-space class="q-my-xs"/>-->
-<!--                    <q-badge  :color="(item.signed) ? 'green-5' : 'pink-5'" outline v-if="item.status && item.status.id === 2 && item.signed">-->
-<!--                        {{ item.signed ? 'Подписано' : 'Не подписано' }}-->
-<!--                    </q-badge>-->
-                </td>
-                <td class="text-right">
+                    <td class="text-left">{{ (item.client) ? item.client.title : '-' }}</td>
+                    <td class="text-left">{{ (item.client) ? item.client.idnum : '-' }}</td>
+                    <td class="text-left">{{ (item.client && item.client.region) ? item.client.region.title : '-' }}</td>
+                    <td class="text-left">{{ (item.created) ? item.created : '-' }}</td>
+                    <td class="text-left">
+
+                        <div class="q-gutter-sm" v-if="user.role === 'moderator'">
+                            <q-chip dark :color="setStatusColor(item.status.id)"
+                                    v-if="item.status"
+                                    class="text-overline">
+                                {{ item.status.title }}
+                            </q-chip>
+                        </div>
+
+                        <q-badge :color="setApproveColor(item.approve.id)"
+                                 v-if="item.approve && user.role === 'operator'">
+                            {{ item.approve.title }}
+                        </q-badge>
+                        <!--                    <q-space class="q-my-xs"/>-->
+                        <!--                    <q-badge  :color="(item.signed) ? 'green-5' : 'pink-5'" outline v-if="item.status && item.status.id === 2 && item.signed">-->
+                        <!--                        {{ item.signed ? 'Подписано' : 'Не подписано' }}-->
+                        <!--                    </q-badge>-->
+                    </td>
+                    <td class="text-right">
                         <q-btn icon="verified" unelevated dense size="sm" class="text-green-10"
-                               label="Скидочный сертификат" icon-right="download" @click="getCert(item.car.id)"
+                               label="Скидочный сертификат" icon-right="download" @click="getCert(item.car.certificate.id)"
                                v-if="item.car && item.car.certificate"></q-btn>
-                </td>
-            </tr>
-            </tbody>
-        </q-markup-table>
+                    </td>
+                </tr>
+                </tbody>
+            </q-markup-table>
 
-        <div class="q-pa-lg flex flex-center">
-            <q-pagination
-                v-model="page"
-                :max="1"
-                :max-pages="6"
-                boundary-numbers
-                @click="getData()"
-            />
-        </div>
-    </template>
+            <div class="q-pa-lg flex flex-center">
+                <q-pagination
+                    v-model="page"
+                    :max="1"
+                    :max-pages="6"
+                    boundary-numbers
+                    @click="getData()"
+                />
+            </div>
+        </template>
 
-    <template v-else> Нет записей</template>
+        <template v-else> Нет записей</template>
+    </div>
+
+
+    <q-circular-progress
+        indeterminate
+        rounded
+        size="30px"
+        color="primary"
+        class="q-ma-md"
+        v-if="!show"
+    />
 
 </template>
 
 <script>
 import {getOrderList} from "../../services/order";
-import {generateCertOrder} from "../../services/certificate";
 import {mapGetters} from "vuex";
+import {generateCertificate} from "../../services/certificate";
+import FileDownload from "js-file-download";
 
 export default {
 
@@ -92,6 +108,7 @@ export default {
             data: null,
             sum: null,
 
+            show: false,
             orderDialog: false,
             loading: false,
 
@@ -183,15 +200,16 @@ export default {
         },
 
         getCert(id) {
-            generateCertOrder({
-                car_id: id
-            }).then((res) => {
-                console.log(res)
+            generateCertificate(id, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'certificate.pdf')
+            }).finally(() => {
+                this.loading = false
             })
         },
 
         getData() {
             getOrderList({page: this.page}).then(res => {
+                this.show = true
                 this.items = res
             })
         }

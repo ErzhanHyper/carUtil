@@ -66,9 +66,31 @@ export function checkVehicle(params) {
     })
 }
 
-export function moderatorApproveOrder(id, params) {
+export function approveOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/preorder/'+id+'/moderator/approve', params).then(response => {
+        api.post('/preorder/'+id+'/approve', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function declineOrder(id, params) {
+    return new Promise((resolve, reject) => {
+        api.post('/preorder/'+id+'/decline', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function revisionOrder(id, params) {
+    return new Promise((resolve, reject) => {
+        api.post('/preorder/'+id+'/revision', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

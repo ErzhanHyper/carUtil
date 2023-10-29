@@ -13,7 +13,7 @@
                                 <q-form class="q-gutter-md">
                                     <q-select :options="options" label="Выберите тип применяемой ЭЦП"
                                               v-model="auth_type"
-                                              option-label="name" option-value="code"/>
+                                              option-label="name" option-value="code" @click="getTokens"/>
                                 </q-form>
                             </q-card-section>
 
@@ -38,19 +38,16 @@ import {NCALayerClient} from "ncalayer-js-client";
 import {mapActions} from "vuex";
 
 export default {
+
     name: 'Login',
     data() {
         return {
             loading: false,
             auth_type: {
-                name: 'Файл',
-                code: 'PKCS12'
+                name: '',
+                code: ''
             },
             options: [
-                {
-                    name: 'Файл',
-                    code: 'PKCS12'
-                }
             ]
         }
     },
@@ -60,6 +57,42 @@ export default {
         ...mapActions({
             signIn: 'auth/signIn',
         }),
+
+
+        async getTokens(){
+            const ncalayerClient = new NCALayerClient();
+            this.options = []
+            try {
+                await ncalayerClient.connect();
+            } catch (error) {
+                this.loading = false
+                alert(`Не удалось подключиться к NCALayer: ${error.toString()}`);
+                return;
+            }
+
+            let activeTokens;
+            try {
+                activeTokens = await ncalayerClient.getActiveTokens();
+                console.log(activeTokens)
+            } catch (error) {
+                console.log(error.toString());
+                this.loading = false
+                return;
+            }
+
+            if(activeTokens[0]){
+                this.options.push({
+                    name: activeTokens[0],
+                    code: activeTokens[0]
+                })
+            }else{
+                this.auth_type = {
+                    name: 'Файл',
+                    code: NCALayerClient.fileStorageType
+                }
+            }
+
+        },
 
         login() {
             this.loading = true
@@ -113,7 +146,7 @@ export default {
 
 
     mounted() {
-
+        this.getTokens()
     }
 }
 

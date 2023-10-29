@@ -10,41 +10,43 @@ use InvalidArgumentException;
 
 class CarService
 {
-    private function setData(array $data, object $car)
+    private function setData($data, object $car)
     {
-        $car->vin = strtoupper($data['vin']);
-        $car->grnz = $data['grnz'];
-        $car->category_id = $data['category_id'];
-        $car->year = $data['year'];
-        $car->m_model = $data['m_model'];
-        $car->body_no = $data['body_no'];
-        $car->chassis_no = $data['chassis_no'];
-        $car->weight = $data['weight'];
+        $car->vin = strtoupper($data->vin);
+        $car->grnz = $data->grnz;
+        $car->category_id = $data->category_id;
+        $car->year = $data->year;
+        $car->m_model = $data->m_model;
+        $car->body_no = $data->body_no;
+        $car->chassis_no = $data->chassis_no;
+        $car->weight = $data->weight;
+        $car->cert_idnum = $data->cert_idnum;
+        $car->cert_title = $data->cert_title;
 
-        if(isset($data['doors_count']) && $data['doors_count'] != ''){
-            $car->doors_count = $data['doors_count'];
+        if(isset($data->doors_count) && $data->doors_count != ''){
+            $car->doors_count = $data->doors_count;
         }else{
             $car->doors_count = 0;
         }
 
-        if(isset($data['wheels_count']) && $data['wheels_count'] != ''){
-            $car->wheels_count = $data['wheels_count'];
+        if(isset($data->wheels_count) && $data->wheels_count != ''){
+            $car->wheels_count = $data->wheels_count;
         }else{
             $car->wheels_count = 0;
         }
 
-        if(isset($data['wheels_protector_count']) && $data['wheels_protector_count'] != ''){
-            $car->wheels_protector_count = $data['wheels_protector_count'];
+        if(isset($data->wheels_protector_count) && $data->wheels_protector_count != ''){
+            $car->wheels_protector_count = $data->wheels_protector_count;
         }else{
             $car->wheels_protector_count = 0;
         }
 
-        if(isset($data['proxy_num'])) {
-            $car->proxy_num = $data['proxy_num'];
+        if(isset($data->proxy_num)) {
+            $car->proxy_num = $data->proxy_num;
         }
 
-        if(isset($data['proxy_date'])) {
-            $car->proxy_date = $data['proxy_date'];
+        if(isset($data->proxy_date)) {
+            $car->proxy_date = $data->proxy_date;
         }
 
         $car->save();
@@ -52,7 +54,7 @@ class CarService
 
     public function validateData($request){
 
-        $validator = Validator::make($request, [
+        $validator = Validator::make($request->all(), [
             'vin' => 'required',
             'grnz' => 'required',
             'category_id' => 'required',

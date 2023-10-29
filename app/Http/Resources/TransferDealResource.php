@@ -2,11 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Client;
 use App\Models\Liner;
 use App\Models\TransferOrder;
-use App\Services\AuthenticationService;
+use App\Services\AuthService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransferDealResource extends JsonResource
@@ -19,12 +19,13 @@ class TransferDealResource extends JsonResource
     public function toArray($request): array
     {
 
-        $user = app(AuthenticationService::class)->auth();
+        $user = app(AuthService::class)->auth();
 
         $liner = Liner::find($this->liner_id);
 
         $showAccept = true;
         $signed = false;
+        $client = Client::where('idnum', $user->idnum)->first();
 
         $transferOrder = TransferOrder::where('id', $this->transfer_order_id)->where('transfer_deal_id', $this->id)->first();
         if ($transferOrder) {
@@ -52,7 +53,8 @@ class TransferDealResource extends JsonResource
             'date' => Carbon::parse($this->date)->format('Y-m-d H:i'),
             'transfer_order' => $transferOrder,
             'showAccept' => $showAccept,
-            'signed' => $signed
+            'signed' => $signed,
+            'client' => $client
         ];
     }
 }

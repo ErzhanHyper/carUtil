@@ -1,0 +1,26 @@
+version: '3'
+
+### Services
+services:
+  ### Web Server Container
+  cms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: cms
+    restart: always
+    tty: true
+    working_dir: /var/www
+    ports:
+       - "5500:80"
+    volumes:
+      - ./:/var/www
+      - ./docker_files/php-fpm/php.ini:/etc/php/8.0/fpm/php.ini
+    networks:
+      - cms-network
+
+# Networks
+networks:
+    cms-network:
+      driver: bridge

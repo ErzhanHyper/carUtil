@@ -1,8 +1,8 @@
 import api from "../api";
 
-export function getStatementDoc(params) {
+export function getStatementDoc(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/document/order/statement', params).then(response => {
+        api.get('/document/order/'+id+'/statement', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

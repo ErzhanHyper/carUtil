@@ -11,4 +11,10 @@ class Certificate extends Model
     protected $table = 'certificate';
     public $timestamps = false;
 
+
+    public function car()
+    {
+        return $this->belongsTo(Car::class, 'car_id', 'id');
+    }
+
 }

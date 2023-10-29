@@ -16,35 +16,44 @@ class CertificateResource extends JsonResource
     public function toArray($request): array
     {
 
-        $cert_title = '';
-        $cert_idnum = '';
-        $cert_date = '';
+        $new_date = 1705514400 - $this->date;
+        if ($this->date >= 1610992800 && $this->date <= 1642442400) {
+            $dateTill = date('d.m.Y', $this->date + $new_date);
+        } else {
+            $dateTill = date('d.m.Y', strtotime('+1 year', $this->date)); // date + 1 year
+        }
 
-        if($this->idnum_4){
-            $cert_title = $this->title_4;
-            $cert_idnum = $this->idnum_4;
-            $cert_date = $this->date_4;
-        } else if($this->idnum_3){
-            $cert_title = $this->title_3;
-            $cert_idnum = $this->idnum_3;
-            $cert_date = $this->date_3;
-        } else if($this->idnum_2){
-            $cert_title = $this->title_2;
-            $cert_idnum = $this->idnum_2;
-            $cert_date = $this->date_2;
-        } else if($this->idnum_1){
-            $cert_title = $this->title_1;
-            $cert_idnum = $this->idnum_1;
-            $cert_date = $this->date_1;
+        $car_cat = 0;
+        $car_type = 0;
+        $sum = 0;
+        $dateNotOvered = 0;
+        $car = $this->car;
+        if($car){
+            $car_cat = $car->category->title;
+            $car_type = $car->car_type_id;
+            $sum = in_array($car->category_id, ['tractor','combain']) ? $this->__cat_agro_sum($car_cat, $car_type) : $this->__cat_sum($car_cat);
+            $dateNotOvered = strtotime($dateTill) > time();
+        }
+
+        $status = '-';
+        if($this->blocked){
+            if($this->closed){
+                $status = 'Заблокирован и погашен';
+            }else{
+                $status = 'Заблокирован';
+            }
+        }else{
+            if($dateNotOvered){
+                $status = 'Активный';
+            }else{
+                $status = 'Срок действия истек';
+            }
         }
 
         return [
+            'dateTill' => $dateTill,
             'id' => $this->id,
             'car_id' => $this->car_id,
-
-            'cert_idnum' => $cert_idnum,
-            'cert_title' => $cert_title,
-            'cert_date' => $cert_date,
 
             'title_1' => $this->title_1,
             'idnum_1' => $this->idnum_1,
@@ -63,10 +72,60 @@ class CertificateResource extends JsonResource
             'date_4' => $this->date_4,
 
             'blocked' => $this->blocked,
-            'status' => $this->blocked ? 'Погашен' : 'Не погашен',
+            'status' => $status,
             'closed' => $this->closed,
 
-            'date' => Carbon::parse($this->date)->format('Y-m-d')
+            'sum' => $sum,
+            'date' => date('d.m.Y', $this->date)
         ];
     }
+
+    public function __cat_agro_sum($cat, $car_type_id) {
+        $sum = 0;
+
+        if($cat == "tractor") {
+            if ($car_type_id == 1){
+                $sum = 1000000;
+            } elseif ($car_type_id == 2) {
+                $sum = 560000;
+            }
+        } elseif($cat == "combain"){
+            if ($car_type_id == 1){
+                $sum = 2000000;
+            } elseif ($car_type_id == 2) {
+                $sum = 1500000;
+            }
+        }
+
+        return $sum;
+    }
+
+
+    public function __cat_sum($cat, $day = 0) {
+        if($day != 0 && $day < 1549854000) {
+            // старые цены
+            if($cat == "M1") {
+                return 315000;
+            }
+            if($cat == "M2" || $cat == "N1" || $cat == "N2") {
+                return 450000;
+            }
+            if($cat == "N3" || $cat == "M3") {
+                return 650000;
+            }
+        } else {
+            // цены после 11.02.2019
+            if($cat == "M1") {
+                return 315000;
+            }
+            if($cat == "M2" || $cat == "N1" || $cat == "N2") {
+                return 550000;
+            }
+            if($cat == "N3" || $cat == "M3") {
+                return 750000;
+            }
+        }
+    }
+
+
 }

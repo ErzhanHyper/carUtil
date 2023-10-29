@@ -5,16 +5,18 @@
         </q-card-section>
         <q-card-section>
             <div class="q-gutter-sm">
-                <q-btn :loading="loading1" square size="md"
+                <q-btn :loading="loading1" square size="12px"
                        unelevated color="indigo-1"
                        class="text-indigo-10"
+                       flat
+                       dense
                        label="Сформировать заявление на ТС"
                        icon-right="edit_note"
                         @click="statementDoc"
                 />
-                <q-btn :loading="loading2" square size="md" unelevated color="indigo-1" class="text-indigo-10" label="Сформировать акт комплектности"
+                <q-btn :loading="loading2" square size="12px" dense unelevated color="indigo-1" class="text-indigo-10" flat label="Сформировать акт комплектности"
                        icon-right="edit_note"></q-btn>
-                <q-btn :loading="loading3" square size="md" unelevated color="indigo-1" class="text-indigo-10" label="Сформировать акт приема-передачи"
+                <q-btn :loading="loading3" square size="12px" unelevated color="indigo-1" class="text-indigo-10" flat dense label="Сформировать акт приема-передачи"
                        icon-right="edit_note"></q-btn>
             </div>
         </q-card-section>
@@ -23,6 +25,8 @@
 
 <script>
 import {getStatementDoc} from "../../services/document";
+import {generateOrderPFS} from "../../services/file";
+import FileDownload from "js-file-download";
 
 export default {
 
@@ -39,8 +43,8 @@ export default {
     methods: {
         statementDoc(){
             this.loading1 = true
-            getStatementDoc({order_id: this.order_id}).then(res => {
-                console.log(res)
+            getStatementDoc({order_id: this.order_id}, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'statement.pdf')
             }).finally(() => {
                 this.loading1 = false
             })

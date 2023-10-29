@@ -11,6 +11,17 @@ export function getFileTypeList(params) {
     })
 }
 
+export function getFileTypeAgroList(params) {
+    return new Promise((resolve, reject) => {
+        api.get('/fileTypeAgro', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function getPreOrderFileList(params) {
     return new Promise((resolve, reject) => {
         api.post('/file/preorder/get', params).then(response => {

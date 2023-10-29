@@ -8,7 +8,7 @@ use App\Http\Resources\PreOrderResource;
 use App\Models\Car;
 use App\Models\Client;
 use App\Models\PreOrderCar;
-use App\Services\AuthenticationService;
+use App\Services\AuthService;
 use App\Services\BookingOrder\BookingOrderService;
 use App\Services\Car\CarService;
 use App\Services\Client\ClientService;
@@ -20,7 +20,7 @@ class PreOrderService
 
     public function getCollection()
     {
-        $user = app(AuthenticationService::class)->auth();
+        $user = app(AuthService::class)->auth();
 
         $orders = PreOrderCar::with(['car', 'client']);
         if ($user) {
@@ -51,7 +51,25 @@ class PreOrderService
             $client = Client::where('idnum', $request->client['idnum'])->first();
             $car = Car::where('vin', $request->car['vin'])->first();
 
-            $car_find = Car::where('vin', $request->car['vin'])->where('order_id', '<>', '')->first();
+            $car_request = new Request([
+                'vin' => $request->car['vin'],
+                'grnz' => $request->car['grnz'],
+                'category_id' => $request->car['category_id'],
+                'year' => $request->car['year'],
+                'm_model' => $request->car['m_model'],
+                'body_no' => $request->car['body_no'],
+                'chassis_no' => $request->car['chassis_no'],
+                'weight' => $request->car['weight'],
+                'doors_count' => $request->car['doors_count'] ?? '',
+                'wheels_count' => $request->car['wheels_count'] ?? '',
+                'wheels_protector_count' => $request->car['wheels_protector_count'] ?? '',
+                'proxy_num' => $request->car['proxy_num'] ?? '',
+                'proxy_date' => $request->car['proxy_date'] ?? '',
+                'cert_idnum' => $request->client['idnum'],
+                'cert_title' => $request->client['title'],
+            ]);
+
+            $car_find = Car::where('vin', $request->car['vin'])->first();
             if ($car && $car_find) {
                 if ($car->vin === $car_find->vin) {
                     throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
@@ -64,27 +82,16 @@ class PreOrderService
             }
 
             if ($car) {
-                $car = app(CarService::class)->update($request->car, $car->id);
+                $car = app(CarService::class)->update($car_request, $car->id);
             } else {
-                $car = app(CarService::class)->create($request->car);
+                $car = app(CarService::class)->create($car_request);
             }
 
-
-            if ($request->booking['factory_id'] && $car && $client) {
-                $booking = app(BookingOrderService::class)->store(new Request([
-                    'preorder_id' => $preorder->id,
-                    'datetime' => $request->booking['datetime'],
-                    'factory_id' => $request->booking['factory_id'],
-                ]));
-
+            if ($car && $client) {
                 $preorder->client_id = $client->id;
                 $preorder->car_id = $car->id;
-                $preorder->booking_id = $booking->id;
-                $preorder->factory_id = $request->booking['factory_id'];
                 $preorder->status = 1;
                 $preorder->save();
-            } else {
-                throw new InvalidArgumentException(json_encode(['factory' => ['Выберите завод из списка']]));
             }
         }
 
@@ -93,36 +100,26 @@ class PreOrderService
 
     public function store($query)
     {
-        $liner = app(AuthenticationService::class)->auth();
-
+        $liner = app(AuthService::class)->auth();
         $client = Client::where('idnum', $liner->idnum)->first();
 
-        $response = [
-            'status' => 401
-        ];
+        $recycleType = intval($query->recycle_type);
 
-        if ($query->recycle_type) {
+        if ($recycleType) {
             $preorder = new PreOrderCar;
             $preorder->status = 0;
+            $preorder->date = time();
             $preorder->liner_id = $liner->id;
+            $preorder->recycle_type = $recycleType;
 
             if ($client) {
                 $preorder->client_id = $client->id;
             }
-            $preorder->date = time();
-            $preorder->recycle_type = $query->recycle_type;
 
-            if ($preorder->save()) {
-                $response = [
-                    'status' => 200,
-                    'data' => $preorder
-                ];
-            }
+            $preorder->save();
+
+            return $preorder;
         }
-
-
-        return $response;
-
     }
 
     public function status($status_value)
@@ -148,12 +145,11 @@ class PreOrderService
         }
     }
 
-
     public function booking($request, $id)
     {
         $preorder = PreOrderCar::find($id);
 
-        if($request->datetime && $request->factory_id) {
+        if ($request->datetime && $request->factory_id) {
             $booking = app(BookingOrderService::class)->store(new Request([
                 'preorder_id' => $preorder->id,
                 'datetime' => $request->datetime,

@@ -9,7 +9,7 @@ use App\Models\FileType;
 use App\Models\Order;
 use App\Models\PreOrderCar;
 use App\Models\Region;
-use App\Services\AuthenticationService;
+use App\Services\AuthService;
 use App\Services\KapService;
 use App\Services\PreOrder\ModeratorPreOrderService;
 use App\Services\PreOrder\PreOrderService;
@@ -33,14 +33,17 @@ class PreOrderController extends Controller
 
     public function store(Request $request)
     {
-        $data = app(PreOrderService::class)->store($request);
-        return response()->json($data);
-    }
+        try {
+            $data = app(PreOrderService::class)->store($request);
+            $result = ['status' => 200, 'data' => $data];
+        } catch (Exception $e) {
+            $result = [
+                'status' => 500,
+                'error' => $e->getMessage()
+            ];
+        }
 
-    public function moderatorApprove(Request $request, $id)
-    {
-        $data = app(ModeratorPreOrderService::class)->approve($request, $id);
-        return response()->json($data);
+        return response()->json($result, $result['status']);
     }
 
     public function send(Request $request, $id)
@@ -73,11 +76,29 @@ class PreOrderController extends Controller
     }
 
 
+    public function approve(Request $request, $id)
+    {
+        $data = app(ModeratorPreOrderService::class)->approve($request, $id);
+        return response()->json($data);
+    }
+
+    public function decline(Request $request, $id)
+    {
+        $data = app(ModeratorPreOrderService::class)->decline($request, $id);
+        return response()->json($data);
+    }
+
+    public function revision(Request $request, $id)
+    {
+        $data = app(ModeratorPreOrderService::class)->revision($request, $id);
+        return response()->json($data);
+    }
+
     public function searchFromKap(Request $request){
 
         $data = ['status', 'failed'];
 
-        $user = app(AuthenticationService::class)->auth();
+        $user = app(AuthService::class)->auth();
 
         $preorder_id = $request->preorder_id;
         $preorder = PreOrderCar::find($preorder_id);
@@ -95,6 +116,5 @@ class PreOrderController extends Controller
         $data = app(PreOrderService::class)->booking($request, $id);
         return response()->json($data);
     }
-
 
 }

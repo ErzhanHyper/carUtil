@@ -21,4 +21,9 @@ class Client extends Model
     {
         return $this->belongsTo(ClientType::class, 'client_type_id', 'id');
     }
+
+    public function ud_issued()
+    {
+        return $this->belongsTo(UdIssued::class, 'ud_issued_id', 'id');
+    }
 }

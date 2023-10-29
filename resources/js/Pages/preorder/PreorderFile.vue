@@ -38,7 +38,8 @@
                      v-for="(doc, i) in filesDoc"
                      :key="i">
                     <q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon>
-                    <a :href="'/storage/uploads/preorder/files/' + doc.preorder_id + '/' + doc.original_name" class="text-dark">
+                    <a :href="'/storage/uploads/preorder/files/' + doc.preorder_id + '/' + doc.original_name"
+                       class="text-dark">
                         {{ getFileTypeTitle(doc.file_type_id) }}
                     </a>
                     <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
@@ -47,22 +48,28 @@
                     </q-icon>
                 </div>
 
-                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10" v-if="item.video"  v-for="(video, i) in item.video"
+                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
+                     v-if="item.video" v-for="(video, i) in item.video"
                      :key="i">
                     <q-icon name="videocam" class="q-mr-sm" size="sm"></q-icon>
-                    <a :href="'/storage/uploads/order/files/' + item.order_id + '/' + video.original_name" class="text-dark">
+                    <a :href="'/storage/uploads/order/files/' + item.order_id + '/' + video.original_name"
+                       class="text-dark">
                         {{ getFileTypeTitle(29) }}
                     </a>
                     <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
                             color="negative"
-                             @click="deleteVideoFile({type: 'doc', id: video.id })" v-if="!blockedVideo">
+                            @click="deleteVideoFile({type: 'doc', id: video.id })" v-if="!blockedVideo">
                     </q-icon>
                 </div>
 
-                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10" v-if="item.order && item.order.transfer && item.order.transfer.closed === 2">
-                    <q-btn flat dense :loading="loading"><q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon></q-btn>
+                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
+                     v-if="item.order && item.order.transfer && item.order.transfer.closed === 2">
+                    <q-btn flat dense :loading="loading">
+                        <q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon>
+                    </q-btn>
                     <a href="#" class="text-dark" @click="generatePFS">
-                        Договор купли-продажи вышедшего из эксплуатации транспортного средства/самоходной сельскохозяйственной техники
+                        Договор купли-продажи вышедшего из эксплуатации транспортного средства/самоходной
+                        сельскохозяйственной техники
                     </a>
                 </div>
 
@@ -78,7 +85,8 @@
             >
                 <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" v-for="(slide, i) in filesPhoto"
                                   :key="i">
-                    <q-img :src="'/storage/uploads/preorder/files/' + slide.preorder_id + '/' + slide.original_name" class="full-height"/>
+                    <q-img :src="'/storage/uploads/preorder/files/' + slide.preorder_id + '/' + slide.original_name"
+                           class="full-height"/>
                     <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
                     <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
                            style="position:absolute;right:7px;top:7px" v-if="!blocked"
@@ -104,6 +112,7 @@ import {
     deleteOrderFile,
     deletePreOrderFile, generateOrderPFS,
     getFileTypeList,
+    getFileTypeAgroList,
     getPreOrderFileList,
     storePreOrderFile
 } from "../../services/file";
@@ -111,7 +120,7 @@ import FileDownload from "js-file-download";
 
 export default {
 
-    props: ['data', 'blocked', 'onlyPhoto', 'blockedVideo'],
+    props: ['data', 'blocked', 'onlyPhoto', 'blockedVideo', 'recycleType'],
 
     setup() {
         return {
@@ -145,31 +154,59 @@ export default {
             this.filesAll = []
             this.filesDoc = []
             this.filesPhoto = []
+            this.filesOptions = []
             getPreOrderFileList({
                 preorder_id: this.data.preorder_id
             }).then(res => {
-                res.map(el => {
-                    if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
-                        this.filesPhoto.push(el)
-                    } else {
-                        this.filesDoc.push(el)
-                    }
-                })
+                if (this.recycleType === 1) {
+                    res.map(el => {
+                        if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
+                            this.filesPhoto.push(el)
+                        } else {
+                            this.filesDoc.push(el)
+                        }
+                    })
+                } else {
+                    res.map(el => {
+                        if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11) {
+                            this.filesPhoto.push(el)
+                        } else {
+                            console.log(el)
+                            this.filesDoc.push(el)
+                        }
+                    })
+                }
             });
 
-            getFileTypeList().then(res => {
-                res.forEach(el => {
-                    this.filesAll.push(el)
-                    if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
-                        this.options_photo.push(el)
-                        this.filesOptions.push(el)
-                    }
-                    if (el.id === 1 || el.id === 2 || el.id === 5 || el.id === 28) {
-                        this.options_file.push(el)
-                        this.filesOptions.push(el)
-                    }
+            if (this.recycleType === 1) {
+                getFileTypeList().then(res => {
+                    res.forEach(el => {
+                        this.filesAll.push(el)
+                        if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
+                            this.options_photo.push(el)
+                            this.filesOptions.push(el)
+                        }
+                        if (el.id === 1 || el.id === 2 || el.id === 5 || el.id === 28) {
+                            this.options_file.push(el)
+                            this.filesOptions.push(el)
+                        }
+                    })
                 })
-            })
+            } else {
+                getFileTypeAgroList().then(res => {
+                    res.forEach(el => {
+                        this.filesAll.push(el)
+                        if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
+                            this.options_photo.push(el)
+                            this.filesOptions.push(el)
+                        }
+                        if (el.id === 1 || el.id === 2 || el.id === 3) {
+                            this.options_file.push(el)
+                            this.filesOptions.push(el)
+                        }
+                    })
+                })
+            }
         },
 
         getFileTypeTitle(id) {
@@ -210,7 +247,7 @@ export default {
             });
         },
 
-        deleteVideoFile(value){
+        deleteVideoFile(value) {
             deleteOrderFile({
                 order_id: this.data.order_id,
                 file_id: value.id
@@ -240,7 +277,7 @@ export default {
 
         },
 
-        generatePFS(){
+        generatePFS() {
             this.loading = true
             console.log(this.data)
             generateOrderPFS(this.data.order_id, {responseType: 'arraybuffer'}).then(res => {

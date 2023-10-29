@@ -33,17 +33,6 @@ export function signOrder(params) {
     })
 }
 
-export function approveOrder(params) {
-    return new Promise((resolve, reject) => {
-        api.post('/order/approve', params).then(response => {
-            resolve(response.data)
-        }).catch((e) => {
-            reject('Ошибка при загрузке')
-        }).finally(() => {
-        })
-    })
-}
-
 export function storeCertOrder(params) {
     return new Promise((resolve, reject) => {
         api.post('/order/cert', params).then(response => {
@@ -55,3 +44,36 @@ export function storeCertOrder(params) {
     })
 }
 
+
+export function approveOrder(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/order/approve', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function declineOrder(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/order/decline', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function revisionOrder(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/order/revision', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

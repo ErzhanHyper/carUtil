@@ -18,7 +18,7 @@ class BookingOrderResource extends JsonResource
         return [
             'id' => $this->id,
             'datetime' => $this->datetime,
-            'datetime_string' => Carbon::parse($this->datetime)->format('Y-m-d H:i'),
+            'datetime_string' => date('Y-m-d H:i', $this->datetime),
             'factory_id' => $this->factory_id,
             'reserve' => $this->reserve
         ];

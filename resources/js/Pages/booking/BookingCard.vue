@@ -6,7 +6,7 @@
 
         <q-card-section>
             <div class="row q-col-gutter-md">
-                <div class="col col-lg-3 col-md-4 col-xs-12">
+                <div class="col col-md-12 col-xs-12">
 
                     <q-select
                         square
@@ -22,8 +22,9 @@
                         options-selected-class="text-deep-orange"
                         outlined
                         dense
-                        class="q-mb-md"
+                        class="q-mb-xs"
                         :readonly="blocked"
+                        :loading="loading"
                     >
                         <template v-slot:option="scope">
                             <q-item v-bind="scope.itemProps">
@@ -39,12 +40,12 @@
                     </q-select>
                 </div>
 
-                <div class="col col-lg-2 col-md-4 col-xs-12">
-                    <q-input outlined square dense v-model="item.datetime" v-if="item.factory_id" :readonly="blocked">
+                <div class="col col-md-12 col-xs-12">
+                    <q-input outlined square dense v-model="item.datetime" v-if="item.factory_id" :readonly="blocked" hint="Дата и время">
                         <template v-slot:prepend>
                             <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked">
+                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked" >
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Закрыть" color="primary" flat/>
                                         </div>
@@ -74,8 +75,9 @@
                     </q-input>
                 </div>
 
-                <div class="col col-lg-2 col-md-4 col-xs-12" v-if="!blocked && item.factory_id">
-                    <q-btn label="Забронировать" color="indigo-8" push @click="bookingOrder"/>
+                <div class="col col-md-12 col-xs-12" v-if="!blocked && item.factory_id && item.datetime">
+                    <q-btn label="Забронировать" color="indigo-8" push @click="bookingOrder" :loading="loading" :disabled="disabled"/>
+                    <q-btn round flat icon="close" color="negative" class="q-ml-xs" @click="disabled=false" v-if="disabled"/>
                 </div>
 
 
@@ -100,15 +102,20 @@ export default {
             factories: [],
             dates: [],
 
+            loading: false,
+
             hourOptionsTime: [9, 10, 11, 12, 14, 15, 16, 17, 18],
             minuteOptionsTime: [0],
+
+            disabled: true,
 
         }
     },
 
     methods: {
         getFactory() {
-            getFactoryList().then(res => this.factories = res)
+            this.loading = true
+            getFactoryList().then(res => this.factories = res).finally(() => this.loading = false)
         },
 
         getDateTime() {
@@ -120,7 +127,10 @@ export default {
         },
 
         bookingOrder(){
+            this.loading = true
             bookingOrder(this.item.preorder_id, this.item).then(res => {
+                this.disabled = true
+
                 Notify.create({
                     message: 'Дата и время забронирована',
                     position: 'bottom-right',
@@ -136,6 +146,9 @@ export default {
                     position: 'bottom-right',
                     type: 'warning'
                 })
+
+            }).finally(() => {
+                this.loading = false
             })
         }
     },
@@ -151,6 +164,10 @@ export default {
         if (this.data) {
             this.item = this.data
             this.item.datetime = this.item.datetime_string
+
+            if(!this.data.datetime || !this.data.factory_id){
+                this.disabled = false
+            }
         }
 
         this.getFactory()

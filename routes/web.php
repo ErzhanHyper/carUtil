@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\AuthenticationService;
+use App\Services\AuthService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +25,7 @@ Route::prefix('app')->group(function () {
         Route::post('logout', [\App\Http\Controllers\AuthController::class, 'logout']);
 
         Route::post('user', [\App\Http\Controllers\AuthController::class, 'get']);
+        Route::post('validUser', [\App\Http\Controllers\AuthController::class, 'validUser']);
 
         Route::prefix('preorder')->group(function () {
             Route::get('/', [\App\Http\Controllers\PreOrderController::class, 'get'])->name('preorder');
@@ -33,22 +34,33 @@ Route::prefix('app')->group(function () {
 
             Route::get('{id}/get', [\App\Http\Controllers\PreOrderController::class, 'getById']);
             Route::post('{id}/send', [\App\Http\Controllers\PreOrderController::class, 'send']);
-            Route::post('{id}/moderator/approve', [\App\Http\Controllers\PreOrderController::class, 'moderatorApprove']);
             Route::post('{id}/booking', [\App\Http\Controllers\PreOrderController::class, 'booking']);
+
             Route::post('checkVehicle', [\App\Http\Controllers\PreOrderController::class, 'searchFromKap']);
+
+            Route::middleware(['isModerator'])->group(function () {
+                Route::post('{id}/approve', [\App\Http\Controllers\PreOrderController::class, 'approve']);
+                Route::post('{id}/decline', [\App\Http\Controllers\PreOrderController::class, 'decline']);
+                Route::post('{id}/revision', [\App\Http\Controllers\PreOrderController::class, 'revision']);
+            });
         });
 
         Route::prefix('order')->group(function () {
             Route::get('/', [\App\Http\Controllers\OrderController::class, 'get'])->name('order');
             Route::get('{id}/get', [\App\Http\Controllers\OrderController::class, 'getById']);
             Route::post('/sign', [\App\Http\Controllers\OrderController::class, 'sign']);
-            Route::post('/approve', [\App\Http\Controllers\OrderController::class, 'approve']);
-            Route::post('/cert', [\App\Http\Controllers\OrderController::class, 'cert']);
-            Route::post('/generateCert', [\App\Http\Controllers\OrderController::class, 'generateCert']);
+
+            Route::middleware(['isModerator'])->group(function () {
+                Route::post('/cert', [\App\Http\Controllers\OrderController::class, 'cert']);
+                Route::post('/approve', [\App\Http\Controllers\OrderController::class, 'approve']);
+                Route::post('/decline', [\App\Http\Controllers\OrderController::class, 'decline']);
+                Route::post('/revision', [\App\Http\Controllers\OrderController::class, 'revision']);
+            });
         });
 
         Route::prefix('certificate')->group(function () {
             Route::get('/', [\App\Http\Controllers\CertificateController::class, 'get'])->name('certificate');
+            Route::get('{id}/get', [\App\Http\Controllers\CertificateController::class, 'generate']);
         });
 
         Route::prefix('transfer')->group(function () {
@@ -79,12 +91,14 @@ Route::prefix('app')->group(function () {
         });
 
         Route::prefix('document')->group(function () {
-            Route::post('/order/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
+            Route::get('/order/{id}/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
+
         });
 
         Route::get('region', [\App\Http\Controllers\RegionController::class, 'get'])->name('region');
 
         Route::get('fileType', [\App\Http\Controllers\FileTypeController::class, 'get']);
+        Route::get('fileTypeAgro', [\App\Http\Controllers\FileTypeController::class, 'getAgro']);
 
         Route::get('factory', [\App\Http\Controllers\FactoryController::class, 'get']);
 

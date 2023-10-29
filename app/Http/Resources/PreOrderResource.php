@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Category;
 use App\Models\File;
 use App\Models\TransferOrder;
+use App\Services\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,11 +18,14 @@ class PreOrderResource extends JsonResource
      */
     public function toArray($request): array
     {
+
+        $user = app(AuthService::class)->auth();
+
         $categories = [];
 
         $status = match ($this->status) {
             0 => 'Формирование заявки',
-            1 => 'На рассмотрении у модератора',
+            1 => 'На рассмотрении',
             2 => 'Одобрена',
             3 => 'Отклонена',
             4 => 'Возвращена на доработку',
@@ -50,6 +54,26 @@ class PreOrderResource extends JsonResource
             }
         }
 
+        $blocked = true;
+        $blockedBooking = false;
+        if($user && $user->role === 'liner'){
+            if($this->status === 0 || $this->status === 4){
+                $blocked = false;
+                $blockedBooking = true;
+            }else if($this->status === 1 || $this->status === 3){
+                $blocked = true;
+                $blockedBooking = true;
+            }else{
+                if($this->order && $this->order->status !== 0){
+                    $blocked = true;
+                    $blockedBooking = true;
+                }
+            }
+        }else{
+            $blockedBooking = true;
+            $blocked = true;
+        }
+
         return [
             'id' => $this->id,
             'status' => [
@@ -68,14 +92,15 @@ class PreOrderResource extends JsonResource
             'booking' => new BookingOrderResource($this->booking),
             'recycle_type' => $this->recycle_type,
             'date' => Carbon::parse($this->date)->format('Y-m-d H:i'),
-            'car_file' => $this->car_file,
-            'agro_file' => $this->agro_file,
+            'files' => $this->recycle_type === 1 ? $this->car_file : $this->agro_file,
             'categories' => $categories,
             'comment' => CommentResource::collection($this->comment),
             'transferShow' => $transferShow,
             'transfer' => $transfer,
             'video' => $video,
-            'blockedVideo' => $this->order && $this->order['status'] === 3
+            'blockedVideo' => $this->order && $this->order['status'] === 3,
+            'blocked' => $blocked,
+            'blockedBooking' => $blockedBooking
         ];
     }
 }

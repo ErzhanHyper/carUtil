@@ -1,4 +1,6 @@
 <template>
+
+    <div v-show="show">
     <template v-if="items.length > 0">
         <q-markup-table flat bordered dense>
             <thead>
@@ -33,6 +35,16 @@
         </q-markup-table>
     </template>
     <template v-else>Пусто</template>
+    </div>
+
+    <q-circular-progress
+        indeterminate
+        rounded
+        size="30px"
+        color="primary"
+        class="q-ma-md"
+        v-show="!show"
+    />
 </template>
 
 <script>
@@ -43,6 +55,7 @@ export default {
     data() {
         return {
             items: [],
+            show: false,
         }
     },
 
@@ -50,6 +63,7 @@ export default {
         getData() {
             getTransferCurrentList().then((res) => {
                 this.items = res
+                this.show = true
             })
         },
     },

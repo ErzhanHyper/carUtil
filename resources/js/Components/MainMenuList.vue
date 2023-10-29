@@ -11,7 +11,6 @@
         <template v-for="(item, i) in items" :key="i" v-if="items.length > 0">
 
             <q-expansion-item
-                default-opened
                 expand-separator
                 icon="mail"
                 :label="item.name"

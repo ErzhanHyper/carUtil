@@ -9,6 +9,15 @@
                     <div class="row">
                         <q-card square bordered class="q-pa-sm shadow-1"
                                 style="max-width: 480px;width: calc(100vw - 40px)">
+
+                            <q-banner dense inline-actions class="text-white bg-negative" v-if="showBanner">
+                                    <span v-for="(error, i) in errors" :key="i">
+                                        <span v-for="(item, index) in error" :key="index">
+                                            {{ item }}
+                                            <br>
+                                        </span>
+                                    </span>
+                            </q-banner>
                             <q-card-section id="desktopAuth">
 
                                 <q-form class="q-gutter-md flex justify-between no-wrap">
@@ -22,14 +31,7 @@
                             </q-card-section>
 
                             <q-card-section id="mobileAuth">
-                                <q-banner dense inline-actions class="text-white bg-negative" v-if="showBanner">
-                                    <span v-for="(error, i) in errors" :key="i">
-                                        <span v-for="(item, index) in error" :key="index">
-                                            {{ item }}
-                                            <br>
-                                        </span>
-                                    </span>
-                                </q-banner>
+
                                 <q-form class="q-gutter-md  q-mt-md">
                                     <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum"  />
                                     <q-input label="Пароль" outlined dense type="password" v-model="password" autocomplete="on"
@@ -86,6 +88,8 @@ export default {
 
         login() {
             this.loading = true
+            this.showBanner = false
+            this.errors = []
             this.connectAndSign()
         },
 
@@ -126,6 +130,9 @@ export default {
                     name: 'preorder'
                 })
             }).catch(reject => {
+                console.log(reject)
+                this.errors = JSON.parse(reject.response.data.error)
+                this.showBanner = true
             }).finally(() => {
                 this.loading = false
             })
@@ -146,7 +153,7 @@ export default {
                     name: 'preorder'
                 })
             }).catch(reject => {
-                this.errors = JSON.parse(err.response.data.error)
+                this.errors = JSON.parse(reject.response.data.error)
                 this.showBanner = true
             }).finally(() => {
                 this.loading = false

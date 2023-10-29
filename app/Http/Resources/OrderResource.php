@@ -7,7 +7,7 @@ use App\Models\CarFile;
 use App\Models\Category;
 use App\Models\File;
 use App\Models\PreOrderCar;
-use App\Services\AuthenticationService;
+use App\Services\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,7 +21,7 @@ class OrderResource extends JsonResource
      */
     public function toArray($request): array
     {
-       $user = app(AuthenticationService::class)->auth();
+       $user = app(AuthService::class)->auth();
 
         $approve = match ($this->approve) {
             0 => 'Новая заявка',
@@ -68,7 +68,7 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'car' => new CarResource($this->car),
-            'client' => $this->client,
+            'client' => new ClientResource($this->client),
             'created' => Carbon::parse($this->created)->format('Y-m-d H:i'),
             'user_id' => $this->user_id,
             'status' => [
@@ -92,7 +92,8 @@ class OrderResource extends JsonResource
             'recycle_type' => $recycle_type,
             'categories' => $categories,
             'transfer' => $this->transfer,
-            'videoUploaded' => $video
+            'videoUploaded' => $video,
+            'history' => $this->history
         ];
     }
 }

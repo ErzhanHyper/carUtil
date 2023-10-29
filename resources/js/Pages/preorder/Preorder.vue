@@ -5,80 +5,99 @@
 
         <div class="flex justify-between" v-if="user && user.role === 'liner'">
             <!--            <q-btn color="purple-10" unelevated icon="tune" class="q-ml-md"/>-->
-            <q-btn color="indigo-8" push icon="add" label="Создать заявку"  class="q-ml-md text-weight-bold"
+            <q-btn color="indigo-8" push icon="add" label="Создать заявку" class="q-ml-md text-weight-bold"
                    @click="orderDialog = true"/>
         </div>
     </div>
 
-    <template v-if="items.length > 0">
-        <q-markup-table flat bordered dense>
-            <thead>
-            <tr>
-                <th class="text-left">Категория</th>
-                <th class="text-left">VIN</th>
-                <th class="text-left">ФИО/Наименование</th>
-                <th class="text-left">ИИН/БИН</th>
-                <th class="text-left">Дата создания</th>
-                <th class="text-left">Статус</th>
-                <th class="text-left"></th>
-                <th class="text-left"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(item, i) in items" :key="i">
-                <td class="text-left">
-                    <q-chip dark :color="(item.recycle_type === 1) ? 'teal-8' : 'orange-9'" size="12px">
-                        {{ (item.car) ? (item.car.category ? item.car.category.title_ru+' | ' : '') : '' }} {{ (item.recycle_type) ? ((item.recycle_type === 1) ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
-                    </q-chip>
-                </td>
-                <td class="text-left">{{ (item.car) ? item.car.vin : '-' }}</td>
-                <td class="text-left">
-                    <template v-if="item.client">
-                        <span class="text-body2">{{ item.client.title }}</span>
-                    </template>
-                    <template v-else>-</template>
-                </td>
-                <td class="text-left">
-                    <template v-if="item.client">
-                        <span class="text-body2">{{ item.client.idnum }}</span>
-                    </template>
-                    <template v-else>-</template>
-                </td>
-                <td class="text-left"> {{ (item.date) ? item.date : '-' }} </td>
-                <td class="text-left">
-                    <q-chip dark :color="setStatusColor(item.status.id)"
-                            class="text-overline">
-                        {{ item.status.title }}
-                    </q-chip>
 
-                    <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-ml-md">
-                        Выставлена на продажу
-                    </q-badge>
+    <div v-if="show">
+        <template v-if="items.length > 0">
+            <q-markup-table flat bordered dense>
+                <thead>
+                <tr>
+                    <th class="text-left">VIN</th>
+                    <th class="text-left">ГРНЗ</th>
+                    <th class="text-left">Категория</th>
+                    <th class="text-left">ФИО/Наименование</th>
+                    <th class="text-left">ИИН/БИН</th>
+                    <th class="text-left">Дата создания</th>
+                    <th class="text-left">Статус</th>
+                    <th class="text-left"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(item, i) in items" :key="i">
+                    <td class="text-left">
+                        <router-link :to="'/preorder/'+item.id">
+                            <q-btn icon="open_in_new" size="sm" round flat color="primary" style="margin-bottom: 2px"/>
+                            <span class="text-primary">{{ (item.car) ? item.car.vin : '-' }}</span>
+                        </router-link>
+                    </td>
+                    <td class="text-left">
+                        <span class="text-primary">{{ (item.car) ? item.car.grnz : '-' }}</span>
+                    </td>
+                    <td class="text-left">
+                        <q-chip dark :color="(item.recycle_type === 1) ? 'teal-8' : 'orange-9'" size="12px">
+                            {{ (item.car) ? (item.car.category ? item.car.category.title_ru + ' | ' : '') : '' }}
+                            {{ (item.recycle_type) ? ((item.recycle_type === 1) ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
+                        </q-chip>
+                    </td>
+                    <td class="text-left">
+                        <template v-if="item.client">
+                            <span class="text-body2">{{ item.client.title }}</span>
+                        </template>
+                        <template v-else>-</template>
+                    </td>
+                    <td class="text-left">
+                        <template v-if="item.client">
+                            <span class="text-body2">{{ item.client.idnum }}</span>
+                        </template>
+                        <template v-else>-</template>
+                    </td>
+                    <td class="text-left"> {{ (item.date) ? item.date : '-' }}</td>
+                    <td class="text-left">
+                        <q-chip dark :color="setStatusColor(item.status.id)"
+                                class="text-overline">
+                            {{ item.status.title }}
+                        </q-chip>
 
-                </td>
-                <td>
-<!--                    <q-btn icon="verified" unelevated dense size="sm" class="text-green-10" label="Скидочный сертификат"-->
-<!--                           v-if="item.status.id === 1" icon-right="download"></q-btn>-->
-                </td>
-                <td>
-                    <q-btn icon="open_in_new" size="sm" round flat :to="'/preorder/'+item.id" color="primary"/>
-                </td>
-            </tr>
-            </tbody>
-        </q-markup-table>
+                        <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-ml-md">
+                            Выставлена на продажу
+                        </q-badge>
 
-        <div class="q-pa-lg flex flex-center">
-            <q-pagination
-                v-model="page"
-                :max="1"
-                :max-pages="6"
-                boundary-numbers
-                @click="getData()"
-            />
-        </div>
-    </template>
+                    </td>
+                    <td>
+                        <!--                    <q-btn icon="verified" unelevated dense size="sm" class="text-green-10" label="Скидочный сертификат"-->
+                        <!--                           v-if="item.status.id === 1" icon-right="download"></q-btn>-->
+                    </td>
+                </tr>
+                </tbody>
+            </q-markup-table>
 
-    <template v-else> Нет записей</template>
+            <div class="q-pa-lg flex flex-center">
+                <q-pagination
+                    v-model="page"
+                    :max="1"
+                    :max-pages="6"
+                    boundary-numbers
+                    @click="getData()"
+                />
+            </div>
+        </template>
+
+        <template v-else> Нет заявок</template>
+    </div>
+
+
+    <q-circular-progress
+        indeterminate
+        rounded
+        size="30px"
+        color="primary"
+        class="q-ma-md"
+        v-if="!show"
+    />
 
     <q-dialog v-model="orderDialog">
         <q-card style="width: 600px; max-width: 500px;">
@@ -99,7 +118,6 @@
                     option-label="title"
                     map-options
                     emit-value
-                    clearable
                     options-selected-class="text-deep-orange"
                 >
                     <template v-slot:option="scope">
@@ -127,6 +145,7 @@
 <script>
 import {getOrderList, storeOrder} from "../../services/preorder";
 import {Notify} from "quasar";
+import {mapGetters} from "vuex";
 
 export default {
 
@@ -136,6 +155,7 @@ export default {
             statuses: [],
             sum: null,
 
+            show: false,
             orderDialog: false,
             loading: false,
 
@@ -146,8 +166,6 @@ export default {
             items: [],
 
             page: 1,
-            user: JSON.parse(localStorage.getItem('user')),
-
 
             item: {
                 recycle_type: null
@@ -169,6 +187,13 @@ export default {
         }
     },
 
+
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
+    },
+
     methods: {
         setStatus(id) {
             let result = '';
@@ -181,13 +206,13 @@ export default {
 
         setStatusColor(id) {
             let color = 'blue-grey-5'
-            if(id === 1){
+            if (id === 1) {
                 color = 'blue-5'
-            }else if(id === 2){
+            } else if (id === 2) {
                 color = 'green-5'
-            }else if(id === 3){
+            } else if (id === 3) {
                 color = 'pink-5'
-            }else if(id === 4){
+            } else if (id === 4) {
                 color = 'orange-5'
             }
 
@@ -195,7 +220,7 @@ export default {
         },
 
         create() {
-            if(!this.item.recycle_type){
+            if (!this.item.recycle_type) {
                 Notify.create({
                     message: 'Выберите тип заявки',
                     position: 'bottom-right',
@@ -218,6 +243,7 @@ export default {
         getData() {
             getOrderList({page: this.page}).then(res => {
                 this.items = res
+                this.show = true
             })
         }
     },

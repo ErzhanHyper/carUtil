@@ -52,7 +52,7 @@
             <MainMenuList/>
         </q-drawer>
 
-        <q-page-container>
+        <q-page-container >
             <div class="q-pa-md">
                 <PageLayout/>
             </div>

@@ -47,7 +47,7 @@ export default {
 
             children: [
                 {
-                    name: 'Пред. заявки',
+                    name: 'Предзаявка',
                     icon: 'content_copy',
                     color: color1,
                     link: '/preorder'
@@ -61,14 +61,6 @@ export default {
             ]
         },
 
-        {
-            name: 'Сертификаты',
-            caption: '',
-            icon: 'verified',
-            color: color1,
-            expand: false,
-            link: '/certificate',
-        },
         // {
         //     name: 'Клиенты',
         //     icon: 'people',
@@ -76,12 +68,13 @@ export default {
         //     expand: false,
         //     link: '/client'
         // },
-        // {
-        //     name: 'Сервис',
-        //     icon: 'feedback',
-        //     color: color1,
-        //     expand: false,
-        // },
+        {
+            name: 'Сервис',
+            icon: 'feedback',
+            color: color1,
+            expand: false,
+            link: '/service'
+        },
         {
             name: 'Отчеты',
             icon: 'report',
@@ -94,7 +87,15 @@ export default {
             icon: 'receipt',
             color: color1,
             expand: false,
-            link: '/report'
+            link: '/sell'
+        },
+
+        {
+            name: 'Передачи',
+            icon: 'swap_horiz',
+            color: color1,
+            expand: false,
+            link: '/exchange'
         }
     ],
 

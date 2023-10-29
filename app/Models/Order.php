@@ -36,4 +36,9 @@ class Order extends Model
     {
         return $this->belongsTo(TransferOrder::class, 'id', 'order_id');
     }
+
+    public function history()
+    {
+        return $this->hasMany(OrderHistory::class, 'order_id', 'id');
+    }
 }

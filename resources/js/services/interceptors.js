@@ -8,7 +8,7 @@
 import api from "../api";
 import emitter from "../mitt";
 
-// let apiUrl = 'http://127.0.0.1:8000/app';
+// let apiUrl = 'http://localhost:8060/app';
 let apiUrl = 'https://dev-auto.recycle.kz/app';
 
 let disabled_loaded_content = [
@@ -17,6 +17,7 @@ let disabled_loaded_content = [
     apiUrl + '/factory',
     apiUrl + '/file/order/get',
     apiUrl + '/fileType',
+    apiUrl + '/booking/order',
 ];
 
 api.interceptors.request.use(function (config) {
@@ -35,6 +36,7 @@ api.interceptors.response.use(
         return response
     },
     (err) => {
+        emitter.emit('contentLoaded', false);
         if(err.response) {
             if (err.response.statusText === 'Unauthorized') {
 

@@ -15,13 +15,14 @@
         indicator-color="primary"
         align="justify"
         style="width: 300px"
+        v-show="show"
     >
-        <q-tab :name="1" label="Все сделки"/>
-        <q-tab :name="2" label="Мои сделки"/>
+        <q-tab :name="1" label="Все"/>
+        <q-tab :name="2" label="Мои"/>
 <!--        <q-tab :name="3" label="Завершенные сделки"/>-->
     </q-tabs>
 
-    <q-tab-panels v-model="tab" animated>
+    <q-tab-panels v-model="tab" animated v-show="show">
         <q-tab-panel :name="1">
             <template v-if="items.length > 0">
                 <q-markup-table flat bordered dense>
@@ -63,6 +64,15 @@
 <!--        </q-tab-panel>-->
     </q-tab-panels>
 
+    <q-circular-progress
+        indeterminate
+        rounded
+        size="30px"
+        color="primary"
+        class="q-ma-md"
+        v-show="!show"
+    />
+
     <q-dialog v-model="transferTermsDialog">
         <q-card>
             <q-card-section>
@@ -98,6 +108,8 @@ export default {
             tab: 1,
             transferTermsDialog: true,
             items: [],
+
+            show: false,
         }
     },
 
@@ -112,6 +124,7 @@ export default {
         getData() {
             getTransferList().then((res) => {
                 this.items = res
+                this.show = true
             })
         },
     },

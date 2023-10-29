@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ВЭТС/ВЭССХТ</title>
-    {{--    <link rel="stylesheet"  href="{{ asset('build/assets/app-87c340b5.sass?v=1.2') }}" />--}}
+{{--        <link rel="stylesheet"  href="{{ asset('build/assets/app-2990c851.css?v=1.3') }}" />--}}
 </head>
 <body>
 <div id="app"></div>
 @vite('resources/js/app.js')
-{{--    <script type="module" src="{{ asset('build/assets/app-9c2116a5.js?v=1.2') }}"></script>--}}
+{{--    <script type="module" src="{{ asset('build/assets/app-de3532b3.js?v=1.3') }}"></script>--}}
 </body>
 </html>

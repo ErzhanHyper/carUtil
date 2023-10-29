@@ -10,6 +10,10 @@ import PreorderPage from "@/Pages/preorder/Preorder.vue";
 import PreorderDetail from "@/Pages/preorder/PreorderDetail.vue";
 import TransferOrderPage from "./Pages/transfer/TransferOrder.vue";
 import TransferOrderDetail from "./Pages/transfer/TransferOrderDetail.vue";
+import ServicePage from "@/Pages/service/Service.vue";
+import ExchangePage from "@/Pages/exchange/Exchange.vue";
+import SellPage from "@/Pages/sell/Sell.vue";
+import ReportPage from "@/Pages/report/Report.vue";
 
 const routes = [
 
@@ -20,9 +24,29 @@ const routes = [
     },
 
     {
+        path: '/line',
+        redirect: '/login',
+    },
+
+    {
         path: '/manager',
         component: LoginManager,
         name: 'manager',
+    },
+
+    {
+        path: '/auth-rop',
+        redirect: '/manager',
+    },
+
+    {
+        path: '/auth-operator',
+        redirect: '/manager',
+    },
+
+    {
+        path: '/auth-dealer',
+        redirect: '/manager',
     },
 
     {
@@ -77,6 +101,30 @@ const routes = [
                 component: TransferOrderDetail,
                 name: 'transfer_detail',
                 props: true
+            },
+
+            {
+                path: '/service',
+                component: ServicePage,
+                name: 'service',
+            },
+
+            {
+                path: '/exchange',
+                component: ExchangePage,
+                name: 'exchange',
+            },
+
+            {
+                path: '/sell',
+                component: SellPage,
+                name: 'sell',
+            },
+
+            {
+                path: '/report',
+                component: ReportPage,
+                name: 'report',
             },
         ]
     },

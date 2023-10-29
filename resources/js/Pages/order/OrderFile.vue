@@ -42,7 +42,7 @@
                     {{ getFileTypeTitle(doc.file_type_id) }}
                 </a>
                 <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
-                        v-if="!blocked || (blocked && doc.file_type_id === 29)" @click="deleteFile({type: 'doc', id: doc.id })">
+                        v-if="(!blocked || (blocked && doc.file_type_id === 29)) && !blockedVideo" @click="deleteFile({type: 'doc', id: doc.id })">
                 </q-icon>
             </div>
 
@@ -75,11 +75,17 @@
 
 <script>
 import {ref} from 'vue'
-import {deleteOrderFile, getFileTypeList, getOrderFileList, storeOrderFile} from "../../services/file";
+import {
+    deleteOrderFile,
+    getFileTypeAgroList,
+    getFileTypeList,
+    getOrderFileList,
+    storeOrderFile
+} from "../../services/file";
 
 export default {
 
-    props: ['data', 'blocked'],
+    props: ['data', 'blocked', 'recycleType', 'blockedVideo'],
 
     setup() {
         return {
@@ -113,32 +119,60 @@ export default {
             this.filesAll = []
             this.filesDoc = []
             this.filesPhoto = []
+            this.filesOptions = []
             getOrderFileList({
                 order_id: this.data.order_id
             }).then(res => {
-                res.map(el => {
-                    if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
-                        this.filesPhoto.push(el)
-                    } else {
-                        this.filesDoc.push(el)
-                    }
-                })
+                if (this.recycleType === 1) {
+                    res.map(el => {
+                        if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
+                            this.filesPhoto.push(el)
+                        } else {
+                            this.filesDoc.push(el)
+                        }
+                    })
+                }else{
+                    res.map(el => {
+                        if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11) {
+                            this.filesPhoto.push(el)
+                        } else {
+                            console.log(el)
+                            this.filesDoc.push(el)
+                        }
+                    })
+                }
             }).finally(() => {
                 this.loading = false
             });
 
-            getFileTypeList().then(res => {
-                res.forEach(el => {
-                    this.filesAll.push(el)
-                    if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15 ) {
-                        this.options_photo.push(el)
-                        this.filesOptions.push(el)
-                    }else if(el.id !== 4 && el.id !== 29) {
-                        this.options_file.push(el)
-                        this.filesOptions.push(el)
-                    }
+            if (this.recycleType === 1) {
+                getFileTypeList().then(res => {
+                    res.forEach(el => {
+                        this.filesAll.push(el)
+                        if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
+                            this.options_photo.push(el)
+                            this.filesOptions.push(el)
+                        } else if (el.id !== 4 && el.id !== 29) {
+                            this.options_file.push(el)
+                            this.filesOptions.push(el)
+                        }
+                    })
                 })
-            })
+            }else{
+                getFileTypeAgroList().then(res => {
+                    res.forEach(el => {
+                        this.filesAll.push(el)
+                        if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
+                            this.options_photo.push(el)
+                            this.filesOptions.push(el)
+                        }
+                        if (el.id === 1 || el.id === 2 || el.id === 3) {
+                            this.options_file.push(el)
+                            this.filesOptions.push(el)
+                        }
+                    })
+                })
+            }
         },
 
         getFileTypeTitle(id) {
@@ -175,6 +209,7 @@ export default {
                 order_id: this.data.order_id,
                 file_id: value.id
             }).then(() => {
+                this.$emitter.emit('orderFileEvent')
             });
         },
 

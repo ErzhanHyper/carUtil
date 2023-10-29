@@ -71,7 +71,7 @@ export function storeTransferDeal(params) {
         api.post('/transfer/deal/store', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
-            reject('Ошибка при загрузке')
+            reject(e.response.data)
         }).finally(() => {
         })
     })

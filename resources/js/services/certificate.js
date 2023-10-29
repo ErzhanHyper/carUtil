@@ -11,9 +11,9 @@ export function getCertificateList(params) {
     })
 }
 
-export function generateCertOrder(params) {
+export function generateCertificate(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/generateCert', params).then(response => {
+        api.get('/certificate/'+id+'/get', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

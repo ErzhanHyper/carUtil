@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Session;
-use App\Services\AuthenticationService;
+use App\Services\AuthService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +15,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            $data = app(AuthenticationService::class)->secure($request);
+            $data = app(AuthService::class)->secure($request);
             $result = ['status' => 200, 'data' => $data];
         } catch (Exception $e) {
             $result = [
@@ -30,7 +30,7 @@ class AuthController extends Controller
     public function loginMobile(Request $request)
     {
         try {
-            $data = app(AuthenticationService::class)->secureMobile($request);
+            $data = app(AuthService::class)->secureMobile($request);
             $result = ['status' => 200, 'data' => $data];
         } catch (Exception $e) {
             $result = [
@@ -44,11 +44,24 @@ class AuthController extends Controller
 
     public function get()
     {
-        $idnum = app(AuthenticationService::class)->auth();
+        $idnum = app(AuthService::class)->auth();
 
         return response()->json($idnum);
     }
 
+    public function validUser(Request $request)
+    {
+        try {
+            $data = app(AuthService::class)->validCurrentUser($request);
+            $result = ['status' => 200, 'data' => $data];
+        } catch (Exception $e) {
+            $result = [
+                'status' => 500,
+                'error' => $e->getMessage()
+            ];
+        }
+        return response()->json($result, $result['status']);
+    }
 
     public function logout(Request $request)
     {

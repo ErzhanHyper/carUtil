@@ -1,10 +1,5 @@
 <template>
 
-    <div class="q-gutter-sm q-mb-sm q-mt-xs text-right">
-        <q-btn icon="close" color="negative"
-               label="Удалить" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2"/>
-    </div>
-
     <transfer-deal :id="item.id" v-if="show && item.isOwner"/>
 
     <template v-if="item.dealExist">
@@ -26,15 +21,14 @@
                            @click="signTransfer"/>
                 </template>
                 <template v-if="item.closed === 2">
-<!--                    <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm"-->
-<!--                           icon="picture_as_pdf"-->
-<!--                           @click="downloadPFS" :loading="loading"/>-->
+                    <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
+                           icon="picture_as_pdf"
+                           @click="downloadPFS" :loading="loading"/>
 
                     <q-btn label="Перейти к заявке" color="blue-grey-5" size="12px" class="q-mt-sm"
                            icon="open_in_new" :to="'/preorder/'+item.order.preorder_id"/>
                 </template>
             </div>
-
 
         </div>
     </template>
@@ -43,39 +37,59 @@
         <div class="row q-col-gutter-md" v-if="show">
 
             <div class="col col-md-4">
-                <q-card flat>
-                    <q-card-section>
-                        <div class="q-gutter-md">
-                            <q-input label="№ заявки" v-model="item.order_id" :readonly="true" outlined dense/>
-                            <q-input label="Дата одобрение" v-model="item.order.created" :readonly="true" outlined
-                                     dense/>
-                            <q-input label="ФИО владельца" v-model="item.order.client.title" :readonly="true" outlined
-                                     dense/>
-                            <q-input label="ИИН владельца" v-model="item.order.client.idnum" :readonly="true" outlined
-                                     dense/>
 
-                            <template v-if="!item.dealExist && !item.isOwner">
-                                <q-input label="Сумма сделки" v-model="amount" class="text-body1 text-weight-bold"
-                                         mask="#"
-                                         fill-mask=""
-                                         reverse-fill-mask
-                                         input-class="text-right"
-                                >
-                                    <template v-slot:after>
-                                        &#8376;
-                                    </template>
-                                </q-input>
-
-                                <q-btn label="Участвовать в сделке" icon="swap_horiz" color="indigo-8"
-                                       class="text-weight-bold" push @click="sendData"/>
-                            </template>
-
-                        </div>
+                <q-card class="q-mt-md q-mb-md" v-if="item.isOwner">
+                    <q-card-section class="q-gutter-md">
+                        <q-input label="№ заявки" v-model="item.order_id" :readonly="true" outlined dense/>
+                        <q-input label="Дата одобрение" v-model="item.order.created" :readonly="true" outlined
+                                 dense/>
+                        <q-input label="ФИО владельца" v-model="item.order.client.title" :readonly="true" outlined
+                                 dense/>
+                        <q-input label="ИИН владельца" v-model="item.order.client.idnum" :readonly="true" outlined
+                                 dense/>
                     </q-card-section>
                 </q-card>
+
+                <q-banner class="q-mb-sm bg-orange-3 q-mt-md" v-if="showError">
+                    <div v-for="error in errors">
+                        <span v-for="e in error">{{ e }}</span>
+                    </div>
+                </q-banner>
+
+                <client-card :data="item.client" :blocked="false" class="q-mb-lg" v-if="!item.isOwner"/>
+
+                <template v-if="!item.dealExist && !item.isOwner">
+
+                    <q-input label="Сумма сделки" v-model="amount" class="text-body1 text-weight-bold"
+                             mask="#"
+                             fill-mask=""
+                             reverse-fill-mask
+                             input-class="text-right"
+                    >
+                        <template v-slot:after>
+                            &#8376;
+                        </template>
+                    </q-input>
+
+                    <q-btn label="Участвовать в сделке" icon="swap_horiz" color="indigo-8"
+                           class="text-weight-bold" push @click="sendData"/>
+                </template>
+
             </div>
 
             <div class="col col-md-4">
+                <q-card class="q-mt-md q-mb-md" v-if="!item.isOwner">
+                    <q-card-section class="q-gutter-md">
+                        <q-input label="№ заявки" v-model="item.order_id" :readonly="true" outlined dense/>
+                        <q-input label="Дата одобрение" v-model="item.order.created" :readonly="true" outlined
+                                 dense/>
+                        <q-input label="ФИО владельца" v-model="item.order.client.title" :readonly="true" outlined
+                                 dense/>
+                        <q-input label="ИИН владельца" v-model="item.order.client.idnum" :readonly="true" outlined
+                                 dense/>
+                    </q-card-section>
+                </q-card>
+
                 <car-card :data="item.order.car" :order_id="item.order.id" :categories="item.order.categories"
                           :blocked="true"/>
             </div>
@@ -84,6 +98,13 @@
                 <preorder-file :data="item.file" :files="item.order.files" :blocked="true" :onlyPhoto="true"/>
             </div>
         </div>
+
+    </div>
+
+
+    <div class="q-gutter-sm q-mb-sm text-right q-mt-lg">
+        <q-btn icon="close" color="negative" size="sm"
+               label="Отменить продажу ТС" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2"/>
     </div>
 
 </template>
@@ -97,22 +118,28 @@ import {
     signTransferOrder,
     storeTransferDeal
 } from "../../services/transfer";
+
+import {signData} from "../../services/sign";
+import {Notify} from "quasar";
+
 import PreorderFile from "../preorder/PreorderFile.vue";
 import TransferDeal from "./TransferDeal.vue";
-import {signData} from "../../services/sign";
-import {mapGetters} from "vuex";
-import {Notify} from "quasar";
+import ClientCard from "@/Pages/client/ClientCard.vue";
+import {generateOrderPFS} from "../../services/file";
+import FileDownload from "js-file-download";
 
 export default {
 
     props: ['id'],
-    components: {TransferDeal, PreorderFile, CarCard},
+    components: {TransferDeal, PreorderFile, CarCard, ClientCard},
 
     data() {
         return {
             show: false,
             amount: null,
             loading: false,
+            showError: false,
+            errors: [],
             item: {
                 signAccess: false,
                 isOwner: false,
@@ -138,7 +165,9 @@ export default {
         },
 
         sendData() {
+            this.showError = false
             storeTransferDeal({
+                client: this.item.client,
                 transfer_order_id: this.item.id,
                 amount: this.amount
             }).then(res => {
@@ -156,11 +185,15 @@ export default {
                         type: 'warning'
                     })
                 }
+            }).catch(err => {
+                this.errors = JSON.parse(err.message)
+                this.showError = true
             })
         },
 
         signTransfer() {
             signData().then(res => {
+                console.log(res)
                 signTransferOrder({
                     sign: res,
                     transfer_order_id: this.item.id
@@ -172,11 +205,8 @@ export default {
 
         downloadPFS() {
             this.loading = true
-            getTransferOrderPfs({
-                transfer_order_id: this.item.id
-            }).then(res => {
-                console.log(res)
-            }).finally(() => {
+            generateOrderPFS(this.item.order_id, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'pfs.pdf')
                 this.loading = false
             })
         },

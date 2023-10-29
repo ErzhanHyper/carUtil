@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
-class AuthenticationService
+class AuthService
 {
     public function auth()
     {
@@ -42,33 +42,28 @@ class AuthenticationService
         return $user;
     }
 
-    private function checkEIS($pem)
+
+    public function validCurrentUser($pem)
     {
-        $token = 'bb885996c794e568181a2c919d4a140fd90b577c';
-        header('Content-Type: application/json');
-        $ch = curl_init('192.168.0.93/api/eis');
-        $post = json_encode(["pem" => $pem]);
-        $authorization = "Authorization: Bearer " . $token;
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        return json_decode($result);
+        $secure = app(EdsService::class)->secure($pem);
 
-//        $b64 = base64_encode($request->pem);
-//        $kalkan = new KalkanCrypt;
-//        $kalkan->secure($b64);
-
+        if ($secure) {
+            $idnum = $secure->iin;
+            $liner = Liner::where('idnum', $idnum)->first();
+            if($liner){
+                return true;
+            }
+        }
+        return false;
     }
 
     public function secure($request)
     {
-//        if ($this->checkEIS($request->data['pem'])) {
-//            $idnum = $this->checkEIS($request->data['pem'])->iin;
-            $idnum = '960213350271';
+        $pem = $request->data['pem'];
+        $secure = app(EdsService::class)->secure($pem);
+
+        if ($secure) {
+            $idnum = $secure->iin;
             $hash = Hash::make(Config::get('APP_SALT') . $idnum);
             $user = null;
 
@@ -77,7 +72,7 @@ class AuthenticationService
                 if ($user) {
                     $role = $user->role;
                 } else {
-                    throw new InvalidArgumentException(json_encode(['Пользователь не существует']));
+                    throw new InvalidArgumentException(json_encode(['title' => ['Пользователь не существует']]));
                 }
             } else {
                 $liner = Liner::where('idnum', $idnum)->first();
@@ -94,14 +89,12 @@ class AuthenticationService
                 $session->role = $role;
                 $session->save();
             } else {
-                throw new InvalidArgumentException(json_encode(['Пользователь не существует']));
+                throw new InvalidArgumentException(json_encode(['title' => ['Пользователь не существует']]));
             }
-
-//        }
-
-        return [
-            'hash' => $hash,
-        ];
+            return [
+                'hash' => $hash,
+            ];
+        }
     }
 
 
@@ -122,7 +115,7 @@ class AuthenticationService
         $liner_find = Liner::where('idnum', $idnum)->first();
         if ($liner_find) {
             $liner = Liner::where('idnum', $idnum)->where('password', $password)->first();
-            if($liner) {
+            if ($liner) {
                 $hash = Hash::make(Config::get('APP_SALT') . $idnum);
                 $role = 'liner';
                 $session = new Session();
@@ -130,7 +123,7 @@ class AuthenticationService
                 $session->uid = $liner->id;
                 $session->role = $role;
                 $session->save();
-            }else{
+            } else {
                 throw new InvalidArgumentException(json_encode(['title' => ['Неверные данные для входа']]));
             }
         } else {

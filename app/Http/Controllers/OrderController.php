@@ -32,6 +32,18 @@ class OrderController extends Controller
         return response()->json($data);
     }
 
+    public function decline(Request $request)
+    {
+        $data = app(OrderService::class)->decline($request);
+        return response()->json($data);
+    }
+
+    public function revision(Request $request)
+    {
+        $data = app(OrderService::class)->revision($request);
+        return response()->json($data);
+    }
+
     public function cert(Request $request)
     {
         $data = app(CertificateService::class)->storeCert($request);

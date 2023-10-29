@@ -22,3 +22,14 @@ export function getUser(params) {
         })
     })
 }
+
+export function validUser(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/validUser', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

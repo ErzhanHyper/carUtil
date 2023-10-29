@@ -18,6 +18,10 @@ class CertificateController extends Controller
         return response()->json($data);
     }
 
+    public function generate($id)
+    {
+        return app(CertificateService::class)->generateCert($id);
+    }
     /**
      * Show the form for creating a new resource.
      */

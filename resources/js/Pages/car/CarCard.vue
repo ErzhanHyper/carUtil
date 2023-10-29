@@ -2,17 +2,16 @@
     <q-card>
         <q-card-section class="q-pb-xs ">
             <div class="q-gutter-sm flex justify-between">
-                <div class="text-body2">ТС</div>
+                <div class="text-body2">{{ recycleType === 1 ? 'ТС' : 'СХТ' }}</div>
                 <q-btn label="Получить данные ТС" color="primary" class="text-overline q-mb-sm" icon="manage_search"
+                       :loading="loading"
                        @click="search()" v-if="!showFields && kap_data.length === 0" />
             </div>
 
-            <q-select dense outlined square v-model="item.vin" label="VIN"
+            <q-select dense outlined square v-model="item" label="VIN"
                       :options="kap_data"
-                      map-options
-                      emit-value
                       option-label="vin" option-value="id" :readonly="blocked"
-                      @update:model-value="setVehicle(item.vin)" v-if="kap_data.length > 0 || showFields"
+                      @update:model-value="setVehicle(item)" v-if="kap_data.length > 0 || showFields"
             class="q-mb-sm q-mt-sm" />
 
         </q-card-section>
@@ -99,7 +98,7 @@ import {checkVehicle} from "../../services/preorder";
 
 export default {
 
-    props: ['data', 'getCar', 'categories', 'blocked', 'order_id'],
+    props: ['data', 'getCar', 'categories', 'blocked', 'order_id', 'recycleType'],
 
     data() {
         return {
@@ -111,6 +110,7 @@ export default {
             },
 
             showFields: false,
+            loading: false,
 
             kap_data: [],
             options_category: this.categories
@@ -125,11 +125,12 @@ export default {
         },
 
         search() {
+            this.loading = true
             checkVehicle({
                 preorder_id: this.order_id,
             }).then(res => {
                 if(res) {
-                    res.map(el => {
+                    res.map((el, i) => {
                         this.kap_data.push({
                             m_model: el[2]['MODEL'][0],
                             grnz: el[1]['GRNZ'][0],
@@ -141,6 +142,8 @@ export default {
                         })
                     })
                 }
+            }).finally(() => {
+                this.loading = false
             })
         }
     },

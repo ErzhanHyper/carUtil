@@ -1,158 +1,95 @@
 <template>
 
+    <q-circular-progress
+        indeterminate
+        rounded
+        size="30px"
+        color="primary"
+        class="q-ma-md"
+        v-if="!showData"
+    />
 
-    <div class="flex justify-between" v-if="showData">
-        <span>
-        <span :class="(item.recycle_type === 1) ? 'text-teal-9' : 'text-orange-9'" class="text-body1 q-mt-sm">
-            {{ (item.recycle_type === 1) ? 'ВЭТС' : 'ВЭССХТ' }}
-        </span>
-        <span :class="'text-'+setStatusColor(item.status.id)"> - {{ item.status.title }}</span>
-        <div class="text-body1 text-weight-bold text-blue-grey-8" v-if="item.order">№ заявки: {{ item.order.id }}</div>
+    <div v-if="showData">
+        <q-banner class="q-mb-md bg-indigo-1"
+                  v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)">
+            Рассмотрение заявки до 15 дней
+        </q-banner>
 
-        </span>
+        <q-banner class="q-mb-sm bg-orange-3 q-mt-md" v-if="showError">
+            <div v-for="error in errors">
+                <span v-for="e in error">{{ e }}</span>
+            </div>
+        </q-banner>
 
-        <div v-if="item.recycle_type && user.role === 'liner'">
-            <q-btn color="blue-8" label="Отправить" @click="sendData" v-if="!blocked" :loading="loading"></q-btn>
-            <q-space/>
-            <template v-if="item.transferShow">
-                <div class="q-gutter-sm">
-                    <q-btn icon="sell" dense size="md" color="pink-10" label="Выставить ТС на продажу"
-                           @click="sellPreorder"></q-btn>
+        <div class="flex justify-between">
+            <div>
+            <span :class="(item.recycle_type === 1) ? 'text-teal-9' : 'text-orange-9'" class="text-body1 q-mt-sm">
+                {{ (item.recycle_type === 1) ? 'ВЭТС' : 'ВЭССХТ' }}
+            </span>
+                <span :class="'text-'+setStatusColor(item.status.id)"> - {{ item.status.title }}
+                <span class="text-green-8 text-overline"
+                      v-if="item.order && item.order.status.id === 3"> | Сертификат выдан</span>
+            </span>
+                <div class="text-body1 text-weight-bold text-blue-grey-8" v-if="item.order">
+                    № заявки: {{ item.order.id }}
                 </div>
-            </template>
+            </div>
 
-            <template v-if="!item.transferShow && item.transfer && item.transfer.closed !== 2">
-                <div class="text-blue-10">
-                    ТС выставлен на продажу
-                    <q-space/>
-                    <div class="text-right">
-                        <q-btn flat icon="open_in_new" dense size="sm" color="blue-grey-10" label="Перейти"
-                               to="/transfer/order"></q-btn>
+            <template v-if="user.role === 'liner'">
+                <preorder-sell :show="item.transferShow" :blocked="blocked" :transfer="item.transfer"
+                               :order_id="item.order_id"/>
+                <q-btn color="blue-8" label="Отправить" @click="sendData" :loading="loading" v-if="!blocked"></q-btn>
+            </template>
+        </div>
+
+        <template v-if="user.role && user.role === 'moderator'">
+            <preorder-actions v-if="item.status && item.status.id === 1" :id="item.id" :disabled="disabled"/>
+        </template>
+
+        <template v-if="item.comment.length > 0 && item.comment[0].text && user.role === 'liner'">
+            <q-banner :class="(item.comment[0].action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
+                      style="max-width: 380px" dense>
+                {{ item.comment[0].text }}
+            </q-banner>
+        </template>
+
+        <template v-if="(user.role === 'liner' || user.role === 'moderator') && item.status.id === 2">
+            <booking class="q-mt-md" :data="item.booking" :getBooking="getBooking" :blocked="blockedBooking"
+                     id="preorder_booking"/>
+        </template>
+
+        <div class="row q-col-gutter-md">
+
+            <div class="col col-md-8 col-sm-12 col-xs-12 ">
+                <div class="row q-col-gutter-md q-mt-xs">
+                    <div class="col col-md-5 col-sm-12 col-xs-12">
+                        <client-card :data="item.client" :getClient="getClient" :blocked="blocked"/>
+                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>
+                    </div>
+
+                    <div class="col col-md-7 col-sm-12 col-xs-12">
+                        <car-card :data="item.car" :getCar="getCar" :categories="item.categories"
+                                  :blocked="blocked"
+                                  :recycleType="item.recycle_type"
+                                  :order_id="item.id"/>
                     </div>
                 </div>
-            </template>
+
+                <preorder-history v-if="user.role === 'moderator'" :comments="item.comment"/>
+            </div>
+
+            <div class="col col-md-4 col-xs-12" v-if="showFile">
+                <PreorderFile :data="item.file" :files="item.files" :blocked="blocked"
+                              :blockedVideo="item.blockedVideo" :recycleType="item.recycle_type"/>
+            </div>
+
+        </div>
+
+        <div class="q-mt-md text-right" v-if="user && user.role === 'liner' && item.status.id === 0">
+            <q-btn icon="delete" label="Удалить заявку" square size="sm" color="negative"
+                   @click="showDeleteDialog = true"/>
         </div>
     </div>
-
-    <div class="col col-md-12 q-mt-md" v-if="user.role && user.role === 'moderator'">
-        <!--        <OrderTimeline/>-->
-        <div class="flex justify-between q-mt-md" v-if="item.status && item.status.id === 1">
-            <div class="q-gutter-sm">
-                <q-btn :loading="loading" square size="12px" color="light-green" label="Одобрить"
-                       @click="sendApprove('approve')"
-                       icon="send" :disabled="disabled"></q-btn>
-                <q-btn square size="12px" color="orange-5" label="На доработку" @click="sendApprove('revision')"
-                       icon="keyboard_return"></q-btn>
-                <q-btn square size="12px" color="red-5" label="Отклонить" @click="sendApprove('decline')"
-                       icon="block"></q-btn>
-            </div>
-            <div class="q-gutter-sm">
-                <!--                <q-btn square size="12px" color="orange-10" label="Найти дубликаты" icon="search"-->
-                <!--                       @click="kapDialog = true"/>-->
-                <q-btn square size="12px" color="primary" label="Проверка в КАП" icon="add_task"
-                       @click="kapDialog = true"/>
-            </div>
-        </div>
-    </div>
-
-    <q-banner class="q-mb-sm bg-orange-3 q-mt-md" v-if="showError">
-        <div v-for="error in errors">
-            <span v-for="e in error">{{ e }}</span>
-        </div>
-    </q-banner>
-
-    <booking class="q-mt-md" :data="item.booking" :getBooking="getBooking"
-             v-if="showData && (user.role === 'liner' || user.role === 'moderator')" :blocked="blocked && (item.status.id === 1)"/>
-
-    <div class="row q-col-gutter-md" v-if="showData">
-
-        <div class="col col-md-8 col-sm-12 col-xs-12 ">
-            <div class="row q-col-gutter-md q-mt-xs">
-                <div class="col col-md-5 col-sm-12 col-xs-12">
-
-                    <client-card :data="item.client" :getClient="getClient" :blocked="blocked"/>
-
-                    <q-card class="q-mt-md">
-                        <q-card-section>
-                            <div class="row">
-                                <div class="col">
-                                    <q-select label="Доверенность" square dense outlined
-                                              option-label="title" option-value="id"
-                                              emit-value map-options class="q-mb-md" :options="proxies"
-                                              v-model="item.proxy"
-                                              @update:model-value="setProxy()"
-                                              :readonly="blocked"
-                                    />
-                                </div>
-                            </div>
-                            <div class="row q-col-gutter-md " v-if="showProxy">
-                                <div class="col">
-                                    <q-input dense square outlined label="ФИО, Наименование владельца"
-                                             v-model="item.owner_title" :readonly="blocked"/>
-                                </div>
-                                <div class="col">
-                                    <q-input dense square outlined label="ИИН, БИН владельца"
-                                             v-model="item.owner_idnum" :readonly="blocked"/>
-                                </div>
-                            </div>
-
-                            <div class="row q-col-gutter-md q-mt-xs" v-if="showProxy">
-                                <div class="col">
-                                    <q-input dense square outlined label="Номер доверенности"
-                                             v-model="item.proxy_num"
-                                             :readonly="blocked"/>
-                                </div>
-                                <div class="col">
-                                    <q-input dense square outlined label="Дата доверенности" type="date"
-                                             v-model="item.proxy_date" :readonly="blocked"/>
-                                </div>
-                            </div>
-                        </q-card-section>
-                    </q-card>
-                </div>
-
-                <div class="col col-md-7 col-sm-12 col-xs-12">
-
-                    <car-card :data="item.car" :getCar="getCar" v-if="showData" :categories="item.categories"
-                              :blocked="blocked" :order_id="item.id"/>
-                </div>
-            </div>
-            <div class="q-mt-md"
-                 v-if="item.comment && item.comment.length > 0 && showData">
-                <div class="text-h5">История изменений</div>
-                <q-timeline color="secondary">
-                    <template v-for="(text, i) in item.comment">
-                        <q-timeline-entry class="q-mb-sm" :body="text.created_at">
-                            <q-banner :class="(text.action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
-                                      style="max-width: 380px">
-                                <div class="text-subtitle2 text-weight-bold">
-                                    <span v-if="text.action === 'approve'">Одобрена</span>
-                                    <span v-if="text.action === 'decline'">Отклонена</span>
-                                    <span v-if="text.action === 'revision'">На доработку</span>
-                                </div>
-                                {{ text.text }}
-                            </q-banner>
-                        </q-timeline-entry>
-                    </template>
-                </q-timeline>
-
-            </div>
-        </div>
-
-        <div class="col col-md-4 col-xs-12">
-            <PreorderFile :data="item.file" v-if="showFile" :files="item.files" :blocked="blocked"
-                          :blockedVideo="item.blockedVideo"/>
-        </div>
-
-    </div>
-
-
-    <div class="q-mt-md text-right" v-if="showData && user && user.role === 'liner'">
-        <q-btn icon="delete" label="Удалить заявку" square size="sm" color="negative"
-               @click="showDeleteDialog = true"
-               v-if="item.status.id === 0"/>
-    </div>
-
 
     <q-dialog v-model="showDeleteDialog" size="xs">
         <q-card style="width: 600px">
@@ -169,95 +106,61 @@
         </q-card>
     </q-dialog>
 
-    <q-dialog v-model="kapDialog">
-        <order-kap/>
-    </q-dialog>
-
-    <q-dialog v-model="commentDialog">
-        <q-card style="width: 800px">
-            <q-card-section>
-                <q-input type="textarea" v-model="comment" outlined rows="3" label="Комментарий"/>
-            </q-card-section>
-
-            <q-card-actions>
-                <q-space/>
-                <q-btn label="Отправить" color="primary" @click="sendApproveAction"/>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
-
 </template>
 
 <script>
-import ClientCard from "../client/ClientCard.vue";
-import OrderTimeline from "@/Pages/order/OrderTimeline.vue";
-import SelectFactory from "../../Components/Fields/SelectFactory.vue";
-import {deleteOrder, getOrderItem, moderatorApproveOrder, sendOrder} from "../../services/preorder";
+import {Notify} from "quasar";
+import {mapGetters} from "vuex";
+import {deleteOrder, getOrderItem, sendOrder} from "../../services/preorder";
+
 import PreorderFile from "@/Pages/preorder/PreorderFile.vue";
+import PreorderActions from "@/Pages/preorder/PreorderAction.vue";
+import PreorderTimeline from "./PreorderTimeline.vue";
+import PreorderHistory from "./PreorderHistory.vue";
+import PreorderSell from "./PreorderSell.vue";
+
+import OrderTimeline from "@/Pages/order/OrderTimeline.vue";
+
 import CarCard from "../car/CarCard.vue";
 import Booking from "../booking/BookingCard.vue";
-import {Notify} from "quasar";
-import OrderKap from "@/Pages/order/OrderKap.vue";
-import PreorderTimeline from "./PreorderTimeline.vue";
-import {storeTransfer} from "../../services/transfer";
+import ClientCard from "../client/ClientCard.vue";
+import ClientProxy from "../client/ClientProxy.vue";
+
 
 export default {
-    components: {PreorderTimeline, OrderKap, Booking, CarCard, PreorderFile, SelectFactory, OrderTimeline, ClientCard},
-
     props: ['id'],
+
+    components: {
+        PreorderSell,
+        ClientProxy,
+        PreorderHistory,
+        PreorderTimeline,
+        Booking,
+        CarCard,
+        PreorderFile,
+        OrderTimeline,
+        ClientCard,
+        PreorderActions
+    },
 
     data() {
         return {
-            clientDialog: false,
-            commentDialog: false,
             showDeleteDialog: false,
             disabled: false,
 
-            kapDialog: false,
             showData: false,
             showFile: false,
-            showProxy: false,
             blocked: true,
+            blockedBooking: true,
 
             loading: false,
-
-            user: JSON.parse(localStorage.getItem('user')),
-
-            factories: [
-                {
-                    id: 1,
-                    title: 'Завод 1'
-                },
-                {
-                    id: 2,
-                    title: 'Завод 2'
-                }
-            ],
-
-            proxies: [
-                {
-                    id: 1,
-                    title: 'Владелец'
-                },
-                {
-                    id: 2,
-                    title: 'По доверенности на владельца'
-                },
-                {
-                    id: 3,
-                    title: 'По доверенности на доверенное лицо'
-                }
-            ],
-
-            file_type_car: [],
-            banks: [],
-            region: [],
+            showError: false,
             order: null,
-            options_category: [],
 
             errors: [],
-            showError: false,
+
             item: {
+                transferShow: false,
                 blockedVideo: false,
                 recycle_type: null,
                 category: null,
@@ -265,17 +168,22 @@ export default {
                 car: {},
                 booking: {},
                 file: {},
-                files: {},
+                files: [],
                 factory: null,
                 proxy: null,
             },
-            slide: 1,
-            comment: '',
-            approveAction: '',
+
         }
     },
 
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
+    },
+
     methods: {
+
         setStatusColor(id) {
             let color = 'blue-grey-5'
             if (id === 1) {
@@ -289,32 +197,6 @@ export default {
             }
 
             return color;
-        },
-        updateFileType() {
-            this.file_type_car.filter(el => {
-                if (
-                    el.id === 8 ||
-                    el.id === 9 ||
-                    el.id === 10 ||
-                    el.id === 11 ||
-                    el.id === 12 ||
-                    el.id === 13 ||
-                    el.id === 14 ||
-                    el.id === 15
-                ) {
-                    this.options_photo.push(el)
-                }
-            })
-        },
-
-        setProxy() {
-            if (this.item.proxy === 1) {
-                this.showProxy = false
-            }
-
-            if (this.item.proxy === 2) {
-                this.showProxy = true
-            }
         },
 
         getBooking(value) {
@@ -356,62 +238,26 @@ export default {
                     }
                 }
 
-                this.item.files = this.item.car_file
-
                 this.showFile = true
-
-                if (this.user && this.user.role === 'liner') {
-                    if (this.item.status.id === 0 || this.item.status.id === 4) {
-                        this.blocked = false
-                    } else {
-                        this.blocked = true
-                    }
-                }
+                this.blocked = this.item.blocked
+                this.blockedBooking = this.item.blockedBooking
 
             }).finally(() => {
                 this.showData = true
             })
         },
 
-        sendApprove(value) {
-            this.approveAction = value
-            if (value === 'approve') {
-                this.sendApproveAction()
-            } else {
-                this.commentDialog = true
-            }
-        },
-
-        sendApproveAction() {
-            this.loading = true
-            moderatorApproveOrder(this.item.id, {
-                comment: this.comment,
-                status: this.approveAction
-            }).then(() => {
-                this.getData()
-                this.commentDialog = false
-
-                if (this.approveAction === 'approve') {
-                    Notify.create({
-                        message: 'Пред. заявка одобрена',
-                        position: 'bottom-right',
-                        type: 'positive'
-                    })
-                }
-            }).finally(() => {
-                this.loading = false
-            })
-        },
-
         sendData() {
             this.errors = []
             this.showError = false
-            this.loading = true
             this.$emitter.emit('ClientCardEvent')
             this.$emitter.emit('CarCardEvent')
             this.$emitter.emit('BookingCardEvent')
+            console.log(this.item.car)
             if ((this.item.status && this.item.status.id === 0) || this.item.status && this.item.status.id === 4) {
+                this.loading = true
                 sendOrder(this.id, this.item).then(res => {
+                    this.showData = false
                     if (res.status && res.status === 200) {
                         Notify.create({
                             message: 'Отправлено модератору на рассмотрение',
@@ -444,31 +290,17 @@ export default {
                 this.loading = false
             })
         },
-
-        sellPreorder() {
-            if (this.item.order) {
-                storeTransfer({
-                    order_id: this.item.order.id
-                }).then(res => {
-                    Notify.create({
-                        message: 'Транспортное средство выставлена на продажу',
-                        position: 'bottom-right',
-                        type: 'info'
-                    })
-                    this.getData()
-                })
-            }
-        }
     },
 
     created() {
-        this.updateFileType()
         this.getData()
+    },
+
+    mounted() {
+        this.$emitter.on('preorderActionEvent', () => {
+            this.getData()
+        })
     }
 
 }
 </script>
-
-<style scoped>
-
-</style>
