@@ -74,7 +74,7 @@
                     <div class="col col-md-7 col-sm-12 col-xs-12">
                         <booking class="q-mb-md" :data="item.booking" :getBooking="getBooking" :blocked="true"
                                  v-if="user.role === 'moderator' || user.role === 'operator'"/>
-                        <car-card :data="item.car" :getCar="getCar" :categories="item.categories" :blocked="blocked"/>
+                        <car-card :data="item.car" :getCar="getCar" :categories="item.categories" :blocked="blocked" :recycleType="item.recycle_type"/>
                     </div>
                 </div>
 
