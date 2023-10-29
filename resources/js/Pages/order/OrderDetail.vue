@@ -103,7 +103,7 @@
             <div class="col col-md-4 col-xs-12">
                 <order-document v-if="showOperatorAction" class="q-mb-md" :order_id="item.id"/>
                 <OrderFile :data="item.file" v-if="showFile" :blocked="blockedFiles"
-                           :blockedVideo="item.status.id === 3"/>
+                           :blockedVideo="item.status.id === 3" :recycleType="item.recycle_type === 'ВЭТС' ? 1 : 2"/>
 
                 <template v-if="user && user.role==='moderator'">
                     <q-separator class="q-my-lg"/>
