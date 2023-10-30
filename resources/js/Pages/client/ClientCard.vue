@@ -83,6 +83,7 @@ import ClientUdTypeField from "@/Components/Fields/ClientUdTypeField.vue";
 import DataField from "@/Components/Fields/DataField.vue";
 import BankField from "@/Components/Fields/BankField.vue";
 import BankNumField from "@/Components/Fields/BankNumField.vue";
+import {mapGetters} from "vuex";
 
 export default {
     components: {
@@ -110,12 +111,46 @@ export default {
         }
     },
 
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
+    },
+
     created() {
         if (this.data) {
             this.item = this.data
             if (this.item.ud_expired) {
                 this.item.ud_expired = this.$moment(this.$moment(this.item.ud_expired, 'YYYY-MM-DD').toDate()).format('YYYY-MM-DD')
             }
+        }
+
+        if (this.user) {
+            if (!this.item.phone) {
+                if (this.user.profile.phone) {
+                    this.item.phone = this.user.profile.phone
+                }
+            }
+
+            if (!this.item.email) {
+                if (this.user.profile.email) {
+                    this.item.email = this.user.profile.email
+                }
+            }
+
+            if (!this.item.title) {
+                if (this.user.profile.fln) {
+                    this.item.title = this.user.profile.fln
+                }
+            }
+
+            if (!this.item.idnum) {
+                console.log(this.user)
+                if (this.user.idnum) {
+                    this.item.idnum = this.user.idnum
+                }
+            }
+
         }
     },
 

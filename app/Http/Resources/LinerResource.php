@@ -17,7 +17,8 @@ class LinerResource extends JsonResource
         return [
             'id' => $this->id,
             'idnum' => $this->idnum,
-            'profile' => json_decode($this->profile)
+            'profile' => json_decode($this->profile),
+            'client' => new ClientResource($this->client)
         ];
 
     }

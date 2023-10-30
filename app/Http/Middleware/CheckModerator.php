@@ -19,7 +19,7 @@ class CheckModerator
     {
         $user = app(AuthService::class)->auth();
 
-        if($user && $user->role === 'moderator'){
+        if($user && ($user->role === 'moderator' || $user->role === 'admin')){
             return $next($request);
         }
 

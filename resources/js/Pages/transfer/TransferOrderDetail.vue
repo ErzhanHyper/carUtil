@@ -18,7 +18,7 @@
             <div v-if="item.deal">
                 <template v-if="item.closed === 1 && item.signAccess && !item.deal.signed">
                     <q-btn label="Подписать сделку" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
-                           @click="signTransfer"/>
+                           @click="signTransfer" :loading="loading1"/>
                 </template>
                 <template v-if="item.closed === 2">
                     <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
@@ -56,7 +56,7 @@
                     </div>
                 </q-banner>
 
-                <client-card :data="item.client" :blocked="false" class="q-mb-lg" v-if="!item.isOwner"/>
+                <client-card :data="item.client" :blocked="blocked" :getClient="getClient" class="q-mb-lg" v-if="!item.isOwner"/>
 
                 <template v-if="!item.dealExist && !item.isOwner">
 
@@ -90,12 +90,12 @@
                     </q-card-section>
                 </q-card>
 
-                <car-card :data="item.order.car" :order_id="item.order.id" :categories="item.order.categories"
+                <car-card :data="item.order.car" :order_id="item.order.id" :categories="item.order.categories" :recycleType="recycleType"
                           :blocked="true"/>
             </div>
 
             <div class="col col-md-4">
-                <preorder-file :data="item.file" :files="item.order.files" :blocked="true" :onlyPhoto="true"/>
+                <preorder-file :data="item.file" :files="item.order.files" :blocked="true" :onlyPhoto="true" :recycleType="recycleType"/>
             </div>
         </div>
 
@@ -138,7 +138,11 @@ export default {
             show: false,
             amount: null,
             loading: false,
+            loading1: false,
             showError: false,
+            blocked: false,
+            recycleType: null,
+
             errors: [],
             item: {
                 signAccess: false,
@@ -153,6 +157,11 @@ export default {
     },
 
     methods: {
+
+        getClient(value) {
+            this.item.client = value
+        },
+
         getData() {
             this.show = false
             getTransferItem(this.id).then(res => {
@@ -160,12 +169,17 @@ export default {
                 this.item.file = {
                     preorder_id: res.order.preorder_id
                 }
+
+                this.blocked = res.blocked
+                this.recycleType = res.recycle_type
                 this.show = true
             })
         },
 
         sendData() {
             this.showError = false
+            this.$emitter.emit('ClientCardEvent')
+
             storeTransferDeal({
                 client: this.item.client,
                 transfer_order_id: this.item.id,
@@ -178,6 +192,7 @@ export default {
                         position: 'bottom-right',
                         type: 'positive'
                     })
+                    this.blocked = true
                 } else {
                     Notify.create({
                         message: 'Не заполнены поля',
@@ -193,12 +208,14 @@ export default {
 
         signTransfer() {
             signData().then(res => {
-                console.log(res)
+                this.loading1 = true
                 signTransferOrder({
                     sign: res,
                     transfer_order_id: this.item.id
                 }).then(() => {
                     this.getData()
+                }).finally(() => {
+                    this.loading1 = false
                 })
             })
         },

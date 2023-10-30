@@ -300,6 +300,10 @@ export default {
         this.$emitter.on('preorderActionEvent', () => {
             this.getData()
         })
+
+        this.$emitter.on('preorderSellEvent', () => {
+            this.getData()
+        })
     }
 
 }

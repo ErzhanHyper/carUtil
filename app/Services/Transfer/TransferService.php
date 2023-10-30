@@ -12,10 +12,13 @@ use App\Models\Liner;
 use App\Models\Order;
 use App\Models\PreOrderCar;
 use App\Models\TransferDeal;
+use App\Models\TransferLog;
 use App\Models\TransferOrder;
 use App\Services\AuthService;
 use App\Services\Client\ClientService;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Services\EdsService;
+use App\Services\SignService;
+use Illuminate\Http\Request;
 
 class TransferService
 {
@@ -181,7 +184,14 @@ class TransferService
         $client = Client::where('idnum', $recipient_liner->idnum)->first();
         $order = Order::find($transfer_order->order->id);
 
-        if ($sign) {
+        $hash = app(SignService::class)->__signTransferData($transfer_order->id);
+
+        $sign_data = app(EdsService::class)->check(new Request([
+            'sign' => $sign,
+            'hash' => $hash
+        ]));
+
+        if ($sign && $sign_data != '') {
             if ($user->role === 'liner') {
 
                 if ($transfer_order->owner_liner_id === $user->id) {
@@ -218,8 +228,20 @@ class TransferService
 
                 if ($transfer_order) {
                     $transfer_order->save();
+
+                    $this->logData(new Request([
+                        'action' => 'sign',
+                        'transfer_order_id' => $transfer_order->id,
+                        'transfer_deal_id' => $transfer_order->transfer_deal_id,
+                        'sign' => $sign_data->outCert,
+                        'idnum' => $user->idnum,
+                        'title' => $user->profile->fln
+                    ]));
+
                     return ['Сделка подписана'];
                 }
+
+
             }
         }
         return ['Ошибка'];
@@ -243,5 +265,17 @@ class TransferService
                 }
             }
         }
+    }
+
+    public function logData($request){
+        $log = new TransferLog;
+        $log->date = time();
+        $log->action = $request->action;
+        $log->transfer_order_id = $request->transfer_order_id;
+        $log->transfer_deal_id = $request->transfer_deal_id;
+        $log->sign = $request->sign;
+        $log->idnum = $request->idnum;
+        $log->title = $request->title;
+        $log->save();
     }
 }

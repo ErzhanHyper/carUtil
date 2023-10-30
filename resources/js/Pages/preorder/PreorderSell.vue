@@ -55,6 +55,7 @@ export default {
             storeTransfer({
                 order_id: this.order_id
             }).then(res => {
+                this.$emitter.emit('preorderSellEvent')
                 Notify.create({
                     message: 'Транспортное средство выставлена на продажу',
                     position: 'bottom-right',

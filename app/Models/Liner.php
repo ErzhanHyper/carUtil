@@ -13,5 +13,13 @@ class Liner extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'liner';
+    public $timestamps = false;
+
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'idnum', 'idnum');
+    }
+
 
 }

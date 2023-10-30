@@ -66,8 +66,27 @@
                             Выставлена на продажу
                         </q-badge>
 
+
+
                     </td>
                     <td>
+                        <q-badge color="deep-orange" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && !item.order.videoUploaded">
+                            В ожидании получения видеозаписи ТС
+                            <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" >
+                                Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
+                            </q-tooltip>
+                        </q-badge>
+
+                        <q-badge color="blue--8" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && item.order.videoUploaded">
+                            Видеозапись отправлена
+                            <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" >
+                                Ожидайте выдачу сертификата
+                            </q-tooltip>
+                        </q-badge>
+
+                        <q-badge color="green-8" v-if="item.order && item.order.car && item.order.car.certificate">
+                            <router-link to="/certificate">Сертификат выдан</router-link>
+                        </q-badge>
                         <!--                    <q-btn icon="verified" unelevated dense size="sm" class="text-green-10" label="Скидочный сертификат"-->
                         <!--                           v-if="item.status.id === 1" icon-right="download"></q-btn>-->
                     </td>

@@ -28,7 +28,7 @@
                         <q-menu anchor="center middle"
                                 self="center middle">
                             <q-list style="min-width: 100px">
-                                <q-item clickable v-close-popup avatar v-ripple>
+                                <q-item clickable v-close-popup avatar v-ripple to="/profile">
                                     <q-item-section>Профиль</q-item-section>
                                     <q-item-section class="q-pl-lg">
                                         <q-icon name="person"/>

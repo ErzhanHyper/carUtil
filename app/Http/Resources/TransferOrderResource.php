@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Client;
+use App\Models\PreOrderCar;
 use App\Models\TransferDeal;
 use App\Models\TransferOrder;
 use App\Services\AuthService;
@@ -22,8 +23,11 @@ class TransferOrderResource extends JsonResource
 
         $user = app(AuthService::class)->auth();
         $transferDeal = TransferDeal::where('transfer_order_id', $this->id)->where('liner_id', $user->id)->first();
+
+        $blocked = false;
         if ($transferDeal) {
             $transferDeal->signed = false;
+            $blocked = true;
         }
         $isOwner = false;
 
@@ -48,6 +52,7 @@ class TransferOrderResource extends JsonResource
         }
 
         $client = Client::where('idnum', $user->idnum)->first();
+        $preorder = PreOrderCar::where('order_id', $this->order_id)->select(['recycle_type', 'order_id'])->first();
 
         return [
             'id' => $this->id,
@@ -66,7 +71,9 @@ class TransferOrderResource extends JsonResource
             'dealExist' => (bool)$transferDeal,
             'deal' => $transferDeal,
             'signAccess' => $signAccess,
-            'client' => $client
+            'client' => $client,
+            'blocked' => $blocked,
+            'recycle_type' => $preorder->recycle_type
         ];
 
     }

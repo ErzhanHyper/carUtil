@@ -45,11 +45,25 @@ class PreOrderService
 
     public function send($request, $id)
     {
-        $preorder = PreOrderCar::find($id);
 
+        $auth = app(AuthService::class)->auth();
+        $preorder = PreOrderCar::find($id);
         if ($preorder->status === 0 || $preorder->status === 4) {
-            $client = Client::where('idnum', $request->client['idnum'])->first();
-            $car = Car::where('vin', $request->car['vin'])->first();
+
+            if($auth->idnum !== $request->client['idnum']){
+                throw new InvalidArgumentException(json_encode(['car' => ['Неправильный ИИН']]));
+            }
+
+            if ($preorder->status === 0) {
+                $client = Client::where('idnum', $request->client['idnum'])->first();
+                $car = Car::where('vin', $request->car['vin'])->first();
+                if ($car) {
+                    throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
+                }
+            } else if ($preorder->status === 4) {
+                $client = Client::where('id', $preorder->client_id)->first();
+                $car = Car::where('id', $preorder->car_id)->first();
+            }
 
             $car_request = new Request([
                 'vin' => $request->car['vin'],
@@ -69,12 +83,13 @@ class PreOrderService
                 'cert_title' => $request->client['title'],
             ]);
 
-            $car_find = Car::where('vin', $request->car['vin'])->first();
-            if ($car && $car_find) {
-                if ($car->vin === $car_find->vin) {
-                    throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
-                }
-            }
+//            $car_find = Car::where('vin', $request->car['vin'])->first();
+//            if ($car && $car_find) {
+//                if ($car->vin === $car_find->vin) {
+//                    throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
+//                }
+//            }
+
             if ($client) {
                 $client = app(ClientService::class)->update($request->client, $client->id);
             } else {

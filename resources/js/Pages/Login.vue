@@ -10,7 +10,7 @@
                         <q-card square bordered class="q-pa-sm shadow-1"
                                 style="max-width: 480px;width: calc(100vw - 40px)">
 
-                            <q-banner dense inline-actions class="text-white bg-negative" v-if="showBanner">
+                            <q-banner dense inline-actions class="text-white bg-pink-5" v-if="showBanner">
                                     <span v-for="(error, i) in errors" :key="i">
                                         <span v-for="(item, index) in error" :key="index">
                                             {{ item }}

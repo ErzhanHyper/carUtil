@@ -33,3 +33,14 @@ export function validUser(params) {
         })
     })
 }
+
+export function updateUser(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/user/update', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

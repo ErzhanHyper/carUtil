@@ -2,8 +2,7 @@
     <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
         <div class="text-h6 text-primary">Продажа ТС</div>
         <div class="flex justify-between" v-if="user && user.role === 'liner'">
-            <q-btn color="blue-6" unelevated icon="add" label="Создать заявку" class="q-ml-md text-weight-bold"
-                   @click="orderDialog = true"/>
+
         </div>
     </div>
 

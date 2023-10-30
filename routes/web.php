@@ -25,6 +25,8 @@ Route::prefix('app')->group(function () {
         Route::post('logout', [\App\Http\Controllers\AuthController::class, 'logout']);
 
         Route::post('user', [\App\Http\Controllers\AuthController::class, 'get']);
+        Route::post('user/update', [\App\Http\Controllers\AuthController::class, 'update']);
+
         Route::post('validUser', [\App\Http\Controllers\AuthController::class, 'validUser']);
 
         Route::prefix('preorder')->group(function () {

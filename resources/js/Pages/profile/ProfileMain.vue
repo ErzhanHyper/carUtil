@@ -1,0 +1,139 @@
+<template>
+
+    <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
+        <div class="text-h6 text-primary">Профиль</div>
+    </div>
+
+    <div v-if="show">
+        <div class="row q-col-gutter-md">
+            <div class="col col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                <div class="row q-col-gutter-md">
+                    <div class="col col-md-12 col-xs-12">
+                        <email-field outlined dense v-model="user.email"/>
+                    </div>
+                    <div class="col col-md-12 col-xs-12">
+                        <phone-field outlined dense v-model="user.phone"/>
+                    </div>
+
+                    <template v-if="user.role === 'liner'">
+                        <div class="col col-md-12 col-xs-12">
+                            <q-input label="Пароль мобильного приложения" outlined dense
+                                     :type="(!isLock) ? 'password' : 'text'"
+                                     v-model="user.password">
+                                <template v-slot:prepend>
+                                    <q-icon name="lock"/>
+                                </template>
+                                <template v-slot:append>
+                                    <q-btn flat>
+                                        <q-icon name="visibility" v-if="isLock" @click="isLock = false"/>
+                                        <q-icon name="visibility_off" v-if="!isLock" @click="isLock = true"/>
+                                    </q-btn>
+                                </template>
+                            </q-input>
+                        </div>
+
+                        <div class="col col-md-12 col-xs-12">
+                            <q-input label="Подтверждение пароля мобильного приложения" outlined dense
+                                     :type="(!isLock) ? 'password' : 'text'" v-model="user.password_confirm">
+                                <template v-slot:prepend>
+                                    <q-icon name="lock"/>
+                                </template>
+                                <template v-slot:append>
+                                    <q-btn flat>
+                                        <q-icon name="visibility" v-if="isLock" @click="isLock = false"/>
+                                        <q-icon name="visibility_off" v-if="!isLock" @click="isLock = true"/>
+                                    </q-btn>
+                                </template>
+                            </q-input>
+                        </div>
+                    </template>
+
+<!--                    <template v-else>-->
+<!--                        <div class="col col-md-12 col-xs-12">-->
+<!--                            <region-field v-model="user.region"/>-->
+<!--                        </div>-->
+<!--                    </template>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="q-mt-md">
+            <q-btn color="primary" icon="save" label="Сохранить" @click="updateData"/>
+        </div>
+    </div>
+
+</template>
+
+<script>
+import {getUser, updateUser} from "../../services/user";
+import {Notify} from "quasar";
+
+import EmailField from "../../Components/Fields/EmailField.vue";
+import PhoneField from "../../Components/Fields/PhoneField.vue";
+import RegionField from "../../Components/Fields/RegionField.vue";
+
+export default {
+    components: {RegionField, PhoneField, EmailField},
+
+    data() {
+        return {
+            isLock: false,
+            show: false,
+            user: {
+                id: null,
+                phone: '',
+                email: '',
+                password: '',
+                password_confirm: '',
+                region: ''
+            }
+        }
+    },
+
+    methods: {
+
+        getData() {
+            getUser().then(res => {
+                let profile = res.profile
+
+                if (res.role === 'liner') {
+                    this.user.phone = (profile.phone) ?? ''
+                    this.user.email = (profile.email) ?? ''
+                } else {
+                    this.user.phone = res.phone
+                    this.user.email = res.email
+                }
+                this.user.id = res.id
+                this.user.role = res.role
+
+                this.show = true
+            })
+        },
+
+
+        updateData() {
+            updateUser(this.user).then(() => {
+                this.getData()
+
+                this.user.password = ''
+                this.user.password_confirm = ''
+
+                Notify.create({
+                    message: 'Данные сохранены',
+                    position: 'bottom-right',
+                    type: 'positive'
+                })
+
+            })
+        }
+    },
+
+    created() {
+        this.getData()
+    }
+}
+</script>
+
+<style scoped>
+
+</style>

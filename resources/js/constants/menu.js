@@ -96,6 +96,14 @@ export default {
             color: color1,
             expand: false,
             link: '/exchange'
+        },
+
+        {
+            name: 'Пользователи',
+            icon: 'people',
+            color: color1,
+            expand: false,
+            link: '/user'
         }
     ],
 

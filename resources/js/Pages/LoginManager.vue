@@ -9,6 +9,15 @@
                     <div class="row">
                         <q-card square bordered class="q-pa-lg shadow-1" style="max-width: 480px;width: 100vw">
 
+                            <q-banner dense inline-actions class="text-white bg-pink-5" v-if="showBanner">
+                                    <span v-for="(error, i) in errors" :key="i">
+                                        <span v-for="(item, index) in error" :key="index">
+                                            {{ item }}
+                                            <br>
+                                        </span>
+                                    </span>
+                            </q-banner>
+
                             <q-card-section>
                                 <q-form class="q-gutter-md">
                                     <q-select :options="options" label="Выберите тип применяемой ЭЦП"
@@ -43,12 +52,15 @@ export default {
     data() {
         return {
             loading: false,
+            showBanner: false,
+
+            errors: [],
+
             auth_type: {
                 name: '',
                 code: ''
             },
-            options: [
-            ]
+            options: []
         }
     },
 
@@ -96,6 +108,8 @@ export default {
 
         login() {
             this.loading = true
+            this.showBanner = false
+            this.errors = []
             this.connectAndSign()
         },
 
@@ -136,6 +150,8 @@ export default {
                     name: 'order'
                 })
             }).catch(reject => {
+                this.errors = JSON.parse(reject.response.data.error)
+                this.showBanner = true
             }).finally(() => {
                 this.loading = false
             })

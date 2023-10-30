@@ -8,6 +8,9 @@
         <tr>
             <th class="text-left">ФИО</th>
             <th class="text-left">ИИН</th>
+            <th class="text-left">Регион</th>
+            <th class="text-left">Телефон</th>
+            <th class="text-left">Email</th>
             <th class="text-left">Сумма</th>
             <th class="text-left">Дата</th>
             <th class="text-left">Статус</th>
@@ -18,10 +21,14 @@
         <tr v-for="(item, i) in items" :key="i">
             <td>
                 <span class="text-subtitle2">
-                    {{ (item.liner) ? item.liner.profile.fln : '' }}
+                    {{ item.liner.client.title }}
                 </span>
             </td>
-            <td>{{ item.liner.idnum }}</td>
+            <td>{{ item.liner.client.idnum }}</td>
+            <td>{{ item.liner.client.region ? item.liner.client.region.title : '-' }}</td>
+            <td>{{ item.liner.client.phone }}</td>
+            <td>{{ item.liner.client.email }}</td>
+
             <td><span class="text-subtitle2">{{ item.amount }} &#8376;</span></td>
             <td>{{ item.date }}</td>
             <td>

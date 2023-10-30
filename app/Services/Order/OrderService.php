@@ -34,6 +34,8 @@ class OrderService
                     ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked')
                     ->join('pre_order_car', 'order.id', 'pre_order_car.order_id')
                     ->where('pre_order_car.factory_id', $factory_id)->where('blocked', 0);
+            }else if($user->role === 'admin'){
+                $orders = Order::with(['car', 'client', 'preorder']);
             }
 //
 //            }

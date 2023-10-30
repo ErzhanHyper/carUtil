@@ -22,10 +22,8 @@ class TransferDealResource extends JsonResource
         $user = app(AuthService::class)->auth();
 
         $liner = Liner::find($this->liner_id);
-
         $showAccept = true;
         $signed = false;
-        $client = Client::where('idnum', $user->idnum)->first();
 
         $transferOrder = TransferOrder::where('id', $this->transfer_order_id)->where('transfer_deal_id', $this->id)->first();
         if ($transferOrder) {
@@ -54,7 +52,6 @@ class TransferDealResource extends JsonResource
             'transfer_order' => $transferOrder,
             'showAccept' => $showAccept,
             'signed' => $signed,
-            'client' => $client
         ];
     }
 }

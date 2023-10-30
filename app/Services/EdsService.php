@@ -3,6 +3,7 @@
 
 namespace App\Services;
 
+use InvalidArgumentException;
 
 class EdsService
 {
@@ -11,6 +12,7 @@ class EdsService
         $b64 = base64_encode($pem);
         $result = [];
         exec('cd /opt/ksign && LD_LIBRARY_PATH="/opt/kalkancrypt:/opt/kalkancrypt/lib/engines" php secure.php ' . $b64, $result);
+
         $j = $result[0] === '' ? $result[1] : $result[0];
         $p = json_decode(base64_decode($j));
 

@@ -14,6 +14,9 @@ import ServicePage from "@/Pages/service/Service.vue";
 import ExchangePage from "@/Pages/exchange/Exchange.vue";
 import SellPage from "@/Pages/sell/Sell.vue";
 import ReportPage from "@/Pages/report/Report.vue";
+import UserPage from "@/Pages/user/User.vue";
+
+import ProfilePage from "@/Pages/profile/ProfileMain.vue";
 
 const routes = [
 
@@ -125,6 +128,18 @@ const routes = [
                 path: '/report',
                 component: ReportPage,
                 name: 'report',
+            },
+
+            {
+                path: '/profile',
+                component: ProfilePage,
+                name: 'profile',
+            },
+
+            {
+                path: '/user',
+                component: UserPage,
+                name: 'user',
             },
         ]
     },

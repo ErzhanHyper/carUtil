@@ -5,6 +5,8 @@ namespace App\Services;
 
 
 use App\Models\Car;
+use App\Models\TransferDeal;
+use App\Models\TransferOrder;
 
 class SignService
 {
@@ -21,6 +23,27 @@ class SignService
         $car->hash = $zipped_string;
         $car->save();
 
+        return $zipped_string;
+    }
+
+
+    public function __signTransferData($id): string
+    {
+        $transfer = TransferOrder::find($id);
+        $deal = TransferDeal::find($transfer->transfer_deal_id);
+        $car = Car::where('order_id', $transfer->order_id)->first();
+
+        $zipped_string = '';
+        if($deal && $car) {
+            $hashed_string = 'id:' . $transfer->id . ' vin:'. $car->vin .' grnz:'. $car->grnz. ' date:' . $deal->date . ' deal_id:' . $transfer->deal_id . ' amount:' . $deal->amount;
+            $hashed_string .= ' owner_liner_id:' . $transfer->owner_liner_id . ' recipient_liner_id:' . $transfer->recipient_liner_id;
+            $zipped_string = gzencode($hashed_string);
+            $zipped_string = base64_encode($zipped_string);
+
+            $transfer->hash = $zipped_string;
+            $transfer->save();
+
+        }
         return $zipped_string;
     }
 }

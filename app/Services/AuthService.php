@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Liner;
 use App\Models\Session;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -50,7 +51,7 @@ class AuthService
         if ($secure) {
             $idnum = $secure->iin;
             $liner = Liner::where('idnum', $idnum)->first();
-            if($liner){
+            if ($liner) {
                 return true;
             }
         }
@@ -88,12 +89,19 @@ class AuthService
                 $session->uid = $user->id;
                 $session->role = $role;
                 $session->save();
+
+                return [
+                    'hash' => $hash,
+                ];
+
             } else {
-                throw new InvalidArgumentException(json_encode(['title' => ['Пользователь не существует']]));
+//                throw new InvalidArgumentException(json_encode(['title' => ['Пользователь не существует']]));
+                $hash = $this->newLiner($secure, $request);
+                return [
+                    'hash' => $hash,
+                ];
             }
-            return [
-                'hash' => $hash,
-            ];
+
         }
     }
 
@@ -131,6 +139,36 @@ class AuthService
         }
 
         return ['hash' => $hash];
+    }
+
+
+    private function newLiner($secure, $request)
+    {
+
+        $dte = Carbon::parse(str_replace(' ALMT', '', $secure->dte))->format('Y-m-d H:i');
+        $liner = new Liner;
+        $liner->idnum = $secure->iin;
+        $liner->active = 0;
+        $liner->opt = 0;
+        $liner->lts = strtotime($dte);
+        $liner->profile = json_encode([
+            'fln' => $secure->ln . ' ' . $secure->fn . ' ' . $secure->gn,
+            'email' => $secure->email,
+            'ftype' => $secure->bin != '' ? 'ut' : 'ft'
+        ]);
+        if ($liner->save()) {
+            $idnum = $secure->iin;
+            $hash = Hash::make(Config::get('APP_SALT') . $idnum);
+
+            $session = new Session();
+            $session->token = $hash;
+            $session->uid = $liner->id;
+            $session->role = 'liner';
+            $session->save();
+
+            return $hash;
+        }
+
     }
 
 }

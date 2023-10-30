@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Liner;
 use App\Models\Session;
+use App\Models\User;
 use App\Services\AuthService;
 use Exception;
 use Illuminate\Http\Request;
@@ -74,5 +76,49 @@ class AuthController extends Controller
         }
 
         return response()->json('logout');
+    }
+
+
+    public function update(Request $request)
+    {
+        $user = app(AuthService::class)->auth();
+
+        if($user->role === 'liner') {
+            $liner = Liner::find($request->id);
+            if ($liner) {
+                if ($liner->id === $user->id) {
+                    $profile = json_decode($liner->profile);
+
+                    if ($request->phone) {
+                        $profile->phone = $request->phone;
+                    }
+
+                    if ($request->email) {
+                        $profile->email = $request->email;
+                    }
+
+                    if ($request->password && $request->password_confirm) {
+                        if ($request->password === $request->password_confirm) {
+                            $liner->password = md5($request->password . 'KZ.UNIDADE.2016');
+                        }
+                    }
+
+                    $profile = json_encode($profile);
+                    $liner->profile = $profile;
+
+                }
+                $liner->save();
+            }
+        }else{
+            $manager = User::find($request->id);
+            if($manager){
+                if($manager->id === $user->id){
+                    $manager->email = $request->email;
+                    $manager->phone = $request->phone;
+                    $manager->save();
+                }
+            }
+        }
+
     }
 }
