@@ -1,8 +1,8 @@
 import api from "../api";
 
-export function getFactoryList(params) {
+export function getVehicleList(params) {
     return new Promise((resolve, reject) => {
-        api.get('/factory', params).then(response => {
+        api.get('/vehicle', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -11,9 +11,9 @@ export function getFactoryList(params) {
     })
 }
 
-export function getFactoryById(id) {
+export function getVehicleById(id) {
     return new Promise((resolve, reject) => {
-        api.get('/factory/'+id).then(response => {
+        api.get('/vehicle/'+id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -22,9 +22,9 @@ export function getFactoryById(id) {
     })
 }
 
-export function updateFactory(id, params) {
+export function updateVehicle(id, params) {
     return new Promise((resolve, reject) => {
-        api.put('/factory/'+id, params).then(response => {
+        api.put('/vehicle/'+id, params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -33,9 +33,9 @@ export function updateFactory(id, params) {
     })
 }
 
-export function deleteFactory(id) {
+export function deleteVehicle(id) {
     return new Promise((resolve, reject) => {
-        api.delete('/factory/'+id).then(response => {
+        api.delete('/vehicle/'+id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

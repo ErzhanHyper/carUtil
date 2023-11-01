@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Factory extends Model
+class Manufacture extends Model
 {
     use HasFactory;
 
-    protected $table = 'factory';
-    public $timestamps = false;
+    protected $table = 'ref_manufactory';
+
 }

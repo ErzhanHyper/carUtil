@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import {getManufactoryList} from "../../services/manufactory";
+import { getManufactureList} from "../../services/manufacture";
 
 export default {
 
@@ -60,7 +60,7 @@ export default {
         },
 
         getItems(){
-            getManufactoryList().then(res => {
+            getManufactureList().then(res => {
                 this.items = res
                 this.options = res
             })

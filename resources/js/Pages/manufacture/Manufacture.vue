@@ -1,15 +1,13 @@
 <template>
     <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
-        <div class="text-h6 text-primary">Модели ТС</div>
+        <div class="text-h6 text-primary">Производители</div>
     </div>
 
     <div v-if="show">
         <q-markup-table flat bordered dense >
             <thead>
             <tr>
-                <th class="text-left">Производитель</th>
-                <th class="text-left">Марка</th>
-                <th class="text-left">Модель</th>
+                <th class="text-left">Название</th>
             </tr>
             </thead>
 
@@ -17,12 +15,10 @@
             <template v-if="items.length > 0">
                 <tr v-for="item in items">
                     <td>
-                        <router-link class="text-primary" :to="'/vehicle/'+item.id">
-                            <q-icon name="open_in_new" class="q-mr-sm" size="18px"/>{{ item.factory }}
+                        <router-link class="text-primary" :to="'/manufacture/'+item.id">
+                            <q-icon name="open_in_new" class="q-mr-sm" size="18px"/>{{ item.title }}
                         </router-link>
                     </td>
-                    <td>{{ item.brand }}</td>
-                    <td>{{ item.model }}</td>
                 </tr>
             </template>
             <tr v-else><td>Нет записей</td></tr>
@@ -35,7 +31,7 @@
 </template>
 
 <script>
-import {getVehicleList} from "../../services/vehicle";
+import {getManufactureList} from "../../services/manufacture";
 
 export default {
     data() {
@@ -47,7 +43,7 @@ export default {
 
     methods: {
         getData(){
-            getVehicleList().then(res => {
+            getManufactureList().then(res => {
                 this.items = res.items
                 this.show = true
             })

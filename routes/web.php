@@ -125,12 +125,36 @@ Route::prefix('app')->group(function () {
         });
 
         Route::get('region', [\App\Http\Controllers\RegionController::class, 'get'])->name('region');
-        Route::get('manufactory', [\App\Http\Controllers\ManufactoryController::class, 'get'])->name('manufactory');
 
         Route::get('fileType', [\App\Http\Controllers\FileTypeController::class, 'get']);
         Route::get('fileTypeAgro', [\App\Http\Controllers\FileTypeController::class, 'getAgro']);
 
-        Route::get('factory', [\App\Http\Controllers\FactoryController::class, 'get']);
+        Route::prefix('factory')->group(function () {
+            Route::get('/', [\App\Http\Controllers\FactoryController::class, 'get']);
+            Route::middleware(['isModerator'])->group(function () {
+                Route::get('/{id}', [\App\Http\Controllers\FactoryController::class, 'getById']);
+                Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\FactoryController::class, 'update']);
+                Route::delete('/{id}', [\App\Http\Controllers\FactoryController::class, 'delete']);
+            });
+        });
+
+        Route::prefix('manufacture')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ManufactureController::class, 'get']);
+            Route::middleware(['isModerator'])->group(function () {
+                Route::get('/{id}', [\App\Http\Controllers\ManufactureController::class, 'getById']);
+                Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\ManufactureController::class, 'update']);
+                Route::delete('/{id}', [\App\Http\Controllers\ManufactureController::class, 'delete']);
+            });
+        });
+
+        Route::prefix('vehicle')->group(function () {
+            Route::get('/', [\App\Http\Controllers\RefFactoryController::class, 'get']);
+            Route::middleware(['isModerator'])->group(function () {
+                Route::get('/{id}', [\App\Http\Controllers\RefFactoryController::class, 'getById']);
+                Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\RefFactoryController::class, 'update']);
+                Route::delete('/{id}', [\App\Http\Controllers\RefFactoryController::class, 'delete']);
+            });
+        });
 
         Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);
 

@@ -22,7 +22,7 @@ class User extends Authenticatable
     }
 
     public function manufactory() {
-        return $this->belongsTo(Manufactory::class,'custom_2', 'id');
+        return $this->belongsTo(Manufacture::class,'custom_2', 'id');
     }
 
     public function region() {

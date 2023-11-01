@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Factory;
+use App\Models\RefFactory;
 use Exception;
 use Illuminate\Http\Request;
 
-class FactoryController extends Controller
+class RefFactoryController extends Controller
 {
     public function get(){
         try {
             $result['status'] = 200;
-            $result['data'] = ['items' => Factory::all()];
+            $result['data'] = ['items' => RefFactory::all()];
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];
@@ -22,7 +22,7 @@ class FactoryController extends Controller
     public function getById($id){
         try {
             $result['status'] = 200;
-            $result['data'] = Factory::find($id);
+            $result['data'] = RefFactory::find($id);
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];
@@ -32,7 +32,7 @@ class FactoryController extends Controller
 
     public function delete($id){
         try {
-            $factory = Factory::find($id);
+            $factory = RefFactory::find($id);
             $factory->delete();
             $result['status'] = 200;
             $result['data'] = ['message' => 'deleted'];
@@ -45,12 +45,21 @@ class FactoryController extends Controller
 
     public function update(Request $request, $id){
         try {
-            $factory = Factory::find($id);
-            if($request->title) {
-                $factory->title = $request->title;
+            $factory = RefFactory::find($id);
+            if($request->factory) {
+                $factory->factory = $request->factory;
             }
-            if($request->address) {
-                $factory->address = $request->address;
+            if($request->brand) {
+                $factory->brand = $request->brand;
+            }
+            if($request->model) {
+                $factory->model = $request->model;
+            }
+            if($request->category) {
+                $factory->category = $request->category;
+            }
+            if($request->class) {
+                $factory->class = $request->class;
             }
             $factory->save();
             $result['status'] = 200;

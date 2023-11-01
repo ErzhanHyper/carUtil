@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function get(Request $request)
     {
-        $user = User::with(['factory', 'region', 'manufactory']);
+        $user = User::with(['factory', 'region', 'manufacture']);
 
         if($request->idnum){
             $user->where('login', 'like', '%'.$request->idnum. '%');
@@ -30,7 +30,7 @@ class UserController extends Controller
 
     public function getById($id)
     {
-        $user = User::where('id', $id)->with(['factory', 'region', 'manufactory'])->first();
+        $user = User::where('id', $id)->with(['factory', 'region', 'manufacture'])->first();
         return response()->json(new UserResource($user));
     }
 

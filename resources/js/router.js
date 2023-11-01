@@ -13,9 +13,15 @@ import TransferOrderDetail from "./Pages/transfer/TransferOrderDetail.vue";
 import ServicePage from "@/Pages/service/Service.vue";
 import SellPage from "@/Pages/sell/Sell.vue";
 import ReportPage from "@/Pages/report/Report.vue";
+
 import VehiclePage from "@/Pages/vehicle/Vehicle.vue";
+import VehicleDetail from "@/Pages/vehicle/VehicleDetail.vue";
+
 import FactoryPage from "@/Pages/factory/Factory.vue";
-import ManufactoryPage from "@/Pages/manufactory/Manufactory.vue";
+import FactoryDetail from "@/Pages/factory/FactoryDetail.vue";
+
+import ManufacturePage from "@/Pages/manufacture/Manufacture.vue";
+import ManufactureDetail from "@/Pages/manufacture/ManufactureDetail.vue";
 
 import UserPage from "@/Pages/user/User.vue";
 import UserDetail from "@/Pages/user/UserDetail.vue";
@@ -150,17 +156,35 @@ const routes = [
                 component: VehiclePage,
                 name: 'vehicle',
             },
+            {
+                path: '/vehicle/:id',
+                component: VehicleDetail,
+                name: 'vehicle_detail',
+                props: true
+            },
 
             {
                 path: '/manufacture',
-                component: ManufactoryPage,
+                component: ManufacturePage,
                 name: 'manufacture',
+            },
+            {
+                path: '/manufacture/:id',
+                component: ManufactureDetail,
+                name: 'manufacture_detail',
+                props: true
             },
 
             {
                 path: '/factory',
                 component: FactoryPage,
                 name: 'factory',
+            },
+            {
+                path: '/factory/:id',
+                component: FactoryDetail,
+                name: 'factory_detail',
+                props: true
             },
 
             {

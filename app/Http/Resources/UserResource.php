@@ -30,7 +30,7 @@ class UserResource extends JsonResource
             'custom_4' => $this->custom_4,
             'gp_id' => $this->gp_id,
             'factory' => $this->factory,
-            'manufactory' => $this->manufactory,
+            'manufacture' => $this->manufactory,
             'region' => $this->region,
             'active' => ($this->password === 'disabled')
         ];
