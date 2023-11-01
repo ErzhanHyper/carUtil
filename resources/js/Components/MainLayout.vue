@@ -1,5 +1,5 @@
 <template>
-<!--    <q-linear-progress query />-->
+    <!--    <q-linear-progress query />-->
 
     <q-layout view="lHh LpR fFf" v-if="authenticated">
 
@@ -12,19 +12,23 @@
                     ВЭТС/ВЭССХТ
                 </q-toolbar-title>
 
-<!--                <div class="notification-btn flex flex-center q-mr-lg">-->
-<!--                    <q-btn link dense flat round icon="notifications">-->
-<!--                    </q-btn>-->
-<!--                    <q-badge>2</q-badge>-->
-<!--                </div>-->
+                <!--                <div class="notification-btn flex flex-center q-mr-lg">-->
+                <!--                    <q-btn link dense flat round icon="notifications">-->
+                <!--                    </q-btn>-->
+                <!--                    <q-badge>2</q-badge>-->
+                <!--                </div>-->
 
                 <div class="profile-btn flex flex-center">
                     <q-btn dense flat v-if="user">
                         <div class="q-mr-sm flex column text-right">
-                            <span class="text-body2 text-capitalize">{{ user.title ?? ((user.profile) ? user.profile.fln : '') }}</span>
-                            <span class="text-caption text-capitalize" v-if="user.role && user.role !== 'liner'">{{ (user.role === 'moderator') ? 'Модератор' : 'Менеджер'   }}</span>
+                                <span class="text-body2 text-capitalize">{{
+                                        user.title ?? ((user.profile) ? user.profile.fln : '')
+                                    }}</span>
+                            <span class="text-caption text-capitalize" v-if="user.role && user.role !== 'liner'">{{
+                                    (user.role === 'moderator') ? 'Модератор' : 'Менеджер'
+                                }}</span>
                         </div>
-                        <q-icon name="person" />
+                        <q-icon name="person"/>
                         <q-menu anchor="center middle"
                                 self="center middle">
                             <q-list style="min-width: 100px">
@@ -52,7 +56,7 @@
             <MainMenuList/>
         </q-drawer>
 
-        <q-page-container >
+        <q-page-container :class="contentLoad ? 'active' : ''">
             <div class="q-pa-md">
                 <PageLayout/>
             </div>

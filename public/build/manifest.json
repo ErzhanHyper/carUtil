@@ -8,7 +8,7 @@
     "src": "node_modules/@quasar/extras/material-icons/web-font/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2"
   },
   "resources/js/app.css": {
-    "file": "assets/app-7edb4f02.css",
+    "file": "assets/app-737f068b.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.js": {
@@ -17,14 +17,14 @@
       "assets/flUhRq6tzZclQEJ-Vdg-IuiaDsNa-fd84f88b.woff"
     ],
     "css": [
-      "assets/app-7edb4f02.css"
+      "assets/app-737f068b.css"
     ],
-    "file": "assets/app-7315e539.js",
+    "file": "assets/app-eccf8362.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-56903f23.css",
+    "file": "assets/app-df8147d1.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

@@ -31,6 +31,7 @@
                     <th class="text-left">Статус</th>
                     <th class="text-left">Сумма сертификата</th>
                     <th class="text-left"></th>
+                    <th class="text-left"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -45,6 +46,17 @@
                                label="Скидочный сертификат"
                                icon-right="download" @click="downloadCert(item.id)" :loading="loading"></q-btn>
                     </td>
+
+                    <td>
+                        <q-btn icon="sync_alt" color="deep-orange-5" size="sm" label="Переоформить сертификат" dense
+                               :loading="loading2" @click="exchangeCert(item.id)" v-if="item.showExchange">
+                        </q-btn>
+                        <q-badge v-if="!item.showExchange && item.exchangeStatus != ''">
+                            <router-link :to="'/exchange/'+item.exchange.id" v-if="item.exchange">
+                                {{ item.exchangeStatus }}
+                            </router-link>
+                        </q-badge>
+                    </td>
                 </tr>
                 </tbody>
             </q-markup-table>
@@ -53,7 +65,30 @@
         </q-tab-panel>
 
         <q-tab-panel :name="2">
-            Нет записей
+            <q-markup-table flat bordered dense v-if="exchanges.length > 0">
+                <thead>
+                <tr>
+                    <th class="text-left">#</th>
+                    <th class="text-left">Дата создания</th>
+                    <th class="text-left">ФИО владельца</th>
+                    <th class="text-left">ИИН/БИН владельца</th>
+                    <th class="text-left"></th>
+                </tr>
+
+                <tr v-for="item in exchanges">
+                    <td>
+                        <router-link :to="'/exchange/'+item.id" class="text-primary">
+                            <q-icon name="open_in_new"/>
+                            {{ item.certificate ? item.certificate.id : '-' }}
+                        </router-link>
+                    </td>
+                    <td>{{ item.created }}</td>
+                    <td>{{ item.certificate ? item.certificate.title_1 : '' }}</td>
+                    <td>{{ item.certificate ? item.certificate.idnum_1 : '' }}</td>
+                </tr>
+                </thead>
+            </q-markup-table>
+            <template v-else>Нет записей</template>
         </q-tab-panel>
 
     </q-tab-panels>
@@ -73,9 +108,9 @@
 
 <script>
 import {generateCertificate, getCertificateList} from "../../services/certificate";
-import {secureData} from "../../services/sign";
 import FileDownload from "js-file-download";
-import {validUser} from "../../services/user";
+import {getExchangeList, storeExchange} from "../../services/exchange";
+import {Notify} from "quasar";
 
 export default {
 
@@ -83,7 +118,10 @@ export default {
         return {
             tab: 1,
             items: [],
+            exchanges: [],
+
             loading: false,
+            loading2: false,
             show: false
         }
     },
@@ -94,23 +132,41 @@ export default {
                 this.items = res
                 this.show = true
             })
+
+            getExchangeList().then(res => {
+                this.exchanges = res.items
+                this.show = true
+            })
         },
 
         downloadCert(id) {
             // secureData().then(res => {
             //     if(res){
-            //         this.loading = true
-            //         validUser().then(() => {
-                        generateCertificate(id, {responseType: 'arraybuffer'}).then(res => {
-                            FileDownload(res, 'certificate.pdf')
-                        }).finally(() => {
-                            this.loading = false
-                        })
-            //         }).catch(() => {
-            //             this.loading = false
-            //         })
+            this.loading = true
+            // validUser().then(() => {
+            generateCertificate(id, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'certificate.pdf')
+            }).finally(() => {
+                this.loading = false
+            })
+            // }).catch(() => {
+            //     this.loading = false
+            // })
             //     }
             // })
+        },
+
+        exchangeCert(id) {
+            storeExchange({certificateId: id}).then((res) => {
+                if(res && res.data && res.data.id) {
+                    this.$router.push('/exchange/' + res.data.id)
+                }
+                Notify.create({
+                    message: res.message,
+                    position: 'bottom-right',
+                    type: res.success ? 'positive' : 'warning'
+                })
+            })
         }
     },
 

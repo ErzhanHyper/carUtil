@@ -11,12 +11,20 @@ import PreorderDetail from "@/Pages/preorder/PreorderDetail.vue";
 import TransferOrderPage from "./Pages/transfer/TransferOrder.vue";
 import TransferOrderDetail from "./Pages/transfer/TransferOrderDetail.vue";
 import ServicePage from "@/Pages/service/Service.vue";
-import ExchangePage from "@/Pages/exchange/Exchange.vue";
 import SellPage from "@/Pages/sell/Sell.vue";
 import ReportPage from "@/Pages/report/Report.vue";
+import VehiclePage from "@/Pages/vehicle/Vehicle.vue";
+import FactoryPage from "@/Pages/factory/Factory.vue";
+import ManufactoryPage from "@/Pages/manufactory/Manufactory.vue";
+
 import UserPage from "@/Pages/user/User.vue";
+import UserDetail from "@/Pages/user/UserDetail.vue";
+import UserCreate from "@/Pages/user/UserCreate.vue";
 
 import ProfilePage from "@/Pages/profile/ProfileMain.vue";
+
+import ExchangePage from "@/Pages/exchange/Exchange.vue";
+import ExchangeDetail from "@/Pages/exchange/ExchangeDetail.vue";
 
 const routes = [
 
@@ -117,6 +125,12 @@ const routes = [
                 component: ExchangePage,
                 name: 'exchange',
             },
+            {
+                path: '/exchange/:id',
+                component: ExchangeDetail,
+                name: 'exchange_detail',
+                props: true
+            },
 
             {
                 path: '/sell',
@@ -130,6 +144,25 @@ const routes = [
                 name: 'report',
             },
 
+
+            {
+                path: '/vehicle',
+                component: VehiclePage,
+                name: 'vehicle',
+            },
+
+            {
+                path: '/manufacture',
+                component: ManufactoryPage,
+                name: 'manufacture',
+            },
+
+            {
+                path: '/factory',
+                component: FactoryPage,
+                name: 'factory',
+            },
+
             {
                 path: '/profile',
                 component: ProfilePage,
@@ -141,6 +174,20 @@ const routes = [
                 component: UserPage,
                 name: 'user',
             },
+
+            {
+                path: '/user/create',
+                component: UserCreate,
+                name: 'user_create',
+            },
+
+            {
+                path: '/user/:id',
+                component: UserDetail,
+                name: 'user_detail',
+                props: true
+            },
+
         ]
     },
 ]

@@ -42,9 +42,12 @@
                        v-if="showAccept"/>
                 <template v-if="item.transfer_order && item.transfer_order.transfer_deal_id === item.id">
                     <div class="q-gutter-sm">
-                        <q-btn label="Подписать сделку" color="indigo-8" size="sm" @click="signTransfer(item.transfer_order_id)" v-if="!item.signed"/>
-                        <q-btn flat unelevated  color="blue-10" label="Подписана" class="no-pointer-events text-weight-bold" v-if="item.signed"/>
-                        <q-btn label="Отменить сделку" color="negative" size="sm" @click="closeDeal(item.id)" v-if="item.transfer_order.closed !== 2"/>
+                        <q-btn label="Подписать сделку" color="indigo-8" size="sm"
+                               @click="signShow(item.transfer_order_id)" v-if="!item.signed"/>
+                        <q-btn flat unelevated color="blue-10" label="Подписана"
+                               class="no-pointer-events text-weight-bold" v-if="item.signed"/>
+                        <q-btn label="Отменить сделку" color="negative" size="sm" @click="closeDeal(item.id)"
+                               v-if="item.transfer_order.closed !== 2"/>
                     </div>
                 </template>
             </td>
@@ -54,25 +57,46 @@
 
     <template v-else>Пока предложений нет</template>
 
+    <q-dialog v-model="signDialog">
+        <q-card style="width: 100%;max-width: 800px;">
+            <transfer-term />
+            <q-card-actions align="right">
+                <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer(transfer_id)"
+                       :loading="loading"/>
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
+
+
 </template>
 
 <script>
 
 import {acceptTransferDeal, getTransferDealList, closeTransferDeal, signTransferOrder} from "../../services/transfer";
 import {signData} from "../../services/sign";
+import TransferTerm from "./TransferTerm.vue";
 
 export default {
+    components: {TransferTerm},
     props: ['id'],
 
     data() {
         return {
             items: [],
             showAccept: true,
-            show: false
+            show: false,
+            signDialog: false,
+            transfer_id: null,
+            loading: false,
         }
     },
 
     methods: {
+
+        signShow(id) {
+            this.transfer_id = id
+            this.signDialog = true
+        },
 
         getData() {
             this.show = false
@@ -95,13 +119,17 @@ export default {
             })
         },
 
-        signTransfer(id){
+        signTransfer(id) {
             signData().then(res => {
+                this.loading = true
                 signTransferOrder({
                     sign: res,
                     transfer_order_id: id
                 }).then(res => {
                     this.getData()
+                }).finally(() => {
+                    this.loading = false
+                    this.signDialog = false
                 })
             })
         },

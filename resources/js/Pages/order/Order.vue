@@ -83,16 +83,6 @@
         <template v-else> Нет записей</template>
     </div>
 
-
-    <q-circular-progress
-        indeterminate
-        rounded
-        size="30px"
-        color="primary"
-        class="q-ma-md"
-        v-if="!show"
-    />
-
 </template>
 
 <script>

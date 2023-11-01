@@ -26,6 +26,7 @@ export async function signData() {
     try {
         base64EncodedSignature = await ncalayerClient.createCAdESFromBase64(storageType, 'MTEK');
     } catch (error) {
+        console.log(error.toString())
         return;
     }
 

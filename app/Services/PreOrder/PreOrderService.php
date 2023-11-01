@@ -7,6 +7,7 @@ namespace App\Services\PreOrder;
 use App\Http\Resources\PreOrderResource;
 use App\Models\Car;
 use App\Models\Client;
+use App\Models\Order;
 use App\Models\PreOrderCar;
 use App\Services\AuthService;
 use App\Services\BookingOrder\BookingOrderService;
@@ -50,15 +51,16 @@ class PreOrderService
         $preorder = PreOrderCar::find($id);
         if ($preorder->status === 0 || $preorder->status === 4) {
 
-            if($auth->idnum !== $request->client['idnum']){
+            if ($auth->idnum !== $request->client['idnum']) {
                 throw new InvalidArgumentException(json_encode(['car' => ['Неправильный ИИН']]));
             }
 
             if ($preorder->status === 0) {
                 $client = Client::where('idnum', $request->client['idnum'])->first();
                 $car = Car::where('vin', $request->car['vin'])->first();
-                if ($car) {
-                    throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
+                $order = Order::find($car->order_id);
+                if ($car && $order && $order->approve === 3) {
+                    throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже был обработан']]));
                 }
             } else if ($preorder->status === 4) {
                 $client = Client::where('id', $preorder->client_id)->first();
@@ -81,6 +83,8 @@ class PreOrderService
                 'proxy_date' => $request->car['proxy_date'] ?? '',
                 'cert_idnum' => $request->client['idnum'],
                 'cert_title' => $request->client['title'],
+                'owner_idnum' => $request->client['idnum'],
+                'onwer_title' => $request->client['title'],
             ]);
 
 //            $car_find = Car::where('vin', $request->car['vin'])->first();

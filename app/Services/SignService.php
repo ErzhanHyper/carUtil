@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 use App\Models\Car;
+use App\Models\Exchange;
 use App\Models\TransferDeal;
 use App\Models\TransferOrder;
 
@@ -46,4 +47,15 @@ class SignService
         }
         return $zipped_string;
     }
+
+    public function __signExchangeData($id){
+        $exchange = Exchange::find($id);
+        $hashed_string = 'id:'. $exchange->id .' title:'. $exchange->title .' idnum:'. $exchange->idnum.' certificate_id:'. $exchange->certificate_id;
+        $hashed_string .= ' phone:'. $exchange->phone .' address:'. $exchange->cert_owner_address .' created:'. $exchange->created;
+        $zipped_string = gzencode($hashed_string);
+        $zipped_string = base64_encode($zipped_string);
+
+        return $zipped_string;
+    }
+
 }

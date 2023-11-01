@@ -1,0 +1,162 @@
+<template>
+    <q-select
+        square v-model="item.file"
+        label="Файл"
+        :options="options"
+        :model-value="item.file"
+        option-label="title"
+        option-value="name"
+        map-options
+        emit-value
+        @update:model-value="evt => selectFile(evt)"
+        class="q-mb-lg"
+        outlined
+        dense
+        :loading="loading1"
+        :readonly="readonly"
+        v-if="!readonly"
+    >
+        <template v-slot:before>
+            <q-icon name="folder"/>
+        </template>
+        <template v-slot:append>
+            <q-btn round dense flat icon="add"/>
+        </template>
+    </q-select>
+
+    <input type="file" ref="file_dialog" v-bind:value="uploadedFile" class="hidden"
+           @change="event => uploadFile(event)"/>
+
+
+    <template v-if="files.length > 0">
+        <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
+             v-for="(doc, i) in files"
+             :key="i">
+            <q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon>
+            <a :href="'/storage/uploads/preorder/files/' + doc.exchange_id + '/' + doc.orig_name"
+               class="text-dark">
+                {{ getFileTypeTitle(doc.type) }}
+            </a>
+            <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
+                    color="negative" @click="deleteFile(doc.id)" v-if="!readonly && !loading" >
+            </q-icon>
+        </div>
+    </template>
+</template>
+
+<script>
+import {ref} from "vue";
+import {deleteExchangeFile, getExchangeFile, storeExchangeFile} from "../../services/exchange";
+import {Notify} from "quasar";
+
+export default {
+
+    props: ['data', 'readonly'],
+
+    setup() {
+        return {
+            slide: ref(1),
+            pickFile: ref({})
+        }
+    },
+
+    data() {
+        return {
+            loading: false,
+            loading1: false,
+            files: [],
+            item: {},
+            options: [
+                {
+                    name: 'APP_EXCHANGE',
+                    title: 'Заявление на перерегистрацию'
+                },
+                {
+                    name: 'ID_SOURCE',
+                    title: 'Удостоверяющие документы/свидетельство владельца(представителя)'
+                },
+                {
+                    name: 'ID_TARGET',
+                    title: 'Удостоверяющие документы/свидетельство получателя(представителя)'
+                },
+                {
+                    name: 'PHOTO_SOURCE',
+                    title: 'Фото владельца'
+                },
+                {
+                    name: 'PHOTO_TARGET',
+                    title: 'Фото получателя'
+                },
+            ],
+            uploadedFile: null,
+            type: null,
+        }
+    },
+
+    methods: {
+
+        getFileTypeTitle(value){
+            let title = ''
+            this.options.map(el => {
+                if(el.name === value){
+                    title = el.title
+                }
+            })
+
+            return title
+        },
+
+        selectFile(evt) {
+            this.$refs.file_dialog.value = this.uploadedFile;
+            this.type = evt
+            this.pickFile = this.$refs.file_dialog
+            this.pickFile.click();
+        },
+
+        uploadFile(evt) {
+            this.loading1 = true
+            storeExchangeFile({
+                type: this.type,
+                file: evt.target.files[0],
+                exchange_id: this.data.id
+            }).then(() => {
+                this.getFiles()
+                this.type = null
+                this.pickFile = null
+                this.file = null
+            }).catch(err => {
+                Notify.create({
+                    message: err.file,
+                    position: 'bottom-right',
+                    type: 'warning'
+                })
+            })
+        },
+
+        getFiles() {
+            getExchangeFile({
+                exchange_id: this.data.id
+            }).then(res => {
+                this.files = res
+            }).finally(() => {
+                this.loading1 = false
+                this.loading = false
+            })
+        },
+
+        deleteFile(id){
+            this.loading = true
+            this.loading1 = true
+            deleteExchangeFile({
+                exchange_file_id: id
+            }).then(res => {
+                this.getFiles()
+            })
+        }
+    },
+
+    created() {
+        this.getFiles()
+    }
+}
+</script>

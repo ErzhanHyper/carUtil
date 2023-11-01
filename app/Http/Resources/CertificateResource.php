@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Exchange;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -50,6 +51,33 @@ class CertificateResource extends JsonResource
             }
         }
 
+        $exchange = Exchange::where('certificate_id', $this->id)->orderByDesc('created')->first();
+
+        $showExchange = true;
+
+        if($this->blocked == 1){
+            $showExchange = false;
+        }
+
+        $exchange_status = '';
+        if($exchange) {
+            if ($this->blocked == 1 && $this->closed == 0) {
+                if ($exchange->approve == 1) {
+                    $exchange_status = 'Отправлена на одобрение';
+                }else{
+                    $showExchange = false;
+                    $exchange_status = 'На переоформлении';
+                }
+            }else{
+                if($this->blocked == 0 && ($exchange->approve == 3 || $exchange->approve == 2)){
+                    $showExchange = true;
+                }else{
+                    $showExchange = false;
+                    $exchange_status = 'На переоформлении';
+                }
+            }
+        }
+
         return [
             'dateTill' => $dateTill,
             'id' => $this->id,
@@ -76,7 +104,11 @@ class CertificateResource extends JsonResource
             'closed' => $this->closed,
 
             'sum' => $sum,
-            'date' => date('d.m.Y', $this->date)
+            'date' => date('d.m.Y', $this->date),
+
+            'exchange' => $exchange,
+            'showExchange' => $showExchange,
+            'exchangeStatus' => $exchange_status
         ];
     }
 

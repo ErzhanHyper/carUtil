@@ -23,6 +23,9 @@ class CarService
         $car->cert_idnum = $data->cert_idnum;
         $car->cert_title = $data->cert_title;
 
+        $car->owner_title = $data->owner_title;
+        $car->owner_idnum = $data->owner_idnum;
+
         if(isset($data->doors_count) && $data->doors_count != ''){
             $car->doors_count = $data->doors_count;
         }else{

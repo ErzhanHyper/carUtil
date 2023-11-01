@@ -63,15 +63,6 @@
 <!--        </q-tab-panel>-->
     </q-tab-panels>
 
-    <q-circular-progress
-        indeterminate
-        rounded
-        size="30px"
-        color="primary"
-        class="q-ma-md"
-        v-show="!show"
-    />
-
     <q-dialog v-model="transferTermsDialog">
         <q-card>
             <q-card-section>

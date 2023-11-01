@@ -10,3 +10,14 @@ export function getStatementDoc(id, params) {
         })
     })
 }
+
+export function getExchangeApp(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('/document/exchange/'+id+'/application', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

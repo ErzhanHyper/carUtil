@@ -12,4 +12,9 @@ class DocumentController extends Controller
         return app(DocumentService::class)->generateStatement($id);
     }
 
+    public function getExchangeApplication($id){
+
+        return app(DocumentService::class)->generateExchangeApplication($id);
+    }
+
 }

@@ -25,7 +25,18 @@ Route::prefix('app')->group(function () {
         Route::post('logout', [\App\Http\Controllers\AuthController::class, 'logout']);
 
         Route::post('user', [\App\Http\Controllers\AuthController::class, 'get']);
-        Route::post('user/update', [\App\Http\Controllers\AuthController::class, 'update']);
+        Route::post('profile/update', [\App\Http\Controllers\AuthController::class, 'update']);
+
+        Route::post('role', [\App\Http\Controllers\UserController::class, 'role']);
+
+        Route::middleware(['isModerator'])->group(function () {
+            Route::prefix('user')->group(function () {
+                Route::post('/all', [\App\Http\Controllers\UserController::class, 'get']);
+                Route::post('/{id}/get', [\App\Http\Controllers\UserController::class, 'getById']);
+                Route::post('/store', [\App\Http\Controllers\UserController::class, 'store']);
+                Route::post('/{id}/update', [\App\Http\Controllers\UserController::class, 'update']);
+            });
+        });
 
         Route::post('validUser', [\App\Http\Controllers\AuthController::class, 'validUser']);
 
@@ -65,6 +76,22 @@ Route::prefix('app')->group(function () {
             Route::get('{id}/get', [\App\Http\Controllers\CertificateController::class, 'generate']);
         });
 
+        Route::prefix('exchange')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ExchangeController::class, 'get']);
+            Route::post('/', [\App\Http\Controllers\ExchangeController::class, 'store']);
+            Route::get('/{id}', [\App\Http\Controllers\ExchangeController::class, 'getById']);
+            Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\ExchangeController::class, 'update']);
+
+            Route::middleware(['isModerator'])->group(function () {
+                Route::match(['put', 'patch'], '/{id}/approve', [\App\Http\Controllers\ExchangeController::class, 'approve']);
+                Route::match(['put', 'patch'], '/{id}/decline', [\App\Http\Controllers\ExchangeController::class, 'decline']);
+            });
+
+            Route::post('/storeFile', [\App\Http\Controllers\ExchangeController::class, 'storeFile']);
+            Route::post('/getFile', [\App\Http\Controllers\ExchangeController::class, 'getFile']);
+            Route::post('/deleteFile', [\App\Http\Controllers\ExchangeController::class, 'deleteFile']);
+        });
+
         Route::prefix('transfer')->group(function () {
             Route::get('/order', [\App\Http\Controllers\TransferOrderController::class, 'get']);
             Route::get('/order/{id}', [\App\Http\Controllers\TransferOrderController::class, 'getById']);
@@ -94,10 +121,11 @@ Route::prefix('app')->group(function () {
 
         Route::prefix('document')->group(function () {
             Route::get('/order/{id}/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
-
+            Route::get('/exchange/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getExchangeApplication']);
         });
 
         Route::get('region', [\App\Http\Controllers\RegionController::class, 'get'])->name('region');
+        Route::get('manufactory', [\App\Http\Controllers\ManufactoryController::class, 'get'])->name('manufactory');
 
         Route::get('fileType', [\App\Http\Controllers\FileTypeController::class, 'get']);
         Route::get('fileTypeAgro', [\App\Http\Controllers\FileTypeController::class, 'getAgro']);

@@ -99,6 +99,30 @@ export default {
         },
 
         {
+            name: 'Производители',
+            icon: 'factory',
+            color: color1,
+            expand: false,
+            link: '/manufacture'
+        },
+
+        {
+            name: 'Заводы',
+            icon: 'precision_manufacturing',
+            color: color1,
+            expand: false,
+            link: '/factory'
+        },
+
+        {
+            name: 'Модели ТС',
+            icon: 'directions_car',
+            color: color1,
+            expand: false,
+            link: '/vehicle'
+        },
+
+        {
             name: 'Пользователи',
             icon: 'people',
             color: color1,

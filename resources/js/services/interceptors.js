@@ -12,18 +12,27 @@ import emitter from "../mitt";
 let apiUrl = 'https://dev-auto.recycle.kz/app';
 
 let disabled_loaded_content = [
-    apiUrl + '/user',
-    apiUrl + '/region',
-    apiUrl + '/factory',
-    apiUrl + '/file/order/get',
-    apiUrl + '/fileType',
-    apiUrl + '/booking/order',
+    '/preorder/checkVehicle',
+    '/user',
+    '/region',
+    '/factory',
+   '/file/order/get',
+    '/file/preorder/get',
+    '/fileType',
+    '/booking/order',
+    '/file/preorder/store',
+    '/file/order/store',
+    '/exchange/deleteFile',
+    '/exchange/getFile',
+    '/exchange/storeFile',
 ];
 
 api.interceptors.request.use(function (config) {
-    emitter.emit('contentLoaded', true);
+    console.log(config.url)
     if(disabled_loaded_content.indexOf(config.url) > -1){
         emitter.emit('contentLoaded', false);
+    }else{
+        emitter.emit('contentLoaded', true);
     }
     return config;
 });

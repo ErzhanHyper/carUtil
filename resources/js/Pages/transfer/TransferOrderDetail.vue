@@ -18,7 +18,7 @@
             <div v-if="item.deal">
                 <template v-if="item.closed === 1 && item.signAccess && !item.deal.signed">
                     <q-btn label="Подписать сделку" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
-                           @click="signTransfer" :loading="loading1"/>
+                           @click="signDialog = true" :loading="loading1"/>
                 </template>
                 <template v-if="item.closed === 2">
                     <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
@@ -107,6 +107,17 @@
                label="Отменить продажу ТС" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2"/>
     </div>
 
+
+    <q-dialog v-model="signDialog">
+        <q-card style="width: 100%;max-width: 800px;">
+            <transfer-term />
+            <q-card-actions align="right">
+                <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer()"
+                       :loading="loading"/>
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
+
 </template>
 
 <script>
@@ -114,24 +125,24 @@ import CarCard from "../car/CarCard.vue";
 import {
     closeTransfer,
     getTransferItem,
-    getTransferOrderPfs,
     signTransferOrder,
     storeTransferDeal
 } from "../../services/transfer";
-
+import {generateOrderPFS} from "../../services/file";
 import {signData} from "../../services/sign";
+
 import {Notify} from "quasar";
+import FileDownload from "js-file-download";
 
 import PreorderFile from "../preorder/PreorderFile.vue";
 import TransferDeal from "./TransferDeal.vue";
 import ClientCard from "@/Pages/client/ClientCard.vue";
-import {generateOrderPFS} from "../../services/file";
-import FileDownload from "js-file-download";
+import TransferTerm from "./TransferTerm.vue";
 
 export default {
 
     props: ['id'],
-    components: {TransferDeal, PreorderFile, CarCard, ClientCard},
+    components: {TransferDeal, PreorderFile, CarCard, ClientCard, TransferTerm},
 
     data() {
         return {
@@ -142,6 +153,7 @@ export default {
             showError: false,
             blocked: false,
             recycleType: null,
+            signDialog: false,
 
             errors: [],
             item: {
@@ -214,6 +226,7 @@ export default {
                     transfer_order_id: this.item.id
                 }).then(() => {
                     this.getData()
+                    this.signDialog = false
                 }).finally(() => {
                     this.loading1 = false
                 })

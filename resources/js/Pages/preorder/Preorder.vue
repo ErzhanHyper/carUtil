@@ -108,16 +108,6 @@
         <template v-else> Нет заявок</template>
     </div>
 
-
-    <q-circular-progress
-        indeterminate
-        rounded
-        size="30px"
-        color="primary"
-        class="q-ma-md"
-        v-if="!show"
-    />
-
     <q-dialog v-model="orderDialog">
         <q-card style="width: 600px; max-width: 500px;">
             <q-card-section class="row items-center">

@@ -98,3 +98,10 @@ input:-webkit-autofill {
     max-width: 444px;
     width: 100%;
 }
+
+
+.q-page-container.active{
+    opacity: .5;
+    pointer-events: none;
+    filter: blur(4px);
+}

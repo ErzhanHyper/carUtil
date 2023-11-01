@@ -163,6 +163,11 @@ class TransferService
             if ($user->id === $transferOrder->owner_liner_id) {
                 $transferOrder->transfer_deal_id = null;
                 $transferOrder->recipient_liner_id = null;
+                $transferOrder->owner_sign = '';
+                $transferOrder->recipient_sign = '';
+                $transferOrder->owner_sign_time = 0;
+                $transferOrder->recipient_sign_time = 0;
+
                 $transferOrder->closed = 0;
                 $transferOrder->save();
                 return ['status' => true];
@@ -210,8 +215,12 @@ class TransferService
                     $preorder->save();
 
                     $car = Car::where('order_id', $transfer_order->order_id)->first();
+
                     $car->cert_title = $client->title;
                     $car->cert_idnum = $client->idnum;
+
+                    $car->owner_title = $client->title;
+                    $car->owner_idnum = $client->idnum;
                     $car->save();
 
                     $order->blocked = 0;

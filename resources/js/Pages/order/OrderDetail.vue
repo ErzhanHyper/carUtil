@@ -272,9 +272,8 @@ export default {
                     this.showModeratorAction = true
                 }
 
-
-            }).finally(() => {
                 this.showData = true
+
             })
         },
 

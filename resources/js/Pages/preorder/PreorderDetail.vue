@@ -1,14 +1,5 @@
 <template>
 
-    <q-circular-progress
-        indeterminate
-        rounded
-        size="30px"
-        color="primary"
-        class="q-ma-md"
-        v-if="!showData"
-    />
-
     <div v-if="showData">
         <q-banner class="q-mb-md bg-indigo-1"
                   v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)">
@@ -53,9 +44,8 @@
             </q-banner>
         </template>
 
-        <template v-if="(user.role === 'liner' || user.role === 'moderator') && item.status.id === 2">
-            <booking class="q-mt-md" :data="item.booking" :getBooking="getBooking" :blocked="blockedBooking"
-                     id="preorder_booking"/>
+        <template v-if="(user.role === 'liner' || (user.role === 'moderator' && item.booking.datetime)) && item.status.id === 2">
+            <booking class="q-mt-md" :data="item.booking" :getBooking="getBooking" :blocked="blockedBooking" id="preorder_booking"/>
         </template>
 
         <div class="row q-col-gutter-md">
@@ -241,9 +231,9 @@ export default {
                 this.showFile = true
                 this.blocked = this.item.blocked
                 this.blockedBooking = this.item.blockedBooking
+                this.showData = true
 
             }).finally(() => {
-                this.showData = true
             })
         },
 
@@ -253,7 +243,6 @@ export default {
             this.$emitter.emit('ClientCardEvent')
             this.$emitter.emit('CarCardEvent')
             this.$emitter.emit('BookingCardEvent')
-            console.log(this.item.car)
             if ((this.item.status && this.item.status.id === 0) || this.item.status && this.item.status.id === 4) {
                 this.loading = true
                 sendOrder(this.id, this.item).then(res => {
