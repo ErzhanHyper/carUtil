@@ -71,13 +71,15 @@ export default {
 
         approveAction() {
             this.loading = true
-            approveOrder(this.id).then(() => {
+            approveOrder(this.id).then((res) => {
                 this.commentDialog = false
-                Notify.create({
-                    message: 'Предзаявка одобрена',
-                    position: 'bottom-right',
-                    type: 'positive'
-                })
+                if(res && res.message !== '') {
+                    Notify.create({
+                        message: res.message,
+                        position: 'bottom-right',
+                        type: 'positive'
+                    })
+                }
                 this.$emitter.emit('preorderActionEvent')
             }).finally(() => {
                 this.loading = false
