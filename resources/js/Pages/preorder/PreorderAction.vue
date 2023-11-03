@@ -77,7 +77,7 @@ export default {
                     Notify.create({
                         message: res.message,
                         position: 'bottom-right',
-                        type: 'positive'
+                        type: res.success === true ? 'positive' : 'warning'
                     })
                 }
                 this.$emitter.emit('preorderActionEvent')

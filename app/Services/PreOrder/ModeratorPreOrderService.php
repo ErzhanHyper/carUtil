@@ -15,12 +15,14 @@ class ModeratorPreOrderService
 
     public function approve($request, $id)
     {
+        $success = false;
+        $message = 'Нет доступа';
+        $can = true;
         $preorder = PreOrderCar::find($id);
         $car = Car::find($preorder->car_id);
-        if($car){
-            $can = true;
-            $carDuplicate = Car::where('vin', $car->vin)->get();
 
+        if($car){
+            $carDuplicate = Car::where('vin', $car->vin)->get();
             if($carDuplicate) {
                 foreach ($carDuplicate as $item) {
                     $orderRel = Order::find($item->order_id);
@@ -29,32 +31,35 @@ class ModeratorPreOrderService
                     }
                 }
             }
-
             if($can === false) {
-                return ['ТС с таким VIN кодом уже одобрено в другой заявке'];
+                $message = 'ТС с таким VIN кодом уже одобрена в другой заявке';
             }
         }
-        $preorder->status = 2;
 
-        $order = new Order;
-        $order->client_id = $preorder->client_id;
-        $order->created = time();
-        $order->user_id = null;
-        $order->approve = 0;
-        $order->sended_to_approve = 0;
-        $order->order_type = 2;
-        $order->pay_approve = 0;
-        $order->sended_to_pay = 0;
-        $order->status = 0;
-        $order->executor_uid = null;
+        if($can) {
+            $preorder->status = 2;
+            $order = new Order;
+            $order->client_id = $preorder->client_id;
+            $order->created = time();
+            $order->user_id = null;
+            $order->approve = 0;
+            $order->sended_to_approve = 0;
+            $order->order_type = 2;
+            $order->pay_approve = 0;
+            $order->sended_to_pay = 0;
+            $order->status = 0;
+            $order->executor_uid = null;
 
-        if ($order->save()) {
-            if ($car) {
-                $car->order_id = $order->id;
-                $car->car_type_id = ($preorder->recycle_type === 1) ? 1 : 3;
-                if ($car->save()) {
-                    $preorder->order_id = $order->id;
-                    $preorder->save();
+            if ($order->save()) {
+                if ($car) {
+                    $car->order_id = $order->id;
+                    $car->car_type_id = ($preorder->recycle_type === 1) ? 1 : 3;
+                    if ($car->save()) {
+                        $preorder->order_id = $order->id;
+                        $preorder->save();
+                        $success = true;
+                        $message = 'Предзаявка одобрена';
+                    }
                 }
             }
         }
@@ -64,7 +69,10 @@ class ModeratorPreOrderService
             'comment' => ''
         ]), $preorder->id);
 
-        return ['approve'];
+        return [
+            'success' => $success,
+            'message' => $message
+        ];
     }
 
 
