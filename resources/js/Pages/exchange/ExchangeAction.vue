@@ -2,7 +2,7 @@
     <div class="col col-md-12" v-if="show">
         <div class="flex justify-between" >
             <div class="q-gutter-sm">
-                <q-btn :loading="loading"
+                <q-btn :loading="loading1"
                        square size="12px"
                        color="light-green"
                        label="Одобрить"
@@ -21,6 +21,7 @@
                 <q-btn square size="12px"
                        color="red-5"
                        label="Отклонить"
+                       :loading="loading2"
                        @click="send('decline')"
                        icon="block">
                 </q-btn>
@@ -40,13 +41,15 @@ export default {
 
     data(){
         return{
-            loading: false,
+            loading1: false,
+            loading2: false,
         }
     },
 
     methods: {
         send(value){
             if(value === 'approve'){
+                this.loading1 = true
                 approveExchange(this.data.id).then((res) => {
                     Notify.create({
                         message: res.message,
@@ -54,10 +57,13 @@ export default {
                         type: res.success ? 'positive' : 'warning'
                     })
                     this.$emitter.emit('ExchangeActionEvent')
+                }).finally(() => {
+                    this.loading1 = false
                 })
             }
 
             if(value === 'decline'){
+                this.loading2 = true
                 declineExchange(this.data.id).then((res) => {
                     Notify.create({
                         message: res.message,
@@ -65,6 +71,8 @@ export default {
                         type: res.success ? 'positive' : 'warning'
                     })
                     this.$emitter.emit('ExchangeActionEvent')
+                }).finally(() => {
+                    this.loading2 = false
                 })
             }
         }

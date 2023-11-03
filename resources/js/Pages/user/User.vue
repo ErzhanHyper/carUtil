@@ -30,44 +30,43 @@
         </q-card-section>
     </q-card>
 
-    <div v-if="show">
-        <q-markup-table flat bordered dense v-if="items.length > 0">
-            <thead>
-            <tr>
-                <th class="text-left">Логин</th>
-                <th class="text-left">Телефон</th>
-                <th class="text-left">Email</th>
-                <th class="text-left">ФИО</th>
-                <th class="text-left">Роль</th>
-                <th class="text-left">Поле (base)</th>
-                <th class="text-left">Адрес</th>
-                <th class="text-left">Производитель (диллер)</th>
-                <th class="text-left">Регион</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(item, i) in items" :key="i">
-                <td>
-                    <router-link :to="'/user/'+item.id" class="text-primary text-body2">
-                        <q-icon name="open_in_new" size="sm" class="q-mr-sm"/>
-                        {{ item.login }}
-                    </router-link>
-                </td>
-                <td>{{ item.phone }}</td>
-                <td>{{ item.email }}</td>
-                <td>{{ item.title }}</td>
-                <td>{{ item.role }}</td>
-                <td>{{ item.base }}</td>
-                <td>{{ item.custom_1 }}</td>
-                <td>{{ item.custom_2 }}</td>
-                <td>{{ item.region ? item.region.title : '' }}</td>
-            </tr>
-            </tbody>
-        </q-markup-table>
+    <q-markup-table flat bordered dense >
+        <thead>
+        <tr>
+            <th class="text-left">Логин</th>
+            <th class="text-left">Телефон</th>
+            <th class="text-left">Email</th>
+            <th class="text-left">ФИО</th>
+            <th class="text-left">Роль</th>
+            <th class="text-left">Поле (base)</th>
+            <th class="text-left">Адрес</th>
+            <th class="text-left">Производитель (диллер)</th>
+            <th class="text-left">Регион</th>
+        </tr>
+        </thead>
+        <tbody>
+        <template v-if="items.length > 0">
+        <tr v-for="(item, i) in items" :key="i">
+            <td>
+                <router-link :to="'/user/'+item.id" class="text-primary text-body2">
+                    <q-icon name="open_in_new" size="sm" class="q-mr-sm"/>
+                    {{ item.login }}
+                </router-link>
+            </td>
+            <td>{{ item.phone }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.role }}</td>
+            <td>{{ item.base }}</td>
+            <td>{{ item.custom_1 }}</td>
+            <td>{{ item.custom_2 }}</td>
+            <td>{{ item.region ? item.region.title : '' }}</td>
+        </tr>
+        </template>
+        <tr v-else><td>Нет записей</td></tr>
+        </tbody>
+    </q-markup-table>
 
-        <template v-else>Нет записей</template>
-
-    </div>
 
     <div class="q-pa-lg flex flex-center">
         <q-pagination
@@ -109,20 +108,20 @@ export default {
     methods: {
 
         applyFilter() {
-            this.items = []
+            this.page = 1
             this.loading1 = true
             this.getData()
         },
 
         resetFilter() {
-            this.items = []
+            this.page = 1
             this.loading2 = true
             this.filter = {}
             this.getData()
         },
 
         getData() {
-            this.show = false
+            this.$emitter.emit('contentLoaded', true);
             getUserCollection({
                 idnum: this.filter.idnum,
                 title: this.filter.title,
@@ -131,7 +130,6 @@ export default {
             }).then(res => {
                 this.items = res.data
                 this.totalPage = res.meta.last_page
-                this.show = true
             }).finally(() => {
                 this.loading1 = false
                 this.loading2 = false

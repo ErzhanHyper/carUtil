@@ -31,9 +31,12 @@ class EdsService
         exec('cd /opt/ksign && LD_LIBRARY_PATH="/opt/kalkancrypt:/opt/kalkancrypt/lib/engines" php check.php ' . $hash . ' ' . $sign, $check);
         $j = json_decode(base64_decode($check[0]));
 
-//        if($j->status == 'SUCCESS' && $j->iin) {
-        return $j;
-//        }
+        dd($j);
+        if ($j->status === 'SUCCESS' && $j->iin) {
+            return $j;
+        }else{
+            throw new InvalidArgumentException(json_encode(['title' => ['Ошибка подписи!']]));
+        }
     }
 
 

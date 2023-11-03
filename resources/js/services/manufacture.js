@@ -11,6 +11,17 @@ export function getManufactureList(params) {
     })
 }
 
+export function storeManufacture(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/manufacture', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function getManufactureById(id) {
     return new Promise((resolve, reject) => {
         api.get('/manufacture/'+id).then(response => {

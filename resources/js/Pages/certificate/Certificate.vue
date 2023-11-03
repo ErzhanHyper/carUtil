@@ -30,7 +30,7 @@
                     <th class="text-left">Срок действия до</th>
                     <th class="text-left">Статус</th>
                     <th class="text-left">Сумма сертификата</th>
-                    <th class="text-left"></th>
+                    <th class="text-left">Сертификат</th>
                     <th class="text-left"></th>
                 </tr>
                 </thead>
@@ -42,13 +42,13 @@
                     <td class="text-left">{{ item.status }}</td>
                     <td class="text-left">{{ item.sum }}</td>
                     <td class="text-left">
-                        <q-btn icon="verified" unelevated dense size="sm" class="text-green-10"
+                        <q-btn icon="verified" color="indigo-8" dense size="11px"
                                label="Скидочный сертификат"
                                icon-right="download" @click="downloadCert(item.id)" :loading="loading"></q-btn>
                     </td>
 
                     <td>
-                        <q-btn icon="sync_alt" color="deep-orange-5" size="sm" label="Переоформить сертификат" dense
+                        <q-btn icon="verified" icon-right="sync_alt" color="pink-10" size="11px" label="Переоформить сертификат" dense
                                :loading="loading2" @click="exchangeCert(item.id)" v-if="item.showExchange">
                         </q-btn>
                         <q-badge v-if="!item.showExchange && item.exchangeStatus != ''">
@@ -93,17 +93,6 @@
 
     </q-tab-panels>
 
-
-    <q-circular-progress
-        indeterminate
-        rounded
-        size="30px"
-        color="primary"
-        class="q-ma-md"
-        v-if="!show"
-    />
-
-
 </template>
 
 <script>
@@ -128,11 +117,11 @@ export default {
 
     methods: {
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             getCertificateList().then(res => {
                 this.items = res
                 this.show = true
             })
-
             getExchangeList().then(res => {
                 this.exchanges = res.items
                 this.show = true
@@ -157,6 +146,7 @@ export default {
         },
 
         exchangeCert(id) {
+            this.loading2 = true
             storeExchange({certificateId: id}).then((res) => {
                 if(res && res.data && res.data.id) {
                     this.$router.push('/exchange/' + res.data.id)
@@ -166,6 +156,8 @@ export default {
                     position: 'bottom-right',
                     type: res.success ? 'positive' : 'warning'
                 })
+            }).finally(() => {
+                this.loading2 = false
             })
         }
     },

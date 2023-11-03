@@ -1,9 +1,6 @@
 <template>
     <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
         <div class="text-h6 text-primary">Продажа ТС</div>
-        <div class="flex justify-between" v-if="user && user.role === 'liner'">
-
-        </div>
     </div>
 
     <q-tabs
@@ -14,53 +11,20 @@
         indicator-color="primary"
         align="justify"
         style="width: 300px"
-        v-show="show"
     >
-        <q-tab :name="1" label="Все"/>
-        <q-tab :name="2" label="Мои"/>
-<!--        <q-tab :name="3" label="Завершенные сделки"/>-->
+        <q-tab :name="1" label="Активные" />
+        <q-tab :name="2" label="Мои" />
     </q-tabs>
 
-    <q-tab-panels v-model="tab" animated v-show="show">
+    <q-tab-panels v-model="tab" animated vertical>
         <q-tab-panel :name="1">
-            <template v-if="items.length > 0">
-                <q-markup-table flat bordered dense>
-                    <thead>
-                    <tr>
-                        <th class="text-left">ID</th>
-                        <th class="text-left">ФИО</th>
-                        <th class="text-left">VIN</th>
-                        <th class="text-left">Категория</th>
-                        <th class="text-left">Дата публикации</th>
-                        <th class="text-left"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="(item, i) in items" :key="i">
-                        <td>{{ item.id }}</td>
-                        <td>{{ item.order.client.title }}</td>
-                        <td>{{ item.order.car.vin }}</td>
-                        <td>{{ item.order.car.category.title_ru }}</td>
-                        <td>{{ item.date }}</td>
-                        <td>
-                            <q-btn icon="open_in_new" dense flat :to="'/transfer/order/'+item.id" color="primary"
-                                   label="Открыть"/>
-
-                        </td>
-                    </tr>
-                    </tbody>
-                </q-markup-table>
-            </template>
-            <template v-else>Пусто</template>
+            <transfer-order-all />
         </q-tab-panel>
 
         <q-tab-panel :name="2">
             <transfer-order-current />
         </q-tab-panel>
 
-<!--        <q-tab-panel :name="3">-->
-<!--            Lorem ipsum dolor sit amet consectetur adipisicing elit.-->
-<!--        </q-tab-panel>-->
     </q-tab-panels>
 
     <q-dialog v-model="transferTermsDialog">
@@ -68,38 +32,31 @@
             <q-card-section>
                 <div class="text-h6">Общая информация</div>
             </q-card-section>
-
             <q-separator/>
-
             <q-card-section style="max-height: 70vh" class="scroll">
                 Продажа транспортного средства
             </q-card-section>
-
             <q-separator/>
-
             <q-card-actions align="right">
                 <q-btn flat label="Закрыть" color="primary" v-close-popup/>
             </q-card-actions>
         </q-card>
     </q-dialog>
 
-
 </template>
 
 <script>
-import {getTransferList} from "../../services/transfer";
-import TransferOrderCurrent from "./TransferOrderCurrent.vue";
 import {mapGetters} from "vuex";
 
+import TransferOrderCurrent from "./TransferOrderCurrent.vue";
+import TransferOrderAll from "./TransferOrderAll.vue";
+
 export default {
-    components: {TransferOrderCurrent},
+    components: {TransferOrderCurrent, TransferOrderAll},
     data() {
         return {
             tab: 1,
             transferTermsDialog: true,
-            items: [],
-
-            show: false,
         }
     },
 
@@ -111,16 +68,11 @@ export default {
     },
 
     methods: {
-        getData() {
-            getTransferList().then((res) => {
-                this.items = res
-                this.show = true
-            })
-        },
+
     },
 
     created() {
-        this.getData()
+        this.$emitter.emit('contentLoaded', true);
 
         if (localStorage.getItem('transfer_terms')) {
             this.transferTermsDialog = false

@@ -7,11 +7,22 @@
             <div class="text-overline text-blue-5 text-uppercase" v-if="show && user.role === 'moderator'">{{ item.status.title }}</div>
         </div>
 
-        <div class="q-gutter-md" v-if="show && user.role === 'liner'">
-            <q-btn color="deep-orange-8" icon="download" icon-right="description" label="Скачать заявление"
-                   class="text-weight-bold" :loading="loading1" @click="getExchangeDoc"/>
-            <q-btn label="Подписать" color="indigo-8" icon="gesture" @click="send" v-if="item.canSign"/>
-            <q-btn label="Отменить" color="negative" icon="close" class="q-ml-md" v-if="item.canDelete"/>
+        <div class="q-gutter-md" >
+
+            <q-btn color="indigo-8"
+                   size="12px"
+                   dense
+                   icon="download"
+                   icon-right="description"
+                   label="Скачать заявление"
+                   class="text-weight-bold"
+                   :loading="loading1"
+                   @click="getExchangeDoc"/>
+
+            <template v-if="show && user.role === 'liner'">
+                <q-btn label="Подписать" size="12px" color="positive" icon="gesture" @click="send" v-if="item.canSign" :loading="loading2"/>
+                <q-btn label="Отменить" size="12px" color="negative" icon="close" class="q-ml-md" v-if="item.canDelete" :loading="loading3" @click="deleteData"/>
+            </template>
         </div>
     </div>
 
@@ -76,7 +87,7 @@
 </template>
 
 <script>
-import {getExchangeById, updateExchange} from "../../services/exchange";
+import {deleteExchange, getExchangeById, updateExchange} from "../../services/exchange";
 import {signData} from "../../services/sign";
 
 import AddressField from "../../Components/Fields/AddressField.vue";
@@ -87,8 +98,9 @@ import ExchangeFile from "./ExchangeFile.vue";
 import ExchangeAction from "./ExchangeAction.vue";
 import {mapGetters} from "vuex";
 import {Notify} from "quasar";
-import {getExchangeApp, getStatementDoc} from "../../services/document";
+import {getExchangeApp} from "../../services/document";
 import FileDownload from "js-file-download";
+import {generateCertificate} from "../../services/certificate";
 
 export default {
     components: {ExchangeAction, PhoneField, ClientIdField, NameField, AddressField, ExchangeFile},
@@ -98,6 +110,8 @@ export default {
         return {
             show: false,
             loading1: false,
+            loading2:false,
+            loading3:false,
             item: {
                 page: 2,
                 blocked: true,
@@ -117,14 +131,15 @@ export default {
 
         getExchangeDoc() {
             this.loading1 = true
-            getExchangeApp({exchange_id: this.item.id}, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'exchange_app.pdf')
+            getExchangeApp(this.item.id, {responseType: 'arraybuffer'}).then((res) => {
+                FileDownload(res, 'exchange.pdf')
             }).finally(() => {
                 this.loading1 = false
             })
         },
 
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             getExchangeById(this.id).then(res => {
                 if(res && res.id) {
                     this.item = res
@@ -134,9 +149,9 @@ export default {
         },
 
         send() {
-            this.item.blocked = true
             signData().then(res => {
                 if(res){
+                    this.loading2 = true
                     updateExchange(this.item.id, {
                         sign: res,
                         title: this.item.title,
@@ -145,18 +160,33 @@ export default {
                         page: this.item.page,
                         phone: this.item.phone,
                     }).then((res) => {
-                        if(res.success) {
-                            this.getData()
+                        if(res) {
+                            if (res.success) {
+                                this.getData()
+                            }
+                            if ( res.message && res.message !== '') {
+                                Notify.create({
+                                    message: res.message,
+                                    position: 'bottom-right',
+                                    type: res.success ? 'positive' : 'warning'
+                                })
+                            }
                         }
-                        Notify.create({
-                            message: res.message,
-                            position: 'bottom-right',
-                            type: res.success ? 'positive' : 'warning'
-                        })
+                    }).finally(() => {
+                        this.loading2 = false
                     })
                 }
+            })
+        },
+
+        deleteData() {
+            this.loading3 = true
+            deleteExchange(this.item.id).then((res) => {
+                if(res && res.success === true){
+                    this.$router.push('/certificate')
+                }
             }).finally(() => {
-                this.item.blocked = false
+                this.loading3 = false
             })
         }
     },

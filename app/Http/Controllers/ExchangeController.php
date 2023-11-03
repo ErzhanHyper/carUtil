@@ -54,12 +54,23 @@ class ExchangeController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-
     public function update(Request $request, $id)
     {
         try {
             $result['status'] = 200;
             $result['data'] = app(ExchangeService::class)->update($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
+    public function delete($id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(ExchangeService::class)->delete($id);
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];

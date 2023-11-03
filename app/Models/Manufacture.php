@@ -10,5 +10,5 @@ class Manufacture extends Model
     use HasFactory;
 
     protected $table = 'ref_manufactory';
-
+    public $timestamps = false;
 }

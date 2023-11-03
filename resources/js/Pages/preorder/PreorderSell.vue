@@ -21,7 +21,7 @@
                            size="sm"
                            color="blue-grey-10"
                            label="Перейти"
-                           to="/transfer/order">
+                           :to="'/transfer/order/'+transfer.id">
                     </q-btn>
                 </div>
             </div>
@@ -56,11 +56,13 @@ export default {
                 order_id: this.order_id
             }).then(res => {
                 this.$emitter.emit('preorderSellEvent')
-                Notify.create({
-                    message: 'Транспортное средство выставлена на продажу',
-                    position: 'bottom-right',
-                    type: 'info'
-                })
+                if(res && res.message !== '') {
+                    Notify.create({
+                        message: res.message,
+                        position: 'bottom-right',
+                        type: res.success === true ? 'positive' : 'warning'
+                    })
+                }
             }).finally(() => {
                 this.loading = false
             })

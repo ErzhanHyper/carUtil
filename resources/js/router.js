@@ -16,12 +16,15 @@ import ReportPage from "@/Pages/report/Report.vue";
 
 import VehiclePage from "@/Pages/vehicle/Vehicle.vue";
 import VehicleDetail from "@/Pages/vehicle/VehicleDetail.vue";
+import VehicleCreate from "@/Pages/vehicle/VehicleCreate.vue";
 
 import FactoryPage from "@/Pages/factory/Factory.vue";
 import FactoryDetail from "@/Pages/factory/FactoryDetail.vue";
+import FactoryCreate from "@/Pages/factory/FactoryCreate.vue";
 
 import ManufacturePage from "@/Pages/manufacture/Manufacture.vue";
 import ManufactureDetail from "@/Pages/manufacture/ManufactureDetail.vue";
+import ManufactureCreate from "@/Pages/manufacture/ManufactureCreate.vue";
 
 import UserPage from "@/Pages/user/User.vue";
 import UserDetail from "@/Pages/user/UserDetail.vue";
@@ -162,6 +165,11 @@ const routes = [
                 name: 'vehicle_detail',
                 props: true
             },
+            {
+                path: '/vehicle/create',
+                component: VehicleCreate,
+                name: 'vehicle_create',
+            },
 
             {
                 path: '/manufacture',
@@ -174,6 +182,11 @@ const routes = [
                 name: 'manufacture_detail',
                 props: true
             },
+            {
+                path: '/manufacture/create',
+                component: ManufactureCreate,
+                name: 'manufacture_create',
+            },
 
             {
                 path: '/factory',
@@ -185,6 +198,12 @@ const routes = [
                 component: FactoryDetail,
                 name: 'factory_detail',
                 props: true
+            },
+
+            {
+                path: '/factory/create',
+                component: FactoryCreate,
+                name: 'factory_create',
             },
 
             {

@@ -47,6 +47,7 @@ export default {
 
     methods: {
         getData(){
+            this.$emitter.emit('contentLoaded', true);
             getVehicleById(this.id).then(res => {
                 this.item = res
             })

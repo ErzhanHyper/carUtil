@@ -6,6 +6,7 @@ use App\Models\Liner;
 use App\Models\Session;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\EdsService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -120,5 +121,12 @@ class AuthController extends Controller
             }
         }
 
+    }
+
+
+    public function checkEds(Request $request) {
+        $check = app(EdsService::class)->check($request);
+
+        return response()->json($check);
     }
 }

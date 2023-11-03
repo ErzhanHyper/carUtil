@@ -1,7 +1,7 @@
 <template>
 
     <div class="q-gutter-sm q-mb-md q-mt-xs flex justify-between">
-        <div class="text-h6 text-primary">Предварительные заявки</div>
+        <div class="text-h6 text-primary">Предзаявка</div>
 
         <div class="flex justify-between" v-if="user && user.role === 'liner'">
             <!--            <q-btn color="purple-10" unelevated icon="tune" class="q-ml-md"/>-->
@@ -250,6 +250,7 @@ export default {
         },
 
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             getOrderList({page: this.page}).then(res => {
                 this.items = res
                 this.show = true

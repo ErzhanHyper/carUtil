@@ -1,12 +1,10 @@
 <template>
-    <div v-if="show">
-        <div class="row q-col-gutter-md">
-            <user-form :data="item"/>
-        </div>
+    <div class="row q-col-gutter-md">
+        <user-form :data="item"/>
+    </div>
 
-        <div class="q-mt-md">
-            <q-btn color="primary" icon="save" label="Сохранить" @click="updateData"/>
-        </div>
+    <div class="q-mt-md">
+        <q-btn color="primary" icon="save" label="Сохранить" @click="updateData"/>
     </div>
 </template>
 
@@ -38,9 +36,9 @@ export default {
 
     methods: {
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             getUserById(this.id).then(res => {
                 this.item = res
-                this.show = true
             })
         },
 

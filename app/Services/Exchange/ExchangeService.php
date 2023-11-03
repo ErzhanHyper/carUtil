@@ -39,6 +39,8 @@ class ExchangeService
         }
         if (isset($data->page)) {
             $object->page = $data->page;
+        }else{
+            $object->page = 2;
         }
         if (isset($data->cert_owner_address)) {
             $object->cert_owner_address = $data->cert_owner_address;
@@ -81,7 +83,7 @@ class ExchangeService
         }
 
         if (isset($exchange)) {
-            $paginate = 2;
+            $paginate = 15;
             $pages = round($exchange->count() / $paginate);
             if ($pages == 0) {
                 $pages = 1;
@@ -129,21 +131,24 @@ class ExchangeService
                 $dt_check = (strtotime(' + 1 year', $cert->date) + 36000);
             }
 
-            if ($cert && $cert->blocked == 0 && $cert->title_4 == '' && $cert->idnum_4 == '' && $dt_check > time()) {
-
-                $exchange = $this->store($cert_id);
+            if ($cert && $cert->blocked === 0 && $cert->title_4 == '' && $cert->idnum_4 == '' && $dt_check > time()) {
                 $cert->blocked = 1;
-                $cert->save();
-                $success = true;
-                $message = 'Передача была успешно иницирована!';
-                $data = $exchange;
+                if($cert->save()){
+                    $exchange = $this->store($cert_id);
 
-                Log::create([
-                    'event' => 'create',
-                    'object_type' => 'exchange',
-                    'object_id' => $exchange->id,
-                    'when' => time()
-                ]);
+                    if($exchange) {
+                        $success = true;
+                        $message = 'Передача была успешно иницирована!';
+                        $data = $exchange;
+
+                        Log::create([
+                            'event' => 'create',
+                            'object_type' => 'exchange',
+                            'object_id' => $exchange->id,
+                            'when' => time()
+                        ]);
+                    }
+                }
 
             } else {
                 $message = 'Cертификат невозможно переоформить!';
@@ -165,6 +170,7 @@ class ExchangeService
         $userType = 'owner';
         $success = false;
         $message = 'Нет доступа';
+        $messages = [];
 
         $log = Log::create([
             'event' => 'sign',
@@ -189,6 +195,7 @@ class ExchangeService
             if ($userType === 'owner' && $canSign) {
                 $signedData = $this->signOwner($request, $id);
                 $message = $signedData['message'];
+                $messages = $signedData['messages'];
                 if($signedData['success'] === true){
                     $success = true;
                     $exchangeAfter = Exchange::find($id);
@@ -198,6 +205,8 @@ class ExchangeService
             } else if ($userType === 'receiver' && $canSign) {
                 $signedData = $this->signReceiver($request, $id);
                 $message = $signedData['message'];
+                $messages = $signedData['messages'];
+
                 if($signedData['success'] === true){
                     $this->sendToApprove($id);
                     $success = true;
@@ -212,7 +221,8 @@ class ExchangeService
 
         return [
             'success' => $success,
-            'message' => $message
+            'message' => $message,
+            'messages' => $messages
         ];
     }
 
@@ -227,7 +237,7 @@ class ExchangeService
             'cert_owner_address' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json(['messages' => $validator->messages()]);
+            return ['message' => 'Не заполнены объязательные поля!', 'success' => false, 'messages' => $validator->messages()];
         }
 
         $exchange = Exchange::find($id);
@@ -299,5 +309,20 @@ class ExchangeService
         $this->setData($data, $exchange);
 
         return $exchange;
+    }
+
+    public function delete($id)
+    {
+        $exchange = Exchange::find($id);
+        if($exchange && ($exchange->approve === 0 || $exchange->approve === 1)) {
+            $cert = Certificate::find($exchange->certificate_id);
+            $cert->blocked = 0;
+            if($cert->save()) {
+                $exchange->delete();
+                return ['message' => 'Успешно удалено!', 'success' => true];
+            }
+        }else{
+            return ['message' => 'Нет доступа!',  'success' => false];
+        }
     }
 }

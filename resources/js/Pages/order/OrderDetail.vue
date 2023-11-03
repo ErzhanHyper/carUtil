@@ -230,6 +230,7 @@ export default {
         },
 
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             this.showFile = false
             this.showOperatorAction = false
             this.showModeratorAction = false

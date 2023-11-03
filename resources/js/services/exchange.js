@@ -44,6 +44,17 @@ export function updateExchange(id, params) {
     })
 }
 
+export function deleteExchange(id) {
+    return new Promise((resolve, reject) => {
+        api.delete('/exchange/'+id).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally((response) => {
+        })
+    })
+}
+
 export function approveExchange(id) {
     return new Promise((resolve, reject) => {
         api.put('/exchange/'+id+'/approve').then(response => {

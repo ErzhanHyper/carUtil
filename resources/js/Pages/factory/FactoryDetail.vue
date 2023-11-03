@@ -4,7 +4,7 @@
             <factory-form :data="item"/>
             <div class="q-gutter-md q-mt-md">
                 <q-btn :loading="loading" label="Сохранить" icon="edit" color="primary" @click="updateData"/>
-                <q-btn :loading="loading" label="Удалить" icon="delete" color="negative" @click="showDeleteDialog = true"/>
+<!--                <q-btn :loading="loading" label="Удалить" icon="delete" color="negative" @click="showDeleteDialog = true"/>-->
             </div>
         </q-card-section>
     </q-card>
@@ -47,6 +47,7 @@ export default {
 
     methods: {
         getData(){
+            this.$emitter.emit('contentLoaded', true);
             getFactoryById(this.id).then(res => {
                 this.item = res
             })

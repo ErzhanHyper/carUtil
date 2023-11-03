@@ -3,7 +3,7 @@
         square
         v-model="field"
         label="Завод"
-        :options="options"
+        :options="items"
         :model-value="field"
         option-value="id"
         option-label="title"
@@ -14,8 +14,8 @@
         outlined
         dense
         class="q-mb-xs"
-        @filter="filterFn"
-        use-input
+        input-debounce="0"
+        :loading="items.length === 0"
     >
         <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
@@ -29,6 +29,7 @@
             </q-item>
         </template>
     </q-select>
+
 </template>
 
 <script>
@@ -41,7 +42,6 @@ export default {
     data() {
         return{
             field: this.data,
-            options: [],
             items: [],
 
             showData: false,
@@ -49,25 +49,12 @@ export default {
     },
 
     methods: {
-        filterFn(val, update) {
-            this.options = this.items
-            if (val === '') {
-                update(() => {
-                    this.options.value = this.items
-                })
-                return
-            }
-            update(() => {
-                const needle = val.toLowerCase()
-                this.options = this.items.filter(v => v.title.toLowerCase().indexOf(needle) > -1)
-
-            })
-        },
 
         getItems(){
             getFactoryList().then(res => {
-                this.items = res
-                this.options = res
+                if(res && res.items) {
+                    this.items = res.items
+                }
             })
         }
     },

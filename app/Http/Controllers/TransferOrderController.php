@@ -2,50 +2,84 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Document\DocumentTransferService;
 use App\Services\Transfer\TransferService;
+use Exception;
 use Illuminate\Http\Request;
 
 class TransferOrderController extends Controller
 {
     public function get(Request $request)
     {
-        $data = app(TransferService::class)->getCollection($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferService::class)->getCollection($request->params);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
     public function getById($id)
     {
-        $data = app(TransferService::class)->getById($id);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferService::class)->getById($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
     public function getCurrent(Request $request)
     {
-        $data = app(TransferService::class)->getCurrenCollection($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferService::class)->getCurrenCollection($request);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
     public function store(Request $request)
     {
-        $data = app(TransferService::class)->store($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferService::class)->store($request);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
-    public function sign(Request $request)
+    public function sign(Request $request, $id)
     {
-        $data = app(TransferService::class)->sign($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferService::class)->sign($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+
     }
 
-    public function pfs(Request $request)
+    public function delete($id)
     {
-        $data = app(TransferService::class)->pfs($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferService::class)->close($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
-    public function close(Request $request)
-    {
-        $data = app(TransferService::class)->close($request);
-        return response()->json($data);
-    }
 }

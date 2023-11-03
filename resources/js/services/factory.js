@@ -43,3 +43,14 @@ export function deleteFactory(id) {
         })
     })
 }
+
+export function storeFactory(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/factory', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

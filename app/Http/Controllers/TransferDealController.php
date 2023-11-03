@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\TransferDeal;
+use App\Services\Transfer\TransferDealService;
 use App\Services\Transfer\TransferService;
+use Exception;
 use Illuminate\Http\Request;
 
 class TransferDealController extends Controller
@@ -11,8 +13,14 @@ class TransferDealController extends Controller
 
     public function get(Request $request)
     {
-        $data = app(TransferService::class)->getCollectionDeal($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferDealService::class)->getCollection($request);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
     /**
@@ -20,23 +28,42 @@ class TransferDealController extends Controller
      */
     public function store(Request $request)
     {
-        $data = app(TransferService::class)->storeDeal($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferDealService::class)->store($request);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
     /**
      * Display the specified resource.
      */
-    public function accept(Request $request, $id)
+    public function accept($id)
     {
-        $data = app(TransferService::class)->acceptDeal($id);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferDealService::class)->accept($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
-    public function close(Request $request, $id)
+    public function close($id)
     {
-        $data = app(TransferService::class)->closeDeal($id);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferDealService::class)->close($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+
     }
 
     /**

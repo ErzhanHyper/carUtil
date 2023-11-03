@@ -1,33 +1,26 @@
 <template>
 
-    <transfer-deal :id="item.id" v-if="show && item.isOwner"/>
+    <div class="q-gutter-sm text-right">
+        <q-btn icon="close" color="negative" size="11px"
+               label="Отменить продажу ТС" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2" :loading="loading2"/>
+    </div>
 
-    <template v-if="item.dealExist">
-        <div class="q-mx-md q-mt-md flex justify-between">
-            <div>
-                <q-chip class="q-mt-md text-body1" color="blue-1" square v-if="!item.deal">Сделка открыта</q-chip>
-                <q-chip class="q-mt-md text-body1" color="green-1" square
-                        v-if="item.closed === 1 && item.deal && !item.deal.signed">Сделка
-                    выбрана
-                </q-chip>
-                <q-chip class="q-mt-md text-body1" color="positive" dark square v-if="item.closed === 2">
-                    Сделка завершена
-                </q-chip>
-            </div>
+    <transfer-deal :id="item.id" :data="item" v-if="show && item.isOwner" />
 
-            <div v-if="item.deal">
-                <template v-if="item.closed === 1 && item.signAccess && !item.deal.signed">
-                    <q-btn label="Подписать сделку" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
-                           @click="signDialog = true" :loading="loading1"/>
-                </template>
-                <template v-if="item.closed === 2">
-                    <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
-                           icon="picture_as_pdf"
-                           @click="downloadPFS" :loading="loading"/>
+    <template v-if="!item.canDeal">
+        <div class="q-mt-md flex justify-between">
+            <q-chip class="text-body1" color="blue-1" square v-if="!item.canDeal && item.canSign">Предложение выбрана</q-chip>
 
-                    <q-btn label="Перейти к заявке" color="blue-grey-5" size="12px" class="q-mt-sm"
-                           icon="open_in_new" :to="'/preorder/'+item.order.preorder_id"/>
-                </template>
+            <div class="q-gutter-sm">
+                <q-btn label="Подписать сделку" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
+                       @click="signDialog = true" v-if="item.canSign"/>
+
+                <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
+                       icon="picture_as_pdf"
+                       @click="downloadPFS" :loading="loading" v-if="item.closed === 2"/>
+
+                <q-btn label="Перейти к заявке" color="blue-grey-5" size="12px" class="q-mt-sm"
+                       icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.closed === 2"/>
             </div>
 
         </div>
@@ -56,11 +49,11 @@
                     </div>
                 </q-banner>
 
-                <client-card :data="item.client" :blocked="blocked" :getClient="getClient" class="q-mb-lg" v-if="!item.isOwner"/>
+                <client-card :data="item.currentClient" :blocked="blocked" :getClient="getClient" class="q-mb-lg" v-if="!item.isOwner"/>
 
-                <template v-if="!item.dealExist && !item.isOwner">
+                <template v-if="item.canDeal && !item.isOwner">
 
-                    <q-input label="Сумма сделки" v-model="amount" class="text-body1 text-weight-bold"
+                    <q-input label="Сумма" v-model="amount" class="text-body1 text-weight-bold"
                              mask="#"
                              fill-mask=""
                              reverse-fill-mask
@@ -71,8 +64,8 @@
                         </template>
                     </q-input>
 
-                    <q-btn label="Участвовать в сделке" icon="swap_horiz" color="indigo-8"
-                           class="text-weight-bold" push @click="sendData"/>
+                    <q-btn label="Добавить предложение" icon="swap_horiz" color="indigo-8"
+                           class="text-weight-bold" push @click="sendData" :loading="loading3" />
                 </template>
 
             </div>
@@ -102,18 +95,12 @@
     </div>
 
 
-    <div class="q-gutter-sm q-mb-sm text-right q-mt-lg">
-        <q-btn icon="close" color="negative" size="sm"
-               label="Отменить продажу ТС" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2"/>
-    </div>
-
-
     <q-dialog v-model="signDialog">
         <q-card style="width: 100%;max-width: 800px;">
             <transfer-term />
             <q-card-actions align="right">
                 <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer()"
-                       :loading="loading"/>
+                       :loading="loading1"/>
             </q-card-actions>
         </q-card>
     </q-dialog>
@@ -121,23 +108,18 @@
 </template>
 
 <script>
-import CarCard from "../car/CarCard.vue";
-import {
-    closeTransfer,
-    getTransferItem,
-    signTransferOrder,
-    storeTransferDeal
-} from "../../services/transfer";
-import {generateOrderPFS} from "../../services/file";
-import {signData} from "../../services/sign";
-
 import {Notify} from "quasar";
 import FileDownload from "js-file-download";
+import { closeTransfer, getTransferById, signTransferOrder, storeTransferDeal } from "../../services/transfer";
+
+import {signData} from "../../services/sign";
+import {getTransferContract} from "../../services/document";
 
 import PreorderFile from "../preorder/PreorderFile.vue";
 import TransferDeal from "./TransferDeal.vue";
 import ClientCard from "@/Pages/client/ClientCard.vue";
 import TransferTerm from "./TransferTerm.vue";
+import CarCard from "../car/CarCard.vue";
 
 export default {
 
@@ -150,6 +132,9 @@ export default {
             amount: null,
             loading: false,
             loading1: false,
+            loading2: false,
+            loading3: false,
+
             showError: false,
             blocked: false,
             recycleType: null,
@@ -157,8 +142,10 @@ export default {
 
             errors: [],
             item: {
+                currentClient: {},
                 signAccess: false,
                 isOwner: false,
+                canDeal: true,
                 deals: [],
                 file: {},
                 order: {
@@ -175,15 +162,19 @@ export default {
         },
 
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             this.show = false
-            getTransferItem(this.id).then(res => {
-                this.item = res
-                this.item.file = {
-                    preorder_id: res.order.preorder_id
+            getTransferById(this.id).then(res => {
+                if(res) {
+                    this.item = res
+                    if (res.order) {
+                        this.item.file = {
+                            preorder_id: res.order.preorder_id
+                        }
+                    }
+                    this.blocked = res.blocked
+                    this.recycleType = res.recycle_type
                 }
-
-                this.blocked = res.blocked
-                this.recycleType = res.recycle_type
                 this.show = true
             })
         },
@@ -191,39 +182,37 @@ export default {
         sendData() {
             this.showError = false
             this.$emitter.emit('ClientCardEvent')
-
+            this.loading3 = true
             storeTransferDeal({
                 client: this.item.client,
                 transfer_order_id: this.item.id,
                 amount: this.amount
             }).then(res => {
-                if (res.status) {
-                    this.getData()
+                if (res && res.message !== '') {
                     Notify.create({
-                        message: 'Сделка отправлена владельцу',
+                        message: res.message,
                         position: 'bottom-right',
-                        type: 'positive'
+                        type: res.success === true ? 'positive' : 'warning'
                     })
+                }
+
+                if(res && res.success === true){
                     this.blocked = true
-                } else {
-                    Notify.create({
-                        message: 'Не заполнены поля',
-                        position: 'bottom-right',
-                        type: 'warning'
-                    })
+                    this.getData()
                 }
             }).catch(err => {
                 this.errors = JSON.parse(err.message)
                 this.showError = true
+            }).finally(() => {
+                this.loading3 = false
             })
         },
 
         signTransfer() {
             signData().then(res => {
                 this.loading1 = true
-                signTransferOrder({
+                signTransferOrder(this.item.id, {
                     sign: res,
-                    transfer_order_id: this.item.id
                 }).then(() => {
                     this.getData()
                     this.signDialog = false
@@ -235,23 +224,38 @@ export default {
 
         downloadPFS() {
             this.loading = true
-            generateOrderPFS(this.item.order_id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'pfs.pdf')
+            getTransferContract(this.item.id, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'contract.pdf')
+            }).finally(() => {
                 this.loading = false
             })
         },
 
         removeTransfer() {
-            closeTransfer({
-                id: this.item.id
-            }).then(() => {
+            this.loading2 = true
+            closeTransfer(this.item.id).then((res) => {
                 this.$router.push('/transfer/order')
+                if(res && res.message !== '') {
+                    Notify.create({
+                        message: res.message,
+                        position: 'bottom-right',
+                        type: res.success === true ? 'positive' : 'warning'
+                    })
+                }
+            }).finally(() => {
+                this.loading2 = false
             })
         }
     },
 
     created() {
         this.getData()
+    },
+
+    mounted() {
+        this.$emitter.on('TransferDealEvent', () => {
+            this.getData()
+        })
     }
 }
 </script>

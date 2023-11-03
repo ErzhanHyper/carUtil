@@ -19,39 +19,46 @@ class TransferDealResource extends JsonResource
     public function toArray($request): array
     {
 
-        $user = app(AuthService::class)->auth();
+        $auth = app(AuthService::class)->auth();
+        $authClient = Client::where('idnum', $auth->idnum)->first();
 
-        $liner = Liner::find($this->liner_id);
-        $showAccept = true;
-        $signed = false;
+        $client = Client::find($this->client_id);
+        $client->region;
 
         $transferOrder = TransferOrder::where('id', $this->transfer_order_id)->where('transfer_deal_id', $this->id)->first();
-        if ($transferOrder) {
-            $showAccept = false;
 
-            if ($transferOrder->recipient_liner_id === $user->id) {
-                if ($transferOrder->recipient_sign != '') {
-                    $signed = true;
+        $canSign = false;
+        $canClose = false;
+        $selected = false;
+
+        if ($transferOrder) {
+            $selected = true;
+
+            if ($transferOrder->client_id === $authClient->id) {
+                if($transferOrder->closed !== 2){
+                    $canClose = true;
+                }
+                if ($transferOrder->owner_sign == '') {
+                    $canSign = true;
                 }
             }
 
-            if ($transferOrder->owner_liner_id === $user->id) {
+            if ($this->client_id === $authClient->id) {
                 if ($transferOrder->owner_sign != '') {
-                    $signed = true;
+                    $canSign = true;
                 }
             }
         }
 
         return [
+            'client' => $client,
             'id' => $this->id,
             'transfer_order_id' => $this->transfer_order_id,
-            'liner_id' => $this->liner_id,
-            'liner' => new LinerResource($liner),
             'amount' => $this->amount,
             'date' => Carbon::parse($this->date)->format('Y-m-d H:i'),
-            'transfer_order' => $transferOrder,
-            'showAccept' => $showAccept,
-            'signed' => $signed,
+            'selected' => $selected,
+            'canSign' => $canSign,
+            'canClose' => $canClose
         ];
     }
 }

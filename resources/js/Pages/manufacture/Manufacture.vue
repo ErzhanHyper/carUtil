@@ -1,6 +1,9 @@
 <template>
     <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
         <div class="text-h6 text-primary">Производители</div>
+        <div class="flex justify-between">
+            <q-btn color="indigo-8" push icon="add" label="Добавить" class="q-ml-md text-weight-bold" to="/manufacture/create"/>
+        </div>
     </div>
 
     <div v-if="show">
@@ -10,7 +13,6 @@
                 <th class="text-left">Название</th>
             </tr>
             </thead>
-
             <tbody>
             <template v-if="items.length > 0">
                 <tr v-for="item in items">
@@ -23,7 +25,6 @@
             </template>
             <tr v-else><td>Нет записей</td></tr>
             </tbody>
-
         </q-markup-table>
 
     </div>
@@ -43,6 +44,7 @@ export default {
 
     methods: {
         getData(){
+            this.$emitter.emit('contentLoaded', true);
             getManufactureList().then(res => {
                 this.items = res.items
                 this.show = true

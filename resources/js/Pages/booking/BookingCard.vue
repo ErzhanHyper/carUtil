@@ -7,37 +7,7 @@
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-12 col-xs-12">
-
-                    <q-select
-                        square
-                        v-model="item.factory_id"
-                        label="Завод"
-                        :options="factories"
-                        :model-value="item.factory_id"
-                        option-value="id"
-                        option-label="title"
-                        map-options
-                        emit-value
-                        clearable
-                        options-selected-class="text-deep-orange"
-                        outlined
-                        dense
-                        class="q-mb-xs"
-                        :readonly="blocked"
-                        :loading="loading"
-                    >
-                        <template v-slot:option="scope">
-                            <q-item v-bind="scope.itemProps">
-                                <q-item-section avatar>
-                                    <q-icon name="factory"/>
-                                </q-item-section>
-                                <q-item-section>
-                                    <q-item-label>{{ scope.opt.title }}</q-item-label>
-                                    <q-item-label caption>{{ scope.opt.address }}</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                        </template>
-                    </q-select>
+                    <factory-field v-model="item.factory_id" :model-value="item.factory_id" :readonly="blocked" :loading="loading" />
                 </div>
 
                 <div class="col col-md-12 col-xs-12">
@@ -87,19 +57,18 @@
 </template>
 
 <script>
-import {getFactoryList} from "../../services/factory";
+import {Notify} from "quasar";
 import {getBookingOrderList} from "../../services/booking";
 import {bookingOrder} from "../../services/preorder";
-import {Notify} from "quasar";
+import FactoryField from "../../Components/Fields/FactoryField.vue";
 
 export default {
-
+    components: {FactoryField},
     props: ['data', 'getBooking', 'blocked'],
 
     data() {
         return {
             item: {},
-            factories: [],
             dates: [],
 
             loading: false,
@@ -113,10 +82,6 @@ export default {
     },
 
     methods: {
-        getFactory() {
-            this.loading = true
-            getFactoryList().then(res => this.factories = res).finally(() => this.loading = false)
-        },
 
         getDateTime() {
             getBookingOrderList({factory: this.item.factory}).then(res => this.dates = res)
@@ -155,12 +120,6 @@ export default {
 
     created() {
 
-        this.item = {
-            factory_id: null,
-            datetime: null,
-            datetime_string: null
-        }
-
         if (this.data) {
             this.item = this.data
             this.item.datetime = this.item.datetime_string
@@ -168,9 +127,14 @@ export default {
             if(!this.data.datetime || !this.data.factory_id){
                 this.disabled = false
             }
+        }else{
+            this.item = {
+                factory_id: null,
+                datetime: null,
+                datetime_string: null
+            }
         }
 
-        this.getFactory()
     },
 
     mounted() {

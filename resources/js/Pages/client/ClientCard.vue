@@ -124,34 +124,6 @@ export default {
                 this.item.ud_expired = this.$moment(this.$moment(this.item.ud_expired, 'YYYY-MM-DD').toDate()).format('YYYY-MM-DD')
             }
         }
-
-        if (this.user) {
-            if (!this.item.phone) {
-                if (this.user.profile.phone) {
-                    this.item.phone = this.user.profile.phone
-                }
-            }
-
-            if (!this.item.email) {
-                if (this.user.profile.email) {
-                    this.item.email = this.user.profile.email
-                }
-            }
-
-            if (!this.item.title) {
-                if (this.user.profile.fln) {
-                    this.item.title = this.user.profile.fln
-                }
-            }
-
-            if (!this.item.idnum) {
-                console.log(this.user)
-                if (this.user.idnum) {
-                    this.item.idnum = this.user.idnum
-                }
-            }
-
-        }
     },
 
     mounted() {

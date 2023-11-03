@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::prefix('app')->group(function () {
     Route::post('login', [\App\Http\Controllers\AuthController::class, 'login']);
     Route::post('loginMobile', [\App\Http\Controllers\AuthController::class, 'loginMobile']);
@@ -81,6 +80,7 @@ Route::prefix('app')->group(function () {
             Route::post('/', [\App\Http\Controllers\ExchangeController::class, 'store']);
             Route::get('/{id}', [\App\Http\Controllers\ExchangeController::class, 'getById']);
             Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\ExchangeController::class, 'update']);
+            Route::delete('/{id}', [\App\Http\Controllers\ExchangeController::class, 'delete']);
 
             Route::middleware(['isModerator'])->group(function () {
                 Route::match(['put', 'patch'], '/{id}/approve', [\App\Http\Controllers\ExchangeController::class, 'approve']);
@@ -93,19 +93,21 @@ Route::prefix('app')->group(function () {
         });
 
         Route::prefix('transfer')->group(function () {
-            Route::get('/order', [\App\Http\Controllers\TransferOrderController::class, 'get']);
-            Route::get('/order/{id}', [\App\Http\Controllers\TransferOrderController::class, 'getById']);
             Route::get('/orderCurrent', [\App\Http\Controllers\TransferOrderController::class, 'getCurrent']);
+            Route::prefix('order')->group(function () {
+                Route::get('/', [\App\Http\Controllers\TransferOrderController::class, 'get']);
+                Route::get('/{id}', [\App\Http\Controllers\TransferOrderController::class, 'getById']);
+                Route::post('/', [\App\Http\Controllers\TransferOrderController::class, 'store']);
+                Route::delete('/{id}', [\App\Http\Controllers\TransferOrderController::class, 'delete']);
+                Route::put('/{id}/sign', [\App\Http\Controllers\TransferOrderController::class, 'sign']);
+            });
 
-            Route::post('/order/store', [\App\Http\Controllers\TransferOrderController::class, 'store']);
-            Route::post('/order/close', [\App\Http\Controllers\TransferOrderController::class, 'close']);
-            Route::post('/order/sign', [\App\Http\Controllers\TransferOrderController::class, 'sign']);
-            Route::post('/order/pfs', [\App\Http\Controllers\TransferOrderController::class, 'pfs']);
-
-            Route::post('/deal', [\App\Http\Controllers\TransferDealController::class, 'get']);
-            Route::post('/deal/store', [\App\Http\Controllers\TransferDealController::class, 'store']);
-            Route::post('/deal/accept/{id}', [\App\Http\Controllers\TransferDealController::class, 'accept']);
-            Route::post('/deal/close/{id}', [\App\Http\Controllers\TransferDealController::class, 'close']);
+            Route::prefix('deal')->group(function () {
+                Route::get('/', [\App\Http\Controllers\TransferDealController::class, 'get']);
+                Route::post('/', [\App\Http\Controllers\TransferDealController::class, 'store']);
+                Route::put('/{id}/accept', [\App\Http\Controllers\TransferDealController::class, 'accept']);
+                Route::put('/{id}/close', [\App\Http\Controllers\TransferDealController::class, 'close']);
+            });
         });
 
         Route::prefix('file')->group(function () {
@@ -121,7 +123,9 @@ Route::prefix('app')->group(function () {
 
         Route::prefix('document')->group(function () {
             Route::get('/order/{id}/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
+            Route::get('/order/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getContract']);
             Route::get('/exchange/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getExchangeApplication']);
+            Route::get('/transfer/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getTransferContract']);
         });
 
         Route::get('region', [\App\Http\Controllers\RegionController::class, 'get'])->name('region');
@@ -132,15 +136,17 @@ Route::prefix('app')->group(function () {
         Route::prefix('factory')->group(function () {
             Route::get('/', [\App\Http\Controllers\FactoryController::class, 'get']);
             Route::middleware(['isModerator'])->group(function () {
+                Route::post('/', [\App\Http\Controllers\FactoryController::class, 'store']);
                 Route::get('/{id}', [\App\Http\Controllers\FactoryController::class, 'getById']);
                 Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\FactoryController::class, 'update']);
-                Route::delete('/{id}', [\App\Http\Controllers\FactoryController::class, 'delete']);
+//                Route::delete('/{id}', [\App\Http\Controllers\FactoryController::class, 'delete']);
             });
         });
 
         Route::prefix('manufacture')->group(function () {
             Route::get('/', [\App\Http\Controllers\ManufactureController::class, 'get']);
             Route::middleware(['isModerator'])->group(function () {
+                Route::post('/', [\App\Http\Controllers\ManufactureController::class, 'store']);
                 Route::get('/{id}', [\App\Http\Controllers\ManufactureController::class, 'getById']);
                 Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\ManufactureController::class, 'update']);
                 Route::delete('/{id}', [\App\Http\Controllers\ManufactureController::class, 'delete']);
@@ -150,6 +156,7 @@ Route::prefix('app')->group(function () {
         Route::prefix('vehicle')->group(function () {
             Route::get('/', [\App\Http\Controllers\RefFactoryController::class, 'get']);
             Route::middleware(['isModerator'])->group(function () {
+                Route::post('/', [\App\Http\Controllers\RefFactoryController::class, 'store']);
                 Route::get('/{id}', [\App\Http\Controllers\RefFactoryController::class, 'getById']);
                 Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\RefFactoryController::class, 'update']);
                 Route::delete('/{id}', [\App\Http\Controllers\RefFactoryController::class, 'delete']);
@@ -162,9 +169,11 @@ Route::prefix('app')->group(function () {
         Route::get('client/{id}', [\App\Http\Controllers\ClientController::class, 'showById']);
 
         Route::get('report', [\App\Http\Controllers\ReportController::class, 'index'])->name('report');
+        Route::get('category', [\App\Http\Controllers\CategoryController::class, 'get']);
+
+
     });
 });
-
 
 Route::get('/{any}', function () {
     return view('app');

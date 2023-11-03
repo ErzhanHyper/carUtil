@@ -31,7 +31,7 @@ class ExchangeResource extends JsonResource
         $canDelete = false;
         if ($cert->idnum_1 === $auth->idnum) {
 
-            if ($this->approve === 0 && $this->approve === 1) {
+            if ($this->approve === 0 || $this->approve === 1) {
                 $canDelete = true;
             }
 

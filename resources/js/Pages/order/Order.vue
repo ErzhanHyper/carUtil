@@ -198,6 +198,7 @@ export default {
         },
 
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             getOrderList({page: this.page}).then(res => {
                 this.show = true
                 this.items = res

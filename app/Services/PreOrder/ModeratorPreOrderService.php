@@ -7,8 +7,8 @@ namespace App\Services\PreOrder;
 use App\Models\Car;
 use App\Models\Order;
 use App\Models\PreOrderCar;
-use App\Services\AuthService;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class ModeratorPreOrderService
 {
@@ -17,6 +17,23 @@ class ModeratorPreOrderService
     {
         $preorder = PreOrderCar::find($id);
         $car = Car::find($preorder->car_id);
+        if($car){
+            $can = true;
+            $carDuplicate = Car::where('vin', $car->vin)->get();
+
+            if($carDuplicate) {
+                foreach ($carDuplicate as $item) {
+                    $orderRel = Order::find($item->order_id);
+                    if ($orderRel && $orderRel->approve === 3) {
+                        $can = false;
+                    }
+                }
+            }
+
+            if($can === false) {
+                return ['ТС с таким VIN кодом уже одобрено в другой заявке'];
+            }
+        }
         $preorder->status = 2;
 
         $order = new Order;

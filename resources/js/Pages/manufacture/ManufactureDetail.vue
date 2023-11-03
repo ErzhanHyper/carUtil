@@ -1,7 +1,7 @@
 <template>
     <q-card>
         <q-card-section>
-            <manufacture-form :data="item"/>
+            <manufacture-form :data="item" />
             <div class="q-gutter-md q-mt-md">
                 <q-btn :loading="loading" label="Сохранить" icon="edit" color="primary" @click="updateData"/>
                 <q-btn :loading="loading" label="Удалить" icon="delete" color="negative" @click="showDeleteDialog = true"/>
@@ -29,8 +29,8 @@
 </template>
 
 <script>
-import {deleteManufacture, getManufactureById, updateManufacture} from "../../services/manufacture";
 import {Notify} from "quasar";
+import {deleteManufacture, getManufactureById, updateManufacture} from "../../services/manufacture";
 import ManufactureForm from "./ManufactureForm.vue";
 export default {
     props: ['id'],
@@ -38,6 +38,7 @@ export default {
 
     data() {
         return{
+            show: false,
             loading: false,
             showDeleteDialog: false,
 
@@ -47,8 +48,12 @@ export default {
 
     methods: {
         getData(){
+            this.$emitter.emit('contentLoaded', true);
             getManufactureById(this.id).then(res => {
-                this.item = res
+                this.show = true
+                if(res && res.id) {
+                    this.item = res
+                }
             })
         },
 

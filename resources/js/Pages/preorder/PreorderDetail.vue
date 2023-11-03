@@ -202,6 +202,7 @@ export default {
         },
 
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             getOrderItem(this.id, {}).then(res => {
                 this.item = res
 
@@ -233,7 +234,6 @@ export default {
                 this.blockedBooking = this.item.blockedBooking
                 this.showData = true
 
-            }).finally(() => {
             })
         },
 
@@ -246,7 +246,6 @@ export default {
             if ((this.item.status && this.item.status.id === 0) || this.item.status && this.item.status.id === 4) {
                 this.loading = true
                 sendOrder(this.id, this.item).then(res => {
-                    this.showData = false
                     if (res.status && res.status === 200) {
                         Notify.create({
                             message: 'Отправлено модератору на рассмотрение',

@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 //});
 
 Route::group(['middleware' => 'client_credentials'], function () {
+    Route::post('eds/check', [\App\Http\Controllers\AuthController::class, 'checkEds']);
+
     Route::post('userAll', function() {
         return response()->json(['test']);
     });

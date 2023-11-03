@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Manufacture;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ManufactureController extends Controller
 {
@@ -13,6 +14,29 @@ class ManufactureController extends Controller
         try {
             $result['status'] = 200;
             $result['data'] = ['items' => Manufacture::all()];
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
+    public function store(Request $request){
+        try {
+            $result['data']['success'] = false;
+            $validator = Validator::make($request->all(), [
+                'title' => 'required',
+            ]);
+            if ($validator->fails()) {
+                $result['data']['message'] = $validator->messages();
+            }else {
+                $data = new Manufacture();
+                $data->title = $request->title;
+                $data->save();
+                $result['data'] = $data;
+                $result['data']['success'] = true;
+            }
+            $result['status'] = 200;
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];

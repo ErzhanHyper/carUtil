@@ -74,7 +74,7 @@ export default {
             approveOrder(this.id).then(() => {
                 this.commentDialog = false
                 Notify.create({
-                    message: 'Пред. заявка одобрена',
+                    message: 'Предзаявка одобрена',
                     position: 'bottom-right',
                     type: 'positive'
                 })

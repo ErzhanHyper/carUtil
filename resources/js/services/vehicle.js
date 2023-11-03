@@ -11,6 +11,17 @@ export function getVehicleList(params) {
     })
 }
 
+export function storeVehicle(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/vehicle', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function getVehicleById(id) {
     return new Promise((resolve, reject) => {
         api.get('/vehicle/'+id).then(response => {

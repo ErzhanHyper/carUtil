@@ -57,10 +57,18 @@ class PreOrderService
 
             if ($preorder->status === 0) {
                 $client = Client::where('idnum', $request->client['idnum'])->first();
-                $car = Car::where('vin', $request->car['vin'])->first();
-                $order = Order::find($car->order_id);
-                if ($car && $order && $order->approve === 3) {
-                    throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже был обработан']]));
+                $car = Car::where('vin', $request->car['vin'])->where('cert_idnum', $client->idnum)->first();
+                if($car) {
+                    $order = Order::find($car->order_id);
+                    if ($order && $order->approve === 3) {
+                        throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже был обработан']]));
+                    }
+                }
+                if($car && $client){
+                    $preorderDuplicate = PreOrderCar::where('client_id', $client->id)->where('car_id', $car->id)->first();
+                    if($preorderDuplicate){
+                        throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
+                    }
                 }
             } else if ($preorder->status === 4) {
                 $client = Client::where('id', $preorder->client_id)->first();
