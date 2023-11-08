@@ -10,12 +10,13 @@
                 <q-card-section>
                     <div class="row">
                         <div class="col q-mr-lg">
-                            <q-input type="date" hint="начало"/>
+                            <q-input type="date" hint="начало" v-model="cert.start"/>
                         </div>
                         <div class="col">
-                            <q-input type="date" hint="конец"/>
+                            <q-input type="date" hint="конец" v-model="cert.end"/>
                         </div>
                     </div>
+                    <q-btn label="Запустить" color="indigo-8" size="12px" class="q-mt-md" @click="runCert" :loading="loading1"/>
                 </q-card-section>
             </q-card>
         </div>
@@ -82,8 +83,34 @@
 </template>
 
 <script>
+import {getCertReport} from "../../services/report";
+import FileDownload from "js-file-download";
+
 export default {
-    name: "Report"
+    data() {
+        return{
+            loading1:false,
+            cert: {
+                start: '',
+                end: ''
+            }
+        }
+    },
+
+    methods: {
+        runCert() {
+            this.loading1 = true
+            getCertReport({params: this.cert, responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'certificate.xlsx')
+            }).finally(() => {
+                this.loading1 = false
+            })
+        }
+    },
+
+    created() {
+
+    }
 }
 </script>
 

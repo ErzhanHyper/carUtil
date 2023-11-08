@@ -60,8 +60,8 @@
     </q-markup-table>
 
     <q-dialog v-model="signDialog">
-        <q-card style="width: 100%;max-width: 800px;">
-            <transfer-term />
+        <q-card style="width: 100%;max-width: 960px;" class="q-pa-none">
+            <transfer-term :id="id"/>
             <q-card-actions align="right">
                 <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer(transfer_id)"
                        :loading="loading"/>

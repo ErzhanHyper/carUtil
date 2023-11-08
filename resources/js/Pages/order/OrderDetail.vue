@@ -49,7 +49,7 @@
         </div>
 
         <order-action :order_id="item.id" :showCertAction="showCertAction" :showApproveAction="showModeratorAction"
-                      v-if="user && user.role === 'moderator'"/>
+                      v-if="user && user.role === 'moderator'" :data="{grnz: item.car.grnz, vin: item.car.vin, iinbin: item.client.idnum}"/>
 
         <div class="q-mt-md" v-if="item.comment && item.comment.length > 0 && user && user.role === 'liner'">
             <q-banner class="q-mb-sm bg-blue-grey-1">

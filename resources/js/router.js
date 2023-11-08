@@ -11,7 +11,11 @@ import PreorderDetail from "@/Pages/preorder/PreorderDetail.vue";
 import TransferOrderPage from "./Pages/transfer/TransferOrder.vue";
 import TransferOrderDetail from "./Pages/transfer/TransferOrderDetail.vue";
 import ServicePage from "@/Pages/service/Service.vue";
+
 import SellPage from "@/Pages/sell/Sell.vue";
+import SellDetail from "@/Pages/sell/SellDetail.vue";
+import SellCreate from "@/Pages/sell/SellCreate.vue";
+
 import ReportPage from "@/Pages/report/Report.vue";
 
 import VehiclePage from "@/Pages/vehicle/Vehicle.vue";
@@ -145,6 +149,17 @@ const routes = [
                 path: '/sell',
                 component: SellPage,
                 name: 'sell',
+            },
+            {
+                path: '/sell/create',
+                component: SellCreate,
+                name: 'sell_create',
+            },
+            {
+                path: '/sell/:id',
+                component: SellDetail,
+                name: 'sell_detail',
+                props: true
             },
 
             {

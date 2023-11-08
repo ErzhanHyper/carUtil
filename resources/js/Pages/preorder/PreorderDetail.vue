@@ -61,7 +61,7 @@
                         <car-card :data="item.car" :getCar="getCar" :categories="item.categories"
                                   :blocked="blocked"
                                   :recycleType="item.recycle_type"
-                                  :order_id="item.id"/>
+                                  :preorder_id="item.id"/>
                     </div>
                 </div>
 
@@ -115,7 +115,6 @@ import CarCard from "../car/CarCard.vue";
 import Booking from "../booking/BookingCard.vue";
 import ClientCard from "../client/ClientCard.vue";
 import ClientProxy from "../client/ClientProxy.vue";
-
 
 export default {
     props: ['id'],

@@ -56,8 +56,8 @@
         </q-card>
     </q-dialog>
 
-    <q-dialog v-model="kapDialog">
-        <order-kap/>
+    <q-dialog v-model="kapDialog" size="md" persistent>
+        <order-kap :order_id="order_id" :data="data"/>
     </q-dialog>
 
 </template>
@@ -68,7 +68,7 @@ import {storeCertOrder, declineOrder, revisionOrder, approveOrder} from "../../s
 import OrderKap from "@/Pages/order/OrderKap.vue";
 
 export default {
-    props: ['showCertAction', 'showApproveAction', 'order_id'],
+    props: ['showCertAction', 'showApproveAction', 'order_id', 'data'],
 
     components: {OrderKap},
 

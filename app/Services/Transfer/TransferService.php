@@ -48,16 +48,16 @@ class TransferService
         $user = app(AuthService::class)->auth();
         if ($user->role === 'liner') {
             $client = Client::where('idnum', $user->idnum)->first();
-            $deal = TransferDeal::where('client_id', $client->id)->get();
+            $deal = TransferDeal::select(['id'])->where('client_id', $client->id)->get();
             $deal_ids = [];
             foreach ($deal as $item){
                 $deal_ids[] = $item->id;
             }
-
             if($deal) {
                 $orders = TransferOrder::whereIn('transfer_deal_id', $deal_ids)->orWhere('client_id', $client->id)->whereIn('closed', [0, 1, 2]);
             }
         }
+
         if(isset($orders)) {
             $paginate = 15;
             $pages = round($orders->count() / $paginate);
@@ -67,7 +67,7 @@ class TransferService
             return [
                 'pages' => $pages,
                 'page' => $request->page ?? 1,
-                'items' => TransferOrderResource::collection($orders->orderByDesc('date')->paginate($paginate))
+                'items' => TransferOrderResource::collection($orders->orderByDesc('date')->orderBy('closed')->paginate($paginate))
             ];
         }
     }

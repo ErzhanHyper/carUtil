@@ -95,20 +95,14 @@ class PreOrderController extends Controller
     }
 
     public function searchFromKap(Request $request){
-
-        $data = ['status', 'failed'];
-
-        $user = app(AuthService::class)->auth();
-
-        $preorder_id = $request->preorder_id;
-        $preorder = PreOrderCar::find($preorder_id);
-
-
-        if($preorder && $preorder->liner_id === $user->id && $preorder->status != 2) {
-            $data = app(KapService::class)->get();
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(KapService::class)->get($request);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-
-        return response()->json($data);
+        return response()->json($result['data'], $result['status']);
     }
 
     public function booking(Request $request, $id)

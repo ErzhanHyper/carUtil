@@ -43,3 +43,13 @@ export function getTransferContract(id, params) {
         })
     })
 }
+export function getSellApplication(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('/document/sell/' + id + '/application', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

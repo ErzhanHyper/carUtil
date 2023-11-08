@@ -57,17 +57,18 @@ class ModeratorPreOrderService
                     if ($car->save()) {
                         $preorder->order_id = $order->id;
                         $preorder->save();
+
+                        app(PreorderCommentService::class)->run(new Request([
+                            'status' => 'approve',
+                            'comment' => ''
+                        ]), $preorder->id);
+
                         $success = true;
                         $message = 'Предзаявка одобрена';
                     }
                 }
             }
         }
-
-        app(PreorderCommentService::class)->run(new Request([
-            'status' => 'approve',
-            'comment' => ''
-        ]), $preorder->id);
 
         return [
             'success' => $success,

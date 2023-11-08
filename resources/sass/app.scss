@@ -109,3 +109,22 @@ input:-webkit-autofill {
 .router-link-exact-active .q-item{
     background: rgba(255,255,255,.1);
 }
+
+.q-tab{
+    background: #e8ecf1;
+    &.q-tab--inactive{
+        background: #f6f9fd;
+    }
+}
+
+.q-expansion-item__content {
+    .q-item {
+        min-height: 30px !important;
+    }
+}
+
+.kap_detail_block{
+    td{
+        padding: 20px;
+    }
+}

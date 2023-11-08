@@ -126,6 +126,7 @@ Route::prefix('app')->group(function () {
             Route::get('/order/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getContract']);
             Route::get('/exchange/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getExchangeApplication']);
             Route::get('/transfer/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getTransferContract']);
+            Route::get('/sell/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getSellApplication']);
         });
 
         Route::get('region', [\App\Http\Controllers\RegionController::class, 'get'])->name('region');
@@ -161,6 +162,23 @@ Route::prefix('app')->group(function () {
                 Route::match(['put', 'patch'], '/{id}', [\App\Http\Controllers\RefFactoryController::class, 'update']);
                 Route::delete('/{id}', [\App\Http\Controllers\RefFactoryController::class, 'delete']);
             });
+        });
+
+        Route::prefix('sell')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SellController::class, 'get']);
+            Route::get('/{id}', [\App\Http\Controllers\SellController::class, 'getById']);
+            Route::get('/{id}/files', [\App\Http\Controllers\SellController::class, 'getFilesById']);
+            Route::post('/', [\App\Http\Controllers\SellController::class, 'store']);
+            Route::put('/{id}', [\App\Http\Controllers\SellController::class, 'update']);
+        });
+
+        Route::prefix('sellFile')->group(function () {
+            Route::post('/', [\App\Http\Controllers\SellController::class, 'storeFile']);
+            Route::delete('/{id}', [\App\Http\Controllers\SellController::class, 'deleteFile']);
+        });
+
+        Route::prefix('report')->group(function () {
+            Route::get('/cert', [\App\Http\Controllers\ReportController::class, 'getCert']);
         });
 
         Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);

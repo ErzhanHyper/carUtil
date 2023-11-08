@@ -20,6 +20,9 @@ class CarService
         $car->body_no = $data->body_no;
         $car->chassis_no = $data->chassis_no;
         $car->weight = $data->weight;
+        $car->color = $data->color;
+        $car->engine_no = $data->engine_no;
+
         $car->cert_idnum = $data->cert_idnum;
         $car->cert_title = $data->cert_title;
 

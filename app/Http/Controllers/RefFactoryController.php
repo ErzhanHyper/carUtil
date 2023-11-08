@@ -3,23 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\RefFactoryResource;
+use App\Models\Manufacture;
 use App\Models\RefFactory;
+use App\Services\AuthService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class RefFactoryController extends Controller
 {
-    public function get(){
+    public function get(Request $request){
         try {
-            $paginate = 15;
-            $pages = round(RefFactory::count() / $paginate);
-            if ($pages == 0) {
-                $pages = 1;
+            $user = app(AuthService::class)->auth();
+            $pages = 0;
+            if($request->dealer){
+                $manufacture = Manufacture::find($user->custom_2);
+                $data = RefFactoryResource::collection(RefFactory::orderBy('brand')->where('factory', $manufacture->title)->get());
+            }else{
+                $paginate = 15;
+                $pages = round(RefFactory::count() / $paginate);
+                if ($pages == 0) {
+                    $pages = 1;
+                }
+                $data = RefFactoryResource::collection(RefFactory::orderBy('brand')->paginate($paginate));
             }
+
             $result['status'] = 200;
             $result['data']['pages'] = $pages;
-            $result['data']['items'] = RefFactoryResource::collection(RefFactory::orderBy('brand')->paginate($paginate));
+            $result['data']['items'] = $data;
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];

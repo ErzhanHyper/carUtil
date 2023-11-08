@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CertExport;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
 
-    public function index(){
-        return Inertia::render('report/Report', []);
+    public function getCert(Request $request)
+    {
+        return Excel::download(new CertExport($request), 'certificate.xlsx');
     }
 
-    public function certificate(){
-
-    }
 }

@@ -1,8 +1,8 @@
 import api from "../api";
 
-export function getOrderList(params) {
+export function getSellList(params) {
     return new Promise((resolve, reject) => {
-        api.get('/order', params).then(response => {
+        api.get('/sell', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -11,9 +11,9 @@ export function getOrderList(params) {
     })
 }
 
-export function getOrderItem(id, params) {
+export function getSellById(id) {
     return new Promise((resolve, reject) => {
-        api.get('/order/' + id + '/get', params).then(response => {
+        api.get('/sell/'+ id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -22,9 +22,9 @@ export function getOrderItem(id, params) {
     })
 }
 
-export function signOrder(params) {
+export function getSellFilesById(id) {
     return new Promise((resolve, reject) => {
-        api.post('/order/sign', params).then(response => {
+        api.get('/sell/'+ id + '/files').then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -33,9 +33,9 @@ export function signOrder(params) {
     })
 }
 
-export function storeCertOrder(params) {
+export function storeSell(params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/cert', params).then(response => {
+        api.post('/sell', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -44,10 +44,9 @@ export function storeCertOrder(params) {
     })
 }
 
-
-export function approveOrder(params) {
+export function updateSell(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/approve', params).then(response => {
+        api.put('/sell/'+id, params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -56,9 +55,9 @@ export function approveOrder(params) {
     })
 }
 
-export function declineOrder(params) {
+export function storeSellFile(params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/decline', params).then(response => {
+        api.post('sellFile', params, {headers: {'Content-Type': 'multipart/form-data'}}).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -67,20 +66,9 @@ export function declineOrder(params) {
     })
 }
 
-export function revisionOrder(params) {
+export function deleteSellFile(id) {
     return new Promise((resolve, reject) => {
-        api.post('/order/revision', params).then(response => {
-            resolve(response.data)
-        }).catch((e) => {
-            reject('Ошибка при загрузке')
-        }).finally(() => {
-        })
-    })
-}
-
-export function kapCheckOrder(params) {
-    return new Promise((resolve, reject) => {
-        api.post('/order/kap', params).then(response => {
+        api.delete('sellFile/'+id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

@@ -1,4 +1,11 @@
 {
+  "_index-106596af.js": {
+    "file": "assets/index-106596af.js",
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true
+  },
   "node_modules/@quasar/extras/material-icons/web-font/flUhRq6tzZclQEJ-Vdg-IuiaDsNa.woff": {
     "file": "assets/flUhRq6tzZclQEJ-Vdg-IuiaDsNa-fd84f88b.woff",
     "src": "node_modules/@quasar/extras/material-icons/web-font/flUhRq6tzZclQEJ-Vdg-IuiaDsNa.woff"
@@ -8,7 +15,7 @@
     "src": "node_modules/@quasar/extras/material-icons/web-font/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2"
   },
   "resources/js/app.css": {
-    "file": "assets/app-765cbb3b.css",
+    "file": "assets/app-171a7b45.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.js": {
@@ -17,14 +24,17 @@
       "assets/flUhRq6tzZclQEJ-Vdg-IuiaDsNa-fd84f88b.woff"
     ],
     "css": [
-      "assets/app-765cbb3b.css"
+      "assets/app-171a7b45.css"
     ],
-    "file": "assets/app-4062cddc.js",
+    "dynamicImports": [
+      "_index-106596af.js"
+    ],
+    "file": "assets/app-03b0d255.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-fa719410.css",
+    "file": "assets/app-ac576df6.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

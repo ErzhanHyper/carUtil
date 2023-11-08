@@ -79,6 +79,7 @@ export default {
             liner_menu: menu.items,
             moderator_menu: menu.moderatorItems,
             operator_menu: menu.operatorItems,
+            dealer_light_menu: menu.dealerLightItems,
             items: [],
             show: false
         }
@@ -93,6 +94,9 @@ export default {
                     this.items = this.moderator_menu
                 } else if (res.role === 'operator') {
                     this.items = this.operator_menu
+                }
+                else if (res.role === 'dealer-light') {
+                    this.items = this.dealer_light_menu
                 }
                 this.show = true
             }

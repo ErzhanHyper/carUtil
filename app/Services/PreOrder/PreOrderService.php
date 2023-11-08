@@ -80,6 +80,8 @@ class PreOrderService
                 'grnz' => $request->car['grnz'],
                 'category_id' => $request->car['category_id'],
                 'year' => $request->car['year'],
+                'color' => $request->car['color'],
+                'engine_no' => $request->car['engine_no'],
                 'm_model' => $request->car['m_model'],
                 'body_no' => $request->car['body_no'],
                 'chassis_no' => $request->car['chassis_no'],

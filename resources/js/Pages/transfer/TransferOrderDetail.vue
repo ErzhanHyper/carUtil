@@ -96,8 +96,8 @@
 
 
     <q-dialog v-model="signDialog">
-        <q-card style="width: 100%;max-width: 800px;">
-            <transfer-term />
+        <q-card style="width: 100%;max-width: 960px;">
+            <transfer-term :id="item.id"/>
             <q-card-actions align="right">
                 <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer()"
                        :loading="loading1"/>
@@ -225,7 +225,7 @@ export default {
         downloadPFS() {
             this.loading = true
             getTransferContract(this.item.id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'contract.pdf')
+                FileDownload(res, 'transfer_contract.pdf')
             }).finally(() => {
                 this.loading = false
             })

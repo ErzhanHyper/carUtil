@@ -36,6 +36,7 @@ class CarResource extends JsonResource
             'cert_idnum' => $this->cert_idnum,
             'owner_type' => $this->owner_type,
             'weight' => $this->weight,
+            'color' => $this->color,
             'doors_count' => $this->doors_count,
             'wheels_count' => $this->wheels_count,
             'wheels_protector_count' => $this->wheels_protector_count,

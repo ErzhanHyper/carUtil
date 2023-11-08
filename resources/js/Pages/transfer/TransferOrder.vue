@@ -9,22 +9,19 @@
         class="text-grey"
         active-color="primary"
         indicator-color="primary"
-        align="justify"
-        style="width: 300px"
+        style="width: 400px"
     >
-        <q-tab :name="1" label="Активные" />
+        <q-tab :name="1" label="Все" />
         <q-tab :name="2" label="Мои" />
     </q-tabs>
 
     <q-tab-panels v-model="tab" animated vertical>
-        <q-tab-panel :name="1">
-            <transfer-order-all />
+        <q-tab-panel :name="1" class="q-pa-none">
+            <transfer-order-all class="q-pt-sm"/>
         </q-tab-panel>
-
-        <q-tab-panel :name="2">
-            <transfer-order-current />
+        <q-tab-panel :name="2" class="q-pa-none">
+            <transfer-order-current class="q-pt-sm"/>
         </q-tab-panel>
-
     </q-tab-panels>
 
     <q-dialog v-model="transferTermsDialog">

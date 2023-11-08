@@ -4,13 +4,212 @@
 namespace App\Services;
 
 
+use App\Models\Client;
+use App\Models\KapRequest;
+use App\Models\PreOrderCar;
 use SimpleXMLElement;
 
 class KapService
 {
 
-    public function get()
+    public function get($request)
     {
+        $value = $request->value;
+        //тип запроса iinbin/vin/grnz
+        $type = $request->type;
+
+        $success = false;
+        $message = 'Нет доступа';
+        $user = app(AuthService::class)->auth();
+        $preorder_id = $request->preorder_id;
+        $preorder = PreOrderCar::find($preorder_id);
+        $client = Client::find($preorder->client_id);
+        $result = [];
+        $kap_request = KapRequest::where('iinbin', $client->idnum)->orderByDesc('created_at')->first();
+
+        if($kap_request) {
+            $xml = new SimpleXMLElement($kap_request->xml_response);
+            $record = $xml->script->dataset->records->record;
+            $result['items'] = $this->convertXmlDatToArray($record);
+            $result['card'] = $kap_request->k_status;
+        }
+        $can = false;
+        if(!$kap_request && ($preorder && $preorder->liner_id === $user->id && $preorder->status != 2) || $user->role === 'moderator') {
+            $can = true;
+            $value = $client->idnum;
+            $type = 'iinbin';
+        }
+
+        if($can){
+            if ( strlen($value) > 4 ){
+                if($type == 'grnz') {
+                    $result = $this->kap_request_grnz($value);
+                }else if($type == 'iinbin') {
+                    $result = $this->kap_request_iinbin($value);
+                }else{
+                    $result = $this->kap_request_vin($value);
+                }
+            } else {
+                $message = 'Не менее 4 символов!';
+            }
+
+            if(!empty($result['status']) && $result['status']){
+                $kap_request_id = $result['id'];
+                $kap_request = KapRequest::find($kap_request_id);
+                $xml = new SimpleXMLElement($kap_request->xml_response);
+                $record = $xml->script->dataset->records->record;
+                $result['items'] = $this->convertXmlDatToArray($record);
+                $result['card'] = $kap_request->k_status;
+            } else {
+               $message = 'Запрос был не успешен!';
+            }
+        }
+
+        return [
+            'success' => $success,
+            'message' => $message,
+            'data' => $result,
+        ];
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    private function kap_request_vin($vin): array
+    {
+        $message = '';
+        $user = app(AuthService::class)->auth();
+        $success_checking = false;
+//        $result_data = [];
+//        exec('cd /var/www/test && LD_LIBRARY_PATH="/opt/kalkancrypt:/opt/kalkancrypt/lib/engines" php list.php '.$vin, $result_data);
+        $result_data = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><document pointcode="151140025060" elapsed="00:00:00.1260527"><initiator><system>РОП</system><user>151140025060</user></initiator><script name="РОП/GetAuto" type="scrx"><parameters><parameter name="GRNZ">B583FKM</parameter></parameters><dataset><fields><field length="10" name="STATUS_DATE" type="String" /><field length="10" name="GRNZ" type="String" /><field length="10" name="PREV_GRNZ" type="String" /><field length="40" name="MODEL" type="String" /><field length="4" name="ISSUE_YEAR" type="String" /><field length="20" name="ENGINE_NO" type="String" /><field length="20" name="CHASSIS_NO" type="String" /><field length="20" name="BODY_NO" type="String" /><field length="7" name="COLOR" type="String" /><field length="50" name="COLOR_NAME" type="String" /><field length="10" name="SRTS" type="String" /><field length="3" name="CATEGORY" type="String" /><field length="6" name="ENGINE_POWER_KWT" type="String" /><field length="6" name="ENGINE_POWER_HP" type="String" /><field length="5" name="ENGINE_VOLUME" type="String" /><field length="6" name="MAX_WEIGHT" type="String" /><field length="6" name="UNLOADED_WEIGHT" type="String" /><field length="1" name="STATUS" type="String" /><field length="1" name="OWNER_TYPE" type="String" /><field length="6" name="VEHICLE_TYPE_CODE" type="String" /><field length="20" name="VIN" type="String" /><field length="10" name="PREV_SRTS" type="String" /><field length="1024" name="NOTES" type="String" /><field length="49" name="UNREG_REASON" type="String" /><field length="6" name="UNREG_INCOMING_NUMBER" type="String" /><field length="10" name="FIRST_REG_DATE" type="String" /></fields><records count="1"><record><field name="STATUS_DATE">1999-07-29</field><field name="GRNZ">B583FKM</field><field name="PREV_GRNZ" /><field name="MODEL">ВАЗ 21043</field><field name="ISSUE_YEAR">1999</field><field name="ENGINE_NO">5466318</field><field name="CHASSIS_NO">0681192</field><field name="BODY_NO">ХТА210430Х0711258</field><field name="COLOR">0I00000</field><field name="COLOR_NAME">БЕЛЫЙ</field><field name="SRTS">BH00001885</field><field name="CATEGORY">B</field><field name="ENGINE_POWER_KWT">53</field><field name="ENGINE_POWER_HP">75</field><field name="ENGINE_VOLUME">1400</field><field name="MAX_WEIGHT">1510</field><field name="UNLOADED_WEIGHT">1055</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE" /><field name="VIN">ХТА210430Х0711258</field><field name="PREV_SRTS" /><field name="NOTES">МАГ ГН СДАНЫ ТР-Т НЕ ВЫДАН</field><field name="UNREG_REASON">ком. маг</field><field name="UNREG_INCOMING_NUMBER">3306</field><field name="FIRST_REG_DATE" /></record></records></dataset></script><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311" /><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments" /></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34311" /><ds:DigestValue>gGWvTQOBY4PyzD002/vNFsHApFyB1XL1O5NrnU5g3Wg=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>/84Prz+k6ZWCcdNMl/w72mMvvEEBs6TZJEH3FqCboumkA/Q98BxBwRN04+r00yQRiSgmlveO+SLcRAIPXWUALA==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEtzCCBGGgAwIBAgIUMFkoybqwMf+yqKN1x91tx0OjFDswDQYJKoMOAwoBAQECBQAwUzELMAkGA1UEBhMCS1oxRDBCBgNVBAMMO9Kw0JvQotCi0KvSmiDQmtCj05jQm9CQ0J3QlNCr0KDQo9Co0Ksg0J7QoNCi0JDQm9Cr0pogKEdPU1QpMB4XDTIwMDkxNTA2MjU0MFoXDTIxMDkxNTA2MjU0MFowggFhMSIwIAYDVQQDDBnQotCj0KHQo9Cf0J7QkiDQodCV0KDQmNCaMRcwFQYDVQQEDA7QotCj0KHQo9Cf0J7QkjEYMBYGA1UEBRMPSUlOODAwNzA3MzAxMjk3MQswCQYDVQQGEwJLWjGBnTCBmgYDVQQKDIGS0JPQntCh0KPQlNCQ0KDQodCi0JLQldCd0J3QntCVINCj0KfQoNCV0JbQlNCV0J3QmNCVICLQnNCY0J3QmNCh0KLQldCg0KHQotCS0J4g0JLQndCj0KLQoNCV0J3QndCY0KUg0JTQldCbINCg0JXQodCf0KPQkdCb0JjQmtCYINCa0JDQl9CQ0KXQodCi0JDQnSIxGDAWBgNVBAsMD0JJTjk2MDM0MDAwMDUxNDEdMBsGA1UEKgwU0JDQnNCQ0J3QotCQ0JXQktCY0KcxIjAgBgkqhkiG9w0BCQEWE0dPU1pBQ1VQTVZEQE1BSUwuS1owbDAlBgkqgw4DCgEBAQEwGAYKKoMOAwoBAQEBAQYKKoMOAwoBAwEBAANDAARAhbF4QiK1HRKhKCI84aLFKJAcmfz7lRdAraxOs1VPKe1naHCqEfCbZOM1+dYY+50pmT+jhy1J5OWTUs6+loJWhaOCAeswggHnMA4GA1UdDwEB/wQEAwIGwDAoBgNVHSUEITAfBggrBgEFBQcDBAYIKoMOAwMEAQIGCSqDDgMDBAECAjAPBgNVHSMECDAGgARbanPpMB0GA1UdDgQWBBQ3dvUIx68oGznprAGdmuoYncfVHjBeBgNVHSAEVzBVMFMGByqDDgMDAgEwSDAhBggrBgEFBQcCARYVaHR0cDovL3BraS5nb3Yua3ovY3BzMCMGCCsGAQUFBwICMBcMFWh0dHA6Ly9wa2kuZ292Lmt6L2NwczBYBgNVHR8EUTBPME2gS6BJhiJodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2dvc3QuY3JshiNodHRwOi8vY3JsMS5wa2kuZ292Lmt6L25jYV9nb3N0LmNybDBcBgNVHS4EVTBTMFGgT6BNhiRodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmyGJWh0dHA6Ly9jcmwxLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmwwYwYIKwYBBQUHAQEEVzBVMC8GCCsGAQUFBzAChiNodHRwOi8vcGtpLmdvdi5rei9jZXJ0L25jYV9nb3N0LmNlcjAiBggrBgEFBQcwAYYWaHR0cDovL29jc3AucGtpLmdvdi5rejANBgkqgw4DCgEBAQIFAANBAHqwPfQHK+nBXPcQbqe516q/QGdCPa2GxWzvL3tm1PzAEp5TN5QicJq4+i5pJ2yAiZCMHGgE6Dk2Qe3syUCZcS8=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature></document>';
+
+        if( $this->__isValidXml($result_data) ){
+            $xml = new SimpleXMLElement( $result_data );
+            if ($xml->error){
+                $message = "Ошибка запроса: ". $xml->error->message;
+            } elseif ( count($xml->script->dataset->records->record) >= 1 ){
+                $record = $xml->script->dataset->records->record;
+                $message = $this->checkCondition($record);
+                $success_checking = true;
+            } elseif ( count($xml->script->dataset->records->record) == 0 ){
+                $message = 'Нет записей в АИС КАП по данному номеру кузова (код V001)';
+            }
+        }
+
+        if ($success_checking) {
+            $kap_request = new KapRequest;
+            $kap_request->vin = $vin;
+            $kap_request->k_status = $message;
+            $kap_request->xml_response = $result_data;
+            $kap_request->user_id = $user->id;
+            $kap_request->created_at = time();
+            $kap_request->save();
+            if (!empty($kap_request->id)) {
+                return [
+                    'id' => $kap_request->id,
+                    'status' => true,
+                    'message' => $message
+                ];
+            }
+        }
+
+        return [
+            'status' => false
+        ];
+    }
+
+    private function kap_request_iinbin($iinbin): array
+    {
+        $message = '';
+        $user = app(AuthService::class)->auth();
+        $success_checking = false;
+//        $result_data = [];
+//        exec('cd /var/www/test && LD_LIBRARY_PATH="/opt/kalkancrypt:/opt/kalkancrypt/lib/engines" php list.php '.$iinbin, $result_data);
+        $result_data = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><document pointcode="151140025060" elapsed="00:00:00.1260527"><initiator><system>РОП</system><user>151140025060</user></initiator><script name="РОП/GetAuto" type="scrx"><parameters><parameter name="GRNZ">B583FKM</parameter></parameters><dataset><fields><field length="10" name="STATUS_DATE" type="String" /><field length="10" name="GRNZ" type="String" /><field length="10" name="PREV_GRNZ" type="String" /><field length="40" name="MODEL" type="String" /><field length="4" name="ISSUE_YEAR" type="String" /><field length="20" name="ENGINE_NO" type="String" /><field length="20" name="CHASSIS_NO" type="String" /><field length="20" name="BODY_NO" type="String" /><field length="7" name="COLOR" type="String" /><field length="50" name="COLOR_NAME" type="String" /><field length="10" name="SRTS" type="String" /><field length="3" name="CATEGORY" type="String" /><field length="6" name="ENGINE_POWER_KWT" type="String" /><field length="6" name="ENGINE_POWER_HP" type="String" /><field length="5" name="ENGINE_VOLUME" type="String" /><field length="6" name="MAX_WEIGHT" type="String" /><field length="6" name="UNLOADED_WEIGHT" type="String" /><field length="1" name="STATUS" type="String" /><field length="1" name="OWNER_TYPE" type="String" /><field length="6" name="VEHICLE_TYPE_CODE" type="String" /><field length="20" name="VIN" type="String" /><field length="10" name="PREV_SRTS" type="String" /><field length="1024" name="NOTES" type="String" /><field length="49" name="UNREG_REASON" type="String" /><field length="6" name="UNREG_INCOMING_NUMBER" type="String" /><field length="10" name="FIRST_REG_DATE" type="String" /></fields><records count="1"><record><field name="STATUS_DATE">1999-07-29</field><field name="GRNZ">B583FKM</field><field name="PREV_GRNZ" /><field name="MODEL">ВАЗ 21043</field><field name="ISSUE_YEAR">1999</field><field name="ENGINE_NO">5466318</field><field name="CHASSIS_NO">0681192</field><field name="BODY_NO">ХТА210430Х0711258</field><field name="COLOR">0I00000</field><field name="COLOR_NAME">БЕЛЫЙ</field><field name="SRTS">BH00001885</field><field name="CATEGORY">B</field><field name="ENGINE_POWER_KWT">53</field><field name="ENGINE_POWER_HP">75</field><field name="ENGINE_VOLUME">1400</field><field name="MAX_WEIGHT">1510</field><field name="UNLOADED_WEIGHT">1055</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE" /><field name="VIN">ХТА210430Х0711258</field><field name="PREV_SRTS" /><field name="NOTES">МАГ ГН СДАНЫ ТР-Т НЕ ВЫДАН</field><field name="UNREG_REASON">ком. маг</field><field name="UNREG_INCOMING_NUMBER">3306</field><field name="FIRST_REG_DATE" /></record></records></dataset></script><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311" /><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments" /></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34311" /><ds:DigestValue>gGWvTQOBY4PyzD002/vNFsHApFyB1XL1O5NrnU5g3Wg=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>/84Prz+k6ZWCcdNMl/w72mMvvEEBs6TZJEH3FqCboumkA/Q98BxBwRN04+r00yQRiSgmlveO+SLcRAIPXWUALA==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEtzCCBGGgAwIBAgIUMFkoybqwMf+yqKN1x91tx0OjFDswDQYJKoMOAwoBAQECBQAwUzELMAkGA1UEBhMCS1oxRDBCBgNVBAMMO9Kw0JvQotCi0KvSmiDQmtCj05jQm9CQ0J3QlNCr0KDQo9Co0Ksg0J7QoNCi0JDQm9Cr0pogKEdPU1QpMB4XDTIwMDkxNTA2MjU0MFoXDTIxMDkxNTA2MjU0MFowggFhMSIwIAYDVQQDDBnQotCj0KHQo9Cf0J7QkiDQodCV0KDQmNCaMRcwFQYDVQQEDA7QotCj0KHQo9Cf0J7QkjEYMBYGA1UEBRMPSUlOODAwNzA3MzAxMjk3MQswCQYDVQQGEwJLWjGBnTCBmgYDVQQKDIGS0JPQntCh0KPQlNCQ0KDQodCi0JLQldCd0J3QntCVINCj0KfQoNCV0JbQlNCV0J3QmNCVICLQnNCY0J3QmNCh0KLQldCg0KHQotCS0J4g0JLQndCj0KLQoNCV0J3QndCY0KUg0JTQldCbINCg0JXQodCf0KPQkdCb0JjQmtCYINCa0JDQl9CQ0KXQodCi0JDQnSIxGDAWBgNVBAsMD0JJTjk2MDM0MDAwMDUxNDEdMBsGA1UEKgwU0JDQnNCQ0J3QotCQ0JXQktCY0KcxIjAgBgkqhkiG9w0BCQEWE0dPU1pBQ1VQTVZEQE1BSUwuS1owbDAlBgkqgw4DCgEBAQEwGAYKKoMOAwoBAQEBAQYKKoMOAwoBAwEBAANDAARAhbF4QiK1HRKhKCI84aLFKJAcmfz7lRdAraxOs1VPKe1naHCqEfCbZOM1+dYY+50pmT+jhy1J5OWTUs6+loJWhaOCAeswggHnMA4GA1UdDwEB/wQEAwIGwDAoBgNVHSUEITAfBggrBgEFBQcDBAYIKoMOAwMEAQIGCSqDDgMDBAECAjAPBgNVHSMECDAGgARbanPpMB0GA1UdDgQWBBQ3dvUIx68oGznprAGdmuoYncfVHjBeBgNVHSAEVzBVMFMGByqDDgMDAgEwSDAhBggrBgEFBQcCARYVaHR0cDovL3BraS5nb3Yua3ovY3BzMCMGCCsGAQUFBwICMBcMFWh0dHA6Ly9wa2kuZ292Lmt6L2NwczBYBgNVHR8EUTBPME2gS6BJhiJodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2dvc3QuY3JshiNodHRwOi8vY3JsMS5wa2kuZ292Lmt6L25jYV9nb3N0LmNybDBcBgNVHS4EVTBTMFGgT6BNhiRodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmyGJWh0dHA6Ly9jcmwxLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmwwYwYIKwYBBQUHAQEEVzBVMC8GCCsGAQUFBzAChiNodHRwOi8vcGtpLmdvdi5rei9jZXJ0L25jYV9nb3N0LmNlcjAiBggrBgEFBQcwAYYWaHR0cDovL29jc3AucGtpLmdvdi5rejANBgkqgw4DCgEBAQIFAANBAHqwPfQHK+nBXPcQbqe516q/QGdCPa2GxWzvL3tm1PzAEp5TN5QicJq4+i5pJ2yAiZCMHGgE6Dk2Qe3syUCZcS8=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature></document>';
+
+        if( $this->__isValidXml($result_data) ){
+            $xml = new SimpleXMLElement( $result_data );
+            if ($xml->error){
+                $message = "Ошибка запроса: ". $xml->error->message;
+            } elseif ( count($xml->script->dataset->records->record) >= 1 ){
+                $record = $xml->script->dataset->records->record;
+                $message = $this->checkCondition($record);
+                $success_checking = true;
+            } elseif ( count($xml->script->dataset->records->record) == 0 ){
+                $message = 'Нет записей в АИС КАП по данному номеру кузова (код V001)';
+            }
+        }
+
+        if ($success_checking) {
+            $kap_request = new KapRequest;
+            $kap_request->iinbin = $iinbin;
+            $kap_request->k_status = $message;
+            $kap_request->xml_response = $result_data;
+            $kap_request->user_id = $user->id;
+            $kap_request->created_at = time();
+            $kap_request->save();
+            if (!empty($kap_request->id)) {
+                return [
+                    'id' => $kap_request->id,
+                    'status' => true,
+                    'message' => $message
+                ];
+            }
+        }
+
+        return [
+            'status' => false
+        ];
+    }
+
+    private function kap_request_grnz($grnz): array
+    {
+        $message = '';
+        $user = app(AuthService::class)->auth();
+        $success_checking = false;
+//        $result_data = [];
+//        exec('cd /var/www/test && LD_LIBRARY_PATH="/opt/kalkancrypt:/opt/kalkancrypt/lib/engines" php grnz_list.php '.$grnz, $result_data);
+        $result_data = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><document pointcode="151140025060" elapsed="00:00:00.1260527"><initiator><system>РОП</system><user>151140025060</user></initiator><script name="РОП/GetAuto" type="scrx"><parameters><parameter name="GRNZ">B583FKM</parameter></parameters><dataset><fields><field length="10" name="STATUS_DATE" type="String" /><field length="10" name="GRNZ" type="String" /><field length="10" name="PREV_GRNZ" type="String" /><field length="40" name="MODEL" type="String" /><field length="4" name="ISSUE_YEAR" type="String" /><field length="20" name="ENGINE_NO" type="String" /><field length="20" name="CHASSIS_NO" type="String" /><field length="20" name="BODY_NO" type="String" /><field length="7" name="COLOR" type="String" /><field length="50" name="COLOR_NAME" type="String" /><field length="10" name="SRTS" type="String" /><field length="3" name="CATEGORY" type="String" /><field length="6" name="ENGINE_POWER_KWT" type="String" /><field length="6" name="ENGINE_POWER_HP" type="String" /><field length="5" name="ENGINE_VOLUME" type="String" /><field length="6" name="MAX_WEIGHT" type="String" /><field length="6" name="UNLOADED_WEIGHT" type="String" /><field length="1" name="STATUS" type="String" /><field length="1" name="OWNER_TYPE" type="String" /><field length="6" name="VEHICLE_TYPE_CODE" type="String" /><field length="20" name="VIN" type="String" /><field length="10" name="PREV_SRTS" type="String" /><field length="1024" name="NOTES" type="String" /><field length="49" name="UNREG_REASON" type="String" /><field length="6" name="UNREG_INCOMING_NUMBER" type="String" /><field length="10" name="FIRST_REG_DATE" type="String" /></fields><records count="1"><record><field name="STATUS_DATE">1999-07-29</field><field name="GRNZ">B583FKM</field><field name="PREV_GRNZ" /><field name="MODEL">ВАЗ 21043</field><field name="ISSUE_YEAR">1999</field><field name="ENGINE_NO">5466318</field><field name="CHASSIS_NO">0681192</field><field name="BODY_NO">ХТА210430Х0711258</field><field name="COLOR">0I00000</field><field name="COLOR_NAME">БЕЛЫЙ</field><field name="SRTS">BH00001885</field><field name="CATEGORY">B</field><field name="ENGINE_POWER_KWT">53</field><field name="ENGINE_POWER_HP">75</field><field name="ENGINE_VOLUME">1400</field><field name="MAX_WEIGHT">1510</field><field name="UNLOADED_WEIGHT">1055</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE" /><field name="VIN">ХТА210430Х0711258</field><field name="PREV_SRTS" /><field name="NOTES">МАГ ГН СДАНЫ ТР-Т НЕ ВЫДАН</field><field name="UNREG_REASON">ком. маг</field><field name="UNREG_INCOMING_NUMBER">3306</field><field name="FIRST_REG_DATE" /></record></records></dataset></script><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311" /><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments" /></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34311" /><ds:DigestValue>gGWvTQOBY4PyzD002/vNFsHApFyB1XL1O5NrnU5g3Wg=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>/84Prz+k6ZWCcdNMl/w72mMvvEEBs6TZJEH3FqCboumkA/Q98BxBwRN04+r00yQRiSgmlveO+SLcRAIPXWUALA==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEtzCCBGGgAwIBAgIUMFkoybqwMf+yqKN1x91tx0OjFDswDQYJKoMOAwoBAQECBQAwUzELMAkGA1UEBhMCS1oxRDBCBgNVBAMMO9Kw0JvQotCi0KvSmiDQmtCj05jQm9CQ0J3QlNCr0KDQo9Co0Ksg0J7QoNCi0JDQm9Cr0pogKEdPU1QpMB4XDTIwMDkxNTA2MjU0MFoXDTIxMDkxNTA2MjU0MFowggFhMSIwIAYDVQQDDBnQotCj0KHQo9Cf0J7QkiDQodCV0KDQmNCaMRcwFQYDVQQEDA7QotCj0KHQo9Cf0J7QkjEYMBYGA1UEBRMPSUlOODAwNzA3MzAxMjk3MQswCQYDVQQGEwJLWjGBnTCBmgYDVQQKDIGS0JPQntCh0KPQlNCQ0KDQodCi0JLQldCd0J3QntCVINCj0KfQoNCV0JbQlNCV0J3QmNCVICLQnNCY0J3QmNCh0KLQldCg0KHQotCS0J4g0JLQndCj0KLQoNCV0J3QndCY0KUg0JTQldCbINCg0JXQodCf0KPQkdCb0JjQmtCYINCa0JDQl9CQ0KXQodCi0JDQnSIxGDAWBgNVBAsMD0JJTjk2MDM0MDAwMDUxNDEdMBsGA1UEKgwU0JDQnNCQ0J3QotCQ0JXQktCY0KcxIjAgBgkqhkiG9w0BCQEWE0dPU1pBQ1VQTVZEQE1BSUwuS1owbDAlBgkqgw4DCgEBAQEwGAYKKoMOAwoBAQEBAQYKKoMOAwoBAwEBAANDAARAhbF4QiK1HRKhKCI84aLFKJAcmfz7lRdAraxOs1VPKe1naHCqEfCbZOM1+dYY+50pmT+jhy1J5OWTUs6+loJWhaOCAeswggHnMA4GA1UdDwEB/wQEAwIGwDAoBgNVHSUEITAfBggrBgEFBQcDBAYIKoMOAwMEAQIGCSqDDgMDBAECAjAPBgNVHSMECDAGgARbanPpMB0GA1UdDgQWBBQ3dvUIx68oGznprAGdmuoYncfVHjBeBgNVHSAEVzBVMFMGByqDDgMDAgEwSDAhBggrBgEFBQcCARYVaHR0cDovL3BraS5nb3Yua3ovY3BzMCMGCCsGAQUFBwICMBcMFWh0dHA6Ly9wa2kuZ292Lmt6L2NwczBYBgNVHR8EUTBPME2gS6BJhiJodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2dvc3QuY3JshiNodHRwOi8vY3JsMS5wa2kuZ292Lmt6L25jYV9nb3N0LmNybDBcBgNVHS4EVTBTMFGgT6BNhiRodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmyGJWh0dHA6Ly9jcmwxLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmwwYwYIKwYBBQUHAQEEVzBVMC8GCCsGAQUFBzAChiNodHRwOi8vcGtpLmdvdi5rei9jZXJ0L25jYV9nb3N0LmNlcjAiBggrBgEFBQcwAYYWaHR0cDovL29jc3AucGtpLmdvdi5rejANBgkqgw4DCgEBAQIFAANBAHqwPfQHK+nBXPcQbqe516q/QGdCPa2GxWzvL3tm1PzAEp5TN5QicJq4+i5pJ2yAiZCMHGgE6Dk2Qe3syUCZcS8=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature></document>';
+
+        if( $this->__isValidXml($result_data) ){
+            $xml = new SimpleXMLElement( $result_data );
+            if ($xml->error){
+                $message = "Ошибка запроса: ". $xml->error->message;
+            } elseif ( count($xml->script->dataset->records->record) >= 1 ){
+                $record = $xml->script->dataset->records->record;
+                $message = $this->checkCondition($record);
+                $success_checking = true;
+            } elseif ( count($xml->script->dataset->records->record) == 0 ){
+                $message = 'Нет записей в АИС КАП по данному ГРНЗ (код V001)';
+            }
+        }
+
+        if ($success_checking) {
+            $kap_request = new KapRequest;
+            $kap_request->grnz = $grnz;
+            $kap_request->k_status = $message;
+            $kap_request->xml_response = $result_data;
+            $kap_request->user_id = $user->id;
+            $kap_request->created_at = time();
+            $kap_request->save();
+            if (!empty($kap_request->id)) {
+                return [
+                    'id' => $kap_request->id,
+                    'status' => true,
+                    'message' => $message
+                ];
+            }
+        }
+
+        return [
+            'status' => false
+        ];
+    }
+
+    private function checkCondition($record){
+
         $data_type = [
             "GRNZ" => "ГРНЗ",
             "STATUS_DATE" => "дата операции",
@@ -33,31 +232,145 @@ class KapService
             "IINBIN" => "ИИН/БИН"
         ];
 
-/*        $data = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><document pointcode="151140025060" elapsed="00:00:00.0824931"><initiator><system>РОП</system><user>151140025060</user></initiator><script name="РОП/GetAuto_" type="scrx"><parameters><parameter name="BODY">KN2DAH2C2RK001940</parameter></parameters><dataset><fields><field length="10" name="STATUS_DATE" type="String" /><field length="10" name="GRNZ" type="String" /><field length="10" name="PREV_GRNZ" type="String" /><field length="40" name="MODEL" type="String" /><field length="4" name="ISSUE_YEAR" type="String" /><field length="20" name="ENGINE_NO" type="String" /><field length="20" name="CHASSIS_NO" type="String" /><field length="20" name="BODY_NO" type="String" /><field length="7" name="COLOR" type="String" /><field length="50" name="COLOR_NAME" type="String" /><field length="10" name="SRTS" type="String" /><field length="3" name="CATEGORY" type="String" /><field length="6" name="ENGINE_POWER_KWT" type="String" /><field length="6" name="ENGINE_POWER_HP" type="String" /><field length="5" name="ENGINE_VOLUME" type="String" /><field length="6" name="MAX_WEIGHT" type="String" /><field length="6" name="UNLOADED_WEIGHT" type="String" /><field length="1" name="STATUS" type="String" /><field length="1" name="OWNER_TYPE" type="String" /><field length="6" name="VEHICLE_TYPE_CODE" type="String" /><field length="20" name="VIN" type="String" /><field length="10" name="PREV_SRTS" type="String" /><field length="1024" name="NOTES" type="String" /><field length="49" name="UNREG_REASON" type="String" /><field length="6" name="UNREG_INCOMING_NUMBER" type="String" /><field length="10" name="FIRST_REG_DATE" type="String" /></fields><records count="6"><record><field name="STATUS_DATE">2020-10-22</field><field name="GRNZ">078OOA05</field><field name="PREV_GRNZ">B741YSN</field><field name="MODEL">ASIA COMBI</field><field name="ISSUE_YEAR">1994</field><field name="ENGINE_NO">ZB502241</field><field name="CHASSIS_NO" /><field name="BODY_NO">KN2DAH2C2RK001940</field><field name="COLOR">1000001</field><field name="COLOR_NAME">КОМБИНИРОВАННЫЙ</field><field name="SRTS">BB00232881</field><field name="CATEGORY">D</field><field name="ENGINE_POWER_KWT">120</field><field name="ENGINE_POWER_HP">163</field><field name="ENGINE_VOLUME">4200</field><field name="MAX_WEIGHT">6500</field><field name="UNLOADED_WEIGHT">4500</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">230000</field><field name="VIN">KN2DAH2C2RK001940</field><field name="PREV_SRTS">BA00148151</field><field name="NOTES">Т/П BA00148151 ПФС 04/03/15, КВТ 120, 19П/М, АВТОБУС, БЕЛО-СИНИЙ</field><field name="UNREG_REASON">утилизация (выбраковка,списание)</field><field name="UNREG_INCOMING_NUMBER" /><field name="FIRST_REG_DATE">2003-08-14</field></record><record><field name="STATUS_DATE">2015-03-04</field><field name="GRNZ">B741YSN</field><field name="PREV_GRNZ">B772KUN</field><field name="MODEL">ASIA COMBI</field><field name="ISSUE_YEAR">1994</field><field name="ENGINE_NO">ZB502241</field><field name="CHASSIS_NO">-</field><field name="BODY_NO">KN2DAH2C2RK001940</field><field name="COLOR">1000001</field><field name="COLOR_NAME">КОМБИНИРОВАННЫЙ</field><field name="SRTS">BA00148151</field><field name="CATEGORY">D</field><field name="ENGINE_POWER_KWT">120</field><field name="ENGINE_POWER_HP">163</field><field name="ENGINE_VOLUME">4200</field><field name="MAX_WEIGHT">3500</field><field name="UNLOADED_WEIGHT">2000</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">240000</field><field name="VIN">KN2DAH2C2RK001940</field><field name="PREV_SRTS">BQ00023070</field><field name="NOTES">Т/П BQ00023070 ДКП ПИСЬМ.ФОРМА СДЕЛКИ, КВТ 120 АВТОБУС 19 П/МЕСТ</field><field name="UNREG_REASON">договор купли-продажи</field><field name="UNREG_INCOMING_NUMBER">2154</field><field name="FIRST_REG_DATE" /></record><record><field name="STATUS_DATE">2011-04-06</field><field name="GRNZ">B772KUN</field><field name="PREV_GRNZ" /><field name="MODEL">ASIA COMBI</field><field name="ISSUE_YEAR">1994</field><field name="ENGINE_NO">ZB502241</field><field name="CHASSIS_NO">Н.У.</field><field name="BODY_NO">KN2DAH2C2RK001940</field><field name="COLOR">1000001</field><field name="COLOR_NAME">КОМБИНИРОВАННЫЙ</field><field name="SRTS">BQ00023070</field><field name="CATEGORY">B</field><field name="ENGINE_POWER_KWT">120</field><field name="ENGINE_POWER_HP">163</field><field name="ENGINE_VOLUME">4200</field><field name="MAX_WEIGHT">3500</field><field name="UNLOADED_WEIGHT">2000</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">240000</field><field name="VIN">KN2DAH2C2RK001940</field><field name="PREV_SRTS" /><field name="NOTES">ПО ДКП НА НАУРЫЗБАЕВА Р Б ГН НЕ СДАНЫ</field><field name="UNREG_REASON">договор купли-продажи</field><field name="UNREG_INCOMING_NUMBER">4773</field><field name="FIRST_REG_DATE" /></record><record><field name="STATUS_DATE">2008-03-01</field><field name="GRNZ">A675YMM</field><field name="PREV_GRNZ">A675YMM</field><field name="MODEL">ASIA COMBI</field><field name="ISSUE_YEAR">1994</field><field name="ENGINE_NO">ZB502241</field><field name="CHASSIS_NO">-</field><field name="BODY_NO">KN2DAH2C2RK001940</field><field name="COLOR">1000001</field><field name="COLOR_NAME">КОМБИНИРОВАННЫЙ</field><field name="SRTS">AA00109011</field><field name="CATEGORY">D</field><field name="ENGINE_POWER_KWT">120</field><field name="ENGINE_POWER_HP">163</field><field name="ENGINE_VOLUME">4200</field><field name="MAX_WEIGHT">3500</field><field name="UNLOADED_WEIGHT">2000</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">230000</field><field name="VIN">KN2DAH2C2RK001940</field><field name="PREV_SRTS" /><field name="NOTES">ДУБЛИКАТ Т/П AA00094188, V-4200, М/АВТОБУС 19П/М</field><field name="UNREG_REASON">ком. маг. по дов-сти</field><field name="UNREG_INCOMING_NUMBER">1709</field><field name="FIRST_REG_DATE" /></record><record><field name="STATUS_DATE">2005-07-08</field><field name="GRNZ">A675YMM</field><field name="PREV_GRNZ">A846VDM</field><field name="MODEL">ASIA COMBI</field><field name="ISSUE_YEAR">1994</field><field name="ENGINE_NO">502241</field><field name="CHASSIS_NO">-</field><field name="BODY_NO">KN2DAH2C2RK001940</field><field name="COLOR">1000001</field><field name="COLOR_NAME">КОМБИНИРОВАННЫЙ</field><field name="SRTS">AA00094188</field><field name="CATEGORY">D</field><field name="ENGINE_POWER_KWT">120</field><field name="ENGINE_POWER_HP">163</field><field name="ENGINE_VOLUME">4200</field><field name="MAX_WEIGHT">3500</field><field name="UNLOADED_WEIGHT">2000</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">230001</field><field name="VIN">KN2DAH2C2RK001940</field><field name="PREV_SRTS">AN00007773</field><field name="NOTES">М/АВТОБУС 19 П/М Т/П AN00007773 СС БТ 00010579 01/10/04</field><field name="UNREG_REASON">дубликат</field><field name="UNREG_INCOMING_NUMBER">7748</field><field name="FIRST_REG_DATE" /></record><record><field name="STATUS_DATE">2004-10-01</field><field name="GRNZ">A846VDM</field><field name="PREV_GRNZ" /><field name="MODEL">ASIA COMBI</field><field name="ISSUE_YEAR">1994</field><field name="ENGINE_NO">502241</field><field name="CHASSIS_NO">-</field><field name="BODY_NO">KN2DAH2C2RK001940</field><field name="COLOR">1000001</field><field name="COLOR_NAME">КОМБИНИРОВАННЫЙ</field><field name="SRTS">AN00007773</field><field name="CATEGORY">D</field><field name="ENGINE_POWER_KWT">120</field><field name="ENGINE_POWER_HP">163</field><field name="ENGINE_VOLUME" /><field name="MAX_WEIGHT">3500</field><field name="UNLOADED_WEIGHT">2000</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">230001</field><field name="VIN">KN2DAH2C2RK001940</field><field name="PREV_SRTS" /><field name="NOTES">Гр.там.декл. 50205/12073/0006518, М/АВТОБУС 19 П/М</field><field name="UNREG_REASON">ком. маг. по дов-сти</field><field name="UNREG_INCOMING_NUMBER">8659</field><field name="FIRST_REG_DATE" /></record></records></dataset></script><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311" /><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments" /></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34311" /><ds:DigestValue>xA0vXmDhaRcE0TpXLyNo0PWZfUCpHgBmL+oMzsiKARA=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>IcRqwYoFGGViYqihTJjgE+3ltFa+Fn3NSGPfE6qbpqpTOBFDqphTTAq2/sslEF5vGxwRpNt1vjypYnq+iBCEwQ==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEtzCCBGGgAwIBAgIUMFkoybqwMf+yqKN1x91tx0OjFDswDQYJKoMOAwoBAQECBQAwUzELMAkGA1UEBhMCS1oxRDBCBgNVBAMMO9Kw0JvQotCi0KvSmiDQmtCj05jQm9CQ0J3QlNCr0KDQo9Co0Ksg0J7QoNCi0JDQm9Cr0pogKEdPU1QpMB4XDTIwMDkxNTA2MjU0MFoXDTIxMDkxNTA2MjU0MFowggFhMSIwIAYDVQQDDBnQotCj0KHQo9Cf0J7QkiDQodCV0KDQmNCaMRcwFQYDVQQEDA7QotCj0KHQo9Cf0J7QkjEYMBYGA1UEBRMPSUlOODAwNzA3MzAxMjk3MQswCQYDVQQGEwJLWjGBnTCBmgYDVQQKDIGS0JPQntCh0KPQlNCQ0KDQodCi0JLQldCd0J3QntCVINCj0KfQoNCV0JbQlNCV0J3QmNCVICLQnNCY0J3QmNCh0KLQldCg0KHQotCS0J4g0JLQndCj0KLQoNCV0J3QndCY0KUg0JTQldCbINCg0JXQodCf0KPQkdCb0JjQmtCYINCa0JDQl9CQ0KXQodCi0JDQnSIxGDAWBgNVBAsMD0JJTjk2MDM0MDAwMDUxNDEdMBsGA1UEKgwU0JDQnNCQ0J3QotCQ0JXQktCY0KcxIjAgBgkqhkiG9w0BCQEWE0dPU1pBQ1VQTVZEQE1BSUwuS1owbDAlBgkqgw4DCgEBAQEwGAYKKoMOAwoBAQEBAQYKKoMOAwoBAwEBAANDAARAhbF4QiK1HRKhKCI84aLFKJAcmfz7lRdAraxOs1VPKe1naHCqEfCbZOM1+dYY+50pmT+jhy1J5OWTUs6+loJWhaOCAeswggHnMA4GA1UdDwEB/wQEAwIGwDAoBgNVHSUEITAfBggrBgEFBQcDBAYIKoMOAwMEAQIGCSqDDgMDBAECAjAPBgNVHSMECDAGgARbanPpMB0GA1UdDgQWBBQ3dvUIx68oGznprAGdmuoYncfVHjBeBgNVHSAEVzBVMFMGByqDDgMDAgEwSDAhBggrBgEFBQcCARYVaHR0cDovL3BraS5nb3Yua3ovY3BzMCMGCCsGAQUFBwICMBcMFWh0dHA6Ly9wa2kuZ292Lmt6L2NwczBYBgNVHR8EUTBPME2gS6BJhiJodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2dvc3QuY3JshiNodHRwOi8vY3JsMS5wa2kuZ292Lmt6L25jYV9nb3N0LmNybDBcBgNVHS4EVTBTMFGgT6BNhiRodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmyGJWh0dHA6Ly9jcmwxLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmwwYwYIKwYBBQUHAQEEVzBVMC8GCCsGAQUFBzAChiNodHRwOi8vcGtpLmdvdi5rei9jZXJ0L25jYV9nb3N0LmNlcjAiBggrBgEFBQcwAYYWaHR0cDovL29jc3AucGtpLmdvdi5rejANBgkqgw4DCgEBAQIFAANBAHqwPfQHK+nBXPcQbqe516q/QGdCPa2GxWzvL3tm1PzAEp5TN5QicJq4+i5pJ2yAiZCMHGgE6Dk2Qe3syUCZcS8=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature></document>';*/
-        $data = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><document elapsed="00:00:00.0667491" pointcode="040340008429"><script elapsed="00:00:00.0660518" name="JD/GetAuto" type="scrx"><parameters><parameter name="GRNZ">100OOO01</parameter></parameters><dataset><fields><field length="10" name="STATUS_DATE" type="String"/><field length="10" name="GRNZ" type="String"/><field length="10" name="PREV_GRNZ" type="String"/><field length="40" name="MODEL" type="String"/><field length="4" name="ISSUE_YEAR" type="String"/><field length="25" name="ENGINE_NO" type="String"/><field length="20" name="CHASSIS_NO" type="String"/><field length="20" name="BODY_NO" type="String"/><field length="7" name="COLOR" type="String"/><field length="50" name="COLOR_NAME" type="String"/><field length="10" name="SRTS" type="String"/><field length="3" name="CATEGORY" type="String"/><field length="6" name="ENGINE_POWER_KWT" type="String"/><field length="6" name="ENGINE_POWER_HP" type="String"/><field length="5" name="ENGINE_VOLUME" type="String"/><field length="6" name="MAX_WEIGHT" type="String"/><field length="6" name="UNLOADED_WEIGHT" type="String"/><field length="1" name="STATUS" type="String"/><field length="1" name="OWNER_TYPE" type="String"/><field length="6" name="VEHICLE_TYPE_CODE" type="String"/><field length="20" name="VIN" type="String"/><field length="10" name="PREV_SRTS" type="String"/><field length="1024" name="NOTES" type="String"/><field length="49" name="UNREG_REASON" type="String"/><field length="6" name="UNREG_INCOMING_NUMBER" type="String"/><field length="10" name="FIRST_REG_DATE" type="String"/><field length="12" name="IINBIN" type="String"/><field length="60" name="LASTNAME" type="String"/><field length="25" name="FIRSTNAME" type="String"/><field length="25" name="MIDNAME" type="String"/></fields><records count="2"><record><field name="STATUS_DATE">2017-04-28</field><field name="GRNZ">100OOO01</field><field name="PREV_GRNZ">020RC09</field><field name="MODEL">MERCEDES-BENZ S500L 4MATIC</field><field name="ISSUE_YEAR">2013</field><field name="ENGINE_NO"/><field name="CHASSIS_NO">-</field><field name="BODY_NO">WDD2221851A023726</field><field name="COLOR">0A01000</field><field name="COLOR_NAME">ЧЕРНЫЙ МЕТАЛЛИК</field><field name="SRTS">ZX00098828</field><field name="CATEGORY">B</field><field name="ENGINE_POWER_KWT">320</field><field name="ENGINE_POWER_HP">435</field><field name="ENGINE_VOLUME">4663</field><field name="MAX_WEIGHT">2950</field><field name="UNLOADED_WEIGHT">2450</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">240000</field><field name="VIN">WDD2221851A023726</field><field name="PREV_SRTS">ZW00028981</field><field name="NOTES">Т/П ZW00028981 ДКП 07.04.16, кВт 320</field><field name="UNREG_REASON">ком. маг. по дов-сти</field><field name="UNREG_INCOMING_NUMBER">25573</field><field name="FIRST_REG_DATE">2013-12-28</field><field name="IINBIN">920114350018</field><field name="LASTNAME">ЗЕЙНУЛЛИН</field><field name="FIRSTNAME">АЙВАР</field><field name="MIDNAME">ТАЛГАТОВИЧ</field></record><record><field name="STATUS_DATE">2016-04-08</field><field name="GRNZ">100OOO01</field><field name="PREV_GRNZ">035AC01</field><field name="MODEL">LEXUS LX 570</field><field name="ISSUE_YEAR">2012</field><field name="ENGINE_NO">3UR312038</field><field name="CHASSIS_NO">-</field><field name="BODY_NO">JTJHY00W004084214</field><field name="COLOR">0I01001</field><field name="COLOR_NAME">СЕРЕБРИСТЫЙ МЕТАЛЛИК</field><field name="SRTS">ZX00078816</field><field name="CATEGORY">B</field><field name="ENGINE_POWER_KWT">200</field><field name="ENGINE_POWER_HP">272</field><field name="ENGINE_VOLUME">5663</field><field name="MAX_WEIGHT">2750</field><field name="UNLOADED_WEIGHT">2550</field><field name="STATUS">S</field><field name="OWNER_TYPE">2</field><field name="VEHICLE_TYPE_CODE">240000</field><field name="VIN">JTJHY00W004084214</field><field name="PREV_SRTS">ZW00030611</field><field name="NOTES">Т/П ZW00030611 ПФС, кВт 200</field><field name="UNREG_REASON">замена Гос. номера</field><field name="UNREG_INCOMING_NUMBER">3153</field><field name="FIRST_REG_DATE"/><field name="IINBIN">920114350018</field><field name="LASTNAME">ЗЕЙНУЛЛИН</field><field name="FIRSTNAME">АЙВАР</field><field name="MIDNAME">ТАЛГАТОВИЧ</field></record></records></dataset></script><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311"/><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gost34311"/><ds:DigestValue>PSPSnZesrOj9alrN0FTi5MJJfpOdUSZn33VbcGi/l/4=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>aP/oElc4uD7d52bGsFWd8Qeiy6TzzOlGVnSD9jppgWaHtgDqJa6zGcMujllCvnSVOAk4NjM2rA8NcEq2WGevjQ==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEzzCCBHmgAwIBAgIURWD8XRT6Cfx0hvRv8gHxbRYGKY0wDQYJKoMOAwoBAQECBQAwUzELMAkGA1UEBhMCS1oxRDBCBgNVBAMMO9Kw0JvQotCi0KvSmiDQmtCj05jQm9CQ0J3QlNCr0KDQo9Co0Ksg0J7QoNCi0JDQm9Cr0pogKEdPU1QpMB4XDTIyMTIxNDExNDUyMFoXDTIzMTIxNDExNDUyMFowggFhMSIwIAYDVQQDDBnQotCj0KHQo9Cf0J7QkiDQodCV0KDQmNCaMRcwFQYDVQQEDA7QotCj0KHQo9Cf0J7QkjEYMBYGA1UEBRMPSUlOODAwNzA3MzAxMjk3MQswCQYDVQQGEwJLWjGBnTCBmgYDVQQKDIGS0JPQvtGB0YPQtNCw0YDRgdGC0LLQtdC90L3QvtC1INGD0YfRgNC10LbQtNC10L3QuNC1ICLQnNC40L3QuNGB0YLQtdGA0YHRgtCy0L4g0LLQvdGD0YLRgNC10L3QvdC40YUg0LTQtdC7INCg0LXRgdC/0YPQsdC70LjQutC4INCa0LDQt9Cw0YXRgdGC0LDQvSIxGDAWBgNVBAsMD0JJTjk2MDM0MDAwMDUxNDEdMBsGA1UEKgwU0JDQnNCQ0J3QotCQ0JXQktCY0KcxIjAgBgkqhkiG9w0BCQEWE0dvc3pha3VwTVZEQG1haWwua3owbDAlBgkqgw4DCgEBAQEwGAYKKoMOAwoBAQEBAQYKKoMOAwoBAwEBAANDAARAfhUlGZkd++sX45smlTsZuK+Oozwf9FQsYWuDc5GjriyuMnn6agWxzd7ifK/KqvSw/DfCGD4pAXNnt7NPlpQFGaOCAgMwggH/MA4GA1UdDwEB/wQEAwIGwDAoBgNVHSUEITAfBggrBgEFBQcDBAYIKoMOAwMEAQIGCSqDDgMDBAECAjBeBgNVHSAEVzBVMFMGByqDDgMDAgEwSDAhBggrBgEFBQcCARYVaHR0cDovL3BraS5nb3Yua3ovY3BzMCMGCCsGAQUFBwICMBcMFWh0dHA6Ly9wa2kuZ292Lmt6L2NwczBYBgNVHR8EUTBPME2gS6BJhiJodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2dvc3QuY3JshiNodHRwOi8vY3JsMS5wa2kuZ292Lmt6L25jYV9nb3N0LmNybDBcBgNVHS4EVTBTMFGgT6BNhiRodHRwOi8vY3JsLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmyGJWh0dHA6Ly9jcmwxLnBraS5nb3Yua3ovbmNhX2RfZ29zdC5jcmwwYwYIKwYBBQUHAQEEVzBVMC8GCCsGAQUFBzAChiNodHRwOi8vcGtpLmdvdi5rei9jZXJ0L25jYV9nb3N0LmNlcjAiBggrBgEFBQcwAYYWaHR0cDovL29jc3AucGtpLmdvdi5rejAdBgNVHQ4EFgQUxWD8XRT6Cfx0hvRv8gHxbRYGKY0wDwYDVR0jBAgwBoAEW2pz6TAWBgYqgw4DAwUEDDAKBggqgw4DAwUBATANBgkqgw4DCgEBAQIFAANBAJczcrcqP8kY+muYu5BS/gQBwNj0rqSDEIHb/ofHAjpeeSqJRQoNzR0Iq1zwdEzXCmyrfM2WpMcPEdJ0rTflypo=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature></document>';
-        $res = [];
+        $state = '';
+        $allow_set_state_by_last = true;
+        $sorted_array = [];
 
-        if ($data) {
-            $xml = new SimpleXMLElement($data);
-            $xml = $xml->script->dataset->records;
-            $k = 0;
-            foreach ($xml->record as $record) {
-                $k++;
-                $list = [];
-                foreach ($record as $field) {
-                    $field_name = $field->attributes();
-                    $field_name = $field_name[0];
-                    if (isset($data_type[strval($field_name)])) {
-                        $list[] = [
-                            strval($field_name) => $field
-                        ];
-                    }
-                }
-                $res[] = $list;
+        $state .= '';
+        foreach( $record->field as $field ){
+            $field_name = $field->attributes();
+            $field_name = $field_name[0];
+
+            if ( $field_name == "STATUS" && isset($data_type[strval($field_name)]) && $field != 'S' ){
+                $state = 'Проверка VIN, номер кузова не снят с учета (V004)';
+                break;
             }
 
+            if( isset($data_type[strval($field_name)]) ){
+                $field = $field != '' ? $field : 'Нет записи';
+                $state .=  ' <span><b>'. $data_type[strval($field_name)].':</b> ';
+
+                $state .= ' '.$field.'</span>; ';
+            }
         }
 
-        return $res;
+        return $state;
     }
+
+
+    private function convertXmlDatToArray($records): array
+    {
+
+        $data_type = [
+            "GRNZ" => "ГРНЗ",
+            "STATUS_DATE" => "дата операции",
+            "MODEL" => "марка, модель, модификация ТС",
+            "ISSUE_YEAR" => "год выпуска ТС",
+            "ENGINE_NO" => "номер двигателя ТС",
+            "CHASSIS_NO" => "номер шасси ТС",
+            "BODY_NO" => "номер кузова ТС (Vin-код)",
+            "COLOR_NAME" => "цвет",
+            "CATEGORY" => "категория ТС",
+            "ENGINE_VOLUME" => "объем двигателя (куб. см)",
+            "MAX_WEIGHT" => "разрешенная максимальная масса",
+            "UNLOADED_WEIGHT" => "масса без нагрузки",
+            "STATUS" => "статус карточки",
+            "VIN" => "VIN ТС",
+            "UNREG_REASON" => "причина снятия с учета ТС",
+            "FIRSTNAME" => "Имя",
+            "LASTNAME" => "Фамилия",
+            "MIDNAME" => "Отчество",
+            "IINBIN" => "ИИН/БИН"
+        ];
+        $k = 0;
+        foreach ($records as $record) {
+            $k++;
+            $list = [];
+            foreach ($record as $field) {
+                $field_name = $field->attributes();
+                $field_name = $field_name[0];
+                $status = '';
+                $item_arr = [];
+                if (isset($data_type[strval($field_name)])) {
+                    if ($field_name == "STATUS") {
+                        switch ($field) {
+                            case "P":
+                                $status = 'карточка распечатана (' . $field . ')';
+                                break;
+                            case "S":
+                                $status_id = $field;
+                                $status = 'Карточка снята с учета (' . $field . ')';
+                                break;
+                            case "B":
+                                $status = 'Карточка распечатана, временный ввоз (' . $field . ')';
+                                break;
+                            case "U":
+                                $status = 'Карточка утверждена (' . $field . ')';
+                                break;
+                            case "N":
+                                $status = 'Новая карточка (' . $field . ')';
+                                break;
+                            case "V":
+                                $status = 'Карточка на временном учете (' . $field . ')';
+                                break;
+                            default:
+                                $status = $field;
+                                break;
+                        }
+                        $field[0] = $status;
+                    }
+                    $string = json_encode($field);
+                    $list[] = json_decode($string, true);
+                }
+            }
+            $res[] = $list;
+        }
+
+        $newArr = [];
+        $ids = [];
+        foreach ($res as $key => $listItem){
+            $newItemArr = [];
+            foreach ($listItem as $value){
+                if(count($value) > 1) {
+                    if($value[0] === 'Карточка снята с учета (S)'){
+                        $ids[] = $key+1;
+                    }
+                    $newItemArr[strtolower($value['@attributes']['name'])] = $value[0];
+                }else{
+                    $newItemArr[strtolower($value['@attributes']['name'])] = '-';
+                }
+                $newItemArr['id'] = $key+1;
+            }
+            $newArr[] = $newItemArr;
+        }
+
+        $arr = [];
+        foreach ($newArr as $item){
+            if(in_array($item['id'], $ids)){
+                $arr[] = $item;
+            }
+        }
+        return $arr;
+    }
+
+    private function __isValidXml($content)
+    {
+        $content = trim($content);
+        if (empty($content)) {
+            return false;
+        }
+        //html go to hell!
+        if (stripos($content, '<!DOCTYPE html>') !== false) {
+            return false;
+        }
+
+        libxml_use_internal_errors(true);
+        simplexml_load_string($content);
+        $errors = libxml_get_errors();
+        libxml_clear_errors();
+
+        return empty($errors);
+    }
+
+
 }

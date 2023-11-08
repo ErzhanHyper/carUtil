@@ -170,6 +170,18 @@ export default {
             expand: false,
             link: '/report'
         },
+
+    ],
+
+    dealerLightItems: [
+        {
+            name: 'Погашения',
+            icon: 'report',
+            color: color1,
+            expand: false,
+            link: '/sell'
+        },
+
     ],
 
 }

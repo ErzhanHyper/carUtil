@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Document\DocumentSellService;
 use App\Services\Document\DocumentService;
 use App\Services\Document\DocumentTransferService;
 use Illuminate\Http\Request;
@@ -26,6 +27,11 @@ class DocumentController extends Controller
     public function getTransferContract($id)
     {
         return app(DocumentTransferService::class)->generateTransferContract($id);
+    }
+
+    public function getSellApplication($id)
+    {
+        return app(DocumentSellService::class)->generateSellApplication($id);
     }
 
 }

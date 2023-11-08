@@ -65,6 +65,10 @@
                     <q-input outlined dense square v-model="item.weight" label="Масса (кг)" hint="Без нагрузки"
                              :readonly="blocked"/>
                 </div>
+                <div class="col">
+                    <q-input outlined dense square v-model="item.color" label="Цвет" hint="Без нагрузки"
+                             :readonly="blocked"/>
+                </div>
             </div>
 
             <div class="row q-gutter-md q-mb-md">
@@ -98,7 +102,7 @@ import {checkVehicle} from "../../services/preorder";
 
 export default {
 
-    props: ['data', 'getCar', 'categories', 'blocked', 'order_id', 'recycleType'],
+    props: ['data', 'getCar', 'categories', 'blocked', 'preorder_id', 'recycleType'],
 
     data() {
         return {
@@ -107,6 +111,7 @@ export default {
                 vin: '',
                 grnz: '',
                 m_model: '',
+                color: ''
             },
 
             showFields: false,
@@ -127,18 +132,21 @@ export default {
         search() {
             this.loading = true
             checkVehicle({
-                preorder_id: this.order_id,
+                preorder_id: this.preorder_id,
             }).then(res => {
+                console.log(res)
                 if(res) {
-                    res.map((el, i) => {
+                    res.data.items.map((el, i) => {
                         this.kap_data.push({
-                            m_model: el[2]['MODEL'][0],
-                            grnz: el[1]['GRNZ'][0],
-                            vin: el[13]['VIN'][0],
-                            body_no: el[6]['BODY_NO'][0],
-                            year: el[3]['ISSUE_YEAR'][0],
-                            weight: el[11]['UNLOADED_WEIGHT'][0],
-                            chassis_no: el[5]['CHASSIS_NO'][0]
+                            m_model: el.model,
+                            grnz: el.grnz,
+                            vin: el.vin,
+                            body_no: el.body_no,
+                            year: el.issue_year,
+                            weight: el.unloaded_weight,
+                            chassis_no: el.chassis_no,
+                            color: el.color_name,
+                            engine_no: el.engine_no
                         })
                     })
                 }
@@ -158,6 +166,7 @@ export default {
     mounted() {
         this.$emitter.on('CarCardEvent', () => {
             this.getCar(this.item)
+            console.log(this.item)
         })
     }
 }
