@@ -93,6 +93,7 @@ export default {
     methods: {
 
         getData() {
+            this.$emitter.emit('contentLoaded', true);
             getUser().then(res => {
                 let profile = res.profile
 

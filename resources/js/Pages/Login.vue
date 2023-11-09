@@ -1,7 +1,7 @@
 <template>
-    <q-layout view="lHh LpR fFf">
+    <q-layout view="lHh LpR fFf" class="login_layout">
         <q-page-container>
-            <q-page class="bg-blue-grey-14 window-height window-width row justify-center items-center" id="loginPage">
+            <q-page class=" window-height window-width row justify-center items-center" id="loginPage">
                 <div class="column">
                     <div class="row">
                         <h5 class="text-h5 text-white q-my-md">ВЭТС/ВЭССХТ</h5>

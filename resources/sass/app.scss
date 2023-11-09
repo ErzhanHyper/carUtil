@@ -128,3 +128,26 @@ input:-webkit-autofill {
         padding: 20px;
     }
 }
+
+.login_layout{
+    background-color: rgba(#455a64, 1)!important;
+}
+//
+//#loginPage .column{
+//    z-index: 10;
+//}
+//#loginPage:after{
+//    content: '';
+//    display: block;
+//    width: 100%;
+//    height: 100vh;
+//    position: fixed;
+//    top: 0;
+//    left: 0;
+//    background-repeat: no-repeat;
+//    background-size: cover;
+//    background-position: 0 -70px;
+//    z-index: 0;
+//    opacity: .01;
+//    background-image: url('../img/login_back.jpeg');
+//}

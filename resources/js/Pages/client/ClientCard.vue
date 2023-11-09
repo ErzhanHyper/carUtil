@@ -2,7 +2,7 @@
 
     <q-card>
         <q-card-section class="q-pb-xs">
-            <div class="text-body2">Клиент</div>
+            <div class="text-body2">{{ (label) ? label : 'Клиент'}}</div>
             <div class="text-body1">{{ item.title }}</div>
         </q-card-section>
 
@@ -94,7 +94,7 @@ export default {
         EmailField, PhoneField, AddressField, RegionField, ClientTypeField, ClientIdField, NameField, ClientUdNumField
     },
 
-    props: ['data', 'getClient', 'blocked'],
+    props: ['data', 'getClient', 'blocked', 'label'],
 
     data() {
         return {

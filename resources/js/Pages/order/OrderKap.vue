@@ -20,7 +20,7 @@
             <div v-if="!loading && items.length > 0" class="flex q-mb-lg no-wrap">
                 <q-markup-table flat bordered separator="cell" >
                     <tbody>
-                        <tr style="background-color: lightsteelblue;">
+                        <tr style="background-color: #e0e6ed;">
                             <th>Дата операции</th>
                             <th>ГРНЗ</th>
                             <th>Модель</th>
@@ -90,7 +90,7 @@
 import {checkVehicle} from "../../services/preorder";
 
 export default {
-    props: ['order_id', 'data'],
+    props: ['preorder_id', 'order_id', 'data'],
 
     data() {
         return {
@@ -134,7 +134,7 @@ export default {
 
         getKapData(){
             this.loading = true
-            checkVehicle({ order_id: this.order_id, value: this.kap.value, type: this.kap.type}).then(res => {
+            checkVehicle({ preorder_id: this.preorder_id, order_id: this.order_id, value: this.kap.value, type: this.kap.type}).then(res => {
                 this.items = res.data.items
                 this.card = res.data.card
             }).finally(() => {

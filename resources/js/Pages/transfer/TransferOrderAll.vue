@@ -20,19 +20,21 @@
                 <td>{{ item.date }}</td>
                 <td>
                     <q-btn icon="open_in_new" dense flat :to="'/transfer/order/'+item.id" color="primary"
-                           label="Открыть"/>
+                           label="Просмотр"/>
                 </td>
             </tr>
         </template>
         <div class="q-ma-xs" v-if="show && items.length === 0">Нет записей</div>
+        </tbody>
+    </q-markup-table>
+    <div class="flex justify-center">
         <q-spinner-dots
             color="primary"
             size="2em"
             class="q-ma-xs"
             v-if="!show"
         />
-        </tbody>
-    </q-markup-table>
+    </div>
 </template>
 
 <script>

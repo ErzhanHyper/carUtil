@@ -21,7 +21,6 @@ class OrderService
         $user = app(AuthService::class)->auth();
         $factory_id = $user->factory_id;
 
-        if ($user) {
 //            if ($user->role === 'liner') {
 //                $orders = Order::with(['car', 'client', 'preorder']);
 //                $orders->where('liner_id', $user->id);
@@ -43,7 +42,6 @@ class OrderService
             if ($orders) {
                 return OrderResource::collection($orders->orderByDesc('created')->where('created', '>', 1697755551)->paginate(10));
             }
-        }
     }
 
     public function getById($id)
@@ -94,28 +92,52 @@ class OrderService
         $user = app(AuthService::class)->auth();
         $order_id = $request->order_id;
         $order = Order::find($order_id);
+        $can = true;
+        $success = false;
+        $message = '';
 
         if ($order) {
             $car = Car::where('order_id', $order_id)->first();
-            $hash = app(SignService::class)->__signData($car->id);
-            $edsSign = app(EdsService::class)->sign(new Request(['hash' => $hash]));
-            if ($edsSign && $car) {
-                $car->moderator_accept_sign = $edsSign->sign;
-                if ($car->save()) {
-                    $order->approve = 3;
-                    $order->status = 2;
-                    $order->save();
+
+            $carDuplicate = Car::where('vin', $car->vin)->get();
+            if($carDuplicate) {
+                foreach ($carDuplicate as $item) {
+                    $orderRel = Order::find($item->order_id);
+                    if ($orderRel && $orderRel->approve === 3) {
+                        $can = false;
+                    }
                 }
             }
+            if($can === false) {
+                $message = 'ТС с таким VIN кодом уже одобрена в другой заявке';
+            }
 
-            $this->storeHistory(new Request([
-                'action' => 'approve',
-                'order_id' => $order->id,
-                'comment' => 'Одобрено',
-                'user_id' => $user->id,
-            ]));
+            if($can) {
+                $hash = app(SignService::class)->__signData($car->id);
+                $edsSign = app(EdsService::class)->sign(new Request(['hash' => $hash]));
+                if ($edsSign && $car) {
+                    $car->moderator_accept_sign = $edsSign->sign;
+                    if ($car->save()) {
+                        $order->approve = 3;
+                        $order->status = 2;
+                        $order->save();
+                        $message = 'Одобрена!';
+                        $success = true;
+                    }
+                }
 
-            return ['approve'];
+                $this->storeHistory(new Request([
+                    'action' => 'approve',
+                    'order_id' => $order->id,
+                    'comment' => 'Одобрено',
+                    'user_id' => $user->id,
+                ]));
+
+                return [
+                    'message' => $message,
+                    'success' => $success
+                ];
+            }
         }
     }
 

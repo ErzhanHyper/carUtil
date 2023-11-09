@@ -33,9 +33,10 @@
             <td>{{ item.date }}</td>
             <td class="text-right">
                 <div class="q-gutter-sm">
+                    <q-chip color="positive" dark square style="top: 2px" v-if="item.signed" label="Подписано"/>
                     <q-btn label="Выбрать" outline color="indigo-8" size="11px" icon="add" @click="acceptTransfer(item.id)" :loading="loading1" v-if="data.canAccept"/>
                     <q-btn icon="gesture" label="Подписать сделку" color="indigo-8" size="sm" @click="signDialog = true" v-if="item.canSign"/>
-                    <q-btn icon="close" label="Отменить" color="negative" size="sm" @click="closeDeal(item.id)" v-if="item.canClose" :loading="loading2"/>
+                    <q-btn icon="close" label="Отменить предложение" color="pink-5" size="sm" @click="closeDeal(item.id)" v-if="item.canClose" :loading="loading2"/>
                 </div>
 
                 <!--                <q-chip dark color="green-5" label="Сделка завершена" v-if="item.transfer_order.closed === 2"/>-->
@@ -63,7 +64,7 @@
         <q-card style="width: 100%;max-width: 960px;" class="q-pa-none">
             <transfer-term :id="id"/>
             <q-card-actions align="right">
-                <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer(transfer_id)"
+                <q-btn label="Подписать ЭЦП" icon="gesture" color="indigo-8" @click="signTransfer(transfer_id)"
                        :loading="loading"/>
             </q-card-actions>
         </q-card>

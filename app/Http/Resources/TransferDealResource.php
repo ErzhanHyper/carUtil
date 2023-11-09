@@ -30,6 +30,7 @@ class TransferDealResource extends JsonResource
         $canSign = false;
         $canClose = false;
         $selected = false;
+        $signed = false;
 
         if ($transferOrder) {
             $selected = true;
@@ -40,12 +41,16 @@ class TransferDealResource extends JsonResource
                 }
                 if ($transferOrder->owner_sign == '') {
                     $canSign = true;
+                }else{
+                    $signed = true;
                 }
             }
 
             if ($this->client_id === $authClient->id) {
-                if ($transferOrder->owner_sign != '') {
+                if ($transferOrder->receiver_sign != '') {
                     $canSign = true;
+                }else{
+                    $signed = true;
                 }
             }
         }
@@ -58,7 +63,8 @@ class TransferDealResource extends JsonResource
             'date' => Carbon::parse($this->date)->format('Y-m-d H:i'),
             'selected' => $selected,
             'canSign' => $canSign,
-            'canClose' => $canClose
+            'canClose' => $canClose,
+            'signed' => $signed
         ];
     }
 }

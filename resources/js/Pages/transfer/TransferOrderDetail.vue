@@ -9,7 +9,10 @@
 
     <template v-if="!item.canDeal">
         <div class="q-mt-md flex justify-between">
-            <q-chip class="text-body1" color="blue-1" square v-if="!item.canDeal && item.canSign">Предложение выбрана</q-chip>
+            <div class="q-gutter-sm">
+                <q-chip class="text-body1" color="blue-1" square v-if="!item.canDeal && item.canSign">Предложение выбрана</q-chip>
+                <q-chip class="text-body1" color="blue-1" square v-if="!item.canDeal && item.canSign">В ожидании подписи</q-chip>
+            </div>
 
             <div class="q-gutter-sm">
                 <q-btn label="Подписать сделку" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
@@ -49,7 +52,7 @@
                     </div>
                 </q-banner>
 
-                <client-card :data="item.currentClient" :blocked="blocked" :getClient="getClient" class="q-mb-lg" v-if="!item.isOwner"/>
+                <client-card :data="item.currentClient" :blocked="blocked" :getClient="getClient" class="q-mb-lg" v-if="!item.isOwner" label="Заполните ваши данные"/>
 
                 <template v-if="item.canDeal && !item.isOwner">
 

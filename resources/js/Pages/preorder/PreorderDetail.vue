@@ -29,12 +29,17 @@
             <template v-if="user.role === 'liner'">
                 <preorder-sell :show="item.transferShow" :blocked="blocked" :transfer="item.transfer"
                                :order_id="item.order_id"/>
-                <q-btn color="blue-8" label="Отправить" @click="sendData" :loading="loading" v-if="!blocked"></q-btn>
+                <div class="q-gutter-md" v-if="!blocked">
+                    <q-btn color="blue-8" label="Отправить" icon="send" push size="12px" @click="sendData" :loading="loading"  ></q-btn>
+                    <q-btn icon="delete" label="Удалить заявку" push size="12px" color="negative"
+                           v-if="item.status.id === 0"
+                           @click="showDeleteDialog = true"/>
+                </div>
             </template>
         </div>
 
         <template v-if="user.role && user.role === 'moderator'">
-            <preorder-actions v-if="item.status && item.status.id === 1" :id="item.id" :disabled="disabled"/>
+            <preorder-actions v-if="item.status && item.status.id === 1" :id="item.id" :disabled="disabled" :data="{vin: item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}"/>
         </template>
 
         <template v-if="item.comment.length > 0 && item.comment[0].text && user.role === 'liner'">
@@ -75,10 +80,7 @@
 
         </div>
 
-        <div class="q-mt-md text-right" v-if="user && user.role === 'liner' && item.status.id === 0">
-            <q-btn icon="delete" label="Удалить заявку" square size="sm" color="negative"
-                   @click="showDeleteDialog = true"/>
-        </div>
+
     </div>
 
     <q-dialog v-model="showDeleteDialog" size="xs">
@@ -210,7 +212,7 @@ export default {
                     preorder_id: res.id,
                     video: res.video,
                     order_id: res.order_id,
-                    order: res.order
+                    order: res.order,
                 }
 
                 if (!this.item.client) {

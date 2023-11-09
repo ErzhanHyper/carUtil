@@ -134,7 +134,6 @@ export default {
             checkVehicle({
                 preorder_id: this.preorder_id,
             }).then(res => {
-                console.log(res)
                 if(res) {
                     res.data.items.map((el, i) => {
                         this.kap_data.push({

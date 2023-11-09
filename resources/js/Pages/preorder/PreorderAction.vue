@@ -30,8 +30,8 @@
         </q-card>
     </q-dialog>
 
-    <q-dialog v-model="kapDialog">
-        <order-kap/>
+    <q-dialog v-model="kapDialog" size="md" persistent>
+        <order-kap :preorder_id="id" :data="data"/>
     </q-dialog>
 </template>
 
@@ -42,7 +42,7 @@ import OrderKap from "@/Pages/order/OrderKap.vue";
 
 export default {
 
-    props: ['id', 'disabled'],
+    props: ['id', 'disabled', 'data'],
 
     components: {
         OrderKap

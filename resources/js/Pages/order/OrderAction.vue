@@ -66,6 +66,7 @@
 import {signData} from "../../services/sign";
 import {storeCertOrder, declineOrder, revisionOrder, approveOrder} from "../../services/order";
 import OrderKap from "@/Pages/order/OrderKap.vue";
+import {Notify} from "quasar";
 
 export default {
     props: ['showCertAction', 'showApproveAction', 'order_id', 'data'],
@@ -106,9 +107,20 @@ export default {
                 comment: this.comment,
                 sign: this.signHash,
                 order_id: this.order_id
-            }).then(() => {
-                this.commentDialog = false
-                this.$emitter.emit('orderActionEvent')
+            }).then((res) => {
+                if(res) {
+                    if (res.success) {
+                        this.commentDialog = false
+                        this.$emitter.emit('orderActionEvent')
+                    }
+                    if (res.message !== '') {
+                        Notify.create({
+                            message: res.message,
+                            position: 'bottom-right',
+                            type: res.success === true ? 'positive' : 'warning'
+                        })
+                    }
+                }
             }).finally(() => {
                 this.loading = false
             })

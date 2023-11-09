@@ -64,10 +64,10 @@
 
                 <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
                      v-if="item.order && item.order.transfer && item.order.transfer.closed === 2">
-                    <q-btn flat dense :loading="loading">
-                        <q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon>
+                    <q-btn flat dense :loading="loading" size="sm">
+                        <q-icon name="file_copy" class="q-mr-xs" size="sm"></q-icon>
                     </q-btn>
-                    <a href="#" class="text-dark" @click="generatePFS">
+                    <a href="#" class="text-dark" @click="downloadPFS">
                         Договор купли-продажи вышедшего из эксплуатации транспортного средства/самоходной
                         сельскохозяйственной техники
                     </a>
@@ -117,6 +117,7 @@ import {
     storePreOrderFile
 } from "../../services/file";
 import FileDownload from "js-file-download";
+import {getTransferContract} from "../../services/document";
 
 export default {
 
@@ -277,14 +278,16 @@ export default {
 
         },
 
-        generatePFS() {
-            this.loading = true
-            console.log(this.data)
-            generateOrderPFS(this.data.order_id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'pfs.pdf')
-                this.loading = false
-            })
-        }
+        downloadPFS() {
+            if(this.item.order && this.item.order.transfer) {
+                this.loading = true
+                getTransferContract(this.item.order.transfer.id, {responseType: 'arraybuffer'}).then(res => {
+                    FileDownload(res, 'transfer_contract.pdf')
+                }).finally(() => {
+                    this.loading = false
+                })
+            }
+        },
     },
 
     created() {

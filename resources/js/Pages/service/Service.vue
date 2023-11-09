@@ -11,7 +11,7 @@
                 <q-card-section>
                     <div class="flex no-wrap">
                         <q-input label="№ сертификата" outlined dense style="width: 400px"/>
-                        <q-btn icon="search" square color="blue-5"/>
+                        <q-btn icon="search" square color="indigo-8"  size="12px" label="Поиск"/>
                     </div>
                 </q-card-section>
             </q-card>
@@ -25,7 +25,7 @@
                 <q-card-section>
                     <div class="flex no-wrap">
                         <q-input label="№ сертификата" outlined dense style="width: 400px"/>
-                        <q-btn icon="search" square color="blue-5"/>
+                        <q-btn icon="search" square color="indigo-8"  size="12px" label="Поиск"/>
                     </div>
                 </q-card-section>
             </q-card>
@@ -43,7 +43,7 @@
                 <q-card-section>
                     <div class="flex no-wrap">
                         <q-input label="№ договора" outlined dense style="width: 400px"/>
-                        <q-btn icon="search" square color="blue-5"/>
+                        <q-btn icon="search" square color="indigo-8"  size="12px" label="Поиск"/>
                     </div>
                 </q-card-section>
             </q-card>
@@ -57,7 +57,7 @@
                 <q-card-section>
                     <div class="flex no-wrap">
                         <q-input label="№ заявки" outlined dense style="width: 400px"/>
-                        <q-btn icon="search" square color="blue-5"/>
+                        <q-btn icon="search" square color="indigo-8"  size="12px" label="Поиск"/>
                     </div>
                 </q-card-section>
             </q-card>
@@ -75,7 +75,7 @@
                     <q-select v-model="kap.type" :options="options" option-label="title" option-value="name" style="width: 200px" outlined dense label="Тип запроса" class="q-mb-md"></q-select>
                     <div class="flex no-wrap">
                         <q-input label="Значение" outlined dense style="width: 400px" v-model="kap.value"/>
-                        <q-btn icon="search" square color="blue-5"/>
+                        <q-btn icon="search" square color="indigo-8" size="12px" label="Поиск"/>
                     </div>
                 </q-card-section>
             </q-card>

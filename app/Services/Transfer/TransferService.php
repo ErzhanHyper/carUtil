@@ -46,30 +46,36 @@ class TransferService
     public function getCurrenCollection($request)
     {
         $user = app(AuthService::class)->auth();
+        $orders = [];
+        $pages = 0;
+
         if ($user->role === 'liner') {
             $client = Client::where('idnum', $user->idnum)->first();
-            $deal = TransferDeal::select(['id'])->where('client_id', $client->id)->get();
-            $deal_ids = [];
-            foreach ($deal as $item){
-                $deal_ids[] = $item->id;
-            }
-            if($deal) {
-                $orders = TransferOrder::whereIn('transfer_deal_id', $deal_ids)->orWhere('client_id', $client->id)->whereIn('closed', [0, 1, 2]);
+            if ($client) {
+                $deal = TransferDeal::select(['id'])->where('client_id', $client->id)->get();
+                if($deal) {
+                    $deal_ids = [];
+                    foreach ($deal as $item) {
+                        $deal_ids[] = $item->id;
+                    }
+                    $orders_all = TransferOrder::whereIn('transfer_deal_id', $deal_ids)->orWhere('client_id', $client->id)->whereIn('closed', [0, 1, 2]);
+                    if($orders_all->count() > 0) {
+                        $paginate = 15;
+                        $pages = round($orders_all->count() / $paginate);
+                        if ($pages == 0) {
+                            $pages = 1;
+                        }
+                        $orders = TransferOrderResource::collection($orders_all->orderByDesc('date')->orderBy('closed')->paginate($paginate));
+                    }
+                }
             }
         }
 
-        if(isset($orders)) {
-            $paginate = 15;
-            $pages = round($orders->count() / $paginate);
-            if ($pages == 0) {
-                $pages = 1;
-            }
-            return [
-                'pages' => $pages,
-                'page' => $request->page ?? 1,
-                'items' => TransferOrderResource::collection($orders->orderByDesc('date')->orderBy('closed')->paginate($paginate))
-            ];
-        }
+        return [
+            'pages' => $pages,
+            'page' => $request->page ?? 1,
+            'items' => $orders
+        ];
     }
 
     public function getById($id)

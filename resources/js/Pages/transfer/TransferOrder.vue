@@ -70,7 +70,6 @@ export default {
 
     created() {
         this.$emitter.emit('contentLoaded', true);
-
         if (localStorage.getItem('transfer_terms')) {
             this.transferTermsDialog = false
         } else {

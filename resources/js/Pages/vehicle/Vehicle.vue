@@ -7,6 +7,36 @@
         </div>
     </div>
 
+    <q-card class="q-mb-none q-mt-md" bordered square flat>
+        <q-card-section>
+            <div class="row q-col-gutter-md">
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <manufactory-field v-model="filter.manufacture" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="Марка" v-model="filter.brand" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="Модель" v-model="filter.model" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ИИН/БИН" v-model="filter.idnum" outlined dense type="number"/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <category-field outlined dense v-model="filter.category"/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="Класс" v-model="filter.class" outlined dense type="number"/>
+                </div>
+                <div class="col col-md-2 col-sm-2 col-xs-12">
+                    <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
+                    <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
+                           :loading="loading2"/>
+                </div>
+            </div>
+        </q-card-section>
+    </q-card>
+
     <div v-if="show">
         <q-markup-table flat bordered dense >
             <thead>
@@ -56,18 +86,35 @@
 
 <script>
 import {getVehicleList} from "../../services/vehicle";
+import ManufactoryField from "../../Components/Fields/ManufactoryField.vue";
+import CategoryField from "../../Components/Fields/CategoryField.vue";
 
 export default {
+    components: {CategoryField, ManufactoryField},
     data() {
         return {
             items: [],
+            filter: {},
+
             show: false,
+            loading1: false,
+            loading2: false,
+
             page: 1,
             totalPage: 1
         }
     },
 
     methods: {
+
+        applyFilter() {
+            console.log(this.filter)
+        },
+
+        resetFilter(){
+
+        },
+
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getVehicleList({params: {page: this.page}}).then(res => {

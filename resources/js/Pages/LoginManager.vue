@@ -7,7 +7,7 @@
                         <h5 class="text-h5 text-white q-my-md">ВЭТС/ВЭССХТ</h5>
                     </div>
                     <div class="row">
-                        <q-card square bordered class="q-pa-lg shadow-1" style="max-width: 480px;width: 100vw">
+                        <q-card square bordered class="q-pa-sm shadow-1" style="max-width: 480px;width: calc(100vw - 40px)">
 
                             <q-banner dense inline-actions class="text-white bg-pink-5" v-if="showBanner">
                                     <span v-for="(error, i) in errors" :key="i">
@@ -19,17 +19,20 @@
                             </q-banner>
 
                             <q-card-section>
-                                <q-form class="q-gutter-md">
+                                <q-form class="q-gutter-md flex justify-between no-wrap">
                                     <q-select :options="options" label="Выберите тип применяемой ЭЦП"
                                               v-model="auth_type"
-                                              option-label="name" option-value="code" @click="getTokens"/>
+                                              option-label="name" option-value="code"
+                                              style="width: calc(400px - 80px)"/>
+                                    <q-btn unelevated color="light-blue-10" size="md" label="Войти" push
+                                           @click="login" :loading="loading"/>
                                 </q-form>
                             </q-card-section>
 
-                            <q-card-actions class="q-px-md">
-                                <q-btn unelevated color="light-blue-10" size="md" class="full-width" label="Войти" push
-                                       @click="login" :loading="loading"/>
-                            </q-card-actions>
+<!--                            <q-card-actions class="q-px-md">-->
+<!--                                <q-btn unelevated color="light-blue-10" size="md" class="full-width" label="Войти" push-->
+<!--                                       @click="login" :loading="loading"/>-->
+<!--                            </q-card-actions>-->
 
                         </q-card>
                     </div>

@@ -14,15 +14,14 @@
         align="justify"
         narrow-indicator
         style="width: 400px"
-        v-if="show"
     >
         <q-tab :name="1" label="Мои сертификаты"/>
         <q-tab :name="2" label="Передача сертификатов"/>
     </q-tabs>
 
-    <q-tab-panels v-model="tab" animated v-if="show">
-        <q-tab-panel :name="1">
-            <q-markup-table flat bordered dense v-if="items.length > 0">
+    <q-tab-panels v-model="tab" animated vertical>
+        <q-tab-panel :name="1" class="q-pa-none">
+            <q-markup-table flat bordered dense >
                 <thead>
                 <tr>
                     <th class="text-left">№ сертификата</th>
@@ -35,6 +34,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                <template v-if="items.length > 0 && show">
                 <tr v-for="(item, i) in items" :key="i">
                     <td class="text-left">{{ item.id }}</td>
                     <td class="text-left">{{ item.date }}</td>
@@ -58,14 +58,23 @@
                         </q-badge>
                     </td>
                 </tr>
+                </template>
+                <div class="q-ma-xs" v-if="show && items.length === 0">Нет записей</div>
                 </tbody>
             </q-markup-table>
 
-            <template v-else>Нет записей</template>
+            <div class="flex justify-center">
+                <q-spinner-dots
+                    color="primary"
+                    size="2em"
+                    class="q-ma-xs"
+                    v-if="!show"
+                />
+            </div>
         </q-tab-panel>
 
-        <q-tab-panel :name="2">
-            <q-markup-table flat bordered dense v-if="exchanges.length > 0">
+        <q-tab-panel :name="2" class="q-pa-none">
+            <q-markup-table flat bordered dense >
                 <thead>
                 <tr>
                     <th class="text-left">#</th>
@@ -74,7 +83,9 @@
                     <th class="text-left">ИИН/БИН владельца</th>
                     <th class="text-left"></th>
                 </tr>
+                </thead>
 
+                <tbody>
                 <tr v-for="item in exchanges">
                     <td>
                         <router-link :to="'/exchange/'+item.id" class="text-primary">
@@ -86,9 +97,18 @@
                     <td>{{ item.certificate ? item.certificate.title_1 : '' }}</td>
                     <td>{{ item.certificate ? item.certificate.idnum_1 : '' }}</td>
                 </tr>
-                </thead>
+                <div class="q-ma-xs" v-if="show && exchanges.length === 0">Нет записей</div>
+
+                </tbody>
             </q-markup-table>
-            <template v-else>Нет записей</template>
+            <div class="flex justify-center">
+                <q-spinner-dots
+                    color="primary"
+                    size="2em"
+                    class="q-ma-xs"
+                    v-if="!show"
+                />
+            </div>
         </q-tab-panel>
 
     </q-tab-panels>

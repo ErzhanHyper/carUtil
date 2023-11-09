@@ -18,26 +18,44 @@ class KapService
         //тип запроса iinbin/vin/grnz
         $type = $request->type;
 
+        $can = false;
         $success = false;
         $message = 'Нет доступа';
         $user = app(AuthService::class)->auth();
-        $preorder_id = $request->preorder_id;
-        $preorder = PreOrderCar::find($preorder_id);
-        $client = Client::find($preorder->client_id);
         $result = [];
-        $kap_request = KapRequest::where('iinbin', $client->idnum)->orderByDesc('created_at')->first();
+        $kap_request = null;
 
-        if($kap_request) {
+
+        if($user->role === 'liner') {
+            $preorder_id = $request->preorder_id;
+            $kap_request = KapRequest::where('iinbin', $user->idnum)->orderByDesc('created_at')->first();
+
+            if ($preorder_id) {
+                $preorder = PreOrderCar::find($preorder_id);
+                $client = Client::find($preorder->client_id);
+                if ($client) {
+                    $message = 'Клиент найден';
+                    $kap_request = KapRequest::where('iinbin', $client->idnum)->orderByDesc('created_at')->first();
+                }
+            }
+
+            if (!$kap_request && ($preorder && $preorder->liner_id === $user->id && ($preorder->status == 0 || $preorder->status == 4))) {
+                $can = true;
+                $value = $client->idnum;
+                $type = 'iinbin';
+            }
+        }
+
+        if($user->role === 'moderator') {
+            $can = true;
+        }
+
+        if ($kap_request) {
             $xml = new SimpleXMLElement($kap_request->xml_response);
             $record = $xml->script->dataset->records->record;
             $result['items'] = $this->convertXmlDatToArray($record);
             $result['card'] = $kap_request->k_status;
-        }
-        $can = false;
-        if(!$kap_request && ($preorder && $preorder->liner_id === $user->id && $preorder->status != 2) || $user->role === 'moderator') {
-            $can = true;
-            $value = $client->idnum;
-            $type = 'iinbin';
+            $message = 'ТС найден';
         }
 
         if($can){
@@ -54,6 +72,8 @@ class KapService
             }
 
             if(!empty($result['status']) && $result['status']){
+                $message = 'Запрос успешно выполнена!';
+                $success = true;
                 $kap_request_id = $result['id'];
                 $kap_request = KapRequest::find($kap_request_id);
                 $xml = new SimpleXMLElement($kap_request->xml_response);

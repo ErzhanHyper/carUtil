@@ -49,6 +49,8 @@ class PreOrderService
 
         $auth = app(AuthService::class)->auth();
         $preorder = PreOrderCar::find($id);
+        $car = null;
+        $client = null;
         if ($preorder->status === 0 || $preorder->status === 4) {
 
             if ($auth->idnum !== $request->client['idnum']) {
@@ -57,17 +59,19 @@ class PreOrderService
 
             if ($preorder->status === 0) {
                 $client = Client::where('idnum', $request->client['idnum'])->first();
-                $car = Car::where('vin', $request->car['vin'])->where('cert_idnum', $client->idnum)->first();
-                if($car) {
-                    $order = Order::find($car->order_id);
-                    if ($order && $order->approve === 3) {
-                        throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже был обработан']]));
+                if($client) {
+                    $car = Car::where('vin', $request->car['vin'])->first();
+                    if ($car) {
+                        $order = Order::find($car->order_id);
+                        if ($order && $order->approve === 3) {
+                            throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже был обработан']]));
+                        }
                     }
-                }
-                if($car && $client){
-                    $preorderDuplicate = PreOrderCar::where('client_id', $client->id)->where('car_id', $car->id)->first();
-                    if($preorderDuplicate){
-                        throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
+                    if($car){
+                        $preorderDuplicate = PreOrderCar::where('client_id', $client->id)->where('car_id', $car->id)->first();
+                        if($preorderDuplicate){
+                            throw new InvalidArgumentException(json_encode(['car' => ['ТС с таким VIN кодом уже привязан к другой заявке']]));
+                        }
                     }
                 }
             } else if ($preorder->status === 4) {
@@ -80,8 +84,8 @@ class PreOrderService
                 'grnz' => $request->car['grnz'],
                 'category_id' => $request->car['category_id'],
                 'year' => $request->car['year'],
-                'color' => $request->car['color'],
-                'engine_no' => $request->car['engine_no'],
+                'color' => $request->car['color'] ?? '',
+                'engine_no' => $request->car['engine_no'] ?? '',
                 'm_model' => $request->car['m_model'],
                 'body_no' => $request->car['body_no'],
                 'chassis_no' => $request->car['chassis_no'],
