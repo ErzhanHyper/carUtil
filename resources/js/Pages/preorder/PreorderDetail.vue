@@ -1,15 +1,7 @@
 <template>
-
     <div v-if="showData">
-        <q-banner class="q-mb-md bg-indigo-1"
-                  v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)">
+        <q-banner class="q-mb-md bg-indigo-1" v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)">
             Рассмотрение заявки до 15 дней
-        </q-banner>
-
-        <q-banner class="q-mb-sm bg-orange-3 q-mt-md" v-if="showError">
-            <div v-for="error in errors">
-                <span v-for="e in error">{{ e }}</span>
-            </div>
         </q-banner>
 
         <div class="flex justify-between">
@@ -29,9 +21,9 @@
             <template v-if="user.role === 'liner'">
                 <preorder-sell :show="item.transferShow" :blocked="blocked" :transfer="item.transfer"
                                :order_id="item.order_id"/>
-                <div class="q-gutter-md" v-if="!blocked">
+                <div class="q-gutter-md" v-if="item.status.id === 0 || item.status.id === 4">
                     <q-btn color="blue-8" label="Отправить" icon="send" push size="12px" @click="sendData" :loading="loading"  ></q-btn>
-                    <q-btn icon="delete" label="Удалить заявку" push size="12px" color="negative"
+                    <q-btn icon="delete" label="Удалить заявку" push size="12px" color="negative" :disable="blocked"
                            v-if="item.status.id === 0"
                            @click="showDeleteDialog = true"/>
                 </div>
@@ -49,6 +41,17 @@
             </q-banner>
         </template>
 
+        <q-banner class="q-mb-sm bg-orange-1 q-mt-md" v-if="showError">
+            <div v-for="error in errors">
+                <template v-if="error.length > 0">
+                    <span v-for="e in error">{{ e }}</span>
+                </template>
+                <template v-else>
+                    {{ error }}
+                </template>
+            </div>
+        </q-banner>
+
         <template v-if="(user.role === 'liner' || (user.role === 'moderator' && item.booking.datetime)) && item.status.id === 2">
             <booking class="q-mt-md" :data="item.booking" :getBooking="getBooking" :blocked="blockedBooking" id="preorder_booking"/>
         </template>
@@ -59,7 +62,7 @@
                 <div class="row q-col-gutter-md q-mt-xs">
                     <div class="col col-md-5 col-sm-12 col-xs-12">
                         <client-card :data="item.client" :getClient="getClient" :blocked="blocked"/>
-                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>
+<!--                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>-->
                     </div>
 
                     <div class="col col-md-7 col-sm-12 col-xs-12">
@@ -73,7 +76,7 @@
                 <preorder-history v-if="user.role === 'moderator'" :comments="item.comment"/>
             </div>
 
-            <div class="col col-md-4 col-xs-12" v-if="showFile">
+            <div class="col col-md-4 col-xs-12 q-mt-xs" v-if="showFile">
                 <PreorderFile :data="item.file" :files="item.files" :blocked="blocked"
                               :blockedVideo="item.blockedVideo" :recycleType="item.recycle_type"/>
             </div>
@@ -103,7 +106,7 @@
 <script>
 import {Notify} from "quasar";
 import {mapGetters} from "vuex";
-import {deleteOrder, getOrderItem, sendOrder} from "../../services/preorder";
+import {deletePreorder, getPreorderById, sendOrder} from "../../services/preorder";
 
 import PreorderFile from "@/Pages/preorder/PreorderFile.vue";
 import PreorderActions from "@/Pages/preorder/PreorderAction.vue";
@@ -204,7 +207,7 @@ export default {
 
         getData() {
             this.$emitter.emit('contentLoaded', true);
-            getOrderItem(this.id, {}).then(res => {
+            getPreorderById(this.id).then(res => {
                 this.item = res
 
                 this.item.file = {
@@ -239,6 +242,7 @@ export default {
         },
 
         sendData() {
+            this.blocked = true
             this.errors = []
             this.showError = false
             this.$emitter.emit('ClientCardEvent')
@@ -247,33 +251,38 @@ export default {
             if ((this.item.status && this.item.status.id === 0) || this.item.status && this.item.status.id === 4) {
                 this.loading = true
                 sendOrder(this.id, this.item).then(res => {
-                    if (res.status && res.status === 200) {
-                        Notify.create({
-                            message: 'Отправлено модератору на рассмотрение',
-                            position: 'bottom-right',
-                            type: 'positive'
-                        })
-                        this.getData()
+                    if(res) {
+                        if (res.success) {
+                            this.getData()
+                            Notify.create({
+                                message: res.message,
+                                position: 'right',
+                                type: 'positive'
+                            })
+                        }
+                        if ( res.message && res.message !== '' && res.success === false) {
+                            this.errors.push(res.message)
+                            this.showError = true
+                        }
                     }
                 }).catch(reject => {
-                    this.errors = JSON.parse(reject.error)
+                    this.errors = JSON.parse(reject.message)
                     this.showError = true
                 }).finally(() => {
                     this.loading = false
+                    this.blocked = false
                 })
             }
         },
 
         deleteData() {
             this.loading = true
-            deleteOrder({
-                preorder_id: this.id,
-            }).then(res => {
+            deletePreorder(this.id).then(res => {
                 this.$router.push('/preorder')
                 Notify.create({
                     message: 'Заявка удалена',
-                    position: 'bottom-right',
-                    type: 'info'
+                    position: 'right',
+                    type: 'primary'
                 })
             }).finally(() => {
                 this.loading = false

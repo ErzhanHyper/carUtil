@@ -10,6 +10,29 @@
         </div>
     </div>
 
+    <q-card class="q-mb-none q-mt-md" bordered square flat>
+        <q-card-section>
+            <div class="row q-col-gutter-md">
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="VIN" v-model="filter.vin" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ГРНЗ" v-model="filter.grnz" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ФИО" v-model="filter.title" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ИИН/БИН" v-model="filter.idnum" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-2 col-xs-12">
+                    <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
+                    <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
+                           :loading="loading2"/>
+                </div>
+            </div>
+        </q-card-section>
+    </q-card>
 
     <q-markup-table flat bordered dense>
         <thead>
@@ -56,7 +79,7 @@
             </td>
             <td class="text-left"> {{ (item.date) ? item.date : '-' }}</td>
             <td class="text-left">
-                <q-chip dark :color="setStatusColor(item.status.id)"
+                <q-chip square size="12px" dark :color="setStatusColor(item.status.id)"
                         class="text-overline">
                     {{ item.status.title }}
                 </q-chip>
@@ -65,9 +88,9 @@
                     Выставлена на продажу
                 </q-badge>
             </td>
-            <td>
-                <q-badge color="deep-orange" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && !item.order.videoUploaded">
-                    В ожидании получения видеозаписи ТС
+            <td class="text-right">
+                <q-badge color="deep-orange" class="q-pa-xs" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && !item.order.videoUploaded"  >
+                    В ожидании получения видеозаписи
                     <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" >
                         Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
                     </q-tooltip>
@@ -80,11 +103,9 @@
                     </q-tooltip>
                 </q-badge>
 
-                <q-badge color="green-8" v-if="item.order && item.order.car && item.order.car.certificate">
+                <q-badge color="green-8" class="q-pa-xs" v-if="item.order && item.order.car && item.order.car.certificate">
                     <router-link to="/certificate">Сертификат выдан</router-link>
                 </q-badge>
-                <!--                    <q-btn icon="verified" unelevated dense size="sm" class="text-green-10" label="Скидочный сертификат"-->
-                <!--                           v-if="item.status.id === 1" icon-right="download"></q-btn>-->
             </td>
         </tr>
         </template>
@@ -104,9 +125,9 @@
     <div class="q-pa-lg flex flex-center">
         <q-pagination
             v-model="page"
-            :max="1"
-            :max-pages="6"
-            boundary-numbers
+            :max="totalPage"
+            :max-pages="10"
+            direction-links
             @click="getData()"
             v-if="items.length > 0"
         />
@@ -171,14 +192,19 @@ export default {
             show: false,
             orderDialog: false,
             loading: false,
+            loading1: false,
+            loading2: false,
 
-            params: {},
+            filter: {
+                page: this.page
+            },
             recycleTypeRules: {},
 
             sign_statuses: ['Подписан', 'Не подписан'],
             items: [],
 
             page: 1,
+            totalPage: 1,
 
             item: {
                 recycle_type: null
@@ -232,6 +258,18 @@ export default {
             return color;
         },
 
+        applyFilter(){
+            this.page = 1
+            this.getData({params: this.filter})
+        },
+
+        resetFilter(){
+            this.filter = {
+                page: this.page
+            }
+            this.getData()
+        },
+
         create() {
             if (!this.item.recycle_type) {
                 Notify.create({
@@ -255,8 +293,9 @@ export default {
 
         getData() {
             this.$emitter.emit('contentLoaded', true);
-            getOrderList({page: this.page}).then(res => {
-                this.items = res
+            getOrderList({params: this.filter}).then(res => {
+                this.items = res.items
+                this.totalPage = res.pages
                 this.show = true
             })
         }

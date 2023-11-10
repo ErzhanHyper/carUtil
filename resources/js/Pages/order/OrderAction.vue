@@ -1,7 +1,8 @@
 <template>
-    <div class="col col-md-12">
+    <div class="col col-md-12" v-if="user && user.role === 'moderator'">
         <div class="flex justify-between" >
             <div class="q-gutter-sm">
+
                 <q-btn :loading="loading"
                        square size="12px"
                        color="light-green"
@@ -67,6 +68,7 @@ import {signData} from "../../services/sign";
 import {storeCertOrder, declineOrder, revisionOrder, approveOrder} from "../../services/order";
 import OrderKap from "@/Pages/order/OrderKap.vue";
 import {Notify} from "quasar";
+import {mapGetters} from "vuex";
 
 export default {
     props: ['showCertAction', 'showApproveAction', 'order_id', 'data'],
@@ -83,6 +85,12 @@ export default {
             action: '',
             comment: '',
         }
+    },
+
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
     },
 
     methods: {
@@ -103,10 +111,9 @@ export default {
 
         approveAction() {
             this.loading = true
-            approveOrder({
+            approveOrder(this.order_id, {
                 comment: this.comment,
                 sign: this.signHash,
-                order_id: this.order_id
             }).then((res) => {
                 if(res) {
                     if (res.success) {
@@ -128,9 +135,8 @@ export default {
 
         declineAction() {
             this.loading2 = true
-            declineOrder({
+            declineOrder(this.order_id,{
                 comment: this.comment,
-                order_id: this.order_id
             }).then(() => {
                 this.commentDialog = false
                 this.$emitter.emit('orderActionEvent')
@@ -141,9 +147,8 @@ export default {
 
         revisionAction() {
             this.loading2 = true
-            revisionOrder({
+            revisionOrder(this.order_id, {
                 comment: this.comment,
-                order_id: this.order_id
             }).then(() => {
                 this.commentDialog = false
                 this.$emitter.emit('orderActionEvent')

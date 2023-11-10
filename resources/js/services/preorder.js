@@ -11,9 +11,9 @@ export function getOrderList(params) {
     })
 }
 
-export function getOrderItem(id, params) {
+export function getPreorderById(id) {
     return new Promise((resolve, reject) => {
-        api.get('/preorder/' + id + '/get', params).then(response => {
+        api.get('/preorder/' + id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -24,7 +24,7 @@ export function getOrderItem(id, params) {
 
 export function storeOrder(params) {
     return new Promise((resolve, reject) => {
-        api.post('/preorder/store', params).then(response => {
+        api.post('/preorder', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -35,7 +35,7 @@ export function storeOrder(params) {
 
 export function sendOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/preorder/'+id+'/send', params).then(response => {
+        api.put('/preorder/'+id+'/send', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject(e.response.data)
@@ -44,9 +44,9 @@ export function sendOrder(id, params) {
     })
 }
 
-export function deleteOrder(params) {
+export function deletePreorder(id) {
     return new Promise((resolve, reject) => {
-        api.post('/preorder/delete', params).then(response => {
+        api.delete('/preorder/'+id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -68,7 +68,7 @@ export function checkVehicle(params) {
 
 export function approveOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/preorder/'+id+'/approve', params).then(response => {
+        api.put('/preorder/'+id+'/approve', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -79,7 +79,7 @@ export function approveOrder(id, params) {
 
 export function declineOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/preorder/'+id+'/decline', params).then(response => {
+        api.put('/preorder/'+id+'/decline', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -90,7 +90,7 @@ export function declineOrder(id, params) {
 
 export function revisionOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/preorder/'+id+'/revision', params).then(response => {
+        api.put('/preorder/'+id+'/revision', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

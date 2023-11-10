@@ -2,6 +2,8 @@
     <q-card flat bordered>
         <q-card-section class="q-pb-xs">
             <div class="text-body2">Бронирование</div>
+            <q-space />
+            <q-banner class="bg-blue-1 q-mt-md" v-if="!blocked">После бронирования вы можете отнести ТС/СХТ на завод</q-banner>
         </q-card-section>
 
         <q-card-section>

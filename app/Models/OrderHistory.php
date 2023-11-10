@@ -11,4 +11,9 @@ class OrderHistory extends Model
 
     protected $table = 'order_history';
     public $timestamps = false;
+
+    protected $fillable = [
+        'action',
+    ];
+
 }

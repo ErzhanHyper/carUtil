@@ -128,6 +128,13 @@ export default {
             color: color1,
             expand: false,
             link: '/user'
+        },
+        {
+            name: 'Логи',
+            icon: 'error',
+            color: color1,
+            expand: false,
+            link: '/log'
         }
     ],
 

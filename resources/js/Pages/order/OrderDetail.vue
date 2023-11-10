@@ -1,14 +1,6 @@
 <template>
-    <q-circular-progress
-        indeterminate
-        rounded
-        size="30px"
-        color="primary"
-        class="q-ma-md"
-        v-if="!showData"
-    />
-
     <div v-if="showData">
+
         <div class="flex justify-between">
             <div>
                 <span :class="(item.recycle_type === 'ВЭТС') ? 'text-teal-9' : 'text-orange-9'"
@@ -21,9 +13,45 @@
                 <div :class="'text-'+setStatusColor(item.approve.id)">
                     {{ item.approve.title }}
                 </div>
-                <div :class="'text-deep-orange'" v-if="item.approve.id === 3 && !item.videoUploaded">В
-                    ожидании получения видеозаписи ТС
+
+                <div :class="'text-'+setStatusColor(item.status.id)"  v-if="item.status.id === 5">
+                    {{ item.status.title }}
                 </div>
+
+                <div class="text-caption" v-if="item.executor">Исполнитель: {{ item.executor.title }}</div>
+
+                <div :class="'text-deep-orange'" v-if="item.approve.id === 3 && !item.videoUploaded">
+                    В ожидании получения видеозаписи ТС/СХТ
+                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" v-if="user.role === 'operator'">
+                        Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
+                    </q-tooltip>
+                </div>
+
+                <q-space class="q-my-sm" />
+                <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" v-if="item.approve.id === 3 && !item.videoUploaded"/>
+            </div>
+
+            <div class="q-mb-md">
+                <q-btn :loading="loading"
+                       push
+                       size="12px"
+                       color="blue-8"
+                       label="Взять на исполнение"
+                       icon="edit"
+                       v-if="showModeratorExecute"
+                       @click="executeRun"
+                >
+                </q-btn>
+                <q-btn :loading="loading"
+                       push
+                       size="12px"
+                       color="negative"
+                       label="Отменить исполнение"
+                       icon="close"
+                       v-if="showModeratorAction"
+                       @click="executeEnd"
+                >
+                </q-btn>
             </div>
         </div>
 
@@ -42,14 +70,17 @@
             <div class="flex justify-between q-mt-md">
                 <div class="q-gutter-sm">
                     <q-btn :loading="loading" square size="12px" color="light-green"
-                           label="Подписать и отправить модератору" @click="sendData()"
+                           label="Отправить на рассмотрение модератору" @click="sendData('send_to_moderator')"
                            icon="send" v-if="showOperatorAction"></q-btn>
+
+                    <q-btn :loading="loading" square size="12px" color="light-green"
+                           label="Подписать и отправить модератору" @click="sendData('sign_uploaded_video')"
+                           icon="send" v-if="item.videoUploaded && item.status.id === 4"></q-btn>
                 </div>
             </div>
         </div>
 
-        <order-action :order_id="item.id" :showCertAction="showCertAction" :showApproveAction="showModeratorAction"
-                      v-if="user && user.role === 'moderator'" :data="{grnz: item.car.grnz, vin: item.car.vin, iinbin: item.client.idnum}"/>
+        <order-action :order_id="item.id" :showCertAction="showCertAction" :showApproveAction="showModeratorAction" :data="{grnz: item.car.grnz, vin: item.car.vin, iinbin: item.client.idnum}"/>
 
         <div class="q-mt-md" v-if="item.comment && item.comment.length > 0 && user && user.role === 'liner'">
             <q-banner class="q-mb-sm bg-blue-grey-1">
@@ -117,30 +148,49 @@
     </div>
 
 
+    <q-dialog
+        v-model="showCamera"
+        persistent
+        :maximized="maximizedToggle"
+        transition-show="slide-up"
+        transition-hide="slide-down"
+    >
+        <camera-record />
+    </q-dialog>
+
+
 </template>
 
 <script>
-import {getOrderItem, signOrder} from "../../services/order";
+import {mapGetters} from "vuex";
+import FileDownload from "js-file-download";
+
+import {
+    executeCloseOrder,
+    executeRunOrder,
+    getOrderItem,
+    sendToApproveOrder,
+    sendToSignOrder,
+} from "../../services/order";
 import {signData} from "../../services/sign";
+import {generateCertificate} from "../../services/certificate";
 
 import ClientCard from "@/Pages/client/ClientCard.vue";
 import ClientProxy from "../client/ClientProxy.vue";
-
 import OrderFile from "@/Pages/order/OrderFile.vue";
 import OrderTimeline from "@/Pages/order/OrderTimeline.vue";
 import OrderDocument from "./OrderDocument.vue";
-
 import SelectFactory from "@/Components/Fields/SelectFactory.vue";
 import CarCard from "@/Pages/car/CarCard.vue";
 import Booking from "@/Pages/booking/BookingCard.vue";
 import PreorderFile from "@/Pages/preorder/PreorderFile.vue"
 import OrderAction from "./OrderAction.vue";
-import {mapGetters} from "vuex";
-import {generateCertificate} from "../../services/certificate";
-import FileDownload from "js-file-download";
+import CameraRecord from "../../Components/CameraRecord.vue";
+import {ref} from "vue";
 
 export default {
     components: {
+        CameraRecord,
         OrderAction,
         OrderDocument,
         ClientProxy,
@@ -155,9 +205,17 @@ export default {
 
     props: ['id'],
 
+    setup () {
+        return {
+            dialog: ref(false),
+            maximizedToggle: ref(true)
+        }
+    },
+
     data() {
         return {
             showDeleteDialog: false,
+            showCamera: false,
             disabled: true,
 
             showData: false,
@@ -168,11 +226,13 @@ export default {
             showOperatorAction: false,
             showCertAction: false,
             showModeratorAction: false,
+            showModeratorExecute: false,
             loading: false,
 
             order: null,
 
             item: {
+                executor_uid: '',
                 client: {},
                 car: {
                     preorder_id: this.id,
@@ -260,21 +320,13 @@ export default {
                 if (this.item.setCert) {
                     this.showCertAction = true
                 }
-
-                this.showFile = true
-
-                if (this.user && this.user.role === 'operator') {
-                    if (res.approve && (res.approve.id === 0 || res.approve.id === 4)) {
-                        this.showOperatorAction = true
-                        this.blockedFiles = false
-                    }
-                }
-                if (res.approve && res.approve.id === 1) {
-                    this.showModeratorAction = true
-                }
+                this.showOperatorAction = res.canSend
+                this.blockedFiles = !res.canSend
+                this.showModeratorAction = res.canApprove
+                this.showModeratorExecute = res.canExecute
 
                 this.showData = true
-
+                this.showFile = true
             })
         },
 
@@ -287,21 +339,55 @@ export default {
             })
         },
 
-        sendData() {
-            signData().then(res => {
-                if (res) {
-                    this.loading = true
-                    signOrder({
-                        sign: res,
-                        order_id: this.id
-                    }).then(el => {
+        sendData(value) {
+            this.loading = true
+            if(value === 'send_to_moderator'){
+                sendToApproveOrder(this.id).then(res => {
+                    this.getData()
+                }).finally(() => {
+                    this.loading = false
+                })
+            }else {
+                signData().then(res => {
+                    if (res) {
+                        this.loading = true
+                        sendToSignOrder(this.id, {
+                            sign: res,
+                        }).then(el => {
+                            this.getData()
+                        }).finally(() => {
+                            this.loading = false
+                        })
+                    }
+                })
+            }
+        },
+
+        executeRun(){
+            this.loading = true
+            executeRunOrder(this.item.id).then(res => {
+                if(res){
+                    if(res.success === true){
                         this.getData()
-                    }).finally(() => {
-                        this.loading = false
-                    })
+                    }
                 }
+            }).finally(() => {
+                this.loading = false
             })
         },
+
+        executeEnd(){
+            this.loading = true
+            executeCloseOrder(this.item.id).then(res => {
+                if(res){
+                    if(res.success === true){
+                        this.getData()
+                    }
+                }
+            }).finally(() => {
+                this.loading = false
+            })
+        }
 
     },
 

@@ -11,8 +11,8 @@ use App\Models\PreOrderCar;
 use App\Models\Region;
 use App\Services\AuthService;
 use App\Services\KapService;
-use App\Services\PreOrder\ModeratorPreOrderService;
-use App\Services\PreOrder\PreOrderService;
+use App\Services\Preorder\PreorderApproveService;
+use App\Services\Preorder\PreorderService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Exception;
@@ -21,20 +21,26 @@ class PreOrderController extends Controller
 {
     public function get(Request $request)
     {
-        $data = app(PreOrderService::class)->getCollection($request);
-        return response()->json($data);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(PreorderService::class)->getCollection($request);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
     public function getById($id)
     {
-        $data = app(PreOrderService::class)->getById($id);
+        $data = app(PreorderService::class)->getById($id);
         return response()->json($data);
     }
 
     public function store(Request $request)
     {
         try {
-            $data = app(PreOrderService::class)->store($request);
+            $data = app(PreorderService::class)->store($request);
             $result = ['status' => 200, 'data' => $data];
         } catch (Exception $e) {
             $result = [
@@ -49,48 +55,43 @@ class PreOrderController extends Controller
     public function send(Request $request, $id)
     {
         try {
-            $data = app(PreOrderService::class)->send($request, $id);
-            $result = ['status' => 200, 'data' => $data];
+            $result['status'] = 200;
+            $result['data'] = app(PreorderService::class)->send($request, $id);
         } catch (Exception $e) {
-            $result = [
-                'status' => 500,
-                'error' => $e->getMessage()
-            ];
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-
-        return response()->json($result, $result['status']);
+        return response()->json($result['data'], $result['status']);
     }
 
-    public function delete(Request $request)
+    public function delete($id)
     {
         try {
-            $result = app(PreOrderService::class)->delete($request);
+            $result['status'] = 200;
+            $result['data'] = app(PreorderService::class)->delete($id);
         } catch (Exception $e) {
-            $result = [
-                'status' => 500,
-                'error' => $e->getMessage()
-            ];
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-
-        return response()->json($result);
+        return response()->json($result['data'], $result['status']);
     }
 
 
     public function approve(Request $request, $id)
     {
-        $data = app(ModeratorPreOrderService::class)->approve($request, $id);
+        $data = app(PreorderApproveService::class)->approve($request, $id);
         return response()->json($data);
     }
 
     public function decline(Request $request, $id)
     {
-        $data = app(ModeratorPreOrderService::class)->decline($request, $id);
+        $data = app(PreorderApproveService::class)->decline($request, $id);
         return response()->json($data);
     }
 
     public function revision(Request $request, $id)
     {
-        $data = app(ModeratorPreOrderService::class)->revision($request, $id);
+        $data = app(PreorderApproveService::class)->revision($request, $id);
         return response()->json($data);
     }
 
@@ -107,7 +108,7 @@ class PreOrderController extends Controller
 
     public function booking(Request $request, $id)
     {
-        $data = app(PreOrderService::class)->booking($request, $id);
+        $data = app(PreorderService::class)->booking($request, $id);
         return response()->json($data);
     }
 

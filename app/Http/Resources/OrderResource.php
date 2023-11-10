@@ -7,6 +7,7 @@ use App\Models\CarFile;
 use App\Models\Category;
 use App\Models\File;
 use App\Models\PreOrderCar;
+use App\Models\User;
 use App\Services\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -37,6 +38,7 @@ class OrderResource extends JsonResource
             1 => 'Открыта',
             2 => 'В работе',
             3 => 'Завершено',
+            5 => 'На выдаче сертификата',
             default => '',
         };
 
@@ -46,6 +48,13 @@ class OrderResource extends JsonResource
         $files = [];
         $categories = [];
         $recycle_type = '';
+
+        if($this->car->car_type_id === 1 || $this->car->car_type_id === 2){
+            $recycle_type = 'ВЭТС';
+        }else{
+            $recycle_type = 'ВЭССХТ';
+        }
+
         if($this->preorder && $this->preorder->booking_id) {
             $booking = BookingOrder::find($this->preorder->booking_id);
             $booking = new BookingOrderResource($booking);
@@ -63,6 +72,26 @@ class OrderResource extends JsonResource
         $orderFile = File::where('order_id', $this->id)->where('file_type_id', 29)->first();
         if($orderFile) {
             $video = true;
+        }
+
+        $canApprove = false;
+        $canExecute = false;
+        if($user->role === 'moderator') {
+            if ($this->approve === 1) {
+                if(!$this->executor_uid) {
+                    $canExecute = true;
+                }
+                if ($this->executor_uid && $this->executor_uid === $user->id) {
+                        $canApprove = true;
+                }
+            }
+        }
+
+        $canSend = false;
+        if($user->role === 'operator') {
+            if($this->approve === 0 || $this->approve === 4) {
+                $canSend = true;
+            }
         }
 
         return [
@@ -93,7 +122,11 @@ class OrderResource extends JsonResource
             'categories' => $categories,
             'transfer' => $this->transfer,
             'videoUploaded' => $video,
-            'history' => $this->history
+            'history' => $this->history,
+            'executor' => User::find($this->executor_uid),
+            'canApprove' => $canApprove,
+            'canSend' => $canSend,
+            'canExecute' => $canExecute
         ];
     }
 }

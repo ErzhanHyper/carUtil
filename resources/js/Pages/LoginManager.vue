@@ -1,7 +1,7 @@
 <template>
     <q-layout view="lHh LpR fFf">
         <q-page-container>
-            <q-page class="bg-blue-grey-10 window-height window-width row justify-center items-center">
+            <q-page class="bg-blue-grey-10 window-height window-width row justify-center items-center"  id="loginPage">
                 <div class="column">
                     <div class="row">
                         <h5 class="text-h5 text-white q-my-md">ВЭТС/ВЭССХТ</h5>
@@ -18,7 +18,7 @@
                                     </span>
                             </q-banner>
 
-                            <q-card-section>
+                            <q-card-section id="desktopAuth">
                                 <q-form class="q-gutter-md flex justify-between no-wrap">
                                     <q-select :options="options" label="Выберите тип применяемой ЭЦП"
                                               v-model="auth_type"
@@ -29,10 +29,17 @@
                                 </q-form>
                             </q-card-section>
 
-<!--                            <q-card-actions class="q-px-md">-->
-<!--                                <q-btn unelevated color="light-blue-10" size="md" class="full-width" label="Войти" push-->
-<!--                                       @click="login" :loading="loading"/>-->
-<!--                            </q-card-actions>-->
+                            <q-card-section id="mobileAuth">
+
+                                <q-form class="q-gutter-md  q-mt-md">
+                                    <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum"  />
+                                    <q-input label="Пароль" outlined dense type="password" v-model="password" autocomplete="off"
+                                             :model-value="password"/>
+
+                                    <q-btn unelevated color="light-blue-10" size="md" label="Войти" push
+                                           @click="loginMobile" :loading="loading"/>
+                                </q-form>
+                            </q-card-section>
 
                         </q-card>
                     </div>
@@ -56,14 +63,21 @@ export default {
         return {
             loading: false,
             showBanner: false,
-
             errors: [],
 
+            idnum: '',
+            password: '',
+
             auth_type: {
-                name: '',
-                code: ''
+                name: 'Файл',
+                code: 'PKCS12'
             },
-            options: []
+            options: [
+                {
+                    name: 'Файл',
+                    code: 'PKCS12'
+                }
+            ],
         }
     },
 
@@ -71,6 +85,7 @@ export default {
 
         ...mapActions({
             signIn: 'auth/signIn',
+            signInMobile: 'auth/signInMobile',
         }),
 
 
@@ -159,7 +174,27 @@ export default {
                 this.loading = false
             })
             return base64EncodedSignature;
-        }
+        },
+
+        loginMobile() {
+            this.loading = true
+            this.showBanner = false
+            this.errors = []
+
+            this.signInMobile({
+                login: this.idnum,
+                password: this.password
+            }).then(() => {
+                this.$router.replace({
+                    name: 'preorder'
+                })
+            }).catch(reject => {
+                this.errors = JSON.parse(reject.response.data.error)
+                this.showBanner = true
+            }).finally(() => {
+                this.loading = false
+            })
+        },
 
     },
 

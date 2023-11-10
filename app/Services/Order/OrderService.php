@@ -16,32 +16,36 @@ use Illuminate\Http\Request;
 
 class OrderService
 {
-    public function getCollection()
+
+    public function getCollection($request)
     {
         $user = app(AuthService::class)->auth();
         $factory_id = $user->factory_id;
-
-//            if ($user->role === 'liner') {
-//                $orders = Order::with(['car', 'client', 'preorder']);
-//                $orders->where('liner_id', $user->id);
-//            } else {
-            if ($user->role === 'moderator') {
-                $orders = Order::with(['car', 'client', 'preorder']);
-                $orders->where('approve', '<>', 0);
-            } else if ($user->role === 'operator') {
-                $orders = Order::with(['car', 'client', 'preorder', 'transfer'])->whereIn('approve', [0, 1, 2, 3, 4, 5])
-                    ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked')
-                    ->join('pre_order_car', 'order.id', 'pre_order_car.order_id')
-                    ->where('pre_order_car.factory_id', $factory_id)->where('blocked', 0);
-            }else if($user->role === 'admin'){
-                $orders = Order::with(['car', 'client', 'preorder']);
+        if ($user->role === 'moderator') {
+            $orders = Order::with(['car', 'client', 'preorder']);
+            $orders->where('approve', '<>', 0);
+        } else if ($user->role === 'operator') {
+            $orders = Order::with(['car', 'client', 'preorder', 'transfer'])->whereIn('approve', [0, 1, 2, 3, 4, 5])
+                ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked', 'order.executor_uid')
+                ->join('pre_order_car', 'order.id', 'pre_order_car.order_id')
+                ->where('pre_order_car.factory_id', $factory_id)->where('blocked', 0);
+        }else if($user->role === 'admin'){
+            $orders = Order::with(['car', 'client', 'preorder']);
+        }
+        if (isset($orders)) {
+            $paginate = 10;
+            $pages = round($orders->count() / $paginate);
+            if ($pages == 0) {
+                $pages = 1;
             }
-//
-//            }
-
-            if ($orders) {
-                return OrderResource::collection($orders->orderByDesc('created')->where('created', '>', 1697755551)->paginate(10));
-            }
+            return [
+                'pages' => $pages,
+                'page' => $request->page ?? 1,
+                'items' => OrderResource::collection($orders->orderByDesc('created')
+//                ->where('created', '>', 1697755551)
+                    ->paginate($paginate))
+            ];
+        }
     }
 
     public function getById($id)
@@ -51,15 +55,14 @@ class OrderService
         return new OrderResource($order);
     }
 
-    public function sign($request)
+    public function sign($request, $id)
     {
         $user = app(AuthService::class)->auth();
         $response = ['success', false];
 
-        $order_id = $request->order_id;
-        if ($order_id) {
-            $order = Order::find($order_id);
-            $car = Car::where('order_id', $order_id)->first();
+        $order = Order::find($id);
+        if($order){
+            $car = Car::where('order_id', $order->id)->first();
             $sign = $request->sign;
             $hash = app(SignService::class)->__signData($car->id);
 
@@ -74,9 +77,7 @@ class OrderService
                     $car->operator_sign_time = time();
                     if ($car->save()) {
                         $order->user_id = $user->id;
-                        $order->approve = 1;
-                        $order->status = 2;
-                        $order->sended_to_approve = time();
+                        $order->status = 5;
                         $order->save();
                     }
                     $response = ['success', true];
@@ -87,113 +88,60 @@ class OrderService
         return $response;
     }
 
-    public function approve($request)
+    public function send($request, $id)
     {
         $user = app(AuthService::class)->auth();
-        $order_id = $request->order_id;
-        $order = Order::find($order_id);
-        $can = true;
+
+        $order = Order::find($id);
+
+        if($order) {
+            $order->user_id = $user->id;
+            $order->approve = 1;
+            $order->status = 2;
+            $order->sended_to_approve = time();
+            $order->save();
+        }
+
+        return [
+            'success' => true
+        ];
+    }
+
+    public function executeRun($id)
+    {
+        $user = app(AuthService::class)->auth();
+        $order = Order::find($id);
         $success = false;
-        $message = '';
-
-        if ($order) {
-            $car = Car::where('order_id', $order_id)->first();
-
-            $carDuplicate = Car::where('vin', $car->vin)->get();
-            if($carDuplicate) {
-                foreach ($carDuplicate as $item) {
-                    $orderRel = Order::find($item->order_id);
-                    if ($orderRel && $orderRel->approve === 3) {
-                        $can = false;
-                    }
-                }
-            }
-            if($can === false) {
-                $message = 'ТС с таким VIN кодом уже одобрена в другой заявке';
-            }
-
-            if($can) {
-                $hash = app(SignService::class)->__signData($car->id);
-                $edsSign = app(EdsService::class)->sign(new Request(['hash' => $hash]));
-                if ($edsSign && $car) {
-                    $car->moderator_accept_sign = $edsSign->sign;
-                    if ($car->save()) {
-                        $order->approve = 3;
-                        $order->status = 2;
-                        $order->save();
-                        $message = 'Одобрена!';
-                        $success = true;
-                    }
-                }
-
-                $this->storeHistory(new Request([
-                    'action' => 'approve',
-                    'order_id' => $order->id,
-                    'comment' => 'Одобрено',
-                    'user_id' => $user->id,
-                ]));
-
-                return [
-                    'message' => $message,
-                    'success' => $success
-                ];
+        if($order->approve !== 1 || $order->approve !== 0) {
+            if (!$order->executor_uid) {
+                $order->executor_uid = $user->id;
+                $order->save();
+                $success = true;
             }
         }
+
+        return [
+            'success' => $success,
+        ];
     }
 
-    public function decline($request)
+    public function executeClose($id)
     {
         $user = app(AuthService::class)->auth();
-
-        $order_id = $request->order_id;
-
-        $order = Order::find($order_id);
-        $order->approve = 2;
-        $order->status = 3;
-        $order->save();
-
-        $this->storeHistory(new Request([
-            'action' => 'decline',
-            'order_id' => $order->id,
-            'comment' => $request->comment,
-            'user_id' => $user->id,
-        ]));
-
-        return ['decline'];
+        $success = false;
+        $order = Order::find($id);
+        if($order->approve !== 1 || $order->approve !== 0) {
+            if ($order->executor_uid === $user->id) {
+                $order->executor_uid = null;
+                $order->save();
+                $success = true;
+            }
+        }
+        return [
+            'success' => $success,
+        ];
     }
 
-    public function revision($request)
-    {
-        $user = app(AuthService::class)->auth();
-        $order_id = $request->order_id;
 
-        $order = Order::find($order_id);
-        $order->approve = 4;
-        $order->status = 1;
-        $order->save();
-
-        $this->storeHistory(new Request([
-            'action' => 'revision',
-            'order_id' => $order->id,
-            'comment' => $request->comment,
-            'user_id' => $user->id,
-        ]));
-
-        return ['revision'];
-    }
-
-    public function storeHistory($request)
-    {
-        $history = new OrderHistory();
-        $history->action = $request->action;
-        $history->order_id = $request->order_id;
-        $history->comment = $request->comment;
-        $history->user_id = $request->user_id;
-        $history->created_at = time();
-        $history->save();
-
-        return $history;
-
-    }
 
 }

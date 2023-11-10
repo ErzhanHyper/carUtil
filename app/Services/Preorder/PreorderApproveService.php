@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Services\PreOrder;
+namespace App\Services\Preorder;
 
 
 use App\Models\Car;
@@ -10,7 +10,7 @@ use App\Models\PreOrderCar;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
-class ModeratorPreOrderService
+class PreorderApproveService
 {
 
     public function approve($request, $id)
@@ -21,6 +21,12 @@ class ModeratorPreOrderService
         $preorder = PreOrderCar::find($id);
         $car = Car::find($preorder->car_id);
 
+        if($preorder){
+            if($preorder->status !== 1){
+                $can = false;
+                $message = 'Предзаявка уже была одобрена';
+            }
+        }
         if($car){
             $carDuplicate = Car::where('vin', $car->vin)->get();
             if($carDuplicate) {
@@ -28,11 +34,9 @@ class ModeratorPreOrderService
                     $orderRel = Order::find($item->order_id);
                     if ($orderRel && $orderRel->approve === 3) {
                         $can = false;
+                        $message = 'ТС с таким VIN кодом уже одобрена в другой заявке';
                     }
                 }
-            }
-            if($can === false) {
-                $message = 'ТС с таким VIN кодом уже одобрена в другой заявке';
             }
         }
 

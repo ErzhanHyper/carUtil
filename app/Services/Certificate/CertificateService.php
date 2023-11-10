@@ -10,7 +10,6 @@ use App\Models\Certificate;
 use App\Models\Order;
 use App\Services\AuthService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CertificateService
@@ -156,28 +155,28 @@ class CertificateService
         $z_qr2 = '<img src='.$img.' width="130" height="130">';
         $z_qr3 = '<img src='.$img.' width="130" height="130">';
         $z_qr4 = '<img src='.$img.' width="130" height="130">';
-
+        $z_qr1 = '<img src='.$img.' width="130" height="130">';
         $png = QrCode::format('png')->color(60,60,60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($qr1);
         $png = base64_encode($png);
         $z_qr1 = "<img src='data:image/png;base64," . $png . "' width='130' height='130'>";
 
-        if($qr2) {
-            $png = QrCode::format('png')->color(60,60,60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($qr2);
-            $png = base64_encode($png);
-            $z_qr2 = "<img src='data:image/png;base64," . $png . "' width='130' height='130'>";
-        }
-
-        if($qr3) {
-            $png = QrCode::format('png')->color(60,60,60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($qr3);
-            $png = base64_encode($png);
-            $z_qr3 = "<img src='data:image/png;base64," . $png . "' width='130' height='130'>";
-        }
-
-        if($qr4) {
-            $png = QrCode::format('png')->color(60,60,60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($qr4);
-            $png = base64_encode($png);
-            $z_qr4 = "<img src='data:image/png;base64," . $png . "' width='130' height='130'>";
-        }
+//        if($qr2) {
+//            $png = QrCode::format('png')->color(60,60,60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($qr2);
+//            $png = base64_encode($png);
+//            $z_qr2 = "<img src='data:image/png;base64," . $png . "' width='130' height='130'>";
+//        }
+//
+//        if($qr3) {
+//            $png = QrCode::format('png')->color(60,60,60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($qr3);
+//            $png = base64_encode($png);
+//            $z_qr3 = "<img src='data:image/png;base64," . $png . "' width='130' height='130'>";
+//        }
+//
+//        if($qr4) {
+//            $png = QrCode::format('png')->color(60,60,60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($qr4);
+//            $png = base64_encode($png);
+//            $z_qr4 = "<img src='data:image/png;base64," . $png . "' width='130' height='130'>";
+//        }
 
         $data = [
             'z_num' => $z_num,

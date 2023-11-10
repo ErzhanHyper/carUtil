@@ -13,7 +13,7 @@ export function getCertificateList(params) {
 
 export function generateCertificate(id, params) {
     return new Promise((resolve, reject) => {
-        api.get('/certificate/'+id+'/get', params).then(response => {
+        api.get('/certificate/'+id+'/file', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

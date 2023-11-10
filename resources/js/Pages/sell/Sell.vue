@@ -47,25 +47,28 @@
         </tr>
         </thead>
         <tbody>
-            <tr v-for="item in items" v-if="items.length > 0">
-                <td><router-link :to="'/sell/'+item.id" class="text-blue-10 text-body2"><q-icon name="open_in_new" size="xs" />{{ item.id }}</router-link></td>
-                <td>
-                    <div class="text-body2">Номер основного сертификата: <b>{{ item.cert_1 }}</b></div>
-                    <div class="text-body2">Номер второго сертификата: <b>{{ item.cert_2 }}</b></div>
-                    <div class="text-body2">Номер третьего сертификата: <b>{{ item.cert_3 }}</b></div>
-                    <div class="text-body2">Номер четвертого сертификата: <b>{{ item.cert_4 }}</b></div>
-                </td>
-                <td>{{ item.sended_dt ?? '-' }}</td>
-                <td>{{ item.approved_dt ?? '-'  }}</td>
-                <td>{{ item.closed_dt ?? '-' }}</td>
-                <td>{{ item.sum }}</td>
-                <td><q-chip :color="setStatusColor(item.status.id)" v-if="item.status" dark size="12px" square>{{ item.status.title }}</q-chip></td>
-            </tr>
-            <tr v-else><td>Нет записей</td></tr>
+            <template v-if="items.length > 0">
+                <tr v-for="item in items" >
+                    <td><router-link :to="'/sell/'+item.id" class="text-blue-10 text-body2"><q-icon name="open_in_new" size="xs" />{{ item.id }}</router-link></td>
+                    <td>
+                        <div class="text-body2">Номер основного сертификата: <b>{{ item.cert_1 }}</b></div>
+                        <div class="text-body2">Номер второго сертификата: <b>{{ item.cert_2 }}</b></div>
+                        <div class="text-body2">Номер третьего сертификата: <b>{{ item.cert_3 }}</b></div>
+                        <div class="text-body2">Номер четвертого сертификата: <b>{{ item.cert_4 }}</b></div>
+                    </td>
+                    <td>{{ item.sended_dt ?? '-' }}</td>
+                    <td>{{ item.approved_dt ?? '-'  }}</td>
+                    <td>{{ item.closed_dt ?? '-' }}</td>
+                    <td>{{ item.sum }}</td>
+                    <td><q-chip :color="setStatusColor(item.status.id)" v-if="item.status" dark size="12px" square>{{ item.status.title }}</q-chip></td>
+                </tr>
+            </template>
+            <div class="q-ma-xs" v-if="items.length === 0">Нет записей</div>
+
         </tbody>
     </q-markup-table>
 
-    <div class="q-pa-lg flex flex-center">
+    <div class="q-pa-lg flex flex-center" v-if="items.length > 0">
         <q-pagination
             v-model="page"
             :min="1"
@@ -73,7 +76,6 @@
             max-pages="10"
             direction-links
             @click="getData()"
-            v-if="items.length > 0"
         />
     </div>
 
@@ -102,8 +104,6 @@ export default {
     },
 
     methods: {
-
-
         setStatusColor(id) {
             let color = 'blue-grey-5'
             if(id === 1){

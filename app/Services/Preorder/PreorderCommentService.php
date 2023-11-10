@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Services\PreOrder;
+namespace App\Services\Preorder;
 
 
 use App\Models\PreorderComment;

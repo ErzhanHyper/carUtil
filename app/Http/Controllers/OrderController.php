@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Certificate\CertificateService;
+use App\Services\Order\OrderApproveService;
 use App\Services\Order\OrderService;
 use Illuminate\Http\Request;
 
@@ -20,27 +21,45 @@ class OrderController extends Controller
         return response()->json($data);
     }
 
-    public function sign(Request $request)
+    public function sign(Request $request, $id)
     {
-        $data = app(OrderService::class)->sign($request);
+        $data = app(OrderService::class)->sign($request, $id);
         return response()->json($data);
     }
 
-    public function approve(Request $request)
+    public function send(Request $request, $id)
     {
-        $data = app(OrderService::class)->approve($request);
+        $data = app(OrderService::class)->send($request, $id);
         return response()->json($data);
     }
 
-    public function decline(Request $request)
+    public function approve(Request $request, $id)
     {
-        $data = app(OrderService::class)->decline($request);
+        $data = app(OrderApproveService::class)->approve($request, $id);
         return response()->json($data);
     }
 
-    public function revision(Request $request)
+    public function decline(Request $request, $id)
     {
-        $data = app(OrderService::class)->revision($request);
+        $data = app(OrderApproveService::class)->decline($request, $id);
+        return response()->json($data);
+    }
+
+    public function revision(Request $request, $id)
+    {
+        $data = app(OrderApproveService::class)->revision($request, $id);
+        return response()->json($data);
+    }
+
+    public function executeRun($id)
+    {
+        $data = app(OrderService::class)->executeRun($id);
+        return response()->json($data);
+    }
+
+    public function executeClose($id)
+    {
+        $data = app(OrderService::class)->executeClose($id);
         return response()->json($data);
     }
 

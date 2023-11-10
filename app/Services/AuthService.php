@@ -105,7 +105,41 @@ class AuthService
         }
     }
 
-
+//
+//    public function secureMobile($request)
+//    {
+//        $validator = Validator::make($request->all(), [
+//            'login' => 'required',
+//            'password' => 'required',
+//        ]);
+//
+//        if ($validator->fails()) {
+//            throw new InvalidArgumentException($validator->messages());
+//        }
+//
+//        $idnum = $request->login;
+//        $password = md5($request->password . 'KZ.UNIDADE.2016');
+//        $hash = '';
+//        $liner_find = Liner::where('idnum', $idnum)->first();
+//        if ($liner_find) {
+//            $liner = Liner::where('idnum', $idnum)->where('password', $password)->first();
+//            if ($liner) {
+//                $hash = Hash::make(Config::get('APP_SALT') . $idnum);
+//                $role = 'liner';
+//                $session = new Session();
+//                $session->token = $hash;
+//                $session->uid = $liner->id;
+//                $session->role = $role;
+//                $session->save();
+//            } else {
+//                throw new InvalidArgumentException(json_encode(['title' => ['Неверные данные для входа']]));
+//            }
+//        } else {
+//            throw new InvalidArgumentException(json_encode(['title' => ['Пользователь не найден']]));
+//        }
+//
+//        return ['hash' => $hash];
+//    }
     public function secureMobile($request)
     {
         $validator = Validator::make($request->all(), [
@@ -120,15 +154,15 @@ class AuthService
         $idnum = $request->login;
         $password = md5($request->password . 'KZ.UNIDADE.2016');
         $hash = '';
-        $liner_find = Liner::where('idnum', $idnum)->first();
-        if ($liner_find) {
-            $liner = Liner::where('idnum', $idnum)->where('password', $password)->first();
-            if ($liner) {
+        $user_find = User::where('login', $idnum)->where('role', 'operator')->first();
+        if ($user_find) {
+            $user = User::where('login', $idnum)->where('password', $password)->first();
+            if ($user) {
                 $hash = Hash::make(Config::get('APP_SALT') . $idnum);
-                $role = 'liner';
+                $role = 'operator';
                 $session = new Session();
                 $session->token = $hash;
-                $session->uid = $liner->id;
+                $session->uid = $user->id;
                 $session->role = $role;
                 $session->save();
             } else {
@@ -140,7 +174,6 @@ class AuthService
 
         return ['hash' => $hash];
     }
-
 
     private function newLiner($secure, $request)
     {

@@ -4,6 +4,39 @@
         <div class="text-h6 text-primary">Заявки</div>
     </div>
 
+    <q-card class="q-mb-none q-mt-md" bordered square flat>
+        <q-card-section>
+            <div class="row q-col-gutter-md">
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="VIN" v-model="filter.idnum" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ГРНЗ" v-model="filter.title" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ФИО" v-model="filter.title" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ИИН/БИН" v-model="filter.title" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="Статус" v-model="filter.title" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="Дата (с)" v-model="filter.title" outlined dense type="date"/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="Дата (до)" v-model="filter.title" outlined dense type="date"/>
+                </div>
+                <div class="col col-md-2 col-sm-2 col-xs-12">
+                    <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
+                    <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
+                           :loading="loading2"/>
+                </div>
+            </div>
+        </q-card-section>
+    </q-card>
+
     <q-markup-table flat bordered dense>
         <thead>
         <tr>
@@ -16,7 +49,7 @@
             <th class="text-left">Регион</th>
             <th class="text-left">Дата создания</th>
             <th class="text-left">Статус</th>
-            <th class="text-left"></th>
+            <th class="text-left">Исполнитель</th>
         </tr>
         </thead>
         <tbody>
@@ -26,7 +59,7 @@
                 <q-btn icon="open_in_new" dense flat :to="'/order/'+item.id" color="primary" :label="item.id"/>
             </td>
             <td class="text-left">
-                <q-chip dark :color="(item.recycle_type === 'ВЭТС') ? 'teal-8' : 'orange-9'" size="12px"
+                <q-chip dark :color="(item.recycle_type === 'ВЭТС') ? 'teal-6' : 'orange-9'" size="12px"
                         v-if="item.recycle_type">
                     {{ (item.car) ? (item.car.category ? item.car.category.title_ru : '') : '-' }} | {{
                         (item.recycle_type) ? item.recycle_type : '-'
@@ -42,27 +75,27 @@
             <td class="text-left">{{ (item.created) ? item.created : '-' }}</td>
             <td class="text-left">
 
-                <div class="q-gutter-sm" v-if="user.role === 'moderator'">
-                    <q-chip dark :color="setStatusColor(item.status.id)"
-                            v-if="item.status"
-                            class="text-overline">
-                        {{ item.status.title }}
+                <div class="q-gutter-sm" >
+                    <q-chip square dark size="12px" :color="setApproveColor(item.approve.id)" >
+                        {{ item.approve.title }}
                     </q-chip>
                 </div>
 
-                <q-badge :color="setApproveColor(item.approve.id)"
-                         v-if="item.approve && user.role === 'operator'">
-                    {{ item.approve.title }}
-                </q-badge>
-                <!--                    <q-space class="q-my-xs"/>-->
-                <!--                    <q-badge  :color="(item.signed) ? 'green-5' : 'pink-5'" outline v-if="item.status && item.status.id === 2 && item.signed">-->
-                <!--                        {{ item.signed ? 'Подписано' : 'Не подписано' }}-->
-                <!--                    </q-badge>-->
             </td>
-            <td class="text-right">
-                <q-btn icon="verified" unelevated dense size="sm" class="text-green-10"
-                       label="Скидочный сертификат" icon-right="download" @click="getCert(item.car.certificate.id)"
-                       v-if="item.car && item.car.certificate"></q-btn>
+            <td>
+                <div style="width: 180px;white-space: normal">{{ item.executor ? item.executor.title : '-' }}</div>
+                <q-space/>
+                <q-badge :color="setStatusColor(item.status.id)"
+                        v-if="item.status && item.videoUploaded">
+                    {{ item.status.title }}
+                </q-badge>
+                <q-space class="q-my-xs"/>
+                <q-badge color="deep-orange" class="q-pa-xs" v-if="item.status.id === 2 && item.approve.id === 3 && !item.videoUploaded"  >
+                    В ожидании получения видеозаписи
+                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" v-if="user.role === 'operator'">
+                        Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
+                    </q-tooltip>
+                </q-badge>
             </td>
         </tr>
         </template>
@@ -82,9 +115,9 @@
     <div class="q-pa-lg flex flex-center">
         <q-pagination
             v-model="page"
-            :max="1"
-            :max-pages="6"
-            boundary-numbers
+            :max-pages="10"
+            :max="totalPage"
+            direction-links
             @click="getData()"
             v-if="items.length > 0"
         />
@@ -103,20 +136,25 @@ export default {
     data() {
         return {
             data: null,
-            sum: null,
-
             show: false,
             orderDialog: false,
             loading: false,
+            loading1: false,
+            loading2: false,
 
-            sign_statuses: ['Подписан', 'Не подписан'],
             items: [],
-            statuses: [],
             page: 1,
+            totalPage: 1,
 
-            params: {},
-            recycleTypeRules: {},
-            item: {},
+            filter: {},
+            item: {
+                approve: '',
+                executor: {},
+                status: {},
+                certificate: {},
+                car: {},
+                client: {},
+            },
 
             recycle_types: [
                 {
@@ -167,7 +205,7 @@ export default {
             } else if (id === 2) {
                 color = 'blue-5'
             } else if (id === 3) {
-                color = 'green-5'
+                color = 'teal-5'
             }
 
             return color;
@@ -180,6 +218,14 @@ export default {
             }
 
             return result
+        },
+
+        applyFilter() {
+
+        },
+
+        resetFilter(){
+
         },
 
         create() {
@@ -206,9 +252,10 @@ export default {
 
         getData() {
             this.$emitter.emit('contentLoaded', true);
-            getOrderList({page: this.page}).then(res => {
+            getOrderList({params: {page: this.page}}).then(res => {
                 this.show = true
-                this.items = res
+                this.items = res.items
+                this.totalPage = res.pages
             })
         }
     },

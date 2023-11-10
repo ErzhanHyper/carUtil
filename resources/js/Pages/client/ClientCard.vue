@@ -1,6 +1,6 @@
 <template>
 
-    <q-card>
+    <q-card flat bordered>
         <q-card-section class="q-pb-xs">
             <div class="text-body2">{{ (label) ? label : 'Клиент'}}</div>
             <div class="text-body1">{{ item.title }}</div>

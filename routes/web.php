@@ -41,38 +41,42 @@ Route::prefix('app')->group(function () {
 
         Route::prefix('preorder')->group(function () {
             Route::get('/', [\App\Http\Controllers\PreOrderController::class, 'get'])->name('preorder');
-            Route::post('store', [\App\Http\Controllers\PreOrderController::class, 'store']);
-            Route::post('delete', [\App\Http\Controllers\PreOrderController::class, 'delete']);
+            Route::post('/', [\App\Http\Controllers\PreOrderController::class, 'store']);
+            Route::delete('/{id}', [\App\Http\Controllers\PreOrderController::class, 'delete']);
 
-            Route::get('{id}/get', [\App\Http\Controllers\PreOrderController::class, 'getById']);
-            Route::post('{id}/send', [\App\Http\Controllers\PreOrderController::class, 'send']);
-            Route::post('{id}/booking', [\App\Http\Controllers\PreOrderController::class, 'booking']);
+            Route::get('/{id}', [\App\Http\Controllers\PreOrderController::class, 'getById']);
+            Route::put('/{id}/send', [\App\Http\Controllers\PreOrderController::class, 'send']);
+            Route::post('/{id}/booking', [\App\Http\Controllers\PreOrderController::class, 'booking']);
 
             Route::post('checkVehicle', [\App\Http\Controllers\PreOrderController::class, 'searchFromKap']);
 
             Route::middleware(['isModerator'])->group(function () {
-                Route::post('{id}/approve', [\App\Http\Controllers\PreOrderController::class, 'approve']);
-                Route::post('{id}/decline', [\App\Http\Controllers\PreOrderController::class, 'decline']);
-                Route::post('{id}/revision', [\App\Http\Controllers\PreOrderController::class, 'revision']);
+                Route::put('{id}/approve', [\App\Http\Controllers\PreOrderController::class, 'approve']);
+                Route::put('{id}/decline', [\App\Http\Controllers\PreOrderController::class, 'decline']);
+                Route::put('{id}/revision', [\App\Http\Controllers\PreOrderController::class, 'revision']);
             });
         });
 
         Route::prefix('order')->group(function () {
             Route::get('/', [\App\Http\Controllers\OrderController::class, 'get'])->name('order');
             Route::get('{id}/get', [\App\Http\Controllers\OrderController::class, 'getById']);
-            Route::post('/sign', [\App\Http\Controllers\OrderController::class, 'sign']);
+            Route::put('{id}/sign', [\App\Http\Controllers\OrderController::class, 'sign']);
+            Route::put('{id}/send', [\App\Http\Controllers\OrderController::class, 'send']);
 
             Route::middleware(['isModerator'])->group(function () {
+                Route::put('{id}/executeRun', [\App\Http\Controllers\OrderController::class, 'executeRun']);
+                Route::put('{id}/executeClose', [\App\Http\Controllers\OrderController::class, 'executeClose']);
+
+                Route::put('{id}/approve', [\App\Http\Controllers\OrderController::class, 'approve']);
+                Route::put('{id}/decline', [\App\Http\Controllers\OrderController::class, 'decline']);
+                Route::put('{id}/revision', [\App\Http\Controllers\OrderController::class, 'revision']);
                 Route::post('/cert', [\App\Http\Controllers\OrderController::class, 'cert']);
-                Route::post('/approve', [\App\Http\Controllers\OrderController::class, 'approve']);
-                Route::post('/decline', [\App\Http\Controllers\OrderController::class, 'decline']);
-                Route::post('/revision', [\App\Http\Controllers\OrderController::class, 'revision']);
             });
         });
 
         Route::prefix('certificate')->group(function () {
             Route::get('/', [\App\Http\Controllers\CertificateController::class, 'get'])->name('certificate');
-            Route::get('{id}/get', [\App\Http\Controllers\CertificateController::class, 'generate']);
+            Route::get('{id}/file', [\App\Http\Controllers\CertificateController::class, 'generate']);
         });
 
         Route::prefix('exchange')->group(function () {

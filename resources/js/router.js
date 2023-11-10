@@ -39,6 +39,8 @@ import ProfilePage from "@/Pages/profile/ProfileMain.vue";
 import ExchangePage from "@/Pages/exchange/Exchange.vue";
 import ExchangeDetail from "@/Pages/exchange/ExchangeDetail.vue";
 
+import LogPage from "@/Pages/log/LogPage.vue";
+
 const routes = [
 
     {
@@ -244,6 +246,12 @@ const routes = [
                 component: UserDetail,
                 name: 'user_detail',
                 props: true
+            },
+
+            {
+                path: '/log',
+                component: LogPage,
+                name: 'log',
             },
 
         ]

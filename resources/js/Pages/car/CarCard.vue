@@ -1,5 +1,5 @@
 <template>
-    <q-card>
+    <q-card flat bordered>
         <q-card-section class="q-pb-xs ">
             <div class="q-gutter-sm flex justify-between">
                 <div class="text-body2">{{ recycleType === 1 ? 'ТС' : 'СХТ' }}</div>
@@ -165,7 +165,6 @@ export default {
     mounted() {
         this.$emitter.on('CarCardEvent', () => {
             this.getCar(this.item)
-            console.log(this.item)
         })
     }
 }

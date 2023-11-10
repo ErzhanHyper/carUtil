@@ -22,9 +22,20 @@ export function getOrderItem(id, params) {
     })
 }
 
-export function signOrder(params) {
+export function sendToSignOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/sign', params).then(response => {
+        api.put('/order/'+id+'/sign', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function sendToApproveOrder(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/order/'+id+'/send', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -44,10 +55,9 @@ export function storeCertOrder(params) {
     })
 }
 
-
-export function approveOrder(params) {
+export function approveOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/approve', params).then(response => {
+        api.put('/order/'+id+'/approve', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -56,9 +66,9 @@ export function approveOrder(params) {
     })
 }
 
-export function declineOrder(params) {
+export function declineOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/decline', params).then(response => {
+        api.put('/order/'+id+'/decline', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -67,9 +77,9 @@ export function declineOrder(params) {
     })
 }
 
-export function revisionOrder(params) {
+export function revisionOrder(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/order/revision', params).then(response => {
+        api.put('/order/'+id+'/revision', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -78,9 +88,20 @@ export function revisionOrder(params) {
     })
 }
 
-export function kapCheckOrder(params) {
+export function executeRunOrder(id) {
     return new Promise((resolve, reject) => {
-        api.post('/order/kap', params).then(response => {
+        api.put('/order/'+id+'/executeRun').then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function executeCloseOrder(id) {
+    return new Promise((resolve, reject) => {
+        api.put('/order/'+id+'/executeClose').then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
