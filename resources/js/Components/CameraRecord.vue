@@ -1,39 +1,36 @@
 <template>
 
-        <q-card >
+        <q-card style="background: rgba(0,0,0,.9);">
             <q-bar>
                 <q-space />
-
-                <q-btn dense flat icon="minimize" @click="maximizedToggle = false" :disable="!maximizedToggle">
-                    <q-tooltip v-if="maximizedToggle" class="bg-white text-primary">Minimize</q-tooltip>
-                </q-btn>
-                <q-btn dense flat icon="crop_square" @click="maximizedToggle = true" :disable="maximizedToggle">
-                    <q-tooltip v-if="!maximizedToggle" class="bg-white text-primary">Maximize</q-tooltip>
-                </q-btn>
                 <q-btn dense flat icon="close" v-close-popup @click="stopCamera">
                     <q-tooltip class="bg-white text-primary">Close</q-tooltip>
                 </q-btn>
             </q-bar>
 
-            <q-card-section class="q-pt-none" style="height: 80vh" id="videoBlock">
+            <q-card-section class="q-pt-none q-px-none flex column items-start justify-center" style="height: calc(100vh - 32px); " id="videoBlock" >
                 <!--                <button class="btn btn-primary btn-sm" @click="snapshot">Create snapshot</button>-->
-                <div v-if="recording" style="position: relative; top: 0px;margin-top:0px;color: #fff;background: rgba(0,0,0,.3);padding: 2px 10px" class="text-center">{{ timer.minutes+ ':' +timer.seconds }}</div>
-                <video ref="video" class="camera-stream" style="width: 100%" />
-                <div class="text-center flex justify-between items-center q-mx-lg" style="position:relative; top: -70px">
-                    <div style="width: 42px">
-                        <q-btn fab style="background: rgba(0,0,0,.3)" v-if="showSend" @click="sendData" :loading="loading">
-                        <q-icon name="send" size="sm" color="white"/>
-                    </q-btn>
+                <div style="position: absolute;top: 0; width: 100%;height: 80%">
+                    <div v-if="recording" style="position: absolute; top: 0px;width:100%;color: #fff;background: rgba(0,0,0,.3);padding: 2px 10px" class="text-center">{{ timer.minutes+ ':' +timer.seconds }}</div>
+                    <video ref="video" class="camera-stream" style="width: 100%;height: 100%" />
+                </div>
+                <div style="position: absolute; bottom: 0;left: 0;width: 100%; height: 20%" class="flex items-center" >
+                    <div class="text-center flex justify-between items-center q-mx-lg" style="width: 100%">
+                        <div style="width: 42px">
+                            <q-btn fab style="background: rgba(0,0,0,.3)" v-if="showSend" @click="sendData" :loading="loading" text-color="white">
+                            <q-icon name="send" size="sm" color="white"/>
+                        </q-btn>
+                        </div>
+                        <q-btn color="white" fab @click="startRecording" v-if="!recording">
+                            <q-icon name="fiber_manual_record" color="negative" size="sm"/>
+                        </q-btn>
+                        <q-btn color="white" fab  @click="stopRecording" v-if="recording">
+                            <q-icon name="stop" color="negative" size="sm"/>
+                        </q-btn>
+                        <q-btn style="background: rgba(0,0,0,.3)" fab size="md">
+                            <q-icon name="cameraswitch" size="sm" color="white" @click="switchCamera"/>
+                        </q-btn>
                     </div>
-                    <q-btn color="white" fab @click="startRecording" v-if="!recording">
-                        <q-icon name="fiber_manual_record" color="negative" size="sm"/>
-                    </q-btn>
-                    <q-btn color="white" fab  @click="stopRecording" v-if="recording">
-                        <q-icon name="stop" color="negative" size="sm"/>
-                    </q-btn>
-                    <q-btn style="background: rgba(0,0,0,.3)" fab size="md">
-                        <q-icon name="cameraswitch" size="sm" color="white" @click="switchCamera"/>
-                    </q-btn>
                 </div>
             </q-card-section>
         </q-card>
@@ -73,8 +70,7 @@ export default {
             showSend: false,
             mediaStream: null,
             mediaRecorder: null,
-            cameraMode: {facingMode: "environment"},
-            switch: 'environment',
+            cameraMode: "environment",
             recordedBlobs: [],
             imageData: {
                 image: '',
@@ -86,13 +82,10 @@ export default {
     methods: {
 
         switchCamera() {
-            console.log(this.cameraMode)
-            if(this.switch === 'environment') {
-                this.switch = 'user'
-                this.cameraMode = {facingMode: "user"}
+            if(this.cameraMode === 'environment') {
+                this.cameraMode = "user"
             }else {
-                this.switch = 'environment'
-                this.cameraMode = {facingMode: "environment"}
+                this.cameraMode = "environment"
             }
             this.mediaStream.getTracks().forEach(function(track) {
                 track.stop();
@@ -102,7 +95,7 @@ export default {
 
         startCamera(){
             this.startTimer()
-            navigator.mediaDevices.getUserMedia({audio: false, video: this.cameraMode }).then(mediaStream => {
+            navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: this.cameraMode, aspectRatio: 9/16 }}).then(mediaStream => {
                 this.$refs.video.srcObject = mediaStream;
                 this.$refs.video.play()
                 this.mediaStream = mediaStream
