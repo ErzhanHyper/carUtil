@@ -93,6 +93,7 @@ export default {
                 this.switch = 'environment'
                 this.cameraMode = {facingMode: "environment"}
             }
+            this.startCamera()
         },
 
         startCamera(){
