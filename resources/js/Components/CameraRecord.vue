@@ -84,7 +84,7 @@ export default {
     methods: {
         startCamera(){
             this.startTimer()
-            navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(mediaStream => {
+            navigator.mediaDevices.getUserMedia({audio: false, video: { facingMode: { exact: "environment" } } }).then(mediaStream => {
                 this.$refs.video.srcObject = mediaStream;
                 this.$refs.video.play()
                 this.mediaStream = mediaStream
