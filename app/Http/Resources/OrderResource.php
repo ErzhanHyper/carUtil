@@ -38,6 +38,7 @@ class OrderResource extends JsonResource
             1 => 'Открыта',
             2 => 'В работе',
             3 => 'Завершено',
+            4 => 'В ожидании видеозаписи',
             5 => 'На выдаче сертификата',
             default => '',
         };
@@ -117,7 +118,7 @@ class OrderResource extends JsonResource
             'booking' => $booking,
             'files' => $files,
             'signed' => false,
-            'setCert' => ($this->approve === 3 && $find_video && $user->role === 'moderator' && $this->car->certificate == '') ? true : false,
+            'setCert' => ($this->approve === 3 && $this->status === 5 && $find_video && $user->role === 'moderator' && $this->car->certificate == '') ? true : false,
             'recycle_type' => $recycle_type,
             'categories' => $categories,
             'transfer' => $this->transfer,

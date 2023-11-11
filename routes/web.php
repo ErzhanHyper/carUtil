@@ -62,6 +62,7 @@ Route::prefix('app')->group(function () {
             Route::get('{id}/get', [\App\Http\Controllers\OrderController::class, 'getById']);
             Route::put('{id}/sign', [\App\Http\Controllers\OrderController::class, 'sign']);
             Route::put('{id}/send', [\App\Http\Controllers\OrderController::class, 'send']);
+            Route::post('{id}/video', [\App\Http\Controllers\OrderController::class, 'video']);
 
             Route::middleware(['isModerator'])->group(function () {
                 Route::put('{id}/executeRun', [\App\Http\Controllers\OrderController::class, 'executeRun']);

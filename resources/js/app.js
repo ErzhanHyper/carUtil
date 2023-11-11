@@ -25,6 +25,7 @@ myApp.config.globalProperties.$moment = moment
 myApp.config.globalProperties.$emitter = emitter;
 
 myApp.use(store);
+
 myApp.use(Quasar, {
     plugins: {
         Notify
@@ -33,6 +34,5 @@ myApp.use(Quasar, {
         notify: { /* look at QuasarConfOptions from the API card */ }
     }
 });
-
 myApp.use(router);
 myApp.mount('#app')

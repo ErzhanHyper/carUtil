@@ -18,7 +18,7 @@
                                         </span>
                                     </span>
                             </q-banner>
-                            <q-card-section id="desktopAuth">
+                            <q-card-section>
 
                                 <q-form class="q-gutter-md flex justify-between no-wrap">
                                     <q-select :options="options" label="Выберите тип применяемой ЭЦП"
@@ -30,17 +30,17 @@
                                 </q-form>
                             </q-card-section>
 
-                            <q-card-section id="mobileAuth">
+<!--                            <q-card-section id="mobileAuth">-->
 
-                                <q-form class="q-gutter-md  q-mt-md">
-                                    <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum"  />
-                                    <q-input label="Пароль" outlined dense type="password" v-model="password" autocomplete="off"
-                                             :model-value="password"/>
+<!--                                <q-form class="q-gutter-md  q-mt-md">-->
+<!--                                    <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum"  />-->
+<!--                                    <q-input label="Пароль" outlined dense type="password" v-model="password" autocomplete="off"-->
+<!--                                             :model-value="password"/>-->
 
-                                    <q-btn unelevated color="light-green-7" size="md" label="Войти" push
-                                           @click="loginMobile" :loading="loading"/>
-                                </q-form>
-                            </q-card-section>
+<!--                                    <q-btn unelevated color="light-green-7" size="md" label="Войти" push-->
+<!--                                           @click="loginMobile" :loading="loading"/>-->
+<!--                                </q-form>-->
+<!--                            </q-card-section>-->
                         </q-card>
                     </div>
                 </div>
@@ -140,25 +140,25 @@ export default {
         },
 
 
-        loginMobile() {
-            this.loading = true
-            this.showBanner = false
-            this.errors = []
-
-            this.signInMobile({
-                login: this.idnum,
-                password: this.password
-            }).then(() => {
-                this.$router.replace({
-                    name: 'preorder'
-                })
-            }).catch(reject => {
-                this.errors = JSON.parse(reject.response.data.error)
-                this.showBanner = true
-            }).finally(() => {
-                this.loading = false
-            })
-        },
+        // loginMobile() {
+        //     this.loading = true
+        //     this.showBanner = false
+        //     this.errors = []
+        //
+        //     this.signInMobile({
+        //         login: this.idnum,
+        //         password: this.password
+        //     }).then(() => {
+        //         this.$router.replace({
+        //             name: 'preorder'
+        //         })
+        //     }).catch(reject => {
+        //         this.errors = JSON.parse(reject.response.data.error)
+        //         this.showBanner = true
+        //     }).finally(() => {
+        //         this.loading = false
+        //     })
+        // },
 
     },
 

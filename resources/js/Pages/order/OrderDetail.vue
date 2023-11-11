@@ -28,7 +28,7 @@
                 </div>
 
                 <q-space class="q-my-sm" />
-                <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" v-if="item.approve.id === 3 && !item.videoUploaded"/>
+                <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" v-if="user.role === 'operator' && item.approve.id === 3 && !item.videoUploaded"/>
             </div>
 
             <div class="q-mb-md">
@@ -75,7 +75,7 @@
 
                     <q-btn :loading="loading" square size="12px" color="light-green"
                            label="Подписать и отправить модератору" @click="sendData('sign_uploaded_video')"
-                           icon="send" v-if="item.videoUploaded && item.status.id === 4"></q-btn>
+                           icon="send" v-if="user.role === 'operator' && item.status.id === 4"></q-btn>
                 </div>
             </div>
         </div>
@@ -155,7 +155,7 @@
         transition-show="slide-up"
         transition-hide="slide-down"
     >
-        <camera-record />
+        <camera-record :id="item.id"/>
     </q-dialog>
 
 
@@ -340,8 +340,8 @@ export default {
         },
 
         sendData(value) {
-            this.loading = true
             if(value === 'send_to_moderator'){
+                this.loading = true
                 sendToApproveOrder(this.id).then(res => {
                     this.getData()
                 }).finally(() => {
@@ -401,6 +401,10 @@ export default {
         })
         this.$emitter.on('orderActionEvent', () => {
             this.getData()
+        })
+        this.$emitter.on('VideoSendEvent', () => {
+            this.getData()
+            this.showCamera = false
         })
     }
 

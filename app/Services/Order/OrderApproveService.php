@@ -46,7 +46,7 @@ class OrderApproveService
                     $car->moderator_accept_sign = $edsSign->sign;
                     if ($car->save()) {
                         $order->approve = 3;
-                        $order->status = 2;
+                        $order->status = 4;
                         $order->save();
                         $message = 'Одобрена!';
                         $success = true;

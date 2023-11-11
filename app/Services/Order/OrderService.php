@@ -6,12 +6,16 @@ namespace App\Services\Order;
 
 use App\Http\Resources\OrderResource;
 use App\Models\Car;
+use App\Models\File;
 use App\Models\Order;
 use App\Models\OrderHistory;
 use App\Services\AuthService;
 use App\Services\EdsService;
 use App\Services\SignService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 
 class OrderService
@@ -142,6 +146,56 @@ class OrderService
         ];
     }
 
+    public function video($request, $id)
+    {
 
+        $message = 'Не загружена';
+        $success = false;
+        $upload = false;
+        $order = Order::find($id);
+
+        if ($order) {
+            if ($order->approve === 0 || $order->approve === 1 || $order->approve === 2) {
+                $message = 'Заявка не одобрена';
+            } else if ($order->approve === 4) {
+                $message = 'Невозможно загрузить видеозапись! Заявка отклонена';
+            }
+            if ($order->approve === 3 && $order->status === 3) {
+                $message = 'Невозможно загрузить видеозапись! Сертификат уже выдан';
+            }
+            $car = Car::where('order_id', $order->id)->first();
+            if ($order && $car && $order->approve === 3 && $order->status === 4) {
+                $upload = true;
+            }
+        } else {
+            $message = 'Заявка не найдена в базе';
+        }
+
+        if($upload) {
+            $extension = explode('/', $_FILES['voice']['type']);
+            $original_name = basename(md5($_FILES['voice']['tmp_name'].time())).'.'.$extension[1];
+
+            $path = public_path('storage/uploads/order/files/'.$order->id.'/'.$original_name);
+            move_uploaded_file($_FILES['voice']['tmp_name'], $path);
+
+            $file = new File();
+            $file->order_id = $order->id;
+            $file->car_id = $car->id;
+            $file->file_type_id = $car->id;
+            $file->file_type_id = 29;
+            $file->client_id = $order->client_id;
+            $file->ext = $extension[1];
+            $file->original_name = $original_name;
+            $file->save();
+
+            $message = 'Видеозапись успешно отправлена';
+            $success = true;
+        }
+
+        return [
+            'message' => $message,
+            'success' => $success
+        ];
+    }
 
 }

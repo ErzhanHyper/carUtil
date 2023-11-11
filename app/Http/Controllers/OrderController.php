@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Services\Certificate\CertificateService;
 use App\Services\Order\OrderApproveService;
 use App\Services\Order\OrderService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -31,6 +33,18 @@ class OrderController extends Controller
     {
         $data = app(OrderService::class)->send($request, $id);
         return response()->json($data);
+    }
+
+    public function video(Request $request, $id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(OrderService::class)->video($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
     public function approve(Request $request, $id)
