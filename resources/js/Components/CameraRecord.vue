@@ -88,10 +88,10 @@ export default {
         switchCamera() {
             if(this.switch === 'environment') {
                 this.switch = 'user'
-                this.cameraMode = true
+                this.cameraMode = {facingMode: "user"}
             }else {
                 this.switch = 'environment'
-                this.cameraMode = {facingMode: {exact: "environment"}}
+                this.cameraMode = {facingMode: "environment"}
             }
         },
 
