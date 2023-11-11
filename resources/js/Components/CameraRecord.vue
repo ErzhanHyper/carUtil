@@ -32,7 +32,7 @@
                         <q-icon name="stop" color="negative" size="sm"/>
                     </q-btn>
                     <q-btn style="background: rgba(0,0,0,.3)" fab size="md">
-                        <q-icon name="cameraswitch" size="sm" color="white"/>
+                        <q-icon name="cameraswitch" size="sm" color="white" @click="switchCamera"/>
                     </q-btn>
                 </div>
             </q-card-section>
@@ -73,6 +73,8 @@ export default {
             showSend: false,
             mediaStream: null,
             mediaRecorder: null,
+            cameraMode: {facingMode: {exact: "environment"}},
+            switch: 'environment',
             recordedBlobs: [],
             imageData: {
                 image: '',
@@ -82,9 +84,20 @@ export default {
     },
 
     methods: {
+
+        switchCamera() {
+            if(this.switch === 'environment') {
+                this.switch = 'user'
+                this.cameraMode = true
+            }else {
+                this.switch = 'environment'
+                this.cameraMode = {facingMode: {exact: "environment"}}
+            }
+        },
+
         startCamera(){
             this.startTimer()
-            navigator.mediaDevices.getUserMedia({audio: false, video: { facingMode: { exact: "environment" } } }).then(mediaStream => {
+            navigator.mediaDevices.getUserMedia({audio: false, video: this.cameraMode }).then(mediaStream => {
                 this.$refs.video.srcObject = mediaStream;
                 this.$refs.video.play()
                 this.mediaStream = mediaStream
