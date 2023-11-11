@@ -12,7 +12,7 @@
                 <!--                <button class="btn btn-primary btn-sm" @click="snapshot">Create snapshot</button>-->
                 <div style="position: absolute;top: 0; width: 100%;height: 80%">
                     <div v-if="recording" style="position: absolute; top: -1px;width:100%;color: #fff;background: rgba(0,0,0,.3);padding: 2px 10px" class="text-center">{{ timer.minutes+ ':' +timer.seconds }}</div>
-                    <video ref="video" class="camera-stream" style="width: auto; height: 100%;margin: 0 auto;display: block;" />
+                    <video ref="video" class="camera-stream" style="width: 100%;height: 100%" />
                 </div>
                 <div style="position: absolute; bottom: 0;left: 0;width: 100%; height: 20%" class="flex items-center" >
                     <div class="text-center flex justify-between items-center q-mx-lg" style="width: 100%">
@@ -95,7 +95,7 @@ export default {
 
         startCamera(){
             this.startTimer()
-            navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: this.cameraMode, aspectRatio: 9/16 }}).then(mediaStream => {
+            navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: this.cameraMode, aspectRatio: 16/9 }}).then(mediaStream => {
                 this.$refs.video.srcObject = mediaStream;
                 this.$refs.video.play()
                 this.mediaStream = mediaStream
