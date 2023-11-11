@@ -196,7 +196,7 @@ class FileController extends Controller
         $file_id = $request->file_id;
         $order = Order::find($order_id);
         $message = ['status' => 'can`t delete'];
-        if ($order && $order->status === 2) {
+        if ($order && $order->status === 4) {
             File::where('order_id', $order->id)->where('id', $file_id)->delete();
             $message = ['status' => 'deleted'];
         }
