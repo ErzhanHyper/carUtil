@@ -27,9 +27,11 @@
                         <q-btn color="white" fab  @click="stopRecording" v-if="recording">
                             <q-icon name="stop" color="negative" size="sm"/>
                         </q-btn>
-                        <q-btn style="background: rgba(0,0,0,.3)" fab size="md">
-                            <q-icon name="cameraswitch" size="sm" color="white" @click="switchCamera"/>
-                        </q-btn>
+                        <div style="width: 56px">
+                            <q-btn style="background: rgba(0,0,0,.3)" fab size="md" v-if="!recording">
+                                <q-icon name="cameraswitch" size="sm" color="white" @click="switchCamera"/>
+                            </q-btn>
+                        </div>
                     </div>
                 </div>
             </q-card-section>
