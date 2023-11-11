@@ -186,7 +186,7 @@ export default {
                 password: this.password
             }).then(() => {
                 this.$router.replace({
-                    name: 'preorder'
+                    name: 'order'
                 })
             }).catch(reject => {
                 this.errors = JSON.parse(reject.response.data.error)

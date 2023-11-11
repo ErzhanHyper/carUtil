@@ -23,39 +23,42 @@ class PreorderService
     {
         $user = app(AuthService::class)->auth();
 
-        $orders = PreOrderCar::with(['car', 'client']);
+        if ($user->role === 'liner' || $user->role === 'moderator' ) {
 
-        if(isset($request->vin) && $request->vin != ''){
-            $car = Car::select(['id', 'vin'])->where('vin', 'like', '%'.$request->vin.'%')->get();
-            $car_ids = [];
-            if(count($car) > 0) {
-                foreach($car as $c) {
-                    $car_ids[] = $c->id;
+            $orders = PreOrderCar::with(['car', 'client']);
+
+            if (isset($request->vin) && $request->vin != '') {
+                $car = Car::select(['id', 'vin'])->where('vin', 'like', '%' . $request->vin . '%')->get();
+                $car_ids = [];
+                if (count($car) > 0) {
+                    foreach ($car as $c) {
+                        $car_ids[] = $c->id;
+                    }
+                }
+                $orders->whereIn('car_id', $car_ids);
+            }
+            if ($user) {
+                if ($user->role === 'liner') {
+                    $orders->where('liner_id', $user->id);
+                } else {
+                    if ($user->role === 'moderator') {
+                        $orders->where('status', '<>', 0);
+                    }
                 }
             }
-            $orders->whereIn('car_id', $car_ids);
-        }
-        if ($user) {
-            if ($user->role === 'liner') {
-                $orders->where('liner_id', $user->id);
-            } else {
-                if ($user->role === 'moderator') {
-                    $orders->where('status', '<>', 0);
-                }
-            }
-        }
 
-        if (isset($orders)) {
-            $paginate = 10;
-            $pages = round($orders->count() / $paginate);
-            if ($pages == 0) {
-                $pages = 1;
+            if (isset($orders)) {
+                $paginate = 10;
+                $pages = round($orders->count() / $paginate);
+                if ($pages == 0) {
+                    $pages = 1;
+                }
+                return [
+                    'pages' => $pages,
+                    'page' => $request->page ?? 1,
+                    'items' => PreOrderResource::collection($orders->orderByDesc('date')->paginate($paginate))
+                ];
             }
-            return [
-                'pages' => $pages,
-                'page' => $request->page ?? 1,
-                'items' => PreOrderResource::collection($orders->orderByDesc('date')->paginate($paginate))
-            ];
         }
     }
 

@@ -73,7 +73,7 @@ export default {
             showSend: false,
             mediaStream: null,
             mediaRecorder: null,
-            cameraMode: {facingMode: {exact: "environment"}},
+            cameraMode: {facingMode: "environment"},
             switch: 'environment',
             recordedBlobs: [],
             imageData: {
