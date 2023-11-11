@@ -86,6 +86,7 @@ export default {
     methods: {
 
         switchCamera() {
+            console.log(this.cameraMode)
             if(this.switch === 'environment') {
                 this.switch = 'user'
                 this.cameraMode = {facingMode: "user"}
@@ -93,6 +94,9 @@ export default {
                 this.switch = 'environment'
                 this.cameraMode = {facingMode: "environment"}
             }
+            this.mediaStream.getTracks().forEach(function(track) {
+                track.stop();
+            });
             this.startCamera()
         },
 
@@ -175,7 +179,8 @@ export default {
                 this.timer.seconds = parseInt((this.elapsedTime/1000)%60)
                 this.timer.minutes = parseInt((this.elapsedTime/(1000*60))%60)
             }, 100);
-        }
+        },
+
     },
 
     mounted(){
