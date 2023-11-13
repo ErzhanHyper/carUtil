@@ -31,7 +31,7 @@
         </div>
 
         <template v-if="user.role && user.role === 'moderator'">
-            <preorder-actions v-if="item.status && item.status.id === 1" :id="item.id" :disabled="disabled" :data="{vin: item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}"/>
+            <preorder-actions :id="item.id" :disabled="disabled" :data="{status: item.status, vin: item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}"/>
         </template>
 
         <template v-if="item.comment.length > 0 && item.comment[0].text && user.role === 'liner'">

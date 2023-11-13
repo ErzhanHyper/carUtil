@@ -46,7 +46,9 @@
             </div>
 
             <div class="q-gutter-sm">
-                <q-btn square size="12px" color="primary" label="Проверка в КАП" icon="add_task" @click="kapDialog = true" v-if="showApproveAction"/>
+                <template v-if="user.role === 'moderator'">
+                <q-btn square size="12px" color="primary" label="Проверка в КАП" icon="add_task" @click="kapDialog = true" />
+                </template>
             </div>
 
         </div>
@@ -67,7 +69,7 @@
     </q-dialog>
 
     <q-dialog v-model="kapDialog" size="md" persistent>
-        <order-kap :order_id="order_id" :data="data"/>
+        <order-kap :order_id="order_id" :data="data" :blocked="data.status.id !== 1"/>
     </q-dialog>
 
 </template>

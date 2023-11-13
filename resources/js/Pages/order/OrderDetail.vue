@@ -18,7 +18,12 @@
                     {{ item.status.title }}
                 </div>
 
-                <div class="text-caption" v-if="item.executor">Исполнитель: {{ item.executor.title }}</div>
+                <div class="text-caption" v-if="item.executor">
+                    Исполнитель: {{ item.executor.title }}
+                </div>
+                <div class="text-caption" v-if="item.executor">
+                    Менеджер ТБО: {{ item.user.title }}
+                </div>
 
                 <div :class="'text-deep-orange'" v-if="item.approve.id === 3 && item.status.id === 4">
                     В ожидании получения видеозаписи ТС/СХТ
@@ -82,7 +87,7 @@
             </div>
         </div>
 
-        <order-action :order_id="item.id" :showCertAction="showCertAction" :showApproveAction="showModeratorAction" :data="{grnz: item.car.grnz, vin: item.car.vin, iinbin: item.client.idnum}"/>
+        <order-action :order_id="item.id" :showCertAction="showCertAction" :showApproveAction="showModeratorAction" :data="{status: item.status, grnz: item.car.grnz, vin: item.car.vin, iinbin: item.client.idnum}"/>
 
         <div class="row q-col-gutter-md">
 

@@ -56,10 +56,6 @@
                        class="text-dark">
                         {{ getFileTypeTitle(29) }}
                     </a>
-                    <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
-                            color="negative"
-                            @click="deleteVideoFile({type: 'doc', id: video.id })" v-if="!blockedVideo">
-                    </q-icon>
                 </div>
 
                 <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
@@ -243,18 +239,6 @@ export default {
                 file_id: value.id
             }).then(() => {
 
-            });
-        },
-
-        deleteVideoFile(value) {
-            deleteOrderFile({
-                order_id: this.data.order_id,
-                file_id: value.id
-            }).then(() => {
-                let objWithIdIndex = this.item.video.findIndex((obj) => obj.id === value.id);
-                if (objWithIdIndex > -1) {
-                    this.item.video.splice(objWithIdIndex, 1);
-                }
             });
         },
 

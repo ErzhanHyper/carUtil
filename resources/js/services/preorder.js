@@ -66,6 +66,17 @@ export function checkVehicle(params) {
     })
 }
 
+export function checkVehicleHistory(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/preorder/checkVehicleHistory', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function approveOrder(id, params) {
     return new Promise((resolve, reject) => {
         api.put('/preorder/'+id+'/approve', params).then(response => {

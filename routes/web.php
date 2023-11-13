@@ -49,6 +49,7 @@ Route::prefix('app')->group(function () {
             Route::post('/{id}/booking', [\App\Http\Controllers\PreOrderController::class, 'booking']);
 
             Route::post('checkVehicle', [\App\Http\Controllers\PreOrderController::class, 'searchFromKap']);
+            Route::post('checkVehicleHistory', [\App\Http\Controllers\PreOrderController::class, 'kapHistory']);
 
             Route::middleware(['isModerator'])->group(function () {
                 Route::put('{id}/approve', [\App\Http\Controllers\PreOrderController::class, 'approve']);

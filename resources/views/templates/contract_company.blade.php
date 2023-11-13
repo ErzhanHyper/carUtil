@@ -44,19 +44,13 @@
         <td><strong>Сторона-1</strong></td>
     </tr>
     <tr>
-        <td><br>[QR_OPERATOR_SIGN] <br />ТОО «Recycling Company»<br />
-            <b>[QR_OPERATOR_SIGN_INFO]</b><br />
+        <td>ТБО<br />
+            <br>_____________________ <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br />
         </td>
-    </tr>
-    <tr>
-        <td><br><br><strong>Сторона-2</strong></td>
-    </tr>
-    <tr>
-        <td><br>[QR_CLIENT_SIGN] <br />[CLIENT_NAME] <br />
-            <b>[QR_CLIENT_SIGN_INFO]</b>
+        <td class="text-right">{{ $data['client_name'] }} <br />
+            <br>_____________________ <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br />
         </td>
     </tr>
 </table>
-
 </body>
 </html>

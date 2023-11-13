@@ -99,6 +99,7 @@ class OrderResource extends JsonResource
             'client' => new ClientResource($this->client),
             'created' => Carbon::parse($this->created)->format('Y-m-d H:i'),
             'user_id' => $this->user_id,
+            'user' => User::find($this->user_id),
             'status' => [
                 'id' => $this->status,
                 'title' => $status

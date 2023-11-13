@@ -152,7 +152,7 @@ class DocumentService
         $data['order_num'] = $order->id;
         $data['order_date'] = date("d.m.Y", $order->created);
         $data['car_num'] = $car->id;
-        $data['car_vin'] = $car->id;
+        $data['car_vin'] = $car->vin;
         $data['car_category'] = $car->category->title;
         $data['region'] = $client->region->title;
         $data['region_num'] = $client->region->id;
@@ -182,7 +182,7 @@ class DocumentService
     }
 
 
-    public function generateComplect($id)
+    public function generateComplect($request, $id)
     {
         $auth = app(AuthService::class)->auth();
         $data = [];
@@ -193,7 +193,7 @@ class DocumentService
         $data['order_num'] = $order->id;
         $data['order_date'] = date("d.m.Y", $order->created);
         $data['car_num'] = $car->id;
-        $data['car_vin'] = $car->id;
+        $data['car_vin'] = $car->vin;
         $data['car_category'] = $car->category->title;
         $data['region'] = $client->region->title;
         $data['region_num'] = $client->region->id;
@@ -210,6 +210,20 @@ class DocumentService
         $data['ud_issued'] = $client->ud_issued->title;
         $data['operator_company'] = 'АО «Жасыл Даму»';
         $data['operator_req'] = 'АО «Жасыл Даму»';
+
+        if ($request->complect){
+//            foreach ($request->complect as $i){
+//                $data['VL_'.$i] = '✔';
+//            }
+            $k = 1;
+            for ($k; $k < 13; $k++){
+                if($request->complect['id'.$k] == 'true'){
+                    $data['VL_'.$k] = '✔';
+                }else{
+                    $data['VL_' . $k] = '';
+                }
+            }
+        }
 
         if($car->category->title == "M1") {
             $pdf = PDF::loadView('templates.annex_act_cert_m1', compact('data'));

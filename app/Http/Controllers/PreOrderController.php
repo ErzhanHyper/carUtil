@@ -105,6 +105,17 @@ class PreOrderController extends Controller
         }
         return response()->json($result['data'], $result['status']);
     }
+    public function kapHistory(Request $request){
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(KapService::class)->history($request);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
 
     public function booking(Request $request, $id)
     {

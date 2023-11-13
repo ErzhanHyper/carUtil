@@ -1,7 +1,8 @@
 <template>
     <div class="col col-md-12 q-mt-md">
         <div class="flex justify-between q-mt-md" >
-            <div class="q-gutter-sm">
+            <div class="q-gutter-sm" >
+                <template v-if="showApproveAction">
                 <q-btn :loading="loading" square size="12px" color="light-green" label="Одобрить"
                        @click="send('approve')"
                        icon="send" :disabled="disabled"></q-btn>
@@ -9,9 +10,12 @@
                        icon="keyboard_return"></q-btn>
                 <q-btn square size="12px" color="red-5" label="Отклонить" @click="send('decline')"
                        icon="block"></q-btn>
+                </template>
             </div>
             <div class="q-gutter-sm">
+                <template v-if="user.role === 'moderator'">
                 <q-btn square size="12px" color="primary" label="Проверка в КАП" icon="add_task" @click="kapDialog = true"/>
+                </template>
             </div>
         </div>
     </div>
@@ -31,7 +35,7 @@
     </q-dialog>
 
     <q-dialog v-model="kapDialog" size="md" persistent>
-        <order-kap :preorder_id="id" :data="data"/>
+        <order-kap :preorder_id="id" :data="data" :blocked="data.status.id !== 1"/>
     </q-dialog>
 </template>
 
@@ -39,6 +43,7 @@
 import {approveOrder, declineOrder, revisionOrder} from "../../services/preorder";
 import {Notify} from "quasar";
 import OrderKap from "@/Pages/order/OrderKap.vue";
+import {mapGetters} from "vuex";
 
 export default {
 
@@ -55,8 +60,17 @@ export default {
             loading2: false,
             commentDialog: false,
             comment: '',
-            action: ''
+            action: '',
+
+            showApproveAction: this.data.status.id === 1,
         }
+    },
+
+
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
     },
 
     methods: {

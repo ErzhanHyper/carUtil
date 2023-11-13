@@ -3,14 +3,14 @@
     <div class="q-gutter-sm q-mb-md q-mt-xs flex justify-between">
         <div class="text-h6 text-primary">Предзаявка</div>
 
-        <div class="flex justify-between" v-if="user && user.role === 'liner'">
+        <div class="flex justify-between" v-if="show && user.role === 'liner'">
             <!--            <q-btn color="purple-10" unelevated icon="tune" class="q-ml-md"/>-->
             <q-btn color="indigo-8" push icon="add" label="Создать заявку" class="q-ml-md text-weight-bold"
                    @click="orderDialog = true"/>
         </div>
     </div>
 
-    <q-card class="q-mb-none q-mt-md" bordered square flat v-if="user.role === 'moderator'">
+    <q-card class="q-mb-none q-mt-md" bordered square flat v-if="show && user.role === 'moderator'">
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">

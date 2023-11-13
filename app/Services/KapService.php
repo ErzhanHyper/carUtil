@@ -4,13 +4,49 @@
 namespace App\Services;
 
 
+use App\Models\Car;
 use App\Models\Client;
 use App\Models\KapRequest;
 use App\Models\PreOrderCar;
+use App\Models\User;
 use SimpleXMLElement;
 
 class KapService
 {
+
+    public function history($request)
+    {
+        $car = [];
+        if($request->order_id) {
+            $car = Car::where('order_id', $request->order_id)->first();
+        }
+        if($request->preorder_id){
+            $preorder = PreOrderCar::find($request->preorder_id);
+            $car = Car::where('id', $preorder->car_id)->first();
+        }
+        $kap_request = [];
+        if($car) {
+            $kap_request = KapRequest::where('iinbin',$car->cert_idnum)->orWhere('vin', $car->vin)->orWhere('grnz', $car->grnz)->orderByDesc('created_at')->get();
+        }
+        $result = [];
+        if (count($kap_request) > 0) {
+            foreach ($kap_request as $item) {
+                $xml = new SimpleXMLElement($item->xml_response);
+                $record = $xml->script->dataset->records->record;
+                $user = User::find($item->user_id);
+                $result[] = [
+                    'k_status' => $item->k_status,
+                    'username' => $user ? $user->title : '',
+                    'record' => $this->convertXmlDatToArray($record),
+                    'created_at' => date('d.m.Y', $item->created_at)
+                ];
+            }
+        }
+        return [
+            'items' => $result
+        ];
+    }
+
 
     public function get($request)
     {
@@ -41,7 +77,7 @@ class KapService
 
             if (!$kap_request && ($preorder && $preorder->liner_id === $user->id && ($preorder->status == 0 || $preorder->status == 4))) {
                 $can = true;
-                $value = $client->idnum;
+                $value = $user->idnum;
                 $type = 'iinbin';
             }
         }

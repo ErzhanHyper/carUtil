@@ -34,9 +34,9 @@ class DocumentController extends Controller
         return app(DocumentSellService::class)->generateSellApplication($id);
     }
 
-    public function getComplect($id)
+    public function getComplect(Request $request, $id)
     {
-        return app(DocumentService::class)->generateComplect($id);
+        return app(DocumentService::class)->generateComplect($request, $id);
     }
 
 }

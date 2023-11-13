@@ -9,15 +9,18 @@
         <q-separator/>
 
         <q-card-section style="max-height: 70vh" class="scroll">
+
             <div class="text-center">
                 <q-spinner-dots
                     color="primary"
                     size="3em"
-                    v-if="loading"
+                    v-if="loading || !show"
                 />
             </div>
 
-            <div v-if="!loading && items.length > 0" class="flex q-mb-lg no-wrap">
+            <div v-if="!loading && items.length > 0">
+                Текущий запрос в КАП:
+                <div class="flex q-mb-lg no-wrap">
                 <q-markup-table flat bordered separator="cell" >
                     <tbody>
                         <tr style="background-color: #e0e6ed;">
@@ -70,31 +73,43 @@
             <div class="bg-blue-8 q-pa-md text-white" v-if="!loading && card != ''">
                 <span v-html="card"></span>
             </div>
-            <div class="group q-py-lg">
+            </div>
+
+            <div class="group q-py-lg" v-if="!blocked">
                 <q-select v-model="kap.type" :options="options" option-label="title" option-value="name" emit-value map-options style="width: 200px" outlined dense label="Тип запроса" class="q-mb-md" @update:model-value="selectData" :readonly="loading"></q-select>
                 <q-input type="textarea" label="Цель запроса" outlined rows="2" style="width: 400px" v-model="kap.message" :readonly="loading"/>
                 <div class="flex no-wrap q-mt-md">
                     <q-input label="Значение" outlined dense style="width: 400px" v-model="kap.value" :readonly="loading"/>
                 </div>
+                <q-separator class="q-my-lg"/>
+            </div>
+
+            <div v-if="history.length > 0 && show">
+                История запросов в КАП:
+                <div v-for="el in history">
+                    {{ el['created_at'] }} | {{ el['username'] ? el['username'] : '-'}}
+                    <div v-html="el['k_status']" class="q-mb-md bg-blue-grey-1 q-pa-sm"></div>
+                </div>
             </div>
 
         </q-card-section>
 
-        <q-card-actions class="q-px-md">
+        <q-card-actions class="q-px-md" v-if="!blocked">
             <q-btn icon="add_task" square color="indigo-8" label="Отправить запрос" :loading="loading" @click="getKapData"/>
         </q-card-actions>
     </q-card>
 </template>
 
 <script>
-import {checkVehicle} from "../../services/preorder";
+import {checkVehicle, checkVehicleHistory} from "../../services/preorder";
 
 export default {
-    props: ['preorder_id', 'order_id', 'data'],
+    props: ['preorder_id', 'order_id', 'data', 'blocked'],
 
     data() {
         return {
             loading: false,
+            show: false,
             kap: {
                 type: 'vin',
                 message: 'Проверка',
@@ -103,6 +118,7 @@ export default {
                 iinbin: this.data.iinbin
             },
             items: [],
+            history: [],
             card: '',
             options: [
                 {
@@ -142,10 +158,19 @@ export default {
             })
         },
 
+        getKapHistory(){
+            checkVehicleHistory({ preorder_id: this.preorder_id, order_id: this.order_id}).then(res => {
+                this.history = res.items
+            }).finally(() => {
+                this.show = true
+            })
+        }
+
     },
 
     created() {
         this.selectData()
+        this.getKapHistory()
     }
 }
 </script>
