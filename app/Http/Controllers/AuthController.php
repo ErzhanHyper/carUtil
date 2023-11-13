@@ -114,6 +114,11 @@ class AuthController extends Controller
             $manager = User::find($request->id);
             if($manager){
                 if($manager->id === $user->id){
+                    if ($request->password && $request->password_confirm) {
+                        if ($request->password === $request->password_confirm) {
+                            $manager->password = md5($request->password . 'KZ.UNIDADE.2016');
+                        }
+                    }
                     $manager->email = $request->email;
                     $manager->phone = $request->phone;
                     $manager->save();

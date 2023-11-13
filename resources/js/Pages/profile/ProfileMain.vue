@@ -15,7 +15,7 @@
                         <phone-field outlined dense v-model="user.phone"/>
                     </div>
 
-                    <template v-if="user.role === 'liner'">
+                    <template v-if="user.role === 'operator'">
                         <div class="col col-md-12 col-xs-12">
                             <q-input label="Пароль мобильного приложения" outlined dense
                                      :type="(!isLock) ? 'password' : 'text'"
