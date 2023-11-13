@@ -130,8 +130,7 @@
                 <template v-if="user && user.role==='moderator'">
                     <q-separator class="q-my-lg"/>
                     <div class="q-px-md q-mt-lg text-body1 text-weight-bold">Файлы предзаявки</div>
-                    <PreorderFile :data="item.file" v-if="showFile" :files="item.files" :blocked="blocked"
-                                  :blockedVideo="item.blockedVideo"/>
+                    <PreorderFile :data="item.file" v-if="showFile" :blocked="true" />
                 </template>
             </div>
 

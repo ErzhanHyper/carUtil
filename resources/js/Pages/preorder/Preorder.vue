@@ -10,7 +10,7 @@
         </div>
     </div>
 
-    <q-card class="q-mb-none q-mt-md" bordered square flat>
+    <q-card class="q-mb-none q-mt-md" bordered square flat v-if="user.role === 'moderator'">
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">

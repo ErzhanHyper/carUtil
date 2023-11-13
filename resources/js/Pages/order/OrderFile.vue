@@ -38,7 +38,10 @@
                  v-for="(doc, i) in filesDoc"
                  :key="i">
                 <q-icon :name="(doc.file_type_id === 29) ? 'videocam' : 'insert_drive_file'" class="q-mr-sm" size="sm"></q-icon>
-                <a :href="'/storage/uploads/order/files/' + doc.order_id + '/' + doc.original_name" class="text-dark">
+                <a :href="'/storage/uploads/order/files/' + doc.order_id + '/' + doc.original_name" class="text-dark" v-if="doc.file_type_id !== 29">
+                    {{ getFileTypeTitle(doc.file_type_id) }}
+                </a>
+                <a href="#" @click="showFileDialog = true" class="text-indigo-5 text-weight-bold text-body1" v-if="doc.file_type_id === 29">
                     {{ getFileTypeTitle(doc.file_type_id) }}
                 </a>
                 <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
@@ -71,6 +74,24 @@
 
     </q-card>
 
+    <q-dialog v-model="showFileDialog">
+        <q-card>
+            <q-card-section class="flex q-py-sm">
+                <div class="text-h6">Файлы</div>
+                <q-space/>
+                <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-section style="max-height: 80vh" class="scroll">
+                <video :src="'/storage/uploads/order/files/' + videoFile.order_id + '/' + videoFile.original_name" controls style="width: 100%"/>
+            </q-card-section>
+
+            <q-separator />
+        </q-card>
+    </q-dialog>
+
 </template>
 
 <script>
@@ -96,6 +117,9 @@ export default {
 
     data() {
         return {
+            videoFile: {},
+            showFileDialog: false,
+
             filesAll: [],
             options_photo: [],
             options_file: [],
@@ -129,6 +153,9 @@ export default {
                             this.filesPhoto.push(el)
                         } else {
                             this.filesDoc.push(el)
+                            if(el.file_type_id === 29){
+                                this.videoFile = el
+                            }
                         }
                     })
                 }else{
@@ -136,8 +163,10 @@ export default {
                         if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11) {
                             this.filesPhoto.push(el)
                         } else {
-                            console.log(el)
                             this.filesDoc.push(el)
+                            if(el.file_type_id === 29){
+                                this.videoFile = el
+                            }
                         }
                     })
                 }

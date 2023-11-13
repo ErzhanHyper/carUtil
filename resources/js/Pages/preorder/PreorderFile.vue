@@ -85,13 +85,11 @@
             >
                 <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" v-for="(slide, i) in filesPhoto"
                                   :key="i">
-                    <q-img :src="'/storage/uploads/preorder/files/' + slide.preorder_id + '/' + slide.original_name"
-                           class="full-height"/>
+                    <q-img :src="'/storage/uploads/preorder/files/' + slide.preorder_id + '/' + slide.original_name" class="full-height"/>
                     <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
                     <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
                            style="position:absolute;right:7px;top:7px" v-if="!blocked"
-                           @click="deleteFile({ type: 'photo', id: slide.id })"
-                    />
+                           @click="deleteFile({ type: 'photo', id: slide.id })" />
                 </q-carousel-slide>
 
             </q-carousel>
