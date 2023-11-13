@@ -28,7 +28,7 @@
                 </div>
 
                 <q-space class="q-my-sm" />
-                <div v-if="user.role === 'operator' && item.approve.id === 3 && !item.videoUploaded && showCameraBtn">
+                <div v-if="user.role === 'operator' && item.approve.id === 3 && showCameraBtn">
                 <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" />
                 </div>
             </div>

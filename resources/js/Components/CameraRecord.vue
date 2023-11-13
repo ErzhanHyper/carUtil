@@ -9,9 +9,9 @@
             </q-bar>
 
             <q-card-section class="q-pt-none q-px-none flex column items-start justify-center" style="height: calc(100vh - 32px); " id="videoBlock" >
-                <!--                <button class="btn btn-primary btn-sm" @click="snapshot">Create snapshot</button>-->
+
                 <div style="position: absolute;top: 0; width: 100%;height: 80%">
-                    <div v-if="recording" style="position: absolute; top: -1px;width:100%;color: #fff;background: rgba(0,0,0,.3);padding: 2px 10px" class="text-center">{{ timer.minutes+ ':' +timer.seconds }}</div>
+                    <div v-if="recording" style="position: absolute; top: -1px;width:100%;color: #fff;background: rgba(0,0,0,.3);padding: 2px 10px" class="text-center">{{formattedElapsedTime}}</div>
                     <video ref="video" class="camera-stream" style="width: 100%;height: 100%" />
                 </div>
                 <div style="position: absolute; bottom: 0;left: 0;width: 100%; height: 20%" class="flex items-center" >
@@ -40,12 +40,14 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, watchEffect, onMounted } from 'vue'
 import Camera from "simple-vue-camera";
-import FileDownload from "js-file-download";
 import {sendVideoOrder} from "../services/order";
 import {Notify} from "quasar";
+import { useTimer } from 'vue-timer-hook';
+
 export default {
+
     props: ['id'],
     components: {
         Camera
@@ -60,14 +62,11 @@ export default {
 
     data() {
         return {
+            time: new Date(),
             timer: {
-                minutes: 0,
-                seconds:0,
-                startTime: 0,
-                elapsedTime: 0
             },
-            loading: false,
             elapsedTime:0,
+            loading: false,
             recording: false,
             showSend: false,
             mediaStream: null,
@@ -80,7 +79,6 @@ export default {
             },
         }
     },
-
     methods: {
 
         switchCamera() {
@@ -96,7 +94,6 @@ export default {
         },
 
         startCamera(){
-            this.startTimer()
             navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: this.cameraMode, aspectRatio: 16/9 }}).then(mediaStream => {
                 this.$refs.video.srcObject = mediaStream;
                 this.$refs.video.play()
@@ -111,6 +108,7 @@ export default {
             this.recording = true
             this.mediaRecorder.start();
             this.mediaRecorder.ondataavailable = this.handleDataAvailable;
+            this.startTimer()
         },
 
         handleDataAvailable(event) {
@@ -151,31 +149,34 @@ export default {
         },
 
         stopRecording() {
-            this.timer.seconds = 0
-            this.timer.minutes= 0
-            this.timer.elapsedTime= 0
-            this.timer.startTime= Date.now()
-            this.elapsedTime = 0
-
             this.showSend = true
             this.recording = false
             this.mediaRecorder.stop();
-            console.log("Recorded Blobs: ", this.recordedBlobs);
+            this.stopTimer()
+            this.resetTimer()
         },
 
         startTimer() {
-            //reset start time
-            this.timer.startTime = Date.now();
-            // run `setInterval()` and save the ID
-            this.timer.intervalId = setInterval(() => {
-                //calculate elapsed time
-               this.elapsedTime = Date.now() - this.timer.startTime + this.timer.elapsedTime
-                //calculate different time measurements based on elapsed time
-                this.timer.seconds = parseInt((this.elapsedTime/1000)%60)
-                this.timer.minutes = parseInt((this.elapsedTime/(1000*60))%60)
-            }, 100);
+            this.timer = setInterval(() => {
+                this.elapsedTime += 1000;
+            }, 1000);
         },
+        stopTimer() {
+            clearInterval(this.timer);
+        },
+        resetTimer() {
+            this.elapsedTime = 0;
+        }
 
+    },
+
+    computed: {
+        formattedElapsedTime() {
+            const date = new Date(null);
+            date.setSeconds(this.elapsedTime / 1000);
+            const utc = date.toUTCString();
+            return utc.substr(utc.indexOf(":") - 2, 8);
+        }
     },
 
     mounted(){
