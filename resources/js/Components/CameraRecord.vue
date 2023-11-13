@@ -121,7 +121,7 @@ export default {
             this.loading = true
             // FileDownload(new Blob(this.recordedBlobs, { type: "video/webm" }))
 
-            let blob = new Blob(this.recordedBlobs, { type: "video/mp4" })
+            let blob = new Blob(this.recordedBlobs, { type: "video/webm" })
             let formData = new FormData();
             formData.append('voice', blob);
             sendVideoOrder(this.id, formData).then(res => {
