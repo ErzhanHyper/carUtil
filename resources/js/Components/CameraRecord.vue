@@ -11,7 +11,7 @@
             <q-card-section class="q-pt-none q-px-none flex column items-start justify-center" style="height: calc(100vh - 32px); " id="videoBlock" >
 
                 <div style="position: absolute;top: 0; width: 100%;height: 80%">
-                    <div v-if="recording" style="position: absolute; top: -1px;width:100%;color: #fff;background: rgba(0,0,0,.3);padding: 2px 10px" class="text-center">{{formattedElapsedTime}}</div>
+                    <div v-if="recording" style="position: absolute; top: -1px;width:100%;color: #fff;background: rgba(255,0,0,.5);padding: 2px 10px" class="text-center">{{formattedElapsedTime}}</div>
                     <video ref="video" class="camera-stream" style="width: 100%;height: 100%" />
                 </div>
                 <div style="position: absolute; bottom: 0;left: 0;width: 100%; height: 20%" class="flex items-center" >
@@ -45,6 +45,7 @@ import Camera from "simple-vue-camera";
 import {sendVideoOrder} from "../services/order";
 import {Notify} from "quasar";
 import { useTimer } from 'vue-timer-hook';
+import FileDownload from "js-file-download";
 
 export default {
 
@@ -119,27 +120,27 @@ export default {
 
         sendData(){
             this.loading = true
-            // FileDownload(new Blob(this.recordedBlobs, { type: "video/webm" }))
-
-            let blob = new Blob(this.recordedBlobs, { type: "video/webm" })
-            let formData = new FormData();
-            formData.append('voice', blob);
-            sendVideoOrder(this.id, formData).then(res => {
-                if(res){
-                    if(res.success === true){
-                        this.$emitter.emit('VideoSendEvent')
+            if(this.recordedBlobs.length > 0) {
+                let blob = new Blob(this.recordedBlobs, {type: "video/webm"})
+                let formData = new FormData();
+                formData.append('voice', blob);
+                sendVideoOrder(this.id, formData).then(res => {
+                    if (res) {
+                        if (res.success === true) {
+                            this.$emitter.emit('VideoSendEvent')
+                        }
+                        if (res.message !== '') {
+                            Notify.create({
+                                message: res.message,
+                                position: 'bottom-right',
+                                type: res.success === true ? 'positive' : 'warning'
+                            })
+                        }
                     }
-                    if (res.message !== '') {
-                        Notify.create({
-                            message: res.message,
-                            position: 'bottom-right',
-                            type: res.success === true ? 'positive' : 'warning'
-                        })
-                    }
-                }
-            }).finally(() => {
-                this.loading = false
-            })
+                }).finally(() => {
+                    this.loading = false
+                })
+            }
         },
 
         stopCamera(){

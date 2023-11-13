@@ -172,24 +172,27 @@ class OrderService
         }
 
         if($upload) {
-            $extension = explode('/', $_FILES['voice']['type']);
-            $original_name = basename(md5($_FILES['voice']['tmp_name'].time())).'.'.$extension[1];
 
-            $path = public_path('storage/uploads/order/files/'.$order->id.'/'.$original_name);
-            move_uploaded_file($_FILES['voice']['tmp_name'], $path);
+            if(isset($_FILES['voice']) && $_FILES['voice']['error'] === 0) {
+                $extension = explode('/', $_FILES['voice']['type']);
+                $original_name = basename(md5($_FILES['voice']['tmp_name'] . time())) . '.' . $extension[1];
 
-            $file = new File();
-            $file->order_id = $order->id;
-            $file->car_id = $car->id;
-            $file->file_type_id = $car->id;
-            $file->file_type_id = 29;
-            $file->client_id = $order->client_id;
-            $file->ext = $extension[1];
-            $file->original_name = $original_name;
-            $file->save();
+                $path = public_path('storage/uploads/order/files/' . $order->id . '/' . $original_name);
+                move_uploaded_file($_FILES['voice']['tmp_name'], $path);
 
-            $message = 'Видеозапись успешно отправлена';
-            $success = true;
+                $file = new File();
+                $file->order_id = $order->id;
+                $file->car_id = $car->id;
+                $file->file_type_id = $car->id;
+                $file->file_type_id = 29;
+                $file->client_id = $order->client_id;
+                $file->ext = $extension[1];
+                $file->original_name = $original_name;
+                $file->save();
+
+                $message = 'Видеозапись успешно отправлена';
+                $success = true;
+            }
         }
 
         return [
