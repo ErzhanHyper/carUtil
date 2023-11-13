@@ -83,6 +83,7 @@ class FileController extends Controller
             $file->client_id = $order->client_id;
             $file->ext = $extension;
             $file->original_name = $original_name;
+            $file->created_at = time();
             $file->save();
         }
 

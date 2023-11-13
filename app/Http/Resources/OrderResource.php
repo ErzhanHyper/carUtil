@@ -43,8 +43,6 @@ class OrderResource extends JsonResource
             default => '',
         };
 
-        $find_video = File::where('order_id', $this->id)->where('file_type_id', 29)->first();
-
         $booking = [];
         $files = [];
         $categories = [];
@@ -118,7 +116,7 @@ class OrderResource extends JsonResource
             'booking' => $booking,
             'files' => $files,
             'signed' => false,
-            'setCert' => ($this->approve === 3 && $this->status === 5 && $find_video && $user->role === 'moderator' && $this->car->certificate == '') ? true : false,
+            'setCert' => ($this->approve === 3 && $this->status === 5 && $video && $user->role === 'moderator' && $this->car->certificate == '') ? true : false,
             'recycle_type' => $recycle_type,
             'categories' => $categories,
             'transfer' => $this->transfer,

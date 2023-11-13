@@ -77,7 +77,7 @@
 
                     <q-btn :loading="loading" square size="12px" color="light-green"
                            label="Подписать и отправить модератору" @click="sendData('sign_uploaded_video')"
-                           icon="send" v-if="user.role === 'operator' && item.status.id === 4"></q-btn>
+                           icon="send" v-if="user.role === 'operator' && item.status.id === 4 && item.videoUploaded"></q-btn>
                 </div>
             </div>
         </div>
@@ -125,7 +125,7 @@
             <div class="col col-md-4 col-xs-12">
                 <order-document v-if="showOperatorAction" class="q-mb-md" :order_id="item.id"/>
                 <OrderFile :data="item.file" v-if="showFile" :blocked="blockedFiles"
-                           :blockedVideo="item.status.id === 5 || (item.status.id !== 5 && user.role === 'moderator')" :recycleType="item.recycle_type === 'ВЭТС' ? 1 : 2"/>
+                           :blockedVideo="item.status.id !== 4 || (item.status.id !== 5 && user.role === 'moderator')" :recycleType="item.recycle_type === 'ВЭТС' ? 1 : 2"/>
 
                 <template v-if="user && user.role==='moderator'">
                     <q-separator class="q-my-lg"/>
