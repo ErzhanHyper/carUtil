@@ -29,7 +29,7 @@
                                 </q-form>
                             </q-card-section>
 
-                            <q-card-section id="mobileAuth">
+                            <q-card-section id="mobileAuth" v-if="showMobileForm">
 
                                 <q-form class="q-gutter-md  q-mt-md">
                                     <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum"  />
@@ -63,6 +63,8 @@ export default {
         return {
             loading: false,
             showBanner: false,
+            showMobileForm: false,
+
             errors: [],
 
             idnum: '',
@@ -201,6 +203,12 @@ export default {
 
     mounted() {
         this.getTokens()
+    },
+
+    created() {
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            this.showMobileForm = true
+        }
     }
 }
 

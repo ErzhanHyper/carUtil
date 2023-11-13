@@ -28,7 +28,9 @@
                 </div>
 
                 <q-space class="q-my-sm" />
-                <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" v-if="user.role === 'operator' && item.approve.id === 3 && !item.videoUploaded"/>
+                <div v-if="user.role === 'operator' && item.approve.id === 3 && !item.videoUploaded && showCameraBtn">
+                <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" />
+                </div>
             </div>
 
             <div class="q-mb-md">
@@ -214,6 +216,7 @@ export default {
 
     data() {
         return {
+            showCameraBtn: false,
             showDeleteDialog: false,
             showCamera: false,
             disabled: true,
@@ -393,6 +396,9 @@ export default {
 
     created() {
         this.getData()
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            this.showCameraBtn = true
+        }
     },
 
     mounted() {

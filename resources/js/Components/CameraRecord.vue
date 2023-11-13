@@ -1,7 +1,7 @@
 <template>
 
         <q-card style="background: rgba(0,0,0,.9);">
-            <q-bar>
+            <q-bar class="bg-white">
                 <q-space />
                 <q-btn dense flat icon="close" v-close-popup @click="stopCamera">
                     <q-tooltip class="bg-white text-primary">Close</q-tooltip>
