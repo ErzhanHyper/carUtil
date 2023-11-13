@@ -256,7 +256,7 @@ export default {
                             this.getData()
                             Notify.create({
                                 message: res.message,
-                                position: 'right',
+                                position: 'bottom-right',
                                 type: 'positive'
                             })
                         }

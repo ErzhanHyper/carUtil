@@ -88,6 +88,17 @@ export function revisionOrder(id, params) {
     })
 }
 
+export function revisionVideoOrder(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/order/'+id+'/revisionVideo', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function executeRunOrder(id) {
     return new Promise((resolve, reject) => {
         api.put('/order/'+id+'/executeRun').then(response => {

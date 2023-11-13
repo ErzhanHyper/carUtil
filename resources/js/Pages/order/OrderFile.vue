@@ -42,7 +42,7 @@
                     {{ getFileTypeTitle(doc.file_type_id) }}
                 </a>
                 <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
-                        v-if="(!blocked || (blocked && doc.file_type_id === 29)) && !blockedVideo" @click="deleteFile({type: 'doc', id: doc.id })">
+                        v-if="(!blocked || (blocked && doc.file_type_id === 29)) && !blockedVideo" @click="deleteFile({doc: doc, type: 'doc', id: doc.id })">
                 </q-icon>
             </div>
 
@@ -209,7 +209,9 @@ export default {
                 order_id: this.data.order_id,
                 file_id: value.id
             }).then(() => {
+                if(value.doc.file_type_id === 29){
                 this.$emitter.emit('orderFileEvent')
+                }
             });
         },
 

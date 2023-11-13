@@ -105,6 +105,23 @@ class OrderApproveService
         return ['revision'];
     }
 
+    public function revisionVideo($request, $id)
+    {
+        $user = app(AuthService::class)->auth();
+        $order = Order::find($id);
+        $order->status = 4;
+        $order->save();
+
+        $this->storeHistory(new Request([
+            'action' => 'revisionVideo',
+            'order_id' => $order->id,
+            'comment' => $request->comment,
+            'user_id' => $user->id,
+        ]));
+
+        return ['revisionVideo'];
+    }
+
     public function storeHistory($request)
     {
         $history = new OrderHistory();

@@ -18,7 +18,7 @@
                                     </span>
                             </q-banner>
 
-                            <q-card-section id="desktopAuth">
+                            <q-card-section id="desktopAuth" v-if="!showMobileForm">
                                 <q-form class="q-gutter-md flex justify-between no-wrap">
                                     <q-select :options="options" label="Выберите тип применяемой ЭЦП"
                                               v-model="auth_type"

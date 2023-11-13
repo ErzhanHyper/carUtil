@@ -35,6 +35,14 @@
                        @click="issueCert()"
                        v-if="showCertAction">
                 </q-btn>
+
+                <q-btn square size="12px"
+                       color="orange-5"
+                       label="На доработку"
+                       @click="send('video')"
+                       icon="keyboard_return"
+                       v-if="showCertAction">
+                </q-btn>
             </div>
 
             <div class="q-gutter-sm">
@@ -51,6 +59,7 @@
             </q-card-section>
             <q-card-actions>
                 <q-space/>
+                <q-btn label="Отправить" color="primary" @click="videoAction" :loading="loading2" v-if="action === 'video'"/>
                 <q-btn label="Отправить" color="primary" @click="declineAction" :loading="loading2" v-if="action === 'decline'"/>
                 <q-btn label="Отправить" color="primary" @click="revisionAction" :loading="loading2" v-if="action === 'revision'"/>
             </q-card-actions>
@@ -65,7 +74,7 @@
 
 <script>
 import {signData} from "../../services/sign";
-import {storeCertOrder, declineOrder, revisionOrder, approveOrder} from "../../services/order";
+import {storeCertOrder, declineOrder, revisionOrder, approveOrder, revisionVideoOrder} from "../../services/order";
 import OrderKap from "@/Pages/order/OrderKap.vue";
 import {Notify} from "quasar";
 import {mapGetters} from "vuex";
@@ -148,6 +157,18 @@ export default {
         revisionAction() {
             this.loading2 = true
             revisionOrder(this.order_id, {
+                comment: this.comment,
+            }).then(() => {
+                this.commentDialog = false
+                this.$emitter.emit('orderActionEvent')
+            }).finally(() => {
+                this.loading2 = false
+            })
+        },
+
+        videoAction() {
+            this.loading2 = true
+            revisionVideoOrder(this.order_id, {
                 comment: this.comment,
             }).then(() => {
                 this.commentDialog = false

@@ -15,7 +15,7 @@
                         @click="statementDoc"
                 />
                 <q-btn :loading="loading2" square size="12px" dense unelevated color="indigo-1" class="text-indigo-10" flat label="Сформировать акт комплектности"
-                       icon-right="edit_note" @click="showComplectDialog = true"></q-btn>
+                       icon-right="edit_note" @click="showComplectDialog = true" ></q-btn>
                 <q-btn :loading="loading3" square size="12px" unelevated color="indigo-1" class="text-indigo-10" flat dense label="Сформировать акт приема-передачи"
                        icon-right="edit_note" @click="contractDoc"></q-btn>
             </div>
@@ -50,14 +50,14 @@
             <q-separator />
 
             <q-card-actions align="right">
-                <q-btn  label="Сохранить" color="blue-8" v-close-popup />
+                <q-btn  label="Сохранить" color="blue-8" v-close-popup @click="genComplect" />
             </q-card-actions>
         </q-card>
     </q-dialog>
 </template>
 
 <script>
-import {getContractDoc, getStatementDoc} from "../../services/document";
+import {getComplectApp, getContractDoc, getStatementDoc} from "../../services/document";
 import {generateOrderPFS} from "../../services/file";
 import FileDownload from "js-file-download";
 
@@ -70,6 +70,7 @@ export default {
             loading1: false,
             loading2: false,
             loading3: false,
+            loading4: false,
 
             showComplectDialog: false,
 
@@ -91,6 +92,16 @@ export default {
     },
 
     methods: {
+
+        genComplect() {
+            this.loading2 = true
+            getComplectApp(this.order_id, {params: {complect: this.item}, responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'statement.pdf')
+            }).finally(() => {
+                this.loading2 = false
+            })
+        },
+
         statementDoc(){
             this.loading1 = true
             getStatementDoc(this.order_id, {responseType: 'arraybuffer'}).then(res => {

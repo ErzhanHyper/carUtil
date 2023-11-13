@@ -20,7 +20,7 @@
 
                 <div class="text-caption" v-if="item.executor">Исполнитель: {{ item.executor.title }}</div>
 
-                <div :class="'text-deep-orange'" v-if="item.approve.id === 3 && !item.videoUploaded">
+                <div :class="'text-deep-orange'" v-if="item.approve.id === 3 && item.status.id === 4">
                     В ожидании получения видеозаписи ТС/СХТ
                     <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" v-if="user.role === 'operator'">
                         Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
@@ -28,7 +28,7 @@
                 </div>
 
                 <q-space class="q-my-sm" />
-                <div v-if="user.role === 'operator' && item.approve.id === 3 && showCameraBtn">
+                <div v-if="user.role === 'operator' && item.approve.id === 3 && showCameraBtn && !item.videoUploaded">
                 <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" />
                 </div>
             </div>
@@ -84,17 +84,6 @@
 
         <order-action :order_id="item.id" :showCertAction="showCertAction" :showApproveAction="showModeratorAction" :data="{grnz: item.car.grnz, vin: item.car.vin, iinbin: item.client.idnum}"/>
 
-        <div class="q-mt-md" v-if="item.comment && item.comment.length > 0 && user && user.role === 'liner'">
-            <q-banner class="q-mb-sm bg-blue-grey-1">
-                <div class="text-caption">Комментарий:</div>
-                <div>{{ item.comment[0].action }}</div>
-                <div>{{ item.comment[0].text }}</div>
-                <div class="text-caption">
-                    {{ $moment.unix(item.comment[0].created_at).format('YYYY-MM-DD HH:mm') }}
-                </div>
-            </q-banner>
-        </div>
-
         <div class="row q-col-gutter-md">
 
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
@@ -136,7 +125,7 @@
             <div class="col col-md-4 col-xs-12">
                 <order-document v-if="showOperatorAction" class="q-mb-md" :order_id="item.id"/>
                 <OrderFile :data="item.file" v-if="showFile" :blocked="blockedFiles"
-                           :blockedVideo="item.status.id === 3" :recycleType="item.recycle_type === 'ВЭТС' ? 1 : 2"/>
+                           :blockedVideo="item.status.id === 5 || (item.status.id !== 5 && user.role === 'moderator')" :recycleType="item.recycle_type === 'ВЭТС' ? 1 : 2"/>
 
                 <template v-if="user && user.role==='moderator'">
                     <q-separator class="q-my-lg"/>

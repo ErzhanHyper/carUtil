@@ -53,3 +53,16 @@ export function getSellApplication(id, params) {
         })
     })
 }
+
+export function getComplectApp(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('/document/order/' + id + '/complect', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+

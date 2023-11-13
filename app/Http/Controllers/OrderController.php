@@ -65,6 +65,12 @@ class OrderController extends Controller
         return response()->json($data);
     }
 
+    public function revisionVideo(Request $request, $id)
+    {
+        $data = app(OrderApproveService::class)->revisionVideo($request, $id);
+        return response()->json($data);
+    }
+
     public function executeRun($id)
     {
         $data = app(OrderService::class)->executeRun($id);

@@ -39,6 +39,6 @@ class Order extends Model
 
     public function history()
     {
-        return $this->hasMany(OrderHistory::class, 'order_id', 'id');
+        return $this->hasMany(OrderHistory::class, 'order_id', 'id')->orderByDesc('created_at');
     }
 }

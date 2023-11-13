@@ -9,7 +9,7 @@
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-12 col-xs-12">
-                    <factory-field v-model="item.factory_id" :model-value="item.factory_id" :readonly="blocked" :loading="loading" />
+                    <factory-field v-model="item.factory_id" :model-value="item.factory_id" :readonly="blocked || disabled" :loading="loading" />
                 </div>
 
                 <div class="col col-md-12 col-xs-12">
@@ -17,7 +17,7 @@
                         <template v-slot:prepend>
                             <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked" >
+                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked || disabled" >
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Закрыть" color="primary" flat/>
                                         </div>
@@ -35,7 +35,7 @@
                                             format24h
                                             flat
                                             bordered
-                                            :readonly="blocked"
+                                            :readonly="blocked || disabled"
                                     >
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Закрыть" color="primary" flat/>

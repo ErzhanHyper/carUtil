@@ -71,6 +71,8 @@ Route::prefix('app')->group(function () {
                 Route::put('{id}/approve', [\App\Http\Controllers\OrderController::class, 'approve']);
                 Route::put('{id}/decline', [\App\Http\Controllers\OrderController::class, 'decline']);
                 Route::put('{id}/revision', [\App\Http\Controllers\OrderController::class, 'revision']);
+                Route::put('{id}/revisionVideo', [\App\Http\Controllers\OrderController::class, 'revisionVideo']);
+
                 Route::post('/cert', [\App\Http\Controllers\OrderController::class, 'cert']);
             });
         });
@@ -129,6 +131,8 @@ Route::prefix('app')->group(function () {
         Route::prefix('document')->group(function () {
             Route::get('/order/{id}/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
             Route::get('/order/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getContract']);
+            Route::get('/order/{id}/complect', [\App\Http\Controllers\DocumentController::class, 'getComplect']);
+
             Route::get('/exchange/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getExchangeApplication']);
             Route::get('/transfer/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getTransferContract']);
             Route::get('/sell/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getSellApplication']);

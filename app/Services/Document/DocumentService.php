@@ -180,4 +180,50 @@ class DocumentService
             return $pdf->download('contract.pdf');
         }
     }
+
+
+    public function generateComplect($id)
+    {
+        $auth = app(AuthService::class)->auth();
+        $data = [];
+        $order = Order::find($id);
+        $car = Car::where('order_id', $order->id)->first();
+        $client = Client::find($order->client_id);
+
+        $data['order_num'] = $order->id;
+        $data['order_date'] = date("d.m.Y", $order->created);
+        $data['car_num'] = $car->id;
+        $data['car_vin'] = $car->id;
+        $data['car_category'] = $car->category->title;
+        $data['region'] = $client->region->title;
+        $data['region_num'] = $client->region->id;
+        $data['operator_name'] = $auth->title;
+        $data['operator_name_for_docs'] = $auth->for_docs;
+        $data['operator_base'] = $auth->base;
+        $data['proxy'] = $client->proxy;
+        $data['client_address'] = $client->address;
+        $data['client_phone'] = $client->phone;
+        $data['client_name'] = $client->title;
+        $data['client_idnum'] = $client->idnum;
+        $data['ud_num'] = $client->ud_num;
+        $data['ud_expired'] = $client->ud_expired;
+        $data['ud_issued'] = $client->ud_issued->title;
+        $data['operator_company'] = 'АО «Жасыл Даму»';
+        $data['operator_req'] = 'АО «Жасыл Даму»';
+
+        if($car->category->title == "M1") {
+            $pdf = PDF::loadView('templates.annex_act_cert_m1', compact('data'));
+        } else if($car->category->title == "M2" || $car->category->title == "M3") {
+            $pdf = PDF::loadView('templates.annex_act_cert_m2m3', compact('data'));
+        } else if($car->category->title == "tractor" ) {
+            $pdf = PDF::loadView('templates.annex_act_cert_tractor', compact('data'));
+        } else if($car->category->title == "combain" ) {
+            $pdf = PDF::loadView('templates.annex_act_cert_combain', compact('data'));
+        } else {
+            $pdf = PDF::loadView('templates.annex_act_cert_n', compact('data'));
+        }
+
+        $pdf->setPaper('a4', 'portrait')->setWarnings(false);
+        return $pdf->download('complect.pdf');
+    }
 }
