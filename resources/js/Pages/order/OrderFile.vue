@@ -77,7 +77,7 @@
     <q-dialog v-model="showFileDialog">
         <q-card>
             <q-card-section class="flex q-py-sm">
-                <div class="text-h6">Файлы</div>
+                <div class="text-h6">Видеозапись</div>
                 <q-space/>
                 <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
             </q-card-section>
