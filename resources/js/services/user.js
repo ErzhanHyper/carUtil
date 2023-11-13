@@ -80,7 +80,7 @@ export function storeUser(params) {
 
 export function updateUser(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/user/'+id+'/update', params).then(response => {
+        api.put('/user/'+id+'/update', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject(e)

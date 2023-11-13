@@ -32,7 +32,7 @@
                             <q-card-section id="mobileAuth" v-if="showMobileForm">
 
                                 <q-form class="q-gutter-md  q-mt-md">
-                                    <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum"  />
+                                    <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum" type="number" />
                                     <q-input label="Пароль" outlined dense type="password" v-model="password" autocomplete="off"
                                              :model-value="password"/>
 

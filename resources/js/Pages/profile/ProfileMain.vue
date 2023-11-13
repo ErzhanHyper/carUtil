@@ -58,14 +58,14 @@
         </div>
 
         <div class="q-mt-md">
-            <q-btn color="primary" icon="save" label="Сохранить" @click="updateData"/>
+            <q-btn color="primary" icon="save" label="Сохранить" @click="updateData" :loading="loading"/>
         </div>
     </div>
 
 </template>
 
 <script>
-import {getUser, updateUser} from "../../services/user";
+import {getUser, updateProfile} from "../../services/user";
 import {Notify} from "quasar";
 
 import EmailField from "../../Components/Fields/EmailField.vue";
@@ -79,6 +79,7 @@ export default {
         return {
             isLock: false,
             show: false,
+            loading: false,
             user: {
                 id: null,
                 phone: '',
@@ -113,7 +114,8 @@ export default {
 
 
         updateData() {
-            updateUser(this.user).then(() => {
+            this.loading = true
+            updateProfile(this.user).then(() => {
                 this.getData()
 
                 this.user.password = ''
@@ -125,6 +127,8 @@ export default {
                     type: 'positive'
                 })
 
+            }).finally(() => {
+                this.loading = false
             })
         }
     },
