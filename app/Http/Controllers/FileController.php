@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FileResource;
 use App\Models\AgroFile;
 use App\Models\Car;
 use App\Models\CarFile;
@@ -100,7 +101,7 @@ class FileController extends Controller
             $files = [];
 
             if ($order) {
-                $files = File::where('order_id', $order->id)->get();
+                $files = FileResource::collection(File::where('order_id', $order->id)->get());
             }
 
             return response()->json($files);

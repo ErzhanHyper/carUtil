@@ -34,20 +34,21 @@
 
         <q-card-section>
 
-            <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
-                 v-for="(doc, i) in filesDoc"
-                 :key="i">
-                <q-icon :name="(doc.file_type_id === 29) ? 'videocam' : 'insert_drive_file'" class="q-mr-sm" size="sm"></q-icon>
-                <a :href="'/storage/uploads/order/files/' + doc.order_id + '/' + doc.original_name" class="text-dark" v-if="doc.file_type_id !== 29">
-                    {{ getFileTypeTitle(doc.file_type_id) }}
-                </a>
-                <a href="#" @click="showFileDialog = true" class="text-indigo-5 text-weight-bold text-body1" v-if="doc.file_type_id === 29">
-                    {{ getFileTypeTitle(doc.file_type_id) }}
-                </a>
-                <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
-                        v-if="(!blocked || (blocked && doc.file_type_id === 29 && !blockedVideo))" @click="deleteFile({doc: doc, type: 'doc', id: doc.id })">
-                </q-icon>
-            </div>
+            <template v-for="(doc, i) in filesDoc" :key="i">
+                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10">
+                    <q-icon :name="(doc.file_type_id === 29) ? 'videocam' : 'insert_drive_file'" class="q-mr-sm" size="sm"></q-icon>
+                    <a :href="'/storage/uploads/order/files/' + doc.order_id + '/' + doc.original_name" class="text-dark" v-if="doc.file_type_id !== 29">
+                        {{ getFileTypeTitle(doc.file_type_id) }}
+                    </a>
+                    <a href="#" @click="showFileDialog = true" class="text-indigo-5 text-weight-bold text-body1" v-if="doc.file_type_id === 29">
+                        {{ getFileTypeTitle(doc.file_type_id) }}
+                        <div class="text-caption">({{ doc.created_at }})</div>
+                    </a>
+                    <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
+                            v-if="(!blocked || (blocked && doc.file_type_id === 29 && !blockedVideo))" @click="deleteFile({doc: doc, type: 'doc', id: doc.id })">
+                    </q-icon>
+                </div>
+            </template>
 
             <q-carousel
                 animated

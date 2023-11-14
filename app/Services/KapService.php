@@ -38,7 +38,7 @@ class KapService
                     'k_status' => $item->k_status,
                     'username' => $user ? $user->title : '',
                     'record' => $this->convertXmlDatToArray($record),
-                    'created_at' => date('d.m.Y', $item->created_at)
+                    'created_at' => date('d.m.Y H:i', $item->created_at)
                 ];
             }
         }
@@ -68,10 +68,12 @@ class KapService
 
             if ($preorder_id) {
                 $preorder = PreOrderCar::find($preorder_id);
-                $client = Client::find($preorder->client_id);
-                if ($client) {
-                    $message = 'Клиент найден';
-                    $kap_request = KapRequest::where('iinbin', $client->idnum)->orderByDesc('created_at')->first();
+                if($preorder) {
+                    $client = Client::find($preorder->client_id);
+                    if ($client) {
+                        $message = 'Клиент найден';
+                        $kap_request = KapRequest::where('iinbin', $client->idnum)->orderByDesc('created_at')->first();
+                    }
                 }
             }
 

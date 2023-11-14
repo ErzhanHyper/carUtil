@@ -3,7 +3,8 @@
               :options="options"
               map-options
               emit-value
-              option-label="title_ru" option-value="id" :readonly="blocked"/>
+              option-label="title_ru" option-value="id" :readonly="blocked"
+    :loading="options.length === 0"/>
 </template>
 
 <script>

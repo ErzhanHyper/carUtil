@@ -48,7 +48,7 @@ class OrderResource extends JsonResource
 
         if($this->car->car_type_id === 1 || $this->car->car_type_id === 2){
             $vehicleType = 'car';
-            $files = CarFile::where('preorder_id', $this->preorder->id)->get();
+            $files = CarFileResource::collection(CarFile::where('preorder_id', $this->preorder->id)->get());
         }else{
             $vehicleType = 'agro';
             $files = AgroFile::where('preorder_id', $this->preorder->id)->get();
@@ -80,6 +80,7 @@ class OrderResource extends JsonResource
             'sended_to_pay' => date('d.m.Y H:i', $this->sended_to_pay),
             'preorder_id' => $this->preorder ? $this->preorder->id : null,
             'booking' => $booking,
+            'blocked' => $this->blocked,
             'files' => $files,
             'categories' => $categories,
             'transfer' => $this->transfer,

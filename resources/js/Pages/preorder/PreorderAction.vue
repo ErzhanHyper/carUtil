@@ -9,6 +9,7 @@
         <q-btn square size="12px" color="red-5" label="Отклонить" @click="send('decline')"
                icon="block"></q-btn>
         </template>
+
     </div>
 
     <q-dialog v-model="commentDialog">
@@ -37,7 +38,6 @@ export default {
 
     data() {
         return{
-            kapDialog: false,
             loading: false,
             loading2: false,
             commentDialog: false,

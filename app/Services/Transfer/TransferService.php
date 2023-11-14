@@ -109,7 +109,7 @@ class TransferService
         if($auth->role === 'liner' && $client) {
             $order = Order::find($request->order_id);
             $transfer = TransferOrder::where('order_id', $order->id)->first();
-            if (!$transfer && $order->blocked === 0) {
+            if (!$transfer && $order->blocked === 0 && $order->status === 0) {
                 $transfer = new TransferOrder;
                 $transfer->order_id = $order->id;
                 $transfer->client_id = $client->id;

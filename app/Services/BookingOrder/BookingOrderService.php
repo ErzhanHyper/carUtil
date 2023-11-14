@@ -43,7 +43,12 @@ class BookingOrderService
                         $data->factory_id = $factory_id;
                         $data->datetime = $datetime;
                         $data->reserve = 1;
-                        $data->save();
+                        if($data->save()){
+                            $preorder->booking_id = $data->id;
+                            $preorder->factory_id = $factory_id;
+                            $preorder->save();
+                        }
+
                     } else {
                         if ($preorder->booking_id !== $data->id) {
                             throw new InvalidArgumentException(json_encode(['booking' => ['Данное время уже забронирована']]));

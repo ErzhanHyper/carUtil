@@ -43,22 +43,19 @@
 
             <order-execute-action :order_id="item.id" :permissions="{start: permissions.showExecuteAction, stop: permissions.showApproveAction && item.executor}"/>
         </div>
-
-        <order-approve-action :order_id="item.id" :show="permissions.showApproveAction" />
+        <div class="flex justify-between">
+            <div class="flex">
+                <order-approve-action :order_id="item.id" :show="permissions.showApproveAction" v-if="user.role === 'moderator'"/>
+                <order-cert-action :order_id="item.id" :show="permissions.issueCertAction" class="q-ml-xs q-mr-md"/>
+                <order-video-action :order_id="item.id" :permissions="{showVideoSendAction: permissions.showVideoSendAction,showVideoRevision: permissions.showVideoRevisionAction}"/>
+            </div>
+            <order-kap :order_id="item.id" :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}" :blocked="!permissions.showApproveAction" v-if="user.role === 'moderator'"/>
+        </div>
         <order-send-action :order_id="item.id"
                            :permissions="{
                     showSendToApproveAction: permissions.showSendToApproveAction,
                     showSendToIssueCertAction:  permissions.showSendToIssueCertAction
         }" class="q-mt-sm"/>
-
-        <div class="flex q-col-gutter-md">
-            <order-cert-action :order_id="item.id" :show="permissions.issueCertAction" />
-            <order-video-action :order_id="item.id"
-                                :permissions="{
-                    showVideoSendAction: permissions.showVideoSendAction,
-                    showVideoRevision: permissions.showVideoRevisionAction
-            }"/>
-        </div>
 
         <div class="row q-col-gutter-md">
 
@@ -127,9 +124,11 @@ import OrderExecuteAction from "./actions/OrderExecuteAction.vue";
 import OrderSendAction from "./actions/OrderSendAction.vue";
 import OrderVideoAction from "./actions/OrderVideoAction.vue";
 import OrderCertAction from "./actions/OrderCertAction.vue";
+import OrderKap from "./OrderKap.vue";
 
 export default {
     components: {
+        OrderKap,
         OrderCertAction,
         OrderVideoAction,
         OrderSendAction,

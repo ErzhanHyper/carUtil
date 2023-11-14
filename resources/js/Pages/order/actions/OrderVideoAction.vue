@@ -26,8 +26,12 @@
         <camera-record :id="order_id"/>
     </q-dialog>
 
-    <q-dialog v-model="commentDialog">
+    <q-dialog v-model="commentDialog" persistent>
         <q-card style="width: 800px">
+            <q-card-section class="flex justify-between">
+                <q-space/>
+                <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
+            </q-card-section>
             <q-card-section>
                 <q-input type="textarea" v-model="comment" outlined rows="3" label="Комментарий" class="text-body1"/>
             </q-card-section>

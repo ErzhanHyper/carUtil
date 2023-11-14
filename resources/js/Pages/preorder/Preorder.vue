@@ -91,19 +91,26 @@
                         Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
                     </q-tooltip>
                 </q-badge>
-
                 <q-badge color="blue--8" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && item.order.videoUploaded">
                     Видеозапись отправлена
                     <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" >
                         Ожидайте выдачу сертификата
                     </q-tooltip>
                 </q-badge>
-
                 <q-badge color="teal-5" class="q-pa-xs" v-if="item.order && item.order.car && item.order.car.certificate">
                     <router-link to="/certificate">Сертификат выдан</router-link>
                 </q-badge>
+                <q-badge color="blue-8" class="q-pa-xs" v-if="!item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0">
+                    На бронировании
+                </q-badge>
+                <q-badge color="green-5" class="q-pa-xs" v-if="item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0">
+                    На отправке
+                </q-badge>
                 <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-pa-xs">
                     <router-link :to="'/transfer/order/'+item.transfer.id">Выставлена на продажу</router-link>
+                </q-badge>
+                <q-badge :color="setOrderStatusColor(item.order.status.id)" v-if="item.order && (item.order.status.id === 1 || item.order.status.id === 2 || item.order.status.id === 4 || item.order.status.id === 5)">
+                    {{ item.order.status.title }}
                 </q-badge>
             </td>
         </tr>
@@ -233,6 +240,24 @@ export default {
     },
 
     methods: {
+
+        setOrderStatusColor(id) {
+            let color = 'blue-grey-3'
+            if (id === 1) {
+                color = 'blue-grey-5'
+            } else if (id === 2) {
+                color = 'blue-5'
+            } else if (id === 3) {
+                color = 'teal-5'
+            } else if (id === 4) {
+                color = 'deep-orange-5'
+            } else if (id === 5) {
+                color = 'blue-grey-10'
+            }
+
+            return color;
+        },
+
         setStatus(id) {
             let result = '';
             if (id === 0) {

@@ -70,6 +70,7 @@ class OrderService
             $canApprove = false;
             $canExecute = false;
             $canIssueCert = false;
+            $canCheckKap = false;
             $canSend = false;
             $canRevisionVideo = false;
             $canUploadVideo = false;
@@ -119,6 +120,7 @@ class OrderService
                     'uploadVideo' => $canUploadVideo,
                     'revisionVideo' => $canRevisionVideo,
                     'sendToIssueCert' => $canSendToIssueCert,
+                    'kapCheckOrder' => $canCheckKap,
                     'blocked' => $blocked,
                     'blockedVideo' => $blockedVideo
                 ],
@@ -255,6 +257,7 @@ class OrderService
                 $file->client_id = $order->client_id;
                 $file->ext = $extension[1];
                 $file->original_name = $original_name;
+                $file->created_at = time();
                 $file->save();
 
                 $message = 'Видеозапись успешно отправлена';

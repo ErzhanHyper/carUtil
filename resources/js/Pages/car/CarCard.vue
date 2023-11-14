@@ -26,7 +26,7 @@
 
             <div class="row q-gutter-md q-mb-sm">
                 <div class="col">
-                    <q-input outlined dense square v-model="item.m_model" label="Марка, модель" :readonly="blocked"/>
+                    <q-input outlined dense square v-model="item.m_model" label="Марка, модель" :readonly="blocked || disabled"/>
                 </div>
                 <div class="col">
 <!--                    <q-input outlined dense square v-model="item.vin" label="VIN" counter class="text-uppercase"-->
@@ -37,33 +37,33 @@
 <!--                    </q-input>-->
 
                     <q-input outlined dense square v-model="item.year" label="Год выпуска" counter maxlength="4"
-                             type="number" min="0" :readonly="blocked"/>
+                             type="number" min="0" :readonly="blocked || disabled"/>
                 </div>
                 <div class="col">
                     <q-input outlined dense square v-model="item.grnz" label="ГРНЗ" counter maxlength="8"
-                             :readonly="blocked"/>
+                             :readonly="blocked || disabled"/>
                 </div>
             </div>
 
             <div class="row q-gutter-md q-mb-sm">
                 <div class="col">
                     <q-input outlined dense square v-model="item.body_no" label="Номер кузова" counter
-                             :readonly="blocked"/>
+                             :readonly="blocked || disabled"/>
                 </div>
                 <div class="col">
                     <q-input outlined dense square v-model="item.chassis_no" label="Номер шасси" counter
-                             :readonly="blocked"/>
+                             :readonly="blocked || disabled"/>
                 </div>
             </div>
 
             <div class="row q-gutter-md q-mb-sm">
                 <div class="col">
                     <q-input outlined dense square v-model="item.weight" label="Масса (кг)" hint="Без нагрузки"
-                             :readonly="blocked"/>
+                             :readonly="blocked || disabled"/>
                 </div>
                 <div class="col">
                     <q-input outlined dense square v-model="item.color" label="Цвет" hint="Без нагрузки"
-                             :readonly="blocked"/>
+                             :readonly="blocked || disabled"/>
                 </div>
             </div>
 
@@ -99,7 +99,7 @@ import CategoryField from "@/Components/Fields/CategoryField.vue";
 
 export default {
     components: {CategoryField},
-    props: ['data', 'getCar', 'blocked', 'vehicleType'],
+    props: ['data', 'getCar', 'blocked', 'vehicleType', 'preorder_id'],
 
     data() {
         return {
@@ -113,6 +113,7 @@ export default {
 
             showFields: false,
             loading: false,
+            disabled: false,
 
             kap_data: [],
             options_category: this.categories
@@ -145,6 +146,7 @@ export default {
                             engine_no: el.engine_no
                         })
                     })
+                    this.disabled = true
                 }
             }).finally(() => {
                 this.loading = false

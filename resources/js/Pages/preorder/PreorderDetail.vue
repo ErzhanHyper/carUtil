@@ -20,7 +20,7 @@
                 </div>
             </div>
 
-                <preorder-sell :transfer="item.transfer" :order_id="item.order.id" :show="permissions.transferOrder" v-if="item.order"/>
+                <preorder-sell :transfer="item.transfer" :order_id="item.order.id" :show="permissions.transferOrder" v-if="item.order && !item.booking"/>
 
                 <div class="q-gutter-md" v-if="permissions.sendToApprove">
                     <q-btn color="blue-8"
@@ -40,7 +40,10 @@
                 </div>
             </div>
 
+        <div class="flex justify-between">
             <preorder-actions :preorder_id="item.id" :show="permissions.approveOrder" />
+            <order-kap :preorder_id="item.id" :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}" :blocked="item.status.id !== 1" v-if="user.role === 'moderator'"/>
+        </div>
 
         <template v-if="item.comment.length > 0 && item.comment[0].text && user.role === 'liner' && (item.status.id === 0 || item.status.id === 4)">
             <q-banner :class="(item.comment[0].action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
@@ -87,30 +90,29 @@
                     :transfer="item.transfer"
                     :data="item.file"
                     :preorder_id="item.id"
-                    :client_id="item.client.id"
+                    :client_id="item.client ? item.client.id : null"
                     :blocked="blocked"
                     :vehicleType="item.vehicleType">
                 </preorder-file>
             </div>
         </div>
 
-
     </div>
 
-<!--    <q-dialog v-model="showDeleteDialog" size="xs">-->
-<!--        <q-card style="width: 600px">-->
-<!--            <q-card-section class="row items-center q-pb-none">-->
-<!--                <div class="text-body1">Вы действительно хотите удалить заявку?</div>-->
-<!--                <q-space/>-->
-<!--                <q-btn icon="close" flat round dense v-close-popup/>-->
-<!--            </q-card-section>-->
-<!--            <q-card-actions class="q-mt-md q-mx-sm q-mb-sm">-->
-<!--                <q-btn label="Да" @click="deleteData" color="pink-5" :loading="loading"/>-->
-<!--                <q-space/>-->
-<!--                <q-btn label="Нет" v-close-popup color="primary"/>-->
-<!--            </q-card-actions>-->
-<!--        </q-card>-->
-<!--    </q-dialog>-->
+    <q-dialog v-model="showDeleteDialog" size="xs">
+        <q-card style="width: 600px">
+            <q-card-section class="row items-center q-pb-none">
+                <div class="text-body1">Вы действительно хотите удалить заявку?</div>
+                <q-space/>
+                <q-btn icon="close" flat round dense v-close-popup/>
+            </q-card-section>
+            <q-card-actions class="q-mt-md q-mx-sm q-mb-sm">
+                <q-btn label="Да" @click="deleteData" color="pink-5" :loading="loading"/>
+                <q-space/>
+                <q-btn label="Нет" v-close-popup color="primary"/>
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 
 </template>
 
@@ -131,11 +133,13 @@ import CarCard from "../car/CarCard.vue";
 import Booking from "../booking/BookingCard.vue";
 import ClientCard from "../client/ClientCard.vue";
 import ClientProxy from "../client/ClientProxy.vue";
+import OrderKap from "../order/OrderKap.vue";
 
 export default {
     props: ['id'],
 
     components: {
+        OrderKap,
         PreorderSell,
         ClientProxy,
         PreorderHistory,
@@ -248,7 +252,7 @@ export default {
                             this.getData()
                             Notify.create({
                                 message: res.message,
-                                position: 'bottom-right',
+                                position: 'bottom',
                                 type: 'positive'
                             })
                         }
@@ -273,7 +277,7 @@ export default {
                 this.$router.push('/preorder')
                 Notify.create({
                     message: 'Заявка удалена',
-                    position: 'right',
+                    position: 'bottom',
                     type: 'primary'
                 })
             }).finally(() => {
@@ -290,10 +294,13 @@ export default {
         this.$emitter.on('preorderActionEvent', () => {
             this.getData()
         })
-
         this.$emitter.on('preorderSellEvent', () => {
             this.getData()
         })
+        this.$emitter.on('BookingCardEvent', () => {
+            this.getData()
+        })
+
     }
 
 }

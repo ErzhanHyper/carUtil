@@ -10,3 +10,14 @@ export function getBookingOrderList(params) {
         })
     })
 }
+
+export function deleteBookingOrder(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/booking/order/delete', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

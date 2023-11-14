@@ -203,7 +203,7 @@ class PreorderService
                     $preorder->car_id = $car->id;
                     $preorder->status = 1;
                     $preorder->save();
-                    $message = 'Отправлена на рассмотрение!';
+                    $message = 'Отправлено на рассмотрение!';
                     $success = true;
                 }
             }

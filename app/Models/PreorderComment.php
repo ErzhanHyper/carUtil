@@ -9,6 +9,6 @@ class PreorderComment extends Model
 {
     use HasFactory;
 
-    protected $table = 'preorder_comment';
+    protected $table = 'pre_order_history';
     public $timestamps = false;
 }

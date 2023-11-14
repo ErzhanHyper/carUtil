@@ -192,6 +192,7 @@ Route::prefix('app')->group(function () {
         });
 
         Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);
+        Route::post('booking/order/delete', [\App\Http\Controllers\BookingOrderController::class, 'delete']);
 
         Route::get('client', [\App\Http\Controllers\ClientController::class, 'get'])->name('client');
         Route::get('client/{id}', [\App\Http\Controllers\ClientController::class, 'showById']);

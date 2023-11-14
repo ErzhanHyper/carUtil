@@ -23,7 +23,7 @@
                 />
             </div>
 
-            <div v-if="!loading && items.length > 0">
+            <div v-if="!loading && items.length > 0 && !blocked">
                 Текущий запрос в КАП:
                 <div class="flex q-mb-lg no-wrap">
                 <q-markup-table flat bordered separator="cell" >
@@ -89,7 +89,7 @@
                 <q-separator class="q-my-lg"/>
             </div>
 
-            <div v-if="history.length > 0 && show">
+            <div v-if="history.length > 0 && show" class="q-mt-sm">
                 История запросов в КАП:
                 <div v-for="el in history">
                     {{ el['created_at'] }} | {{ el['username'] ? el['username'] : '-'}}
@@ -161,12 +161,14 @@ export default {
             checkVehicle({ preorder_id: this.preorder_id, order_id: this.order_id, value: this.kap.value, type: this.kap.type}).then(res => {
                 this.items = res.data.items
                 this.card = res.data.card
+                this.getKapHistory(0)
             }).finally(() => {
                 this.loading = false
             })
         },
 
         getKapHistory(){
+            this.history = []
             checkVehicleHistory({ preorder_id: this.preorder_id, order_id: this.order_id}).then(res => {
                 this.history = res.items
             }).finally(() => {

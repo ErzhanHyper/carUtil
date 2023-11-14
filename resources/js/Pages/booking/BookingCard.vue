@@ -3,7 +3,6 @@
         <q-card-section class="q-pb-xs">
             <div class="text-body2">Бронирование</div>
             <q-space />
-            <q-banner class="bg-blue-1 q-mt-md" v-if="!blocked">После бронирования вы можете отнести ТС/СХТ на завод</q-banner>
         </q-card-section>
 
         <q-card-section>
@@ -50,7 +49,7 @@
 
                 <div class="col col-md-12 col-xs-12" v-if="!blocked && item.factory_id && item.datetime">
                     <q-btn label="Забронировать" color="indigo-8" push @click="bookingOrder" :loading="loading" :disabled="disabled"/>
-                    <q-btn round flat icon="close" color="negative" class="q-ml-xs" @click="disabled=false" v-if="disabled"/>
+                    <q-btn round flat icon="close" color="negative" class="q-ml-xs" @click="closeBooking()" v-if="disabled" :loading="loading"/>
                 </div>
 
 
@@ -61,7 +60,7 @@
 
 <script>
 import {Notify} from "quasar";
-import {getBookingOrderList} from "../../services/booking";
+import {deleteBookingOrder, getBookingOrderList} from "../../services/booking";
 import {bookingOrder} from "../../services/preorder";
 import FactoryField from "../../Components/Fields/FactoryField.vue";
 
@@ -98,7 +97,7 @@ export default {
             this.loading = true
             bookingOrder(this.preorder_id, this.item).then(res => {
                 this.disabled = true
-
+                this.$emitter.emit('BookingCardEvent')
                 Notify.create({
                     message: 'Дата и время забронирована',
                     position: 'bottom-right',
@@ -117,6 +116,21 @@ export default {
 
             }).finally(() => {
                 this.loading = false
+            })
+        },
+
+        closeBooking(){
+            this.loading = true
+            this.item.preorder_id = this.preorder_id
+            deleteBookingOrder(this.item).then(() => {
+                this.$emitter.emit('BookingCardEvent')
+                this.loading = false
+                this.disabled = false
+                this.item = {
+                    factory_id: null,
+                    datetime: null,
+                    datetime_string: null
+                }
             })
         }
     },
