@@ -104,7 +104,11 @@ export default {
     methods: {
         logout() {
             this.$store.dispatch('auth/signOut')
-            this.$router.replace('/login')
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                this.$router.replace('/manager')
+            }else {
+                this.$router.replace('/login')
+            }
         },
 
     },
