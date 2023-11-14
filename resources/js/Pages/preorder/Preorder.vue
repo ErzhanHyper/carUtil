@@ -60,9 +60,9 @@
                 <span class="text-primary">{{ (item.car) ? item.car.grnz : '-' }}</span>
             </td>
             <td class="text-left">
-                <q-chip dark :color="(item.recycle_type === 1) ? 'teal-8' : 'orange-9'" size="12px">
+                <q-chip dark :color="(item.vehicleType === 'car') ? 'teal-8' : 'orange-9'" size="12px">
                     {{ (item.car) ? (item.car.category ? item.car.category.title_ru + ' | ' : '') : '' }}
-                    {{ (item.recycle_type) ? ((item.recycle_type === 1) ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
+                    {{ (item.vehicleType) ? ((item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
                 </q-chip>
             </td>
             <td class="text-left">
@@ -83,10 +83,6 @@
                         class="text-overline">
                     {{ item.status.title }}
                 </q-chip>
-
-                <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-ml-md">
-                    Выставлена на продажу
-                </q-badge>
             </td>
             <td class="text-right">
                 <q-badge color="deep-orange" class="q-pa-xs" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && !item.order.videoUploaded"  >
@@ -103,8 +99,11 @@
                     </q-tooltip>
                 </q-badge>
 
-                <q-badge color="green-8" class="q-pa-xs" v-if="item.order && item.order.car && item.order.car.certificate">
+                <q-badge color="teal-5" class="q-pa-xs" v-if="item.order && item.order.car && item.order.car.certificate">
                     <router-link to="/certificate">Сертификат выдан</router-link>
+                </q-badge>
+                <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-pa-xs">
+                    <router-link :to="'/transfer/order/'+item.transfer.id">Выставлена на продажу</router-link>
                 </q-badge>
             </td>
         </tr>
@@ -296,6 +295,7 @@ export default {
             getOrderList({params: this.filter}).then(res => {
                 this.items = res.items
                 this.totalPage = res.pages
+            }).finally(()=> {
                 this.show = true
             })
         }

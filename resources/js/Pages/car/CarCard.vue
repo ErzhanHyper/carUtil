@@ -2,7 +2,7 @@
     <q-card flat bordered>
         <q-card-section class="q-pb-xs ">
             <div class="q-gutter-sm flex justify-between">
-                <div class="text-body2">{{ recycleType === 1 ? 'ТС' : 'СХТ' }}</div>
+                <div class="text-body2">{{ vehicleType === 'car' ? 'ТС' : 'СХТ' }}</div>
                 <q-btn label="Получить данные ТС" color="primary" class="text-overline q-mb-sm" icon="manage_search"
                        :loading="loading"
                        @click="search()" v-if="!showFields && kap_data.length === 0" />
@@ -20,11 +20,7 @@
 
             <div class="row">
                 <div class="col q-mb-lg">
-                    <q-select dense outlined square v-model="item.category_id" label="Категория"
-                              :options="options_category"
-                              map-options
-                              emit-value
-                              option-label="title_ru" option-value="id" :readonly="blocked"/>
+                    <category-field :readonly="blocked" :vehicleType="vehicleType" :data="item.category_id" v-model="item.category_id"/>
                 </div>
             </div>
 
@@ -98,11 +94,12 @@
 
 <script>
 
-import {checkVehicle} from "../../services/preorder";
+import {checkVehicle} from "@/services/preorder";
+import CategoryField from "@/Components/Fields/CategoryField.vue";
 
 export default {
-
-    props: ['data', 'getCar', 'categories', 'blocked', 'preorder_id', 'recycleType'],
+    components: {CategoryField},
+    props: ['data', 'getCar', 'blocked', 'vehicleType'],
 
     data() {
         return {

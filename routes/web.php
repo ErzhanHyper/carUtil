@@ -121,7 +121,7 @@ Route::prefix('app')->group(function () {
         Route::prefix('file')->group(function () {
             Route::post('/order/store', [\App\Http\Controllers\FileController::class, 'storeOrderFile']);
             Route::post('/order/get', [\App\Http\Controllers\FileController::class, 'getOrderFile']);
-            Route::post('/order/delete', [\App\Http\Controllers\FileController::class, 'deleteOrderFile']);
+            Route::delete('{id}/order', [\App\Http\Controllers\FileController::class, 'deleteOrderFile']);
             Route::get('/order/{id}/generatePFS', [\App\Http\Controllers\FileController::class, 'generateOrderPFS']);
 
             Route::post('/preorder/store', [\App\Http\Controllers\FileController::class, 'storePreOrderFile']);

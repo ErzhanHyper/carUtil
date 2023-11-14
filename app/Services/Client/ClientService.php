@@ -54,6 +54,9 @@ class ClientService
             'ud_num' => 'required',
             'ud_expired' => 'required',
             'ud_issued_id' => 'required',
+            'address' => 'required',
+            'phone' => 'required',
+            'region_id' => 'required',
         ]);
 
         if ($validator->fails()) {

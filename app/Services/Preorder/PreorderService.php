@@ -9,6 +9,7 @@ use App\Models\Car;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\PreOrderCar;
+use App\Models\TransferOrder;
 use App\Services\AuthService;
 use App\Services\BookingOrder\BookingOrderService;
 use App\Services\Car\CarService;
@@ -64,9 +65,58 @@ class PreorderService
 
     public function getById($id)
     {
-        $preorder = PreOrderCar::find($id);
+        $user = app(AuthService::class)->auth();
+        if($user->role === 'liner' || $user->role === 'moderator') {
+            $preorder = PreOrderCar::find($id);
+            $order = Order::find($preorder->order_id);
 
-        return new PreOrderResource($preorder);
+            $canTransfer = false;
+            $canSend = false;
+            $canApprove = false;
+            $blocked = true;
+            $blockedBooking = true;
+
+            $transfer = null;
+
+            if ($order) {
+                $transfer = TransferOrder::where('order_id', $order->id)->first();
+                if($user->role === 'liner') {
+                    if ($preorder->status === 2 && $order->status === 0 && $order->approve === 0) {
+                        if($transfer && $transfer->closed !== 2){
+                            $blockedBooking = true;
+                        }else{
+                            $blockedBooking = false;
+                        }
+                    }
+                    if ($order->status === 0 && !$transfer && $order->approve === 0) {
+                        $canTransfer = true;
+                    }
+                }
+            }
+            if($preorder->status === 0 || $preorder->status === 4){
+                if($user->role === 'liner') {
+                    $canSend = true;
+                    $blocked = false;
+                }
+            }
+            if($preorder->status === 1){
+                if($user->role === 'moderator') {
+                    $canApprove = true;
+                }
+            }
+
+            return [
+                'item' => new PreOrderResource($preorder),
+                'transfer' => $transfer,
+                'permissions' => [
+                    'transferOrder' => $canTransfer,
+                    'sendToApprove' => $canSend,
+                    'approveOrder' => $canApprove,
+                    'blocked' => $blocked,
+                    'blockedBooking' => $blockedBooking
+                ]
+            ];
+        }
     }
 
     public function send($request, $id)

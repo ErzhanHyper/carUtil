@@ -35,7 +35,7 @@ import {Notify} from "quasar";
 import {storeTransfer} from "../../services/transfer";
 
 export default {
-    props: ['show', 'blocked', 'transfer', 'order_id'],
+    props: ['show', 'order_id', 'transfer'],
 
     data() {
         return {
@@ -59,7 +59,7 @@ export default {
                 if(res && res.message !== '') {
                     Notify.create({
                         message: res.message,
-                        position: 'bottom-right',
+                        position: 'bottom',
                         type: res.success === true ? 'positive' : 'warning'
                     })
                 }

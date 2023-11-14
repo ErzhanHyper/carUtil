@@ -86,12 +86,11 @@
                     </q-card-section>
                 </q-card>
 
-                <car-card :data="item.order.car" :order_id="item.order.id" :categories="item.order.categories" :recycleType="recycleType"
-                          :blocked="true"/>
+                <car-card :data="item.order.car" :order_id="item.order.id" :vehicleType="item.vehicleType" :blocked="true"/>
             </div>
 
             <div class="col col-md-4">
-                <preorder-file :data="item.file" :files="item.order.files" :blocked="true" :onlyPhoto="true" :recycleType="recycleType"/>
+                <preorder-file :preorder_id="item.preorder_id" :blocked="true" :onlyPhoto="true" :vehicleType="item.vehicleType"/>
             </div>
         </div>
 
@@ -140,7 +139,6 @@ export default {
 
             showError: false,
             blocked: false,
-            recycleType: null,
             signDialog: false,
 
             errors: [],
@@ -170,13 +168,7 @@ export default {
             getTransferById(this.id).then(res => {
                 if(res) {
                     this.item = res
-                    if (res.order) {
-                        this.item.file = {
-                            preorder_id: res.order.preorder_id
-                        }
-                    }
                     this.blocked = res.blocked
-                    this.recycleType = res.recycle_type
                 }
                 this.show = true
             })
@@ -241,8 +233,8 @@ export default {
                 if(res && res.message !== '') {
                     Notify.create({
                         message: res.message,
-                        position: 'bottom-right',
-                        type: res.success === true ? 'positive' : 'warning'
+                        position: 'bottom',
+                        type: res.success === true ? 'primary' : 'warning'
                     })
                 }
             }).finally(() => {

@@ -15,8 +15,9 @@
                 outlined
                 dense
                 :readonly="blocked"
-                :loading="loading"
                 v-if="!blocked"
+                :loading="loading"
+                :disable="loading"
             >
                 <template v-slot:before>
                     <q-icon name="folder"/>
@@ -49,17 +50,7 @@
                 </div>
 
                 <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
-                     v-if="item.video" v-for="(video, i) in item.video"
-                     :key="i">
-                    <q-icon name="videocam" class="q-mr-sm" size="sm"></q-icon>
-                    <a :href="'/storage/uploads/order/files/' + item.order_id + '/' + video.original_name"
-                       class="text-dark">
-                        {{ getFileTypeTitle(29) }}
-                    </a>
-                </div>
-
-                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
-                     v-if="item.order && item.order.transfer && item.order.transfer.closed === 2">
+                     v-if="transfer && transfer.closed === 2">
                     <q-btn flat dense :loading="loading" size="sm">
                         <q-icon name="file_copy" class="q-mr-xs" size="sm"></q-icon>
                     </q-btn>
@@ -103,8 +94,7 @@
 <script>
 import {ref} from 'vue'
 import {
-    deleteOrderFile,
-    deletePreOrderFile, generateOrderPFS,
+    deletePreOrderFile,
     getFileTypeList,
     getFileTypeAgroList,
     getPreOrderFileList,
@@ -115,7 +105,7 @@ import {getTransferContract} from "../../services/document";
 
 export default {
 
-    props: ['data', 'blocked', 'onlyPhoto', 'blockedVideo', 'recycleType'],
+    props: ['preorder_id', 'client_id', 'blocked', 'onlyPhoto', 'vehicleType', 'transfer'],
 
     setup() {
         return {
@@ -151,9 +141,9 @@ export default {
             this.filesPhoto = []
             this.filesOptions = []
             getPreOrderFileList({
-                preorder_id: this.data.preorder_id
+                preorder_id: this.preorder_id
             }).then(res => {
-                if (this.recycleType === 1) {
+                if (this.vehicleType === 'car') {
                     res.map(el => {
                         if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
                             this.filesPhoto.push(el)
@@ -173,7 +163,7 @@ export default {
                 }
             });
 
-            if (this.recycleType === 1) {
+            if (this.vehicleType === 'car') {
                 getFileTypeList().then(res => {
                     res.forEach(el => {
                         this.filesAll.push(el)
@@ -235,7 +225,7 @@ export default {
                 }
             }
             deletePreOrderFile({
-                preorder_id: this.data.preorder_id,
+                preorder_id: this.preorder_id,
                 file_id: value.id
             }).then(() => {
 
@@ -247,8 +237,8 @@ export default {
             storePreOrderFile({
                 file_type_id: this.file_type_id,
                 file: evt.target.files[0],
-                preorder_id: this.item.preorder_id,
-                client_id: this.item.client_id
+                preorder_id: this.preorder_id,
+                client_id: this.client_id
             }).then(() => {
                 this.getItems()
                 this.file_type_id = null
@@ -261,9 +251,9 @@ export default {
         },
 
         downloadPFS() {
-            if(this.item.order && this.item.order.transfer) {
+            if(this.transfer) {
                 this.loading = true
-                getTransferContract(this.item.order.transfer.id, {responseType: 'arraybuffer'}).then(res => {
+                getTransferContract(this.transfer.id, {responseType: 'arraybuffer'}).then(res => {
                     FileDownload(res, 'transfer_contract.pdf')
                 }).finally(() => {
                     this.loading = false
@@ -273,7 +263,6 @@ export default {
     },
 
     created() {
-        this.item = this.data
         this.getItems()
     }
 }

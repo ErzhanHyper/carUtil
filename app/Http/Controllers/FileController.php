@@ -191,15 +191,21 @@ class FileController extends Controller
         return response()->json($message);
     }
 
-    public function deleteOrderFile(Request $request)
+    public function deleteOrderFile($id)
     {
-        $order_id = $request->order_id;
-        $file_id = $request->file_id;
-        $order = Order::find($order_id);
+        $user = app(AuthService::class)->auth();
         $message = ['status' => 'can`t delete'];
-        if ($order && $order->status === 4) {
-            File::where('order_id', $order->id)->where('id', $file_id)->delete();
-            $message = ['status' => 'deleted'];
+
+        if($user->role === 'operator') {
+            $file_id = $id;
+            $file = File::find($id);
+            if ($file) {
+                $order = Order::find($file->order_id);
+                if ($order && ($order->status === 4 || $order->status === 0)) {
+                    File::where('order_id', $order->id)->where('id', $file_id)->delete();
+                    $message = ['status' => 'deleted'];
+                }
+            }
         }
 
         return response()->json($message);

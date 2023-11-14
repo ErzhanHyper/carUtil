@@ -1,30 +1,26 @@
 <template>
     <div v-if="showData">
 
-        <div class="flex justify-between">
+        <div class="flex justify-between q-mb-sm">
             <div>
-                <span :class="(item.recycle_type === 'ВЭТС') ? 'text-teal-9' : 'text-orange-9'"
-                      class="text-body1 q-mt-sm">
-                    {{ (item.recycle_type) ? item.recycle_type : '-' }}
+                <span :class="(item.vehicleType === 'car') ? 'text-teal-9' : 'text-orange-9'"
+                      class="text-body1 q-mt-sm"
+                      v-if="item.vehicleType">
+                    {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
                 </span>
-
                 <span class="text-body1 text-blue-grey-7"> <b> - №{{ item.id }}</b></span>
-
                 <div :class="'text-'+setStatusColor(item.approve.id)">
                     {{ item.approve.title }}
                 </div>
-
                 <div :class="'text-'+setStatusColor(item.status.id)"  v-if="item.status.id === 5">
                     {{ item.status.title }}
                 </div>
-
                 <div class="text-caption" v-if="item.executor">
                     Исполнитель: {{ item.executor.title }}
                 </div>
-                <div class="text-caption" v-if="item.executor">
+                <div class="text-caption" v-if="item.user">
                     Менеджер ТБО: {{ item.user.title }}
                 </div>
-
                 <div :class="'text-deep-orange'" v-if="item.approve.id === 3 && item.status.id === 4">
                     В ожидании получения видеозаписи ТС/СХТ
                     <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" v-if="user.role === 'operator'">
@@ -32,126 +28,79 @@
                     </q-tooltip>
                 </div>
 
-                <q-space class="q-my-sm" />
-                <div v-if="user.role === 'operator' && item.approve.id === 3 && showCameraBtn && !item.videoUploaded">
-                <q-btn label="Отправить видеозапись" color="blue-8" icon="videocam" @click="showCamera = true" />
-                </div>
-            </div>
-
-            <div class="q-mb-md">
-                <q-btn :loading="loading"
+                <q-btn color="positive"
                        push
-                       size="12px"
-                       color="blue-8"
-                       label="Взять на исполнение"
-                       icon="edit"
-                       v-if="showModeratorExecute"
-                       @click="executeRun"
-                >
-                </q-btn>
-                <q-btn :loading="loading"
-                       push
-                       size="12px"
-                       color="negative"
-                       label="Отменить исполнение"
-                       icon="close"
-                       v-if="showModeratorAction"
-                       @click="executeEnd"
-                >
-                </q-btn>
-            </div>
-        </div>
-
-        <!--    <OrderTimeline class="q-mt-md"/>-->
-
-        <div class="col col-md-12 q-mt-md"
-             v-if="user.role && (user.role === 'operator' || user.role === 'moderator')">
-            <template v-if="item.car && item.car.certificate">
-                <div class="text-green-8 text-overline">Сертификат выдан</div>
-                <q-btn icon="verified" color="green-6" dense label="Скидочный сертификат"
+                       icon="verified"
                        icon-right="download"
+                       label="Скидочный сертификат"
+                       @click="getCert(item.car.certificate.id)"
+                       class="q-mt-md"
                        :loading="loading"
-                       @click="getCert(item.car.certificate.id)"></q-btn>
-            </template>
+                       v-if="item.status.id === 3 && item.approve.id === 3"
+                />
 
-            <div class="flex justify-between q-mt-md">
-                <div class="q-gutter-sm">
-                    <q-btn :loading="loading" square size="12px" color="light-green"
-                           label="Отправить на рассмотрение модератору" @click="sendData('send_to_moderator')"
-                           icon="send" v-if="showOperatorAction"></q-btn>
-
-                    <q-btn :loading="loading" square size="12px" color="light-green"
-                           label="Подписать и отправить модератору" @click="sendData('sign_uploaded_video')"
-                           icon="send" v-if="user.role === 'operator' && item.status.id === 4 && item.videoUploaded"></q-btn>
-                </div>
             </div>
+
+            <order-execute-action :order_id="item.id" :permissions="{start: permissions.showExecuteAction, stop: permissions.showApproveAction && item.executor}"/>
         </div>
 
-        <order-action :order_id="item.id" :showCertAction="showCertAction" :showApproveAction="showModeratorAction" :data="{status: item.status, grnz: item.car.grnz, vin: item.car.vin, iinbin: item.client.idnum}"/>
+        <order-approve-action :order_id="item.id" :show="permissions.showApproveAction" />
+        <order-send-action :order_id="item.id"
+                           :permissions="{
+                    showSendToApproveAction: permissions.showSendToApproveAction,
+                    showSendToIssueCertAction:  permissions.showSendToIssueCertAction
+        }" class="q-mt-sm"/>
+
+        <div class="flex q-col-gutter-md">
+            <order-cert-action :order_id="item.id" :show="permissions.issueCertAction" />
+            <order-video-action :order_id="item.id"
+                                :permissions="{
+                    showVideoSendAction: permissions.showVideoSendAction,
+                    showVideoRevision: permissions.showVideoRevisionAction
+            }"/>
+        </div>
 
         <div class="row q-col-gutter-md">
 
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
                 <div class="row q-col-gutter-md q-mt-xs">
                     <div class="col col-md-5 col-sm-12 col-xs-12">
-                        <client-card :data="item.client" :getClient="getClient" :blocked="blocked"/>
-                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>
+                        <client-card :data="item.client" :getClient="getClient" :blocked="true"/>
+<!--                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>-->
                     </div>
-
                     <div class="col col-md-7 col-sm-12 col-xs-12">
-                        <booking class="q-mb-md" :data="item.booking" :getBooking="getBooking" :blocked="true"
-                                 v-if="user.role === 'moderator' || user.role === 'operator'"/>
-                        <car-card :data="item.car" :getCar="getCar" :categories="item.categories" :blocked="blocked" :recycleType="item.recycle_type === 'ВЭТС' ? 1 : 2"/>
+                        <booking class="q-mb-md" :data="item.booking" :getBooking="getBooking" :blocked="true"/>
+                        <car-card :data="item.car" :getCar="getCar" :blocked="true" :vehicleType="item.vehicleType"/>
                     </div>
                 </div>
-
-                <div class="q-mt-md" v-if="item.history && item.history.length > 0">
-                    <div class="text-h5">История изменений</div>
-                    <q-timeline color="secondary">
-                        <template v-for="(text, i) in item.history">
-                            <q-timeline-entry class="q-mb-sm" :body="text.created_at">
-                                <q-banner :class="(text.action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
-                                          style="max-width: 380px">
-                                    <div class="text-subtitle2 text-weight-bold">
-                                        <span v-if="text.action === 'approve'">Одобрена</span>
-                                        <span v-if="text.action === 'decline'">Отклонена</span>
-                                        <span v-if="text.action === 'revision'">На доработку</span>
-                                    </div>
-                                    {{ text.comment }}
-                                </q-banner>
-                            </q-timeline-entry>
-                        </template>
-                    </q-timeline>
-
-                </div>
-
+                <order-history :items="item.history"/>
             </div>
 
             <div class="col col-md-4 col-xs-12">
-                <order-document v-if="showOperatorAction" class="q-mb-md" :order_id="item.id"/>
-                <OrderFile :data="item.file" v-if="showFile" :blocked="blockedFiles"
-                           :blockedVideo="item.status.id !== 4 || (item.status.id !== 5 && user.role === 'moderator')" :recycleType="item.recycle_type === 'ВЭТС' ? 1 : 2"/>
+                <order-document v-if="permissions.showSendToApproveAction" class="q-mb-md" :order_id="item.id"/>
+                <OrderFile :order_id="item.id" :client_id="item.client.id" :blocked="blocked" :blockedVideo="blockedVideo" :vehicleType="item.vehicleType"/>
 
                 <template v-if="user && user.role==='moderator'">
                     <q-separator class="q-my-lg"/>
                     <div class="q-px-md q-mt-lg text-body1 text-weight-bold">Файлы предзаявки</div>
-                    <PreorderFile :data="item.file" v-if="showFile" :blocked="true" />
+                    <PreorderFile :preorder_id="item.preorder_id" :blocked="true" :client_id="item.client.id" :vehicleType="item.vehicleType" :transfer="item.transfer"/>
                 </template>
             </div>
 
         </div>
     </div>
 
+<!--    <div class="row q-col-gutter-md">-->
+<!--        <div class="col">-->
+<!--            <div class="text-body1 text-weight-bold text-blue-grey-8">Проверка 1</div>-->
+<!--            <div>Возможные дубликаты по VIN</div>-->
+<!--        </div>-->
+<!--        <div class="col">-->
+<!--            <div class="text-body1 text-weight-bold text-blue-grey-8">Проверка 2</div>-->
+<!--            <div>Возможные дубликаты по VIN</div>-->
+<!--        </div>-->
+<!--    </div>-->
 
-    <q-dialog
-        v-model="showCamera"
-        persistent
-        :maximized="maximizedToggle"
-        transition-show="slide-up"
-        transition-hide="slide-down"
-    >
-        <camera-record :id="item.id"/>
-    </q-dialog>
 
 
 </template>
@@ -160,14 +109,7 @@
 import {mapGetters} from "vuex";
 import FileDownload from "js-file-download";
 
-import {
-    executeCloseOrder,
-    executeRunOrder,
-    getOrderItem,
-    sendToApproveOrder,
-    sendToSignOrder,
-} from "../../services/order";
-import {signData} from "../../services/sign";
+import { getOrderItem} from "../../services/order";
 import {generateCertificate} from "../../services/certificate";
 
 import ClientCard from "@/Pages/client/ClientCard.vue";
@@ -179,14 +121,21 @@ import SelectFactory from "@/Components/Fields/SelectFactory.vue";
 import CarCard from "@/Pages/car/CarCard.vue";
 import Booking from "@/Pages/booking/BookingCard.vue";
 import PreorderFile from "@/Pages/preorder/PreorderFile.vue"
-import OrderAction from "./OrderAction.vue";
-import CameraRecord from "../../Components/CameraRecord.vue";
-import {ref} from "vue";
+import OrderApproveAction from "./actions/OrderApproveAction.vue";
+import OrderHistory from "./OrderHistory.vue";
+import OrderExecuteAction from "./actions/OrderExecuteAction.vue";
+import OrderSendAction from "./actions/OrderSendAction.vue";
+import OrderVideoAction from "./actions/OrderVideoAction.vue";
+import OrderCertAction from "./actions/OrderCertAction.vue";
 
 export default {
     components: {
-        CameraRecord,
-        OrderAction,
+        OrderCertAction,
+        OrderVideoAction,
+        OrderSendAction,
+        OrderExecuteAction,
+        OrderHistory,
+        OrderApproveAction,
         OrderDocument,
         ClientProxy,
         Booking,
@@ -200,42 +149,36 @@ export default {
 
     props: ['id'],
 
-    setup () {
-        return {
-            dialog: ref(false),
-            maximizedToggle: ref(true)
-        }
-    },
-
     data() {
         return {
-            showCameraBtn: false,
             showDeleteDialog: false,
-            showCamera: false,
             disabled: true,
-
             showData: false,
             showFile: false,
             showProxy: false,
-            blocked: true,
-            blockedFiles: true,
-            showOperatorAction: false,
-            showCertAction: false,
-            showModeratorAction: false,
-            showModeratorExecute: false,
             loading: false,
+            blocked: true,
+            blockedVideo: true,
 
             order: null,
+            signHash: '',
 
             item: {
-                executor_uid: '',
                 client: {},
-                car: {
-                    preorder_id: this.id,
-                },
+                car: {},
                 preorder: {}
             },
-            signHash: ''
+
+            permissions: {
+                blockedFiles: true,
+                showSendToApproveAction: false,
+                showCertAction: false,
+                showApproveAction: false,
+                showExecuteAction: false,
+                showVideoSendAction: false,
+                showVideoRevisionAction: false,
+                showSendToIssueCertAction: false,
+            },
         }
     },
 
@@ -287,42 +230,23 @@ export default {
 
         getData() {
             this.$emitter.emit('contentLoaded', true);
-            this.showFile = false
-            this.showOperatorAction = false
-            this.showModeratorAction = false
-            this.blockedFiles = true
-            this.showCertAction = false
             getOrderItem(this.id, {}).then(res => {
-                this.item = res
-                if (!res.car) {
-                    this.item.car = {
-                        preorder_id: res.id
-                    }
-                }
-
-                if (!res.client) {
-                    this.item.client = {
-                        idnum: this.user.idnum,
-                        title: this.user.profile.fln
-                    }
-                }
-
-                this.item.file = {
-                    client_id: res.client_id,
-                    preorder_id: res.preorder_id,
-                    order_id: res.id
-                }
-
-                if (this.item.setCert) {
-                    this.showCertAction = true
-                }
-                this.showOperatorAction = res.canSend
-                this.blockedFiles = !res.canSend
-                this.showModeratorAction = res.canApprove
-                this.showModeratorExecute = res.canExecute
-
                 this.showData = true
                 this.showFile = true
+                this.item = res.item
+
+                if(res.permissions) {
+                    this.permissions.showApproveAction = res.permissions.approveOrder
+                    this.permissions.showExecuteAction = res.permissions.executeOrder
+                    this.permissions.issueCertAction = res.permissions.issueCert
+                    this.permissions.showSendToApproveAction = res.permissions.sendToApprove
+                    this.permissions.videoUploaded = res.permissions.videoUploaded
+                    this.permissions.showVideoSendAction = res.permissions.uploadVideo
+                    this.permissions.showVideoRevisionAction = res.permissions.revisionVideo
+                    this.permissions.showSendToIssueCertAction = res.permissions.sendToIssueCert
+                    this.blocked = res.permissions.blocked
+                    this.blockedVideo = res.permissions.blockedVideo
+                }
             })
         },
 
@@ -334,64 +258,10 @@ export default {
                 this.loading = false
             })
         },
-
-        sendData(value) {
-            if(value === 'send_to_moderator'){
-                this.loading = true
-                sendToApproveOrder(this.id).then(res => {
-                    this.getData()
-                }).finally(() => {
-                    this.loading = false
-                })
-            }else {
-                signData().then(res => {
-                    if (res) {
-                        this.loading = true
-                        sendToSignOrder(this.id, {
-                            sign: res,
-                        }).then(el => {
-                            this.getData()
-                        }).finally(() => {
-                            this.loading = false
-                        })
-                    }
-                })
-            }
-        },
-
-        executeRun(){
-            this.loading = true
-            executeRunOrder(this.item.id).then(res => {
-                if(res){
-                    if(res.success === true){
-                        this.getData()
-                    }
-                }
-            }).finally(() => {
-                this.loading = false
-            })
-        },
-
-        executeEnd(){
-            this.loading = true
-            executeCloseOrder(this.item.id).then(res => {
-                if(res){
-                    if(res.success === true){
-                        this.getData()
-                    }
-                }
-            }).finally(() => {
-                this.loading = false
-            })
-        }
-
     },
 
     created() {
         this.getData()
-        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            this.showCameraBtn = true
-        }
     },
 
     mounted() {
@@ -403,7 +273,6 @@ export default {
         })
         this.$emitter.on('VideoSendEvent', () => {
             this.getData()
-            this.showCamera = false
         })
     }
 

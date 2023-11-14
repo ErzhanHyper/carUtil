@@ -59,10 +59,10 @@
                 <q-btn icon="open_in_new" dense flat :to="'/order/'+item.id" color="primary" :label="item.id"/>
             </td>
             <td class="text-left">
-                <q-chip dark :color="(item.recycle_type === 'ВЭТС') ? 'teal-6' : 'orange-9'" size="12px"
-                        v-if="item.recycle_type">
+                <q-chip dark :color="(item.vehicleType === 'car') ? 'teal-6' : 'orange-9'" size="12px"
+                        v-if="item.vehicleType">
                     {{ (item.car) ? (item.car.category ? item.car.category.title_ru : '') : '-' }} | {{
-                        (item.recycle_type) ? item.recycle_type : '-'
+                        (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ'
                     }}
                 </q-chip>
             </td>
@@ -74,25 +74,19 @@
             <td class="text-left">{{ (item.client && item.client.region) ? item.client.region.title : '-' }}</td>
             <td class="text-left">{{ (item.created) ? item.created : '-' }}</td>
             <td class="text-left">
-
                 <div class="q-gutter-sm" >
                     <q-chip square dark size="12px" :color="setApproveColor(item.approve.id)" >
                         {{ item.approve.title }}
                     </q-chip>
                 </div>
-
             </td>
             <td>
-                <div style="width: 180px;white-space: normal">{{ item.executor ? item.executor.title : '-' }}</div>
+                <div style="width: 180px;white-space: normal" v-if="item.executor">{{ item.executor.title }}</div>
                 <q-space/>
                 <q-badge :color="setStatusColor(item.status.id)"
-                        v-if="item.status && item.videoUploaded">
-                    {{ item.status.title }}
-                </q-badge>
-                <q-space class="q-my-xs"/>
-                <q-badge color="deep-orange" class="q-pa-xs" v-if="item.status.id === 2 && item.approve.id === 3 && !item.videoUploaded"  >
-                    В ожидании получения видеозаписи
-                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" v-if="user.role === 'operator'">
+                        v-if="item.status">
+                        {{ item.status.title }}
+                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" v-if="user.role === 'operator' && item.status.id === 4">
                         Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
                     </q-tooltip>
                 </q-badge>
@@ -206,6 +200,10 @@ export default {
                 color = 'blue-5'
             } else if (id === 3) {
                 color = 'teal-5'
+            } else if (id === 4) {
+                color = 'deep-orange-5'
+            } else if (id === 5) {
+                color = 'blue-grey-10'
             }
 
             return color;

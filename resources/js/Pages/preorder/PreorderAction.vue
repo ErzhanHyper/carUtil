@@ -1,23 +1,14 @@
 <template>
-    <div class="col col-md-12 q-mt-md">
-        <div class="flex justify-between q-mt-md" >
-            <div class="q-gutter-sm" >
-                <template v-if="showApproveAction">
-                <q-btn :loading="loading" square size="12px" color="light-green" label="Одобрить"
-                       @click="send('approve')"
-                       icon="send" :disabled="disabled"></q-btn>
-                <q-btn square size="12px" color="orange-5" label="На доработку" @click="send('revision')"
-                       icon="keyboard_return"></q-btn>
-                <q-btn square size="12px" color="red-5" label="Отклонить" @click="send('decline')"
-                       icon="block"></q-btn>
-                </template>
-            </div>
-            <div class="q-gutter-sm">
-                <template v-if="user.role === 'moderator'">
-                <q-btn square size="12px" color="primary" label="Проверка в КАП" icon="add_task" @click="kapDialog = true"/>
-                </template>
-            </div>
-        </div>
+    <div class="q-gutter-sm" >
+        <template v-if="show">
+        <q-btn :loading="loading" square size="12px" color="light-green" label="Одобрить"
+               @click="send('approve')"
+               icon="send" :disabled="disabled"></q-btn>
+        <q-btn square size="12px" color="orange-5" label="На доработку" @click="send('revision')"
+               icon="keyboard_return"></q-btn>
+        <q-btn square size="12px" color="red-5" label="Отклонить" @click="send('decline')"
+               icon="block"></q-btn>
+        </template>
     </div>
 
     <q-dialog v-model="commentDialog">
@@ -34,24 +25,15 @@
         </q-card>
     </q-dialog>
 
-    <q-dialog v-model="kapDialog" size="md" persistent>
-        <order-kap :preorder_id="id" :data="data" :blocked="data.status.id !== 1"/>
-    </q-dialog>
 </template>
 
 <script>
 import {approveOrder, declineOrder, revisionOrder} from "../../services/preorder";
 import {Notify} from "quasar";
-import OrderKap from "@/Pages/order/OrderKap.vue";
 import {mapGetters} from "vuex";
 
 export default {
-
-    props: ['id', 'disabled', 'data'],
-
-    components: {
-        OrderKap
-    },
+    props: ['preorder_id', 'show'],
 
     data() {
         return{
@@ -61,8 +43,6 @@ export default {
             commentDialog: false,
             comment: '',
             action: '',
-
-            showApproveAction: this.data.status.id === 1,
         }
     },
 
@@ -85,7 +65,7 @@ export default {
 
         approveAction() {
             this.loading = true
-            approveOrder(this.id).then((res) => {
+            approveOrder(this.preorder_id).then((res) => {
                 this.commentDialog = false
                 if(res && res.message !== '') {
                     Notify.create({
@@ -102,7 +82,7 @@ export default {
 
         declineAction() {
             this.loading2 = true
-            declineOrder(this.id, {
+            declineOrder(this.preorder_id, {
                 comment: this.comment,
             }).then(() => {
                 this.commentDialog = false
@@ -114,7 +94,7 @@ export default {
 
         revisionAction() {
             this.loading2 = true
-            revisionOrder(this.id, {
+            revisionOrder(this.preorder_id, {
                 comment: this.comment,
             }).then(() => {
                 this.commentDialog = false

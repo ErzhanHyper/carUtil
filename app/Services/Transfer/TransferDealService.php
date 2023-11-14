@@ -46,21 +46,26 @@ class TransferDealService
                 $client = app(ClientService::class)->create($request->client);
             }
 
-            $exist = TransferDeal::where('client_id', $client->id)->where('transfer_order_id', $transferOrder->id)->first();
 
             if ($amount && $client && $owner_client) {
                 if ($auth->idnum !== $owner_client->idnum && $owner_client->idnum !== $client->idnum) {
 
-                    $deal = new TransferDeal;
-                    $deal->client_id = $client->id;
-                    $deal->transfer_order_id = $transfer_order_id;
-                    $deal->amount = $amount;
-                    $deal->date = time();
+                    if($auth->idnum === $client->idnum) {
+                        $exist = TransferDeal::where('client_id', $client->id)->where('transfer_order_id', $transferOrder->id)->first();
 
-                    if (!$exist) {
-                        $deal->save();
-                        $message = 'Предложение отправлена владельцу!';
-                        $success = true;
+                        $deal = new TransferDeal;
+                        $deal->client_id = $client->id;
+                        $deal->transfer_order_id = $transfer_order_id;
+                        $deal->amount = $amount;
+                        $deal->date = time();
+
+                        if (!$exist) {
+                            $deal->save();
+                            $message = 'Предложение отправлена владельцу!';
+                            $success = true;
+                        }
+                    }else{
+                        $message = 'ИИН не совпадает с учетными данными';
                     }
                 }
             } else {

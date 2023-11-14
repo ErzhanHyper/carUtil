@@ -17,7 +17,7 @@ class BookingOrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'datetime' => $this->datetime,
+            'datetime' => date('Y-m-d H:i', $this->datetime),
             'datetime_string' => date('Y-m-d H:i', $this->datetime),
             'factory_id' => $this->factory_id,
             'reserve' => $this->reserve

@@ -42,14 +42,27 @@
                     <td class="text-left">{{ item.status }}</td>
                     <td class="text-left">{{ item.sum }}</td>
                     <td class="text-left">
-                        <q-btn icon="verified" color="indigo-8" dense size="11px"
+                        <q-btn icon="verified"
+                               color="indigo-8"
+                               flat
+                               dense size="11px"
                                label="Скидочный сертификат"
-                               icon-right="download" @click="downloadCert(item.id)" :loading="loading"></q-btn>
+                               icon-right="download"
+                               @click="downloadCert(item.id)"
+                               :loading="loading"></q-btn>
                     </td>
 
-                    <td>
-                        <q-btn icon="verified" icon-right="sync_alt" color="pink-10" size="11px" label="Переоформить сертификат" dense
-                               :loading="loading2" @click="exchangeCert(item.id)" v-if="item.showExchange">
+                    <td class="text-right">
+                        <q-btn icon="verified"
+                               flat
+                               icon-right="sync_alt"
+                               color="pink-10"
+                               size="11px"
+                               label="Переоформить сертификат"
+                               dense
+                               :loading="loading2"
+                               @click="exchangeCert(item.id)"
+                               v-if="item.showExchange">
                         </q-btn>
                         <q-badge v-if="!item.showExchange && item.exchangeStatus != ''">
                             <router-link :to="'/exchange/'+item.exchange.id" v-if="item.exchange">

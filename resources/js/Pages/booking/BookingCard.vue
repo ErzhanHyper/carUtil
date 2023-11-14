@@ -9,7 +9,7 @@
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-12 col-xs-12">
-                    <factory-field v-model="item.factory_id" :model-value="item.factory_id" :readonly="blocked || disabled" :loading="loading" />
+                    <factory-field v-model="item.factory_id" :model-value="item.factory_id" :readonly="blocked || disabled" />
                 </div>
 
                 <div class="col col-md-12 col-xs-12">
@@ -17,7 +17,7 @@
                         <template v-slot:prepend>
                             <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked || disabled" >
+                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked || disabled" v-close-popup>
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Закрыть" color="primary" flat/>
                                         </div>
@@ -35,6 +35,7 @@
                                             format24h
                                             flat
                                             bordered
+                                            v-close-popup
                                             :readonly="blocked || disabled"
                                     >
                                         <div class="row items-center justify-end">
@@ -66,7 +67,7 @@ import FactoryField from "../../Components/Fields/FactoryField.vue";
 
 export default {
     components: {FactoryField},
-    props: ['data', 'getBooking', 'blocked'],
+    props: ['preorder_id', 'data', 'getBooking', 'blocked'],
 
     data() {
         return {
@@ -76,7 +77,7 @@ export default {
             loading: false,
 
             hourOptionsTime: [9, 10, 11, 12, 14, 15, 16, 17, 18],
-            minuteOptionsTime: [0],
+            minuteOptionsTime: [0, 15, 30, 45],
 
             disabled: true,
 
@@ -95,7 +96,7 @@ export default {
 
         bookingOrder(){
             this.loading = true
-            bookingOrder(this.item.preorder_id, this.item).then(res => {
+            bookingOrder(this.preorder_id, this.item).then(res => {
                 this.disabled = true
 
                 Notify.create({
@@ -121,22 +122,16 @@ export default {
     },
 
     created() {
-
-        if (this.data) {
+        if(this.data){
             this.item = this.data
-            this.item.datetime = this.item.datetime_string
-
-            if(!this.data.datetime || !this.data.factory_id){
-                this.disabled = false
-            }
-        }else{
+        }else {
+            this.disabled = false
             this.item = {
                 factory_id: null,
                 datetime: null,
                 datetime_string: null
             }
         }
-
     },
 
     mounted() {

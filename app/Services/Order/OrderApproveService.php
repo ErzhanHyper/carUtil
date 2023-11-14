@@ -23,6 +23,10 @@ class OrderApproveService
         $success = false;
         $message = '';
 
+        if($user->id !== $order->executor_uid){
+            $can = false;
+        }
+
         if ($order) {
             $car = Car::where('order_id', $order->id)->first();
 
@@ -36,7 +40,7 @@ class OrderApproveService
                 }
             }
             if($can === false) {
-                $message = 'ТС с таким VIN кодом уже одобрена в другой заявке';
+                $message = 'ТС с таким VIN кодом уже одобрено в другой заявке';
             }
 
             if($can) {
@@ -48,7 +52,7 @@ class OrderApproveService
                         $order->approve = 3;
                         $order->status = 4;
                         $order->save();
-                        $message = 'Одобрена!';
+                        $message = 'Одобрено!';
                         $success = true;
                     }
                 }
@@ -72,54 +76,73 @@ class OrderApproveService
     {
         $user = app(AuthService::class)->auth();
 
+        $can = false;
+
         $order = Order::find($id);
-        $order->approve = 2;
-        $order->status = 3;
-        $order->save();
 
-        $this->storeHistory(new Request([
-            'action' => 'decline',
-            'order_id' => $order->id,
-            'comment' => $request->comment,
-            'user_id' => $user->id,
-        ]));
+        if($user->id === $order->executor_uid){
+            $can = true;
+        }
 
-        return ['decline'];
+        if($can) {
+            $order->approve = 2;
+            $order->status = 3;
+            $order->save();
+
+            $this->storeHistory(new Request([
+                'action' => 'decline',
+                'order_id' => $order->id,
+                'comment' => $request->comment,
+                'user_id' => $user->id,
+            ]));
+
+            return ['decline'];
+        }
     }
 
     public function revision($request, $id)
     {
         $user = app(AuthService::class)->auth();
         $order = Order::find($id);
-        $order->approve = 4;
-        $order->status = 1;
-        $order->save();
+        $can = false;
 
-        $this->storeHistory(new Request([
-            'action' => 'revision',
-            'order_id' => $order->id,
-            'comment' => $request->comment,
-            'user_id' => $user->id,
-        ]));
+        if($user->id === $order->executor_uid){
+            $can = true;
+        }
+        if($can) {
+            $order->approve = 4;
+            $order->status = 1;
+            $order->save();
 
-        return ['revision'];
+            $this->storeHistory(new Request([
+                'action' => 'revision',
+                'order_id' => $order->id,
+                'comment' => $request->comment,
+                'user_id' => $user->id,
+            ]));
+
+            return ['revision'];
+        }
     }
 
     public function revisionVideo($request, $id)
     {
         $user = app(AuthService::class)->auth();
         $order = Order::find($id);
-        $order->status = 4;
-        $order->save();
 
-        $this->storeHistory(new Request([
-            'action' => 'revisionVideo',
-            'order_id' => $order->id,
-            'comment' => $request->comment,
-            'user_id' => $user->id,
-        ]));
+        if($user->id === $order->executor_uid) {
+            $order->status = 4;
+            $order->save();
 
-        return ['revisionVideo'];
+            $this->storeHistory(new Request([
+                'action' => 'revisionVideo',
+                'order_id' => $order->id,
+                'comment' => $request->comment,
+                'user_id' => $user->id,
+            ]));
+
+            return ['revisionVideo'];
+        }
     }
 
     public function storeHistory($request)

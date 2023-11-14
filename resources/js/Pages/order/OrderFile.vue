@@ -45,7 +45,7 @@
                     {{ getFileTypeTitle(doc.file_type_id) }}
                 </a>
                 <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
-                        v-if="(!blocked || (blocked && doc.file_type_id === 29)) && !blockedVideo" @click="deleteFile({doc: doc, type: 'doc', id: doc.id })">
+                        v-if="(!blocked || (blocked && doc.file_type_id === 29 && !blockedVideo))" @click="deleteFile({doc: doc, type: 'doc', id: doc.id })">
                 </q-icon>
             </div>
 
@@ -106,7 +106,7 @@ import {
 
 export default {
 
-    props: ['data', 'blocked', 'recycleType', 'blockedVideo'],
+    props: ['order_id', 'client_id', 'blocked', 'vehicleType', 'blockedVideo'],
 
     setup() {
         return {
@@ -145,9 +145,9 @@ export default {
             this.filesPhoto = []
             this.filesOptions = []
             getOrderFileList({
-                order_id: this.data.order_id
+                order_id: this.order_id
             }).then(res => {
-                if (this.recycleType === 1) {
+                if (this.vehicleType === 'car') {
                     res.map(el => {
                         if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
                             this.filesPhoto.push(el)
@@ -174,7 +174,7 @@ export default {
                 this.loading = false
             });
 
-            if (this.recycleType === 1) {
+            if (this.vehicleType === 'car') {
                 getFileTypeList().then(res => {
                     res.forEach(el => {
                         this.filesAll.push(el)
@@ -234,12 +234,9 @@ export default {
                     this.slide = 1
                 }
             }
-            deleteOrderFile({
-                order_id: this.data.order_id,
-                file_id: value.id
-            }).then(() => {
+            deleteOrderFile(value.id).then(() => {
                 if(value.doc.file_type_id === 29){
-                this.$emitter.emit('orderFileEvent')
+                    this.$emitter.emit('orderFileEvent')
                 }
             });
         },
@@ -249,8 +246,8 @@ export default {
             storeOrderFile({
                 file_type_id: this.file_type_id,
                 file: evt.target.files[0],
-                order_id: this.item.order_id,
-                client_id: this.item.client_id
+                order_id: this.order_id,
+                client_id: this.client_id
             }).then(() => {
                 this.$refs.file_dialog = null
                 this.getItems()
@@ -265,8 +262,13 @@ export default {
     },
 
     created() {
-        this.item = this.data
         this.getItems()
+    },
+
+    mounted(){
+        this.$emitter.on('VideoSendEvent', () => {
+            this.getItems()
+        })
     }
 }
 </script>

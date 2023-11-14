@@ -1,4 +1,9 @@
 <template>
+
+    <q-btn square size="12px" color="primary" label="Проверка в КАП" icon="add_task" @click="kapDialog = true" />
+
+    <q-dialog v-model="kapDialog" size="md" persistent>
+<!--        <order-kap :order_id="order_id" :data="data" :blocked="data.status.id !== 1"/>-->
     <q-card class="kap_detail_block" style="width: 100%;max-width: 1400px;">
         <q-card-section class="flex q-py-sm">
             <div class="text-body1">Данные с КАП</div>
@@ -98,6 +103,8 @@
             <q-btn icon="add_task" square color="indigo-8" label="Отправить запрос" :loading="loading" @click="getKapData"/>
         </q-card-actions>
     </q-card>
+    </q-dialog>
+
 </template>
 
 <script>
@@ -108,6 +115,7 @@ export default {
 
     data() {
         return {
+            kapDialog: false,
             loading: false,
             show: false,
             kap: {

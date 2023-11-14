@@ -12,7 +12,7 @@
 
                 <div style="position: absolute;top: 0; width: 100%;height: 80%">
                     <div v-if="recording" style="position: absolute; top: -1px;width:100%;color: #fff;background: rgba(255,0,0,.5);padding: 2px 10px" class="text-center">{{formattedElapsedTime}}</div>
-                    <video ref="video" class="camera-stream" style="width: 100%;height: 100%" />
+                    <video ref="video" class="camera-stream" style="width: 100%;height: 100%" muted/>
                 </div>
                 <div style="position: absolute; bottom: 0;left: 0;width: 100%; height: 20%" class="flex items-center" >
                     <div class="text-center flex justify-between items-center q-mx-lg" style="width: 100%">
@@ -64,8 +64,7 @@ export default {
     data() {
         return {
             time: new Date(),
-            timer: {
-            },
+            timer: {},
             elapsedTime:0,
             loading: false,
             recording: false,
@@ -95,7 +94,13 @@ export default {
         },
 
         startCamera(){
-            navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: this.cameraMode, aspectRatio: 16/9 }}).then(mediaStream => {
+            navigator.mediaDevices.getUserMedia({audio: {
+                    autoGainControl: true,
+                    echoCancellation: true,
+                    sampleRate: 48000,
+                    channelCount: 2,
+                    volume: 1.0
+                }, video: {facingMode: this.cameraMode, aspectRatio: 16/9 }}).then(mediaStream => {
                 this.$refs.video.srcObject = mediaStream;
                 this.$refs.video.play()
                 this.mediaStream = mediaStream
@@ -132,7 +137,7 @@ export default {
                         if (res.message !== '') {
                             Notify.create({
                                 message: res.message,
-                                position: 'bottom-right',
+                                position: 'bottom',
                                 type: res.success === true ? 'positive' : 'warning'
                             })
                         }

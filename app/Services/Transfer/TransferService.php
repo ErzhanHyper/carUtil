@@ -145,7 +145,7 @@ class TransferService
         if($transferOrder) {
             $can = false;
 
-            $order = Order::find($transferOrder->order_id)->first();
+            $order = Order::find($transferOrder->order_id);
             $client = Client::find($transferOrder->client_id);
 
             if($order && $order->blocked === 1) {
@@ -166,7 +166,6 @@ class TransferService
         }
 
         return [
-            'data' => [],
             'message' => $message,
             'success' => $success
         ];
@@ -216,7 +215,7 @@ class TransferService
                 $car->owner_idnum = $client->idnum;
 
                 $order->blocked = 0;
-                $order->client_id = $client->id;
+                $order->client_id = $authClient->id;
 
                 $preorder->save();
                 $car->save();

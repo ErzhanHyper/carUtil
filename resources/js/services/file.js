@@ -55,9 +55,9 @@ export function deletePreOrderFile(params) {
     })
 }
 
-export function deleteOrderFile(params) {
+export function deleteOrderFile(id) {
     return new Promise((resolve, reject) => {
-        api.post('/file/order/delete', params).then(response => {
+        api.delete('/file/' + id + '/order').then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

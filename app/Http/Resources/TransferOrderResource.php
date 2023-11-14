@@ -2,14 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Car;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\PreOrderCar;
 use App\Models\TransferDeal;
-use App\Models\TransferOrder;
 use App\Services\AuthService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransferOrderResource extends JsonResource
@@ -32,11 +31,21 @@ class TransferOrderResource extends JsonResource
         $auth = app(AuthService::class)->auth();
         $client = Client::find($this->client_id);
         $currentClient = Client::where('idnum', $auth->idnum)->first();
-        $preorder = PreOrderCar::where('order_id', $this->order_id)->select(['recycle_type', 'order_id'])->first();
+        $preorder = PreOrderCar::where('order_id', $this->order_id)->first();
 
-        $deal = [];
+        $car = Car::where('order_id', $this->order_id)->first();
+        if($car->car_type_id === 1 || $car->car_type_id === 2){
+            $vehicleType = 'car';
+        }else{
+            $vehicleType = 'agro';
+        }
+
+        $deal = null;
         if($currentClient) {
             $deal = TransferDeal::where('client_id', $currentClient->id)->where('transfer_order_id', $this->id)->first();
+            if($deal) {
+                $currentClient = Client::find($deal->client_id);
+            }
         }
 
         $transferDealAccept = TransferDeal::where('transfer_order_id', $this->id)->where('id', $this->transfer_deal_id)->first();
@@ -81,12 +90,13 @@ class TransferOrderResource extends JsonResource
             'deal' => $deal,
             'client' => $client,
             'currentClient' => $currentClient,
-            'recycle_type' => $preorder->recycle_type,
             'blocked' => $blocked,
             'isOwner' => $isOwner,
             'canSign' => $canSign,
             'canDeal' => $canDeal,
             'canAccept' => $canAccept,
+            'vehicleType' => $vehicleType,
+            'preorder_id' => $preorder->id,
             'status' => [
                 'id' => $this->closed,
                 'title' => $status

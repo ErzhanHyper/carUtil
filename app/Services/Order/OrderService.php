@@ -54,9 +54,76 @@ class OrderService
 
     public function getById($id)
     {
-        $order = Order::find($id);
-        $order->with(['car', 'client', 'preorder', 'history']);
-        return new OrderResource($order);
+        $user = app(AuthService::class)->auth();
+
+        if($user->role === 'moderator' || $user->role === 'operator') {
+
+            $order = Order::find($id);
+            $order->with(['car', 'client', 'preorder', 'history']);
+
+            $video = false;
+            $orderFile = File::where('order_id', $order->id)->where('file_type_id', 29)->first();
+            if ($orderFile) {
+                $video = true;
+            }
+
+            $canApprove = false;
+            $canExecute = false;
+            $canIssueCert = false;
+            $canSend = false;
+            $canRevisionVideo = false;
+            $canUploadVideo = false;
+            $canSendToIssueCert = false;
+            $blocked = true;
+            $blockedVideo = true;
+
+            if ($user->role === 'operator') {
+                if ($order->status === 4 && !$video) {
+                    $canUploadVideo = true;
+                }
+                if ($order->status === 4 && $video) {
+                    $canSendToIssueCert = true;
+                    $blockedVideo = false;
+                }
+                if ($order->approve === 0 || $order->approve === 4) {
+                    $canSend = true;
+                    $blocked = false;
+                }
+            } else if ($user->role === 'moderator') {
+                if ($order->status === 5) {
+                    $canRevisionVideo = true;
+                }
+                if ($order->approve === 1) {
+                    if (!$order->executor_uid) {
+                        $canExecute = true;
+                    }
+                    if ($order->executor_uid && $order->executor_uid === $user->id) {
+                        $canApprove = true;
+                    }
+                } else if ($order->approve === 3) {
+                    if ($order->status === 5) {
+                        if ($video && $order->car->certificate == '') {
+                            $canIssueCert = true;
+                        }
+                    }
+                }
+            }
+
+            return [
+                'item' => new OrderResource($order),
+                'permissions' => [
+                    'approveOrder' => $canApprove,
+                    'executeOrder' => $canExecute,
+                    'sendToApprove' => $canSend,
+                    'issueCert' => $canIssueCert,
+                    'uploadVideo' => $canUploadVideo,
+                    'revisionVideo' => $canRevisionVideo,
+                    'sendToIssueCert' => $canSendToIssueCert,
+                    'blocked' => $blocked,
+                    'blockedVideo' => $blockedVideo
+                ],
+            ];
+        }
     }
 
     public function sign($request, $id)

@@ -44,9 +44,9 @@ export function getTransferById(id) {
     })
 }
 
-export function closeTransfer(id, params) {
+export function closeTransfer(id) {
     return new Promise((resolve, reject) => {
-        api.delete('/transfer/order/'+id, params).then(response => {
+        api.delete('/transfer/order/'+id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

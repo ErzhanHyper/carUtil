@@ -17,7 +17,7 @@ class CommentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i'),
+            'created_at' => date('d.m.Y H:i', $this->created_at),
             'text' => $this->text,
             'action' => $this->action,
             'preorder_id' => $this->preorder_id,

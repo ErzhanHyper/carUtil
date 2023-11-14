@@ -1,40 +1,48 @@
 <template>
-    <div v-if="showData">
+    <div v-if="show">
         <q-banner class="q-mb-md bg-indigo-1" v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)">
             Рассмотрение заявки до 15 дней
         </q-banner>
 
         <div class="flex justify-between">
-            <div>
-            <span :class="(item.recycle_type === 1) ? 'text-teal-9' : 'text-orange-9'" class="text-body1 q-mt-sm">
-                {{ (item.recycle_type === 1) ? 'ВЭТС' : 'ВЭССХТ' }}
-            </span>
-                <span :class="'text-'+setStatusColor(item.status.id)"> - {{ item.status.title }}
-                <span class="text-green-8 text-overline"
-                      v-if="item.order && item.order.status.id === 3"> | Сертификат выдан</span>
-            </span>
+            <div class="q-mb-md">
+                <span :class="(item.vehicleType === 'car') ? 'text-teal-9' : 'text-orange-9'"
+                     class="text-body1 q-mt-sm"
+                     v-if="item.vehicleType">
+                        {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
+                    </span>
+                    <span :class="'text-'+setStatusColor(item.status.id)"> - {{ item.status.title }}
+                    <span class="text-green-8 text-overline"
+                          v-if="item.order && item.order.status.id === 3"> | Сертификат выдан</span>
+                </span>
                 <div class="text-body1 text-weight-bold text-blue-grey-8" v-if="item.order">
                     № заявки: {{ item.order.id }}
                 </div>
             </div>
 
-            <template v-if="user.role === 'liner'">
-                <preorder-sell :show="item.transferShow" :blocked="blocked" :transfer="item.transfer"
-                               :order_id="item.order_id"/>
-                <div class="q-gutter-md" v-if="item.status.id === 0 || item.status.id === 4">
-                    <q-btn color="blue-8" label="Отправить" icon="send" push size="12px" @click="sendData" :loading="loading"  ></q-btn>
-                    <q-btn icon="delete" label="Удалить заявку" push size="12px" color="negative" :disable="blocked"
-                           v-if="item.status.id === 0"
-                           @click="showDeleteDialog = true"/>
+                <preorder-sell :transfer="item.transfer" :order_id="item.order.id" :show="permissions.transferOrder" v-if="item.order"/>
+
+                <div class="q-gutter-md" v-if="permissions.sendToApprove">
+                    <q-btn color="blue-8"
+                           label="Отправить"
+                           icon="send"
+                           push size="12px"
+                           @click="sendData"
+                           :loading="loading">
+                    </q-btn>
+                    <q-btn icon="delete"
+                           label="Удалить заявку"
+                           push size="12px"
+                           color="negative"
+                           :disable="blocked"
+                           @click="showDeleteDialog = true">
+                    </q-btn>
                 </div>
-            </template>
-        </div>
+            </div>
 
-        <template v-if="user.role && user.role === 'moderator'">
-            <preorder-actions :id="item.id" :disabled="disabled" :data="{status: item.status, vin: item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}"/>
-        </template>
+            <preorder-actions :preorder_id="item.id" :show="permissions.approveOrder" />
 
-        <template v-if="item.comment.length > 0 && item.comment[0].text && user.role === 'liner'">
+        <template v-if="item.comment.length > 0 && item.comment[0].text && user.role === 'liner' && (item.status.id === 0 || item.status.id === 4)">
             <q-banner :class="(item.comment[0].action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
                       style="max-width: 380px" dense>
                 {{ item.comment[0].text }}
@@ -52,12 +60,9 @@
             </div>
         </q-banner>
 
-        <template v-if="(user.role === 'liner' || (user.role === 'moderator' && item.booking.datetime)) && item.status.id === 2">
-            <booking class="q-mt-md" :data="item.booking" :getBooking="getBooking" :blocked="blockedBooking" id="preorder_booking"/>
-        </template>
+        <booking class="q-mt-md" :data="item.booking" :preorder_id="item.id" :getBooking="getBooking" :blocked="blockedBooking" id="preorder_booking" v-if="!blockedBooking"/>
 
         <div class="row q-col-gutter-md">
-
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
                 <div class="row q-col-gutter-md q-mt-xs">
                     <div class="col col-md-5 col-sm-12 col-xs-12">
@@ -66,40 +71,46 @@
                     </div>
 
                     <div class="col col-md-7 col-sm-12 col-xs-12">
-                        <car-card :data="item.car" :getCar="getCar" :categories="item.categories"
+                        <car-card :data="item.car"
+                                  :getCar="getCar"
                                   :blocked="blocked"
-                                  :recycleType="item.recycle_type"
-                                  :preorder_id="item.id"/>
+                                  :vehicleType="item.vehicleType"
+                                  :preorder_id="item.id">
+                        </car-card>
                     </div>
                 </div>
 
-                <preorder-history v-if="user.role === 'moderator'" :comments="item.comment"/>
+                <preorder-history :comments="item.comment" v-if="user.role === 'moderator'"/>
             </div>
-
-            <div class="col col-md-4 col-xs-12 q-mt-xs" v-if="showFile">
-                <PreorderFile :data="item.file" :files="item.files" :blocked="blocked"
-                              :blockedVideo="item.blockedVideo" :recycleType="item.recycle_type"/>
+            <div class="col col-md-4 col-xs-12">
+                <preorder-file
+                    :transfer="item.transfer"
+                    :data="item.file"
+                    :preorder_id="item.id"
+                    :client_id="item.client.id"
+                    :blocked="blocked"
+                    :vehicleType="item.vehicleType">
+                </preorder-file>
             </div>
-
         </div>
 
 
     </div>
 
-    <q-dialog v-model="showDeleteDialog" size="xs">
-        <q-card style="width: 600px">
-            <q-card-section class="row items-center q-pb-none">
-                <div class="text-body1">Вы действительно хотите удалить заявку?</div>
-                <q-space/>
-                <q-btn icon="close" flat round dense v-close-popup/>
-            </q-card-section>
-            <q-card-actions class="q-mt-md q-mx-sm q-mb-sm">
-                <q-btn label="Да" @click="deleteData" color="pink-5" :loading="loading"/>
-                <q-space/>
-                <q-btn label="Нет" v-close-popup color="primary"/>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
+<!--    <q-dialog v-model="showDeleteDialog" size="xs">-->
+<!--        <q-card style="width: 600px">-->
+<!--            <q-card-section class="row items-center q-pb-none">-->
+<!--                <div class="text-body1">Вы действительно хотите удалить заявку?</div>-->
+<!--                <q-space/>-->
+<!--                <q-btn icon="close" flat round dense v-close-popup/>-->
+<!--            </q-card-section>-->
+<!--            <q-card-actions class="q-mt-md q-mx-sm q-mb-sm">-->
+<!--                <q-btn label="Да" @click="deleteData" color="pink-5" :loading="loading"/>-->
+<!--                <q-space/>-->
+<!--                <q-btn label="Нет" v-close-popup color="primary"/>-->
+<!--            </q-card-actions>-->
+<!--        </q-card>-->
+<!--    </q-dialog>-->
 
 </template>
 
@@ -142,16 +153,20 @@ export default {
             showDeleteDialog: false,
             disabled: false,
 
-            showData: false,
+            show: false,
             showFile: false,
+
+            transferOrder: false,
             blocked: true,
             blockedBooking: true,
 
             loading: false,
             showError: false,
-            order: null,
-
             errors: [],
+            permissions: {
+                sendToApprove: false,
+                transferOrder: false,
+            },
 
             item: {
                 transferShow: false,
@@ -208,36 +223,13 @@ export default {
         getData() {
             this.$emitter.emit('contentLoaded', true);
             getPreorderById(this.id).then(res => {
-                this.item = res
-
-                this.item.file = {
-                    client_id: res.client_id,
-                    preorder_id: res.id,
-                    video: res.video,
-                    order_id: res.order_id,
-                    order: res.order,
-                }
-
-                if (!this.item.client) {
-                    this.item.client = {
-                        idnum: this.user.idnum,
-                        title: this.user.profile.fln
-                    }
-                }
-
-                if (this.item.booking) {
-                    this.item.booking.preorder_id = this.item.id
-                } else {
-                    this.item.booking = {
-                        preorder_id: this.item.id
-                    }
-                }
-
-                this.showFile = true
-                this.blocked = this.item.blocked
-                this.blockedBooking = this.item.blockedBooking
-                this.showData = true
-
+                this.item = res.item
+                this.blocked = res.permissions.blocked
+                this.blockedBooking = res.permissions.blockedBooking
+                this.permissions.transferOrder = res.permissions.transferOrder
+                this.permissions.sendToApprove = res.permissions.sendToApprove
+                this.permissions.approveOrder = res.permissions.approveOrder
+                this.show = true
             })
         },
 
