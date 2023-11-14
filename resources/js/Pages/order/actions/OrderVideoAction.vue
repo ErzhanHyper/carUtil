@@ -7,13 +7,7 @@
                icon="keyboard_return"
                v-if="permissions.showVideoRevision"
         />
-        <q-btn label="Отправить видеозапись"
-               color="blue-8"
-               icon="videocam"
-               square size="12px"
-               v-if="permissions.showVideoSendAction && showCameraBtn"
-               @click="cameraDialog = true"
-        />
+
     </div>
 
     <q-dialog
