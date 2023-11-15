@@ -35,19 +35,22 @@
         <q-card-section>
 
             <template v-if="!onlyPhoto">
-                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
-                     v-for="(doc, i) in filesDoc"
-                     :key="i">
-                    <q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon>
-                    <a :href="'/storage/uploads/preorder/files/' + doc.preorder_id + '/' + doc.original_name"
-                       class="text-dark">
-                        {{ getFileTypeTitle(doc.file_type_id) }}
-                    </a>
-                    <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
-                            color="negative"
-                            v-if="!blocked" @click="deleteFile({type: 'doc', id: doc.id })">
-                    </q-icon>
-                </div>
+                <template v-for="(doc, i) in filesDoc" :key="i">
+
+                    <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
+                         >
+                        <q-icon name="file_copy" class="q-mr-sm" size="sm"  v-if="doc_id !== doc.id"></q-icon>
+                        <q-circular-progress indeterminate rounded size="xs" v-if="doc_id === doc.id" color="primary" class="q-mr-xs"/>
+                        <a href="#" @click="getFile(doc.id)"
+                           class="text-dark">
+                            {{ getFileTypeTitle(doc.file_type_id) }}
+                        </a>
+                        <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
+                                color="negative"
+                                v-if="!blocked" @click="deleteFile({type: 'doc', id: doc.id })">
+                        </q-icon>
+                    </div>
+                </template>
 
                 <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
                      v-if="transfer && transfer.closed === 2">
@@ -72,7 +75,7 @@
             >
                 <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" v-for="(slide, i) in filesPhoto"
                                   :key="i">
-                    <q-img :src="'/storage/uploads/preorder/files/' + slide.preorder_id + '/' + slide.original_name" class="full-height"/>
+                    <q-img :src="slide.base64Image" class="full-height cursor-pointer" @click="showImage(slide.base64Image)"/>
                     <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
                     <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
                            style="position:absolute;right:7px;top:7px" v-if="!blocked"
@@ -89,19 +92,33 @@
 
     </q-card>
 
+    <q-dialog v-model="fileDialog">
+        <q-card style="width: 100%;max-width:1200px;">
+            <q-card-section class="flex justify-between q-py-xs q-px-xs">
+                <q-space/>
+                <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
+            </q-card-section>
+            <q-card-section >
+                <q-img :src="base64Image" />
+            </q-card-section>
+        </q-card>
+    </q-dialog>
+
 </template>
 
 <script>
 import {ref} from 'vue'
 import {
-    deletePreOrderFile,
-    getFileTypeList,
+    deletePreOrderFile, getAgroFile, getAgroFileImage,
+    getCarFile, getCarFileImage,
     getFileTypeAgroList,
+    getFileTypeList,
     getPreOrderFileList,
     storePreOrderFile
 } from "../../services/file";
 import FileDownload from "js-file-download";
 import {getTransferContract} from "../../services/document";
+import {Notify} from "quasar";
 
 export default {
 
@@ -116,6 +133,12 @@ export default {
 
     data() {
         return {
+
+            imageLoaded: false,
+            base64Image: '',
+            doc_id: null,
+            fileDialog: false,
+
             filesAll: [],
             filesOptions: [],
 
@@ -135,6 +158,12 @@ export default {
     },
 
     methods: {
+
+        showImage(image){
+            this.fileDialog = true
+            this.base64Image = image
+        },
+
         getItems() {
             this.filesAll = []
             this.filesDoc = []
@@ -146,17 +175,23 @@ export default {
                 if (this.vehicleType === 'car') {
                     res.map(el => {
                         if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
-                            this.filesPhoto.push(el)
+                            getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
+                                el.base64Image = 'data:image/jpeg;base64,'+res.data
+                                this.filesPhoto.push(el)
+                            })
                         } else {
                             this.filesDoc.push(el)
                         }
                     })
+
                 } else {
                     res.map(el => {
                         if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11) {
-                            this.filesPhoto.push(el)
+                            getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
+                                el.base64Image = 'data:image/jpeg;base64,'+res.data
+                                this.filesPhoto.push(el)
+                            })
                         } else {
-                            console.log(el)
                             this.filesDoc.push(el)
                         }
                     })
@@ -260,6 +295,44 @@ export default {
                 })
             }
         },
+
+        getFile(id){
+            this.doc_id = id
+            // this.fileDialog = true
+            if(this.vehicleType === 'car') {
+                getCarFile(id, {params: {preorder_id: this.preorder_id}, responseType: 'arraybuffer'}).then((res) => {
+                    let parts = res.headers.get('Content-Disposition').split(';');
+                    let filename = parts[1].split('=')[1];
+                    FileDownload(res.data, filename)
+                }).finally(() => {
+                    this.loading = false
+                    this.doc_id = null
+                }).catch(() => {
+                    Notify.create({
+                        message: 'Не удалось открыть файл',
+                        position: 'bottom',
+                        type: 'warning'
+                    })
+                })
+            }
+            else if(this.vehicleType === 'agro') {
+                getAgroFile(id, {params: {preorder_id: this.preorder_id}, responseType: 'arraybuffer'}).then((res) => {
+                    let parts = res.headers.get('Content-Disposition').split(';');
+                    let filename = parts[1].split('=')[1];
+                    FileDownload(res.data, filename)
+                }).finally(() => {
+                    this.loading = false
+                    this.doc_id = null
+                }).catch(() => {
+                    Notify.create({
+                        message: 'Не удалось открыть файл',
+                        position: 'bottom',
+                        type: 'warning'
+                    })
+                })
+            }
+        },
+
     },
 
     created() {

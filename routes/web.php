@@ -127,6 +127,15 @@ Route::prefix('app')->group(function () {
             Route::post('/preorder/store', [\App\Http\Controllers\FileController::class, 'storePreOrderFile']);
             Route::post('/preorder/get', [\App\Http\Controllers\FileController::class, 'getPreOrderFile']);
             Route::post('/preorder/delete', [\App\Http\Controllers\FileController::class, 'deletePreOrderFile']);
+
+            Route::get('/{id}/order/doc', [\App\Http\Controllers\FileController::class, 'getFile']);
+            Route::get('/{id}/order/image', [\App\Http\Controllers\FileController::class, 'getImage']);
+            Route::get('/{id}/order/video', [\App\Http\Controllers\FileController::class, 'getVideo']);
+
+            Route::get('/{id}/preorder/carFile', [\App\Http\Controllers\FileController::class, 'getCarFile']);
+            Route::get('/{id}/preorder/carImage', [\App\Http\Controllers\FileController::class, 'getCarFileImage']);
+            Route::get('/{id}/preorder/agroFile', [\App\Http\Controllers\FileController::class, 'getAgroFile']);
+            Route::get('/{id}/preorder/agroImage', [\App\Http\Controllers\FileController::class, 'getAgroFileImage']);
         });
 
         Route::prefix('document')->group(function () {

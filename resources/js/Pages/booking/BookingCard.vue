@@ -96,6 +96,7 @@ export default {
         bookingOrder(){
             this.loading = true
             bookingOrder(this.preorder_id, this.item).then(res => {
+                this.item.id = res.booking_id
                 this.disabled = true
                 this.$emitter.emit('BookingCardEvent')
                 Notify.create({

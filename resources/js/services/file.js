@@ -99,3 +99,81 @@ export function generateOrderPFS(id, params) {
     })
 }
 
+
+export function getOrderFile(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/order/doc', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+
+export function getOrderVideo(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/order/video', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function getOrderImage(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/order/image', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function getCarFile(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/preorder/carFile', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function getAgroFile(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/preorder/agroFile', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function getCarFileImage(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/preorder/carImage', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function getAgroFileImage(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/preorder/agroImage', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

@@ -15,6 +15,7 @@ use App\Models\TransferOrder;
 use App\Services\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PDF;
 use InvalidArgumentException;
@@ -48,17 +49,15 @@ class FileController extends Controller
             'recipient_ud_issued' => $recipient_client->ud_issued->title
         ];
 
-        if ($user) {
-            if (($user->role === 'liner' && $user->id === $preorder->liner_id) || ($user->role === 'moderator') || $user->role === 'operator') {
-                if ($preorder && $preorder->order_id) {
-                    $folder = public_path('/storage/uploads/order/pfs');
-                    if (!file_exists($folder)) {
-                        mkdir($folder, 0777, true);
-                    }
-                    $pdf = PDF::loadView('templates.pfs', compact('data'));
-                    $pdf->setPaper('a4', 'portrait')->setWarnings(false);
-                    return $pdf->download('pfs.pdf');
+        if (($user->role === 'liner' && $user->id === $preorder->liner_id) || ($user->role === 'moderator') || $user->role === 'operator') {
+            if ($preorder && $preorder->order_id) {
+                $folder = public_path('/storage/uploads/order/pfs');
+                if (!file_exists($folder)) {
+                    mkdir($folder, 0777, true);
                 }
+                $pdf = PDF::loadView('templates.pfs', compact('data'));
+                $pdf->setPaper('a4', 'portrait')->setWarnings(false);
+                return $pdf->download('pfs.pdf');
             }
         }
     }
@@ -73,7 +72,8 @@ class FileController extends Controller
         $file = $request->file;
         $original_name = time() . '_' . $file->getClientOriginalName();
         $extension = $file->extension();
-        $file->move(public_path('storage/uploads/order/files/' . $order->id), $original_name);
+        $path = 'order/files/'.$order->id.'/';
+        Storage::putFileAs($path, $file, trim($original_name));
 
         if ($order && $car) {
             $file = new File();
@@ -82,8 +82,8 @@ class FileController extends Controller
             $file->file_type_id = $car->id;
             $file->file_type_id = $request->file_type_id;
             $file->client_id = $order->client_id;
-            $file->ext = $extension;
-            $file->original_name = $original_name;
+            $file->extension = $extension;
+            $file->original_name = trim($original_name);
             $file->created_at = time();
             $file->save();
         }
@@ -111,7 +111,7 @@ class FileController extends Controller
     public function storePreOrderFile(Request $request)
     {
 
-        $types = 'mimes:pdf,doc,docx,xlsx,jpeg,png,jpg,jfif';
+        $types = 'mimes:pdf,doc,docx,xlsx,jpeg,png,jpg,jfif,webp';
         if (in_array($request->file_type_id, [8, 9, 10, 11, 12, 13, 14, 15, 16])) {
             $types = 'mimes:jpeg,png,jpg,jfif';
         }
@@ -126,12 +126,13 @@ class FileController extends Controller
             throw new InvalidArgumentException($validator->messages());
         }
 
-        if ($request->preorder_id) {
-            $preorder = PreOrderCar::find($request->preorder_id);
+        $preorder = PreOrderCar::find($request->preorder_id);
+        if ($preorder) {
             $file = $request->file;
             $original_name = time() . '_' . $file->getClientOriginalName();
             $extension = $file->extension();
-            $file->move(public_path('storage/uploads/preorder/files/' . $request->preorder_id), $original_name);
+            $path = 'preorder/files/'.$preorder->id.'/';
+            Storage::putFileAs($path, $file, $original_name);
 
             if ($preorder->recycle_type === 1) {
                 $preorderFile = new CarFile();
@@ -212,12 +213,182 @@ class FileController extends Controller
         return response()->json($message);
     }
 
-//    public function downloadOrderFile(Request $request, $id)
-//    {
-//        $user = app(AuthService::class)->auth();
-//
-//        if($user) {
-//            return Storage::download('uploads/order/files/'.$id.'/'.$request->filename);
-//        }
-//    }
+    public function getFile(Request $request, $id)
+    {
+        $user = app(AuthService::class)->auth();
+        $order_id = $request->order_id;
+        $order = Order::find($order_id);
+        if($order) {
+            if ($user->role === 'operator' || $user->role === 'moderator') {
+                $file = File::find($id);
+                $filePath = '/order/files/' . $order->id . '/' . $file->original_name;
+                $path = Storage::disk('local')->path($filePath);
+                header('Content-Disposition: inline; filename="' . $file->original_name . '');
+
+                return response()->file($path);
+
+            }
+        }
+    }
+
+    public function getImage(Request $request, $id){
+        $user = app(AuthService::class)->auth();
+        $order_id = $request->order_id;
+        $order = Order::find($order_id);
+        if($order) {
+            if ($user->role === 'operator' || $user->role === 'moderator') {
+                $file = File::find($id);
+                $filePath = '/order/files/' . $order->id . '/' . $file->original_name;
+                $path = Storage::disk('local')->get($filePath);
+                return base64_encode($path);
+            }
+        }
+    }
+
+    public function getVideo(Request $request, $id){
+        $user = app(AuthService::class)->auth();
+        $order_id = $request->order_id;
+        $order = Order::find($order_id);
+        if($order) {
+            if ($user->role === 'operator' || $user->role === 'moderator') {
+                $file = File::find($id);
+                $filePath = '/order/files/' . $order->id . '/' . $file->original_name;
+                $path = Storage::disk('local')->get($filePath);
+                return base64_encode($path);
+            }
+        }
+    }
+
+    public function getCarFile(Request $request, $id)
+    {
+        $user = app(AuthService::class)->auth();
+        $preorder_id = $request->preorder_id;
+        $preorder = PreOrderCar::find($preorder_id);
+        $file = CarFile::find($id);
+        $filePath = '/preorder/files/'.$preorder_id.'/'.$file->original_name;
+        $path = Storage::disk('local')->path($filePath);
+
+        if($preorder){
+
+            if($user->role === 'moderator' || ($user->role === 'liner' && $user->id === $preorder->liner_id)){
+                if ($file->extension == 'jpg' || $file->extension == 'JPG' || $file->extension == 'jpeg' || $file->extension == 'JPEG' || $file->extension == 'jfif' || $file->extension == 'JFIF') {
+                    $ct = 'image/jpeg';
+                } else if ($file->extension == 'png' || $file->extension == 'PNG') {
+                    $ct = 'image/png';
+                } else if ($file->extension == 'pdf' || $file->extension == 'PDF') {
+                    $ct = 'application/pdf';
+                } else if ($file->extension == 'rar' || $file->extension == 'RAR') {
+                    $ct = 'application/rar';
+                } else if ($file->extension == 'zip' || $file->extension == 'ZIP') {
+                    $ct = 'application/zip';
+                } else if ($file->extension == 'webm' || $file->extension == 'webm') {
+                    $ct = 'video/webm';
+                } else if ($file->extension == 'mp4' || $file->extension == 'mp4') {
+                    $ct = 'video/mp4';
+                }
+
+                if (file_exists($path)) {
+                    if (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    header('Content-Type: ' . $ct);
+                    header('Content-Disposition: inline; filename="' . $file->original_name . '');
+                    header('Content-Transfer-Encoding: binary');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($path));
+                    // читаем файл и отправляем его пользователю
+                    readfile($path);
+                    // не взумайте вставить сюда exit
+                }
+            }
+        }
+    }
+
+    public function getAgroFile(Request $request, $id)
+    {
+        $user = app(AuthService::class)->auth();
+        $preorder_id = $request->preorder_id;
+        $preorder = PreOrderCar::find($preorder_id);
+        $file = AgroFile::find($id);
+        $filePath = '/preorder/files/'.$preorder_id.'/'.$file->original_name;
+        $path = Storage::disk('local')->path($filePath);
+
+        if($preorder){
+            if($user->role === 'moderator' || ($user->role === 'liner' && $user->id === $preorder->liner_id)){
+                if ($file->extension == 'jpg' || $file->extension == 'JPG' || $file->extension == 'jpeg' || $file->extension == 'JPEG' || $file->extension == 'jfif' || $file->extension == 'JFIF') {
+                    $ct = 'image/jpeg';
+                } else if ($file->extension == 'png' || $file->extension == 'PNG') {
+                    $ct = 'image/png';
+                } else if ($file->extension == 'pdf' || $file->extension == 'PDF') {
+                    $ct = 'application/pdf';
+                } else if ($file->extension == 'rar' || $file->extension == 'RAR') {
+                    $ct = 'application/rar';
+                } else if ($file->extension == 'zip' || $file->extension == 'ZIP') {
+                    $ct = 'application/zip';
+                } else if ($file->extension == 'webm' || $file->extension == 'webm') {
+                    $ct = 'video/webm';
+                } else if ($file->extension == 'mp4' || $file->extension == 'mp4') {
+                    $ct = 'video/mp4';
+                }
+
+                if (file_exists($path)) {
+                    if (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    header('Content-Type: ' . $ct);
+                    header('Content-Disposition: inline; filename="' . $file->original_name . '');
+                    header('Content-Transfer-Encoding: binary');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($path));
+                    // читаем файл и отправляем его пользователю
+                    readfile($path);
+                    // не взумайте вставить сюда exit
+                }
+            }
+        }
+    }
+
+    public function getCarFileImage(Request $request, $id){
+        $user = app(AuthService::class)->auth();
+        $preorder_id = $request->preorder_id;
+        $preorder = PreOrderCar::find($preorder_id);
+        $transfer_find = null;
+        if($preorder) {
+            $order = Order::find($preorder->id);
+            if($order) {
+                $transfer_find = TransferOrder::where('closed', '!=', 2)->where('order_id', $order->id)->first();
+            }
+            if ($user->role === 'moderator' || ($user->role === 'liner' && $user->id === $preorder->liner_id)  || $transfer_find) {
+                $file = CarFile::find($id);
+                $filePath = '/preorder/files/' . $preorder_id . '/' . $file->original_name;
+                $path = Storage::disk('local')->get($filePath);
+
+                return base64_encode($path);
+            }
+        }
+    }
+
+    public function getAgroFileImage(Request $request, $id){
+        $user = app(AuthService::class)->auth();
+        $preorder_id = $request->preorder_id;
+        $preorder = PreOrderCar::find($preorder_id);
+        $transfer_find = null;
+        if($preorder) {
+            $order = Order::find($preorder->id);
+            if($order) {
+                $transfer_find = TransferOrder::where('closed', '!=', 2)->where('order_id', $order->id)->first();
+            }
+            if ($user->role === 'moderator' || ($user->role === 'liner' && $user->id === $preorder->liner_id) || $transfer_find) {
+                $file = AgroFile::find($id);
+                $filePath = '/preorder/files/' . $preorder_id . '/' . $file->original_name;
+                $path = Storage::disk('local')->get($filePath);
+
+                return base64_encode($path);
+            }
+        }
+    }
 }

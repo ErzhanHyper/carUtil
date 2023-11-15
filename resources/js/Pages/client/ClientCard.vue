@@ -25,7 +25,7 @@
 
             <div class="row q-col-gutter-md q-mb-md">
                 <div class="col col-md-6 col-xs-12">
-                    <ClientIdField :data="item.idnum" v-model="item.idnum" dense outlined square :readonly="blocked"/>
+                    <ClientIdField :data="item.idnum" v-model="item.idnum" dense outlined square :readonly="blocked" :label="item.client_type_id === 1 ? 'ИИН' : 'БИН'"/>
                 </div>
                 <div class="col col-md-6 col-xs-12">
                     <ClientUdNumField :data="item.ud_num" v-model="item.ud_num" dense outlined square
@@ -122,6 +122,21 @@ export default {
             this.item = this.data
             if (this.item.ud_expired) {
                 this.item.ud_expired = this.$moment(this.$moment(this.item.ud_expired, 'YYYY-MM-DD').toDate()).format('YYYY-MM-DD')
+            }
+        }else{
+            if(this.item.title == '') {
+                this.item.title = this.user.profile.fln
+            }
+            if(!this.item.idnum || this.item.idnum == '') {
+                this.item.idnum = this.user.idnum
+            }
+
+            if((!this.item.phone || this.item.phone == '') && this.user.profile) {
+                this.item.phone = this.user.profile.phone
+            }
+
+            if((!this.item.email || this.item.email == '') && this.user.profile) {
+                this.item.email = this.user.profile.email
             }
         }
     },

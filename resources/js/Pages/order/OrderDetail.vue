@@ -49,8 +49,11 @@
                 <order-cert-action :order_id="item.id" :show="permissions.issueCertAction" class="q-ml-xs q-mr-md"/>
                 <order-video-action :order_id="item.id" :permissions="{showVideoSendAction: permissions.showVideoSendAction,showVideoRevision: permissions.showVideoRevisionAction}"/>
             </div>
-            <order-kap :order_id="item.id" :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}" :blocked="!permissions.showApproveAction" v-if="user.role === 'moderator'"/>
-        </div>
+            <div>
+                <q-btn label="Проверка дубликатов" color="deep-orange-8" size="12px" icon="search" class="q-mr-md" @click="showDuplicatesDialog = true" v-if="user.role === 'moderator' && item.executor"/>
+                <order-kap :order_id="item.id" :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}" :blocked="!permissions.showApproveAction" v-if="user.role === 'moderator' && item.executor"/>
+            </div>
+            </div>
         <order-send-action :order_id="item.id"
                            :permissions="{
                     showSendToApproveAction: permissions.showSendToApproveAction,
@@ -85,20 +88,74 @@
             </div>
 
         </div>
+
+
+        <q-dialog v-model="showDuplicatesDialog">
+            <q-card style="width: 100%;max-width: 1200px">
+                <q-card-section class="flex justify-between q-pa-sm">
+                    <q-space/>
+                    <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
+                </q-card-section>
+                <q-card-section>
+                    <div class="row q-col-gutter-md">
+                        <div class="col">
+                            <div class="text-body1 text-weight-bold text-blue-grey-8">Проверка 1</div>
+                            <div class="q-mb-md">
+                            <div>Возможные дубликаты по VIN</div>
+                                <div v-for="el in duplicates1">
+                                    <template v-if="el.length > 0">
+                                        <template v-for="car in el">
+                                           <div class="text-weight-bold"> <q-icon name="open_in_new" class="q-mr-xs"/>
+                                               <a :href="'/order/'+car.order_id" target="_blank" class="text-primary">{{ car.vin }}</a>
+                                           </div>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <div class="text-caption">Нет совпадений</div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="q-mb-md">
+                                <div>Возможные дубликаты по номеру кузова</div>
+                                <div class="text-caption">Нет совпадений</div>
+                            </div>
+
+                            <div class="q-mb-md">
+                                <div>Возможные дубликаты по номеру шасси</div>
+                                <div class="text-caption">Нет совпадений</div>
+                            </div>
+
+
+                        </div>
+                        <div class="col">
+                            <div class="text-body1 text-weight-bold text-blue-grey-8">Проверка 2</div>
+                            <div class="q-mb-md">
+                            <div>Возможные дубликаты по VIN(в этой машине) -> BODY(другие машине)</div>
+                                <div v-for="el in duplicates2">
+                                    <template v-if="el.length > 0">
+                                        <template v-for="car in el">
+                                            <div class="text-weight-bold"> <q-icon name="open_in_new" class="q-mr-xs"/>
+                                                <a :href="'/order/'+car.order_id" target="_blank" class="text-primary">{{ car.vin }}</a>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <div class="text-caption">Нет совпадений</div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="q-mb-md">
+                                <div>Возможные дубликаты по BODY(в этой машине) -> VIN(другие машине)</div>
+                                <div class="text-caption">Нет совпадений</div>
+                            </div>
+                        </div>
+                    </div>
+                </q-card-section>
+            </q-card>
+        </q-dialog>
+
     </div>
-
-<!--    <div class="row q-col-gutter-md">-->
-<!--        <div class="col">-->
-<!--            <div class="text-body1 text-weight-bold text-blue-grey-8">Проверка 1</div>-->
-<!--            <div>Возможные дубликаты по VIN</div>-->
-<!--        </div>-->
-<!--        <div class="col">-->
-<!--            <div class="text-body1 text-weight-bold text-blue-grey-8">Проверка 2</div>-->
-<!--            <div>Возможные дубликаты по VIN</div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-
 
 </template>
 
@@ -151,6 +208,7 @@ export default {
     data() {
         return {
             showDeleteDialog: false,
+            showDuplicatesDialog: false,
             disabled: true,
             showData: false,
             showFile: false,
@@ -178,6 +236,9 @@ export default {
                 showVideoRevisionAction: false,
                 showSendToIssueCertAction: false,
             },
+
+            duplicates1: [],
+            duplicates2: [],
         }
     },
 
@@ -233,6 +294,9 @@ export default {
                 this.showData = true
                 this.showFile = true
                 this.item = res.item
+
+                this.duplicates1 = res.duplicates1
+                this.duplicates2 = res.duplicates2
 
                 if(res.permissions) {
                     this.permissions.showApproveAction = res.permissions.approveOrder

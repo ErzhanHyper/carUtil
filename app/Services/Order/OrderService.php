@@ -110,8 +110,37 @@ class OrderService
                 }
             }
 
+            $car = Car::where('order_id', $order->id)->first();
+            $c_repeat = [];
+            $vin = trim($car->vin);
+            if(mb_strlen($vin)>5) {
+                $short_vin = mb_substr($vin, -5, 5);
+                $t_car = Car::where('vin', 'like', '%'.$short_vin.'%')->where('id', '!=',$car->id)->get();
+                $tca = array();
+                foreach($t_car as $nn => $tc) {
+                    $tca[] = array('id' => $tc->id, 'order_id' => $tc->order_id, 'vin' => $tc->vin);
+                }
+                $c_repeat[$vin] = $tca;
+                unset($tca,$t_car);
+            }
+
+            $c_body_repeat = array();
+            $vin = trim($car->vin);
+            if(mb_strlen($vin)>5) {
+                $short_vin = mb_substr($vin, -5, 5);
+                $t_car = Car::where('body_no','like', '%'.$short_vin.'%')->where('id', '!=',$car->id)->get();
+                $tca = array();
+                foreach($t_car as $nn => $tc) {
+                    $tca[] = array('id' => $tc->id, 'vin' => $tc->vin, 'order_id' => $tc->order_id,);
+                }
+                $c_body_repeat[$vin] = $tca;
+                unset($tca,$t_car);
+            }
+
             return [
                 'item' => new OrderResource($order),
+                'duplicates1' => $c_repeat,
+                'duplicates2' => $c_body_repeat,
                 'permissions' => [
                     'approveOrder' => $canApprove,
                     'executeOrder' => $canExecute,
@@ -246,7 +275,8 @@ class OrderService
                 $extension = explode('/', $_FILES['voice']['type']);
                 $original_name = basename(md5($_FILES['voice']['tmp_name'] . time())) . '.' . $extension[1];
 
-                $path = public_path('storage/uploads/order/files/' . $order->id . '/' . $original_name);
+                $filePath = '/order/files/'.$order->id.'/'.$original_name;
+                $path = Storage::disk('local')->path($filePath);
                 move_uploaded_file($_FILES['voice']['tmp_name'], $path);
 
                 $file = new File();
@@ -255,7 +285,7 @@ class OrderService
                 $file->file_type_id = $car->id;
                 $file->file_type_id = 29;
                 $file->client_id = $order->client_id;
-                $file->ext = $extension[1];
+                $file->extension = $extension[1];
                 $file->original_name = $original_name;
                 $file->created_at = time();
                 $file->save();
