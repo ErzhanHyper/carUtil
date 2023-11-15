@@ -141,4 +141,34 @@ class TransferDealService
             'message' => $message
         ];
     }
+
+    public function delete($id){
+        $user = app(AuthService::class)->auth();
+        $authClient = Client::where('idnum', $user->idnum)->first();
+
+        $deal = TransferDeal::find($id);
+        if($deal) {
+            if ($authClient->id === $deal->client_id) {
+                $transferOrder = TransferOrder::find($deal->transfer_order_id);
+                if($transferOrder) {
+                    if ($transferOrder->transfer_deal_id === $deal->id) {
+                        $transferOrder->transfer_deal_id = null;
+                        $transferOrder->approved_dt = 0;
+                        $transferOrder->owner_sign = '';
+                        $transferOrder->receiver_sign = '';
+                        $transferOrder->hash = '';
+                        $transferOrder->owner_sign_time = 0;
+                        $transferOrder->receiver_sign_time = 0;
+                        $transferOrder->closed = 0;
+                        $transferOrder->save();
+                    }
+                }
+                $deal->delete();
+                return [
+                    'success' => true,
+                    'message' => 'Предложение отменено'
+                ];
+            }
+        }
+    }
 }

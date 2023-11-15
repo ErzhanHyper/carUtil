@@ -118,12 +118,34 @@
 
                             <div class="q-mb-md">
                                 <div>Возможные дубликаты по номеру кузова</div>
-                                <div class="text-caption">Нет совпадений</div>
+                                <div v-for="el in body_duplicates1">
+                                    <template v-if="el.length > 0">
+                                        <template v-for="car in el">
+                                            <div class="text-weight-bold"> <q-icon name="open_in_new" class="q-mr-xs"/>
+                                                <a :href="'/order/'+car.order_id" target="_blank" class="text-primary">{{ car.body_no }}</a>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <div class="text-caption">Нет совпадений</div>
+                                    </template>
+                                </div>
                             </div>
 
                             <div class="q-mb-md">
                                 <div>Возможные дубликаты по номеру шасси</div>
-                                <div class="text-caption">Нет совпадений</div>
+                                <div v-for="el in chassis_duplicates1">
+                                    <template v-if="el.length > 0">
+                                        <template v-for="car in el">
+                                            <div class="text-weight-bold"> <q-icon name="open_in_new" class="q-mr-xs"/>
+                                                <a :href="'/order/'+car.order_id" target="_blank" class="text-primary">{{ car.chassis_no }}</a>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <div class="text-caption">Нет совпадений</div>
+                                    </template>
+                                </div>
                             </div>
 
 
@@ -147,7 +169,18 @@
                             </div>
                             <div class="q-mb-md">
                                 <div>Возможные дубликаты по BODY(в этой машине) -> VIN(другие машине)</div>
-                                <div class="text-caption">Нет совпадений</div>
+                                <div v-for="el in body_duplicates2">
+                                    <template v-if="el.length > 0">
+                                        <template v-for="car in el">
+                                            <div class="text-weight-bold"> <q-icon name="open_in_new" class="q-mr-xs"/>
+                                                <a :href="'/order/'+car.order_id" target="_blank" class="text-primary">{{ car.body_no }}</a>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <div class="text-caption">Нет совпадений</div>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -239,6 +272,9 @@ export default {
 
             duplicates1: [],
             duplicates2: [],
+            body_duplicates1: [],
+            body_duplicates2: [],
+            chassis_duplicates1: []
         }
     },
 
@@ -297,6 +333,9 @@ export default {
 
                 this.duplicates1 = res.duplicates1
                 this.duplicates2 = res.duplicates2
+                this.body_duplicates1 = res.body_duplicates1
+                this.body_duplicates2 = res.body_duplicates2
+                this.chassis_duplicates1 = res.chassis_duplicates1
 
                 if(res.permissions) {
                     this.permissions.showApproveAction = res.permissions.approveOrder

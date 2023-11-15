@@ -115,6 +115,7 @@ Route::prefix('app')->group(function () {
                 Route::post('/', [\App\Http\Controllers\TransferDealController::class, 'store']);
                 Route::put('/{id}/accept', [\App\Http\Controllers\TransferDealController::class, 'accept']);
                 Route::put('/{id}/close', [\App\Http\Controllers\TransferDealController::class, 'close']);
+                Route::put('/{id}/delete', [\App\Http\Controllers\TransferDealController::class, 'delete']);
             });
         });
 

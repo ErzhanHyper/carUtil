@@ -157,11 +157,15 @@ class KapService
         }
 
         if ($success_checking) {
+            $user_id = null;
+            if($user->role === 'moderator'){
+                $user_id = $user->id;
+            }
             $kap_request = new KapRequest;
             $kap_request->vin = $vin;
             $kap_request->k_status = $message;
             $kap_request->xml_response = $result_data;
-            $kap_request->user_id = $user->id;
+            $kap_request->user_id = $user_id;
             $kap_request->created_at = time();
             $kap_request->save();
             if (!empty($kap_request->id)) {

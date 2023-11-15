@@ -129,6 +129,7 @@ class PreorderService
         $auth = app(AuthService::class)->auth();
         $preorder = PreOrderCar::find($id);
         $car = null;
+        $car_find = null;
         $client = null;
         if ($preorder->status === 0 || $preorder->status === 4) {
             if ($auth->idnum !== $request->client['idnum']) {
@@ -150,8 +151,20 @@ class PreorderService
                         if ($car) {
                             $preorderDuplicate = PreOrderCar::where('client_id', $client->id)->where('car_id', $car->id)->whereIn('status', [1,2])->first();
                             if ($preorderDuplicate) {
-                                $message = 'ТС с таким VIN кодом уже привязан к другой заявке';
-                                $can = false;
+                                $date = date('d.m.Y', $preorderDuplicate->date);
+                                $closedDate = strtotime($date . ' + 15 days');
+                                if($closedDate >= time()){
+                                    $diffDate = $closedDate - time();
+                                    $closedDays = date('j', $diffDate);
+                                }else{
+                                    $closedDays = 0;
+                                }
+                                if($closedDays > 0) {
+                                    $message = 'ТС с таким VIN кодом уже привязан к другой заявке';
+                                    $can = false;
+                                }else{
+                                    $car_find = true;
+                                }
                             }
                         }
                     }
@@ -192,7 +205,7 @@ class PreorderService
                     $client = app(ClientService::class)->create($request->client);
                 }
 
-                if ($car) {
+                if ($car && !$car_find) {
                     $car = app(CarService::class)->update($car_request, $car->id);
                 } else {
                     $car = app(CarService::class)->create($car_request);

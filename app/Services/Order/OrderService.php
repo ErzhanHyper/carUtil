@@ -124,6 +124,32 @@ class OrderService
                 unset($tca,$t_car);
             }
 
+            $body_repeat = [];
+            $body = trim($car->body_no);
+            if(mb_strlen($body)>5) {
+                $short_body = mb_substr($body, -5, 5);
+                $t_car = Car::where('body_no', 'like', '%'.$short_body.'%')->where('id', '!=', $car->id)->get();
+                $tca = array();
+                foreach($t_car as $nn => $tc) {
+                    $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);
+                }
+                $body_repeat[$body] = $tca;
+                unset($tca,$t_car);
+            }
+
+            $chassis_repeat = [];
+            $chassis = trim($car->chassis_no);
+            if(mb_strlen($chassis)>5) {
+                $short_chassis = mb_substr($chassis, -5, 5);
+                $t_car = Car::where('chassis_no', 'like', '%'.$short_chassis.'%')->where('id','!=', $car->id)->get();
+                $tca = array();
+                foreach($t_car as $nn => $tc) {
+                    $tca[] = array('id' => $tc->id, 'chassis_no' => $tc->chassis_no,'order_id' => $tc->order_id,);
+                }
+                $chassis_repeat[$chassis] = $tca;
+                unset($tca,$t_car);
+            }
+
             $c_body_repeat = array();
             $vin = trim($car->vin);
             if(mb_strlen($vin)>5) {
@@ -137,10 +163,26 @@ class OrderService
                 unset($tca,$t_car);
             }
 
+            $body_vin_repeat = array();
+            $body = trim($car->body_no);
+            if(mb_strlen($body)>5) {
+                $short_body = mb_substr($body, -5, 5);
+                $t_car = Car::where('vin', 'like', '%'.$short_body.'%')->where('id', '!=', $car->id)->get();
+                $tca = array();
+                foreach($t_car as $nn => $tc) {
+                    $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);
+                }
+                $body_vin_repeat[$body] = $tca;
+                unset($tca,$t_car);
+            }
+
             return [
                 'item' => new OrderResource($order),
                 'duplicates1' => $c_repeat,
                 'duplicates2' => $c_body_repeat,
+                'body_duplicates1' => $body_repeat,
+                'chassis_duplicates1' => $chassis_repeat,
+                'body_duplicates2' => $body_vin_repeat,
                 'permissions' => [
                     'approveOrder' => $canApprove,
                     'executeOrder' => $canExecute,

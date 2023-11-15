@@ -1,7 +1,9 @@
 <template>
     <div v-if="show">
         <q-banner class="q-mb-md bg-indigo-1" v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)">
-            Рассмотрение заявки до 15 дней
+            <div>Обработка заявки до 15 дней с момента одобрения</div>
+            <div v-if="item.closedDate !== 0">Осталось дней: <span class="text-orange-9 text-weight-bold" >{{ item.closedDate }}</span></div>
+            <div v-else class="text-pink-8 text-weight-bold">Время истекло</div>
         </q-banner>
 
         <div class="flex justify-between">
@@ -20,24 +22,30 @@
                 </div>
             </div>
 
+            <div>
                 <preorder-sell :transfer="item.transfer" :order_id="item.order.id" :show="permissions.transferOrder" v-if="item.order && !item.booking"/>
 
-                <div class="q-gutter-md" v-if="permissions.sendToApprove">
+                <div class="q-gutter-md" >
                     <q-btn color="blue-8"
                            label="Отправить"
                            icon="send"
                            push size="12px"
                            @click="sendData"
-                           :loading="loading">
+                           :loading="loading"
+                           v-if="permissions.sendToApprove"
+                    >
                     </q-btn>
                     <q-btn icon="delete"
                            label="Удалить заявку"
                            push size="12px"
                            color="negative"
                            :disable="blocked"
-                           @click="showDeleteDialog = true">
+                           @click="showDeleteDialog = true"
+                           v-if="permissions.sendToApprove"
+                    >
                     </q-btn>
                 </div>
+            </div>
             </div>
 
         <div class="flex justify-between">
@@ -63,7 +71,7 @@
             </div>
         </q-banner>
 
-        <booking class="q-mt-md" :data="item.booking" :preorder_id="item.id" :getBooking="getBooking" :blocked="blockedBooking" id="preorder_booking" v-if="!blockedBooking"/>
+        <booking class="q-mt-md" :data="item.booking" :preorder_id="item.id" :getBooking="getBooking" :blocked="blockedBooking" id="preorder_booking" v-if="!blockedBooking && item.closedDate !== 0" />
 
         <div class="row q-col-gutter-md">
             <div class="col col-md-8 col-sm-12 col-xs-12 ">

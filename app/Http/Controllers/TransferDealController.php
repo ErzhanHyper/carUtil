@@ -66,6 +66,19 @@ class TransferDealController extends Controller
 
     }
 
+    public function delete($id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(TransferDealService::class)->delete($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+
+    }
+
     /**
      * Remove the specified resource from storage.
      */

@@ -43,6 +43,15 @@ class PreOrderResource extends JsonResource
             $transfer = new TransferOrderResource(TransferOrder::where('order_id', $order->id)->first());
         }
 
+        $date = date('d.m.Y', $this->date);
+        $closedDate = strtotime($date . ' + 15 days');
+        if($closedDate >= time()){
+            $diffDate = $closedDate - time();
+            $closedDays = date('j', $diffDate);
+        }else{
+            $closedDays = 0;
+        }
+
         return [
             'id' => $this->id,
             'status' => [
@@ -60,6 +69,7 @@ class PreOrderResource extends JsonResource
             'files' => $vehicleType === 'car' ? $this->car_file : $this->agro_file,
             'comment' => CommentResource::collection($this->comment),
             'vehicleType' => $vehicleType,
+            'closedDate' => $closedDays
         ];
     }
 }

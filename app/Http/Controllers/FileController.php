@@ -358,7 +358,7 @@ class FileController extends Controller
         $preorder = PreOrderCar::find($preorder_id);
         $transfer_find = null;
         if($preorder) {
-            $order = Order::find($preorder->id);
+            $order = Order::find($preorder->order_id);
             if($order) {
                 $transfer_find = TransferOrder::where('closed', '!=', 2)->where('order_id', $order->id)->first();
             }
@@ -378,7 +378,7 @@ class FileController extends Controller
         $preorder = PreOrderCar::find($preorder_id);
         $transfer_find = null;
         if($preorder) {
-            $order = Order::find($preorder->id);
+            $order = Order::find($preorder->order_id);
             if($order) {
                 $transfer_find = TransferOrder::where('closed', '!=', 2)->where('order_id', $order->id)->first();
             }

@@ -99,6 +99,17 @@ export function closeTransferDeal(id) {
     })
 }
 
+export function deleteTransferDeal(id) {
+    return new Promise((resolve, reject) => {
+        api.put('/transfer/deal/'+id + '/delete').then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function signTransferOrder(id, params) {
     return new Promise((resolve, reject) => {
         api.put('/transfer/order/'+id+'/sign', params).then(response => {

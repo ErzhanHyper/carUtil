@@ -3,6 +3,8 @@
     <div class="q-gutter-sm text-right">
         <q-btn icon="close" color="negative" size="11px"
                label="Отменить продажу ТС" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2" :loading="loading2"/>
+        <q-btn icon="close" color="negative" size="11px"
+               label="Отменить предложение" @click="removeTransferDeal" v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2"/>
     </div>
 
     <transfer-deal :id="item.id" :data="item" v-if="show && item.isOwner" />
@@ -112,7 +114,13 @@
 <script>
 import {Notify} from "quasar";
 import FileDownload from "js-file-download";
-import { closeTransfer, getTransferById, signTransferOrder, storeTransferDeal } from "../../services/transfer";
+import {
+    closeTransfer,
+    deleteTransferDeal,
+    getTransferById,
+    signTransferOrder,
+    storeTransferDeal
+} from "../../services/transfer";
 
 import {signData} from "../../services/sign";
 import {getTransferContract} from "../../services/document";
@@ -130,6 +138,7 @@ export default {
 
     data() {
         return {
+            deal_id: null,
             show: false,
             amount: null,
             loading: false,
@@ -167,6 +176,9 @@ export default {
             this.show = false
             getTransferById(this.id).then(res => {
                 if(res) {
+                    if(res.deal) {
+                        this.deal_id = res.deal.id
+                    }
                     this.item = res
                     this.blocked = res.blocked
                 }
@@ -239,6 +251,21 @@ export default {
                 }
             }).finally(() => {
                 this.loading2 = false
+            })
+        },
+        removeTransferDeal(){
+            this.loading2 = true
+            deleteTransferDeal(this.deal_id).then(res => {
+                if(res && res.message !== '') {
+                    Notify.create({
+                        message: res.message,
+                        position: 'bottom',
+                        type: res.success === true ? 'primary' : 'warning'
+                    })
+                    this.$router.push('/transfer/order')
+                }
+            }).finally(() => {
+                this.loading = false
             })
         }
     },
