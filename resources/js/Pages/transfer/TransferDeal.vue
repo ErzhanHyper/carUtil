@@ -103,6 +103,7 @@ export default {
             this.$emitter.emit('contentLoaded', true);
             this.show = false
             getTransferDealList({params: {transfer_order_id: this.id}}).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 if(res && res.items) {
                     this.items = res.items
                 }
