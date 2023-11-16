@@ -132,6 +132,7 @@ export default {
             getExchangeList({params: {
                 page: this.page
             }}).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 if(res) {
                     this.show = true
                     this.items = res.items

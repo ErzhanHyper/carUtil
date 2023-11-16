@@ -318,6 +318,7 @@ export default {
         getData() {
             this.$emitter.emit('contentLoaded', true);
             getOrderList({params: this.filter}).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res.items
                 this.totalPage = res.pages
             }).finally(()=> {

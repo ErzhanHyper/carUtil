@@ -8,26 +8,29 @@
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="VIN" v-model="filter.idnum" outlined dense/>
+                    <q-select label="Тип заявки" v-model="filter.type" outlined dense :options="['ВЭТС', 'ВЭССХТ']"/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ГРНЗ" v-model="filter.title" outlined dense/>
+                    <q-input label="VIN" v-model="filter.vin" outlined dense/>
+                </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-input label="ГРНЗ" v-model="filter.grnz" outlined dense/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input label="ФИО" v-model="filter.title" outlined dense/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ИИН/БИН" v-model="filter.title" outlined dense/>
+                    <q-input label="ИИН/БИН" v-model="filter.idnum" outlined dense/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Статус" v-model="filter.title" outlined dense/>
+                    <q-select label="Статус" v-model="filter.approve" outlined dense :options="statuses" option-label="title" option-value="id" emit-value map-options/>
                 </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Дата (с)" v-model="filter.title" outlined dense type="date"/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Дата (до)" v-model="filter.title" outlined dense type="date"/>
-                </div>
+<!--                <div class="col col-md-2 col-sm-6 col-xs-12">-->
+<!--                    <q-input label="Дата (с)" v-model="filter.date_start" outlined dense type="date"/>-->
+<!--                </div>-->
+<!--                <div class="col col-md-2 col-sm-6 col-xs-12">-->
+<!--                    <q-input label="Дата (до)" v-model="filter.date_end" outlined dense type="date"/>-->
+<!--                </div>-->
                 <div class="col col-md-2 col-sm-2 col-xs-12">
                     <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
                     <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
@@ -140,7 +143,9 @@ export default {
             page: 1,
             totalPage: 1,
 
-            filter: {},
+            filter: {
+                page: 1
+            },
             item: {
                 approve: '',
                 executor: {},
@@ -149,6 +154,25 @@ export default {
                 car: {},
                 client: {},
             },
+
+            statuses:[
+                {
+                    id: 1,
+                    title: 'На рассмотрении',
+                },
+                {
+                    id: 2,
+                    title: 'Отказано',
+                },
+                {
+                    id: 3,
+                    title: 'Одобрено',
+                },
+                {
+                    id: 4,
+                    title: 'Возвращена на доработку',
+                },
+            ],
 
             recycle_types: [
                 {
@@ -219,11 +243,15 @@ export default {
         },
 
         applyFilter() {
-
+            this.page = 1
+            this.filter.page = this.page
+            this.getData()
         },
 
         resetFilter(){
-
+            this.page = 1
+            this.filter = {}
+            this.getData()
         },
 
         create() {
@@ -249,8 +277,11 @@ export default {
         },
 
         getData() {
+            this.filter.page = this.page
             this.$emitter.emit('contentLoaded', true);
-            getOrderList({params: {page: this.page}}).then(res => {
+            getOrderList({params: this.filter}).then(res => {
+                this.$emitter.emit('contentLoaded', false);
+
                 this.show = true
                 this.items = res.items
                 this.totalPage = res.pages

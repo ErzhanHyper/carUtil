@@ -96,6 +96,8 @@ export default {
         getData() {
             this.$emitter.emit('contentLoaded', true);
             getUser().then(res => {
+                this.$emitter.emit('contentLoaded', false);
+
                 let profile = res.profile
 
                 if (res.role === 'liner') {

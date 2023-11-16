@@ -118,6 +118,9 @@ class KapService
                 $record = $xml->script->dataset->records->record;
                 $result['items'] = $this->convertXmlDatToArray($record);
                 $result['card'] = $kap_request->k_status;
+
+                $kap_request->base_on = $request->base_on;
+                $kap_request->save();
             } else {
                $message = 'Запрос был не успешен!';
             }

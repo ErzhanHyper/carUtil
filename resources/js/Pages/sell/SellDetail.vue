@@ -109,6 +109,7 @@ export default {
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getSellById(this.id).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 if(res){
                     this.item.id = res.id
                     this.item.phone = res.phone

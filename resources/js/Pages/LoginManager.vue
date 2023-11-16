@@ -20,6 +20,7 @@
 
                             <q-card-section id="desktopAuth" v-if="!showMobileForm">
                                 <q-form class="q-gutter-md flex justify-between no-wrap">
+                                    <q-btn icon="refresh" @click="refreshPage()" flat dense size="sm" />
                                     <q-select :options="options" label="Выберите тип применяемой ЭЦП"
                                               v-model="auth_type"
                                               option-label="name" option-value="code"
@@ -90,6 +91,9 @@ export default {
             signInMobile: 'auth/signInMobile',
         }),
 
+        refreshPage(){
+            this.getTokens()
+        },
 
         async getTokens(){
             const ncalayerClient = new NCALayerClient();

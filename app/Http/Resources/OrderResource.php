@@ -45,13 +45,21 @@ class OrderResource extends JsonResource
 
         $booking = [];
         $categories = [];
+        $files = [];
+        $vehicleType = '';
 
-        if($this->car->car_type_id === 1 || $this->car->car_type_id === 2){
-            $vehicleType = 'car';
-            $files = CarFileResource::collection(CarFile::where('preorder_id', $this->preorder->id)->get());
-        }else{
-            $vehicleType = 'agro';
-            $files = AgroFile::where('preorder_id', $this->preorder->id)->get();
+        if($this->car) {
+            if ($this->car->car_type_id === 1 || $this->car->car_type_id === 2) {
+                $vehicleType = 'car';
+                if($this->preorder) {
+                    $files = CarFileResource::collection(CarFile::where('preorder_id', $this->preorder->id)->get());
+                }
+            } else {
+                $vehicleType = 'agro';
+                if($this->preorder) {
+                    $files = AgroFile::where('preorder_id', $this->preorder->id)->get();
+                }
+            }
         }
 
         if($this->preorder && $this->preorder->booking_id) {

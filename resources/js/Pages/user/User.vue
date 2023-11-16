@@ -128,6 +128,7 @@ export default {
                 role: this.filter.role,
                 page: this.page
             }).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res.data
                 this.totalPage = res.meta.last_page
             }).finally(() => {

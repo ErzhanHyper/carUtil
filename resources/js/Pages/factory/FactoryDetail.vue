@@ -49,6 +49,7 @@ export default {
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getFactoryById(this.id).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.item = res
             })
         },

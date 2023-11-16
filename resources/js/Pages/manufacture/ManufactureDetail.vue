@@ -50,6 +50,7 @@ export default {
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getManufactureById(this.id).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.show = true
                 if(res && res.id) {
                     this.item = res

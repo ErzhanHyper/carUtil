@@ -65,4 +65,13 @@ export function getComplectApp(id, params) {
     })
 }
 
-
+export function getKapReference(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('/document/kap/' + id + '/reference', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

@@ -64,6 +64,9 @@
                 <div class="col col-md-12">
                     <EmailField :data="item.email" v-model="item.email" dense outlined square :readonly="blocked"/>
                 </div>
+                <div class="col col-md-12">
+                    <q-input type="number" label="Год рождения" dense outlined square v-model="item.year" :readonly="blocked"/>
+                </div>
             </div>
         </q-card-section>
     </q-card>

@@ -50,6 +50,7 @@ export default {
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getFactoryList().then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res.items
                 this.show = true
             })

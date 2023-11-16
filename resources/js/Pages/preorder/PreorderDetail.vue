@@ -93,7 +93,7 @@
 
                 <preorder-history :comments="item.comment" v-if="user.role === 'moderator'"/>
             </div>
-            <div class="col col-md-4 col-xs-12">
+            <div class="col col-md-4 col-xs-12" v-if="item.car">
                 <preorder-file
                     :transfer="item.transfer"
                     :data="item.file"
@@ -235,6 +235,7 @@ export default {
         getData() {
             this.$emitter.emit('contentLoaded', true);
             getPreorderById(this.id).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.item = res.item
                 this.blocked = res.permissions.blocked
                 this.blockedBooking = res.permissions.blockedBooking
@@ -251,7 +252,6 @@ export default {
             this.showError = false
             this.$emitter.emit('ClientCardEvent')
             this.$emitter.emit('CarCardEvent')
-            this.$emitter.emit('BookingCardEvent')
             if ((this.item.status && this.item.status.id === 0) || this.item.status && this.item.status.id === 4) {
                 this.loading = true
                 sendOrder(this.id, this.item).then(res => {
@@ -299,6 +299,7 @@ export default {
     },
 
     mounted() {
+
         this.$emitter.on('preorderActionEvent', () => {
             this.getData()
         })
@@ -307,6 +308,10 @@ export default {
         })
         this.$emitter.on('BookingCardEvent', () => {
             this.getData()
+        })
+
+        this.$emitter.on('CarCategoryEvent', () => {
+            this.$emitter.emit('CarCardEvent')
         })
 
     }

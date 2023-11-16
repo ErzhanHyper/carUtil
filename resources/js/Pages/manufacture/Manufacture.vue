@@ -46,6 +46,7 @@ export default {
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getManufactureList().then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res.items
                 this.show = true
             })

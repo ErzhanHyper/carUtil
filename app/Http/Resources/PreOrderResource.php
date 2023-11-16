@@ -21,6 +21,7 @@ class PreOrderResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $user = app(AuthService::class)->auth();
 
         $status = match ($this->status) {
             0 => 'Формирование заявки',
@@ -52,6 +53,15 @@ class PreOrderResource extends JsonResource
             $closedDays = 0;
         }
 
+
+        if($user->role === 'liner') {
+            if ($this->client && $this->client->idnum === $user->idnum) {
+                $client = new ClientResource($this->client);
+            }
+        }else{
+            $client = new ClientResource($this->client);
+        }
+
         return [
             'id' => $this->id,
             'status' => [
@@ -59,7 +69,7 @@ class PreOrderResource extends JsonResource
                 'title' => $status
             ],
             'car' => new CarResource($this->car),
-            'client' => new ClientResource($this->client),
+            'client' => $client,
             'order' => new OrderResource($this->order),
             'liner' => Liner::find($this->liner_id),
             'factory' => Factory::find($this->factory_id),

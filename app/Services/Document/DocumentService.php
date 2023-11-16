@@ -8,10 +8,13 @@ use App\Models\Car;
 use App\Models\Certificate;
 use App\Models\Client;
 use App\Models\Exchange;
+use App\Models\KapRequest;
 use App\Models\Order;
 use App\Services\AuthService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Config;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use SimpleXMLElement;
 
 class DocumentService
 {
@@ -239,5 +242,70 @@ class DocumentService
 
         $pdf->setPaper('a4', 'portrait')->setWarnings(false);
         return $pdf->download('complect.pdf');
+    }
+
+    public function generateKapReference($request, $id)
+    {
+        $data = [];
+        $auth = app(AuthService::class)->auth();
+
+        $kap_request = KapRequest::find($id);
+        $date = 'Дата: '. date('d.m.Y', $kap_request->created_at);
+        $time = 'Время: '. date('H:i', $kap_request->created_at);
+
+        $data['header'] = 'Запрос в КАП #'.$id;
+        $data['author'] = 'Автор запроса (ИИН): '. $auth->login;
+        $data['date'] = $date.'<br>'.$time;
+        $data['description'] = $kap_request->base_on;
+
+        $data_type = [
+            "GRNZ" => "ГРНЗ",
+            "STATUS_DATE" => "дата операции",
+            "MODEL" => "марка, модель, модификация ТС",
+            "ISSUE_YEAR" => "год выпуска ТС",
+            "ENGINE_NO" => "номер двигателя ТС",
+            "CHASSIS_NO" => "номер шасси ТС",
+            "BODY_NO" => "номер кузова ТС (Vin-код)",
+            "COLOR_NAME" => "цвет",
+            "CATEGORY" => "категория ТС",
+            "ENGINE_VOLUME" => "объем двигателя (куб. см)",
+            "MAX_WEIGHT" => "разрешенная максимальная масса",
+            "UNLOADED_WEIGHT" => "масса без нагрузки",
+            "STATUS" => "статус карточки",
+            "VIN" => "VIN ТС",
+            "UNREG_REASON" => "причина снятия с учета ТС",
+            "FIRSTNAME" => "Имя",
+            "LASTNAME" => "Фамилия",
+            "MIDNAME" => "Отчество",
+            "IINBIN" => "ИИН/БИН"
+        ];
+
+        $xml_data = new SimpleXMLElement( $kap_request->xml_response );
+        $xml = $xml_data->script->dataset->records;
+        $record = $xml->record;
+        $status = '';
+        $k = 0;
+        foreach( $record[0]->field as $field ){
+            $field_name = $field->attributes();
+            $field_name = $field_name[0];
+            $k++;
+            if( isset($data_type[strval($field_name)]) ){
+                $status .=  '<span>'. $k .'. '. $data_type[strval($field_name)].': ';
+                $status .= ' <b>'.$field.'</b></span><br>';
+            }
+        }
+        $data['response'] = $status;
+
+        $content_qr = 'id_'.$kap_request->id. '_status_'. $kap_request->state .'_date_'.date('d.m.Y', $kap_request->created_at).'_user_'.$auth->idnum;
+        $content_sign = md5($content_qr.md5(Config::get('APP_SALT')));
+        $png = QrCode::format('png')->color(60, 60, 60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($content_sign);
+        $png = base64_encode($png);
+        $qr = "<img src='data:image/png;base64," . $png . "' width='115' height='115' style='margin: 0 1px;'>";
+
+        $data['qr'] = $qr;
+
+        $pdf = PDF::loadView('templates.kap_request', compact('data'));
+        $pdf->setPaper('a4', 'portrait')->setWarnings(false);
+        return $pdf->download('kap_request.pdf');
     }
 }

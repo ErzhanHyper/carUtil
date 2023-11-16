@@ -42,12 +42,17 @@ class ClientService
             $client->region_id = $data['region_id'];
         }
 
+        if(isset($data['year'])){
+            $client->year = $data['year'];
+        }
+
         $client->save();
     }
 
     public function validateData($request){
 
         $validator = Validator::make($request, [
+            'year' => 'required',
             'title' => 'required',
             'idnum' => 'required',
             'client_type_id' => 'required',

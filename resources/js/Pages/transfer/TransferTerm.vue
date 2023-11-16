@@ -32,7 +32,6 @@ export default {
         showPFS() {
             this.loading = true
             getTransferContract(this.id, {responseType: 'arraybuffer'}).then(res => {
-                console.log(res)
                 const blob = new Blob([res], { type: 'application/pdf' });
                 this.pdfLink = URL.createObjectURL(blob)
             }).finally(() => {

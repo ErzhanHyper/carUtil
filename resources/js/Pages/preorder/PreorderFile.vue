@@ -11,7 +11,7 @@
                 map-options
                 emit-value
                 @update:model-value="evt => selectFile(evt)"
-                class="q-mb-lg"
+                class="q-mb-sm"
                 outlined
                 dense
                 :readonly="blocked"
@@ -27,7 +27,8 @@
                 </template>
             </q-select>
 
-            <div class="text-body2">Загруженные файлы</div>
+<!--            <div class="text-body2" v-if="filesDoc.length > 0 || filesPhoto.length > 0 || (transfer && transfer.closed === 2)">Загруженные файлы</div>-->
+            <div v-if="user.role === 'moderator' && (filesDoc.length === 0 || filesPhoto.length === 0 || (!transfer))">Файлы отсутствуют</div>
         </q-card-section>
 
         <q-separator inset/>
@@ -119,6 +120,7 @@ import {
 import FileDownload from "js-file-download";
 import {getTransferContract} from "../../services/document";
 import {Notify} from "quasar";
+import {mapGetters} from "vuex";
 
 export default {
 
@@ -157,6 +159,12 @@ export default {
         }
     },
 
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
+    },
+
     methods: {
 
         showImage(image){
@@ -174,7 +182,12 @@ export default {
             }).then(res => {
                 if (this.vehicleType === 'car') {
                     res.map(el => {
-                        if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
+                        if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14
+                            || el.file_type_id === 15
+                            || el.file_type_id === 30
+                            || el.file_type_id === 31
+                            || el.file_type_id === 32
+                        ) {
                             getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
                                 el.base64Image = 'data:image/jpeg;base64,'+res.data
                                 this.filesPhoto.push(el)
@@ -186,7 +199,8 @@ export default {
 
                 } else {
                     res.map(el => {
-                        if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11) {
+                        if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10
+                            || el.file_type_id === 11) {
                             getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
                                 el.base64Image = 'data:image/jpeg;base64,'+res.data
                                 this.filesPhoto.push(el)
@@ -202,7 +216,9 @@ export default {
                 getFileTypeList().then(res => {
                     res.forEach(el => {
                         this.filesAll.push(el)
-                        if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
+                        if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15 || el.id === 30
+                            || el.id === 31
+                            || el.id === 32) {
                             this.options_photo.push(el)
                             this.filesOptions.push(el)
                         }

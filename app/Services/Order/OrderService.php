@@ -6,6 +6,7 @@ namespace App\Services\Order;
 
 use App\Http\Resources\OrderResource;
 use App\Models\Car;
+use App\Models\Client;
 use App\Models\File;
 use App\Models\Order;
 use App\Models\OrderHistory;
@@ -28,6 +29,67 @@ class OrderService
         if ($user->role === 'moderator') {
             $orders = Order::with(['car', 'client', 'preorder']);
             $orders->where('approve', '<>', 0);
+
+            if (isset($request->type) && $request->type != '') {
+                if($request->type === 'ВЭТС') {
+                    $orders->whereHas('car', function($q){
+                        $q->where('car_type_id', [1,2]);
+                    });
+                }else{
+                    $orders->whereHas('car', function($q){
+                        $q->where('car_type_id', [3,4]);
+                    });
+                }
+            }
+
+            if (isset($request->approve) && $request->approve != '') {
+                $orders->where('approve', $request->approve);
+            }
+
+            if (isset($request->title) && $request->title != '') {
+                $client = Client::select(['id', 'title'])->where('title', 'like', '%' . $request->title . '%')->get();
+                $client_ids = [];
+                if (count($client) > 0) {
+                    foreach ($client as $c) {
+                        $client_ids[] = $c->id;
+                    }
+                }
+                $orders->whereIn('client_id', $client_ids);
+            }
+
+            if (isset($request->idnum) && $request->idnum != '') {
+                $client = Client::select(['id', 'idnum'])->where('idnum', 'like', '%' . $request->idnum . '%')->get();
+                $client_ids = [];
+                if (count($client) > 0) {
+                    foreach ($client as $c) {
+                        $client_ids[] = $c->id;
+                    }
+                }
+                $orders->whereIn('client_id', $client_ids);
+            }
+
+            if (isset($request->vin) && $request->vin != '') {
+                $car = Car::select(['id', 'vin', 'order_id'])->where('vin', 'like', '%' . $request->vin . '%')->get();
+                $car_ids = [];
+                if (count($car) > 0) {
+                    foreach ($car as $c) {
+                        $car_ids[] = $c->order_id;
+                    }
+                }
+                $orders->whereIn('id', $car_ids);
+            }
+
+            if (isset($request->grnz) && $request->grnz != '') {
+                $car = Car::select(['id', 'grnz','order_id'])->where('grnz', 'like', '%' . $request->grnz . '%')->get();
+                $car_ids = [];
+                if (count($car) > 0) {
+                    foreach ($car as $c) {
+                        $car_ids[] = $c->order_id;
+                    }
+                }
+                $orders->whereIn('id', $car_ids);
+            }
+
         } else if ($user->role === 'operator') {
             $orders = Order::with(['car', 'client', 'preorder', 'transfer'])->whereIn('approve', [0, 1, 2, 3, 4, 5])
                 ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked', 'order.executor_uid')
@@ -115,7 +177,7 @@ class OrderService
             $vin = trim($car->vin);
             if(mb_strlen($vin)>5) {
                 $short_vin = mb_substr($vin, -5, 5);
-                $t_car = Car::where('vin', 'like', '%'.$short_vin.'%')->where('id', '!=',$car->id)->get();
+                $t_car = Car::select(['order_id', 'vin', 'id'])->where('vin', 'like', '%'.$short_vin.'%')->where('id', '!=',$car->id)->get();
                 $tca = array();
                 foreach($t_car as $nn => $tc) {
                     $tca[] = array('id' => $tc->id, 'order_id' => $tc->order_id, 'vin' => $tc->vin);
@@ -128,7 +190,7 @@ class OrderService
             $body = trim($car->body_no);
             if(mb_strlen($body)>5) {
                 $short_body = mb_substr($body, -5, 5);
-                $t_car = Car::where('body_no', 'like', '%'.$short_body.'%')->where('id', '!=', $car->id)->get();
+                $t_car = Car::select(['order_id', 'body_no', 'id'])->where('body_no', 'like', '%'.$short_body.'%')->where('id', '!=', $car->id)->get();
                 $tca = array();
                 foreach($t_car as $nn => $tc) {
                     $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);
@@ -141,7 +203,7 @@ class OrderService
             $chassis = trim($car->chassis_no);
             if(mb_strlen($chassis)>5) {
                 $short_chassis = mb_substr($chassis, -5, 5);
-                $t_car = Car::where('chassis_no', 'like', '%'.$short_chassis.'%')->where('id','!=', $car->id)->get();
+                $t_car = Car::select(['order_id', 'chassis_no', 'id'])->where('chassis_no', 'like', '%'.$short_chassis.'%')->where('id','!=', $car->id)->get();
                 $tca = array();
                 foreach($t_car as $nn => $tc) {
                     $tca[] = array('id' => $tc->id, 'chassis_no' => $tc->chassis_no,'order_id' => $tc->order_id,);
@@ -154,7 +216,7 @@ class OrderService
             $vin = trim($car->vin);
             if(mb_strlen($vin)>5) {
                 $short_vin = mb_substr($vin, -5, 5);
-                $t_car = Car::where('body_no','like', '%'.$short_vin.'%')->where('id', '!=',$car->id)->get();
+                $t_car = Car::select(['order_id', 'body_no', 'id', 'vin'])->where('body_no','like', '%'.$short_vin.'%')->where('id', '!=',$car->id)->get();
                 $tca = array();
                 foreach($t_car as $nn => $tc) {
                     $tca[] = array('id' => $tc->id, 'vin' => $tc->vin, 'order_id' => $tc->order_id,);
@@ -167,7 +229,7 @@ class OrderService
             $body = trim($car->body_no);
             if(mb_strlen($body)>5) {
                 $short_body = mb_substr($body, -5, 5);
-                $t_car = Car::where('vin', 'like', '%'.$short_body.'%')->where('id', '!=', $car->id)->get();
+                $t_car = Car::select(['order_id', 'body_no', 'id', 'vin'])->where('vin', 'like', '%'.$short_body.'%')->where('id', '!=', $car->id)->get();
                 $tca = array();
                 foreach($t_car as $nn => $tc) {
                     $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);

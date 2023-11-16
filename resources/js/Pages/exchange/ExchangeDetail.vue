@@ -141,6 +141,7 @@ export default {
         getData() {
             this.$emitter.emit('contentLoaded', true);
             getExchangeById(this.id).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 if(res && res.id) {
                     this.item = res
                     this.show = true

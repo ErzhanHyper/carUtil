@@ -96,11 +96,14 @@
                     <div v-html="el['k_status']" class="q-mb-md bg-blue-grey-1 q-pa-sm"></div>
                 </div>
             </div>
+            <div v-if="history.length === 0 && show">Нет запросов</div>
 
         </q-card-section>
 
         <q-card-actions class="q-px-md" v-if="!blocked">
             <q-btn icon="add_task" square color="indigo-8" label="Отправить запрос" :loading="loading" @click="getKapData"/>
+            <q-space />
+            <q-btn icon-right="download" icon="file_copy" square color="primary" label="Скачать справку" :loading="loading1" v-if="this.card" @click="getRef"/>
         </q-card-actions>
     </q-card>
     </q-dialog>
@@ -109,6 +112,8 @@
 
 <script>
 import {checkVehicle, checkVehicleHistory} from "../../services/preorder";
+import {getKapReference, getStatementDoc} from "../../services/document";
+import FileDownload from "js-file-download";
 
 export default {
     props: ['preorder_id', 'order_id', 'data', 'blocked'],
@@ -117,7 +122,9 @@ export default {
         return {
             kapDialog: false,
             loading: false,
+            loading1: false,
             show: false,
+            kap_request_id: null,
             kap: {
                 type: 'vin',
                 message: 'Проверка',
@@ -146,6 +153,16 @@ export default {
     },
 
     methods: {
+
+        getRef(){
+            this.loading1 = true
+            getKapReference(this.kap_request_id, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'kap_request.pdf')
+            }).finally(() => {
+                this.loading1 = false
+            })
+        },
+
         selectData() {
             if(this.kap.type === 'grnz'){
                 this.kap.value = this.data.grnz
@@ -158,7 +175,8 @@ export default {
 
         getKapData(){
             this.loading = true
-            checkVehicle({ preorder_id: this.preorder_id, order_id: this.order_id, value: this.kap.value, type: this.kap.type}).then(res => {
+            checkVehicle({ preorder_id: this.preorder_id, order_id: this.order_id, value: this.kap.value, type: this.kap.type, base_on: this.kap.message}).then(res => {
+                this.kap_request_id = res.data.id
                 this.items = res.data.items
                 this.card = res.data.card
                 this.getKapHistory(0)

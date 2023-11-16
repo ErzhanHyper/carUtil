@@ -36,7 +36,7 @@
                        @click="getCert(item.car.certificate.id)"
                        class="q-mt-md"
                        :loading="loading"
-                       v-if="item.status.id === 3 && item.approve.id === 3"
+                       v-if="item.status.id === 3 && item.approve.id === 3 && item.car.certificate"
                 />
 
             </div>
@@ -77,7 +77,7 @@
             </div>
 
             <div class="col col-md-4 col-xs-12">
-                <order-document v-if="permissions.showSendToApproveAction" class="q-mb-md" :order_id="item.id"/>
+                <order-document v-if="permissions.showSendToApproveAction" class="q-mb-md" :order_id="item.id" :category="item.car.category"/>
                 <OrderFile :order_id="item.id" :client_id="item.client.id" :blocked="blocked" :blockedVideo="blockedVideo" :vehicleType="item.vehicleType"/>
 
                 <template v-if="user && user.role==='moderator'">
@@ -215,6 +215,7 @@ import OrderSendAction from "./actions/OrderSendAction.vue";
 import OrderVideoAction from "./actions/OrderVideoAction.vue";
 import OrderCertAction from "./actions/OrderCertAction.vue";
 import OrderKap from "./OrderKap.vue";
+import emitter from "../../mitt";
 
 export default {
     components: {
@@ -327,6 +328,7 @@ export default {
         getData() {
             this.$emitter.emit('contentLoaded', true);
             getOrderItem(this.id, {}).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.showData = true
                 this.showFile = true
                 this.item = res.item

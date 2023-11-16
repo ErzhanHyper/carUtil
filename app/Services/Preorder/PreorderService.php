@@ -28,6 +28,28 @@ class PreorderService
 
             $orders = PreOrderCar::with(['car', 'client']);
 
+            if (isset($request->title) && $request->title != '') {
+                $client = Client::select(['id', 'title'])->where('title', 'like', '%' . $request->title . '%')->get();
+                $client_ids = [];
+                if (count($client) > 0) {
+                    foreach ($client as $c) {
+                        $client_ids[] = $c->id;
+                    }
+                }
+                $orders->whereIn('client_id', $client_ids);
+            }
+
+            if (isset($request->idnum) && $request->idnum != '') {
+                $client = Client::select(['id', 'idnum'])->where('idnum', 'like', '%' . $request->idnum . '%')->get();
+                $client_ids = [];
+                if (count($client) > 0) {
+                    foreach ($client as $c) {
+                        $client_ids[] = $c->id;
+                    }
+                }
+                $orders->whereIn('client_id', $client_ids);
+            }
+
             if (isset($request->vin) && $request->vin != '') {
                 $car = Car::select(['id', 'vin'])->where('vin', 'like', '%' . $request->vin . '%')->get();
                 $car_ids = [];
@@ -38,6 +60,18 @@ class PreorderService
                 }
                 $orders->whereIn('car_id', $car_ids);
             }
+
+            if (isset($request->grnz) && $request->grnz != '') {
+                $car = Car::select(['id', 'grnz'])->where('grnz', 'like', '%' . $request->grnz . '%')->get();
+                $car_ids = [];
+                if (count($car) > 0) {
+                    foreach ($car as $c) {
+                        $car_ids[] = $c->id;
+                    }
+                }
+                $orders->whereIn('car_id', $car_ids);
+            }
+
             if ($user) {
                 if ($user->role === 'liner') {
                     $orders->where('liner_id', $user->id);
@@ -267,9 +301,8 @@ class PreorderService
     public function delete($id)
     {
         $preorder = PreOrderCar::find($id);
-        if ($preorder && $preorder->status === 0) {
+        if ($preorder && ($preorder->status === 0 || $preorder->status === 4)) {
             $preorder->delete();
-
             return [
                 'message' => 'Заявка удалена',
                 'success' => true,

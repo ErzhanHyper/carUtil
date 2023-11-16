@@ -152,10 +152,12 @@ export default {
         getData() {
             this.$emitter.emit('contentLoaded', true);
             getCertificateList().then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res
                 this.show = true
             })
             getExchangeList().then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.exchanges = res.items
                 this.show = true
             })

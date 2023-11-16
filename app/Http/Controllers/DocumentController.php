@@ -39,4 +39,8 @@ class DocumentController extends Controller
         return app(DocumentService::class)->generateComplect($request, $id);
     }
 
+    public function getKapReference(Request $request, $id)
+    {
+        return app(DocumentService::class)->generateKapReference($request, $id);
+    }
 }

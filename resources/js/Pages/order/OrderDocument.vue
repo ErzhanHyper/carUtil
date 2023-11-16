@@ -31,20 +31,45 @@
             <q-separator />
 
             <q-card-section style="max-height: 70vh" class="scroll">
-                <div class="flex column">
+                <div class="flex column" v-if="category.title === 'M1' || category.title === 'M2' || category.title === 'M3'">
                     <q-checkbox label="Кузов (Шасси)" v-model="item.id1"/>
                     <q-checkbox label="Крышка капота" v-model="item.id2"/>
                     <q-checkbox label="Крышка багажника" v-model="item.id3"/>
-                    <q-checkbox label="Двери" v-model="item.id4"/>
-                    <q-checkbox label="Колеса" v-model="item.id5"/>
-                    <q-checkbox label="Ограждающие покрытия колес (Крылья)" v-model="item.id6"/>
-                    <q-checkbox label="Двигатель с генератором, стартером, карбюратором/системой впрыска" v-model="item.id7"/>
+                    <q-checkbox label="Двери (штатное кол-во)" v-model="item.id4"/>
+                    <q-checkbox label="Колеса с шинами (штатное кол-во)" v-model="item.id5"/>
+                    <q-checkbox label="Ограждающие покрытия колес (крылья) (штатное кол-во)" v-model="item.id6"/>
+                    <q-checkbox label="Двигатель с генератором, стартером, карбюратором/системой впрыска (установлено на штатных местах)" v-model="item.id7"/>
                     <q-checkbox label="Радиатор" v-model="item.id8"/>
                     <q-checkbox label="Редуктор" v-model="item.id9"/>
                     <q-checkbox label="Аккумулятор" v-model="item.id10"/>
                     <q-checkbox label="Коробка передач" v-model="item.id11"/>
                     <q-checkbox label="Раздаточная коробка, мосты и редуктора мостов, карданные валы" v-model="item.id12"/>
                 </div>
+
+                <div class="flex column" v-if="category.title === 'N1' || category.title === 'N2' || category.title === 'N3'">
+                    <q-checkbox label="Кузов/ фургон/ платформа/ специальное оборудование на шасси (в случае если они предусмотрены штатным оснащением изготовителя)" v-model="item.id1"/>
+                    <q-checkbox label="Кабина, шасси, двери (штатное количество)" v-model="item.id2"/>
+                    <q-checkbox label="Колеса с шинами (штатное количество)" v-model="item.id3"/>
+                    <q-checkbox label="Двигатель с генератором, стартером, карбюратором/системой впрыска" v-model="item.id4"/>
+                    <q-checkbox label="Радиатор" v-model="item.id5"/>
+                    <q-checkbox label="Редуктор" v-model="item.id6"/>
+                    <q-checkbox label="Аккумулятор" v-model="item.id7"/>
+                    <q-checkbox label="Коробка передач" v-model="item.id8"/>
+                    <q-checkbox label="Раздаточная коробка, мосты и редуктора мостов, крупноузловые детали, подвески ходовой части, карданные валы (в случае если она предусмотрена штатным оснащением изготовителя, установлено на штатных местах)" v-model="item.id9"/>
+                </div>
+
+                <div class="flex column" v-if="category.title === 'tractor' || category.title === 'combain'">
+                    <q-checkbox label="Кузов/ фургон/ платформа/ специальное оборудование на шасси (в случае если они предусмотрены штатным оснащением изготовителя)" v-model="item.id1"/>
+                    <q-checkbox label="Кабина, шасси, двери (штатное количество)" v-model="item.id2"/>
+                    <q-checkbox label="Колеса с шинами (штатное количество)" v-model="item.id3"/>
+                    <q-checkbox label="Двигатель с генератором, стартером, карбюратором/системой впрыска" v-model="item.id4"/>
+                    <q-checkbox label="Радиатор" v-model="item.id5"/>
+                    <q-checkbox label="Редуктор" v-model="item.id6"/>
+                    <q-checkbox label="Аккумулятор" v-model="item.id7"/>
+                    <q-checkbox label="Коробка передач" v-model="item.id8"/>
+                    <q-checkbox label="Раздаточная коробка, мосты и редуктора мостов, крупноузловые детали, подвески ходовой части, карданные валы (в случае если она предусмотрена штатным оснащением изготовителя, установлено на штатных местах)" v-model="item.id9"/>
+                </div>
+
             </q-card-section>
 
             <q-separator />
@@ -63,7 +88,7 @@ import FileDownload from "js-file-download";
 
 export default {
 
-    props: ['order_id'],
+    props: ['order_id', 'category'],
 
     data(){
         return{
@@ -119,6 +144,10 @@ export default {
                 this.loading3 = false
             })
         }
+    },
+
+    created(){
+        console.log(this.category)
     }
 }
 </script>

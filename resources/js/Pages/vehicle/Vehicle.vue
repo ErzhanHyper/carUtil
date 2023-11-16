@@ -118,6 +118,7 @@ export default {
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getVehicleList({params: {page: this.page}}).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.totalPage = res.pages
                 this.items = res.items
                 this.show = true

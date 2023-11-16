@@ -76,7 +76,7 @@ export default {
             loading: false,
 
             hourOptionsTime: [9, 10, 11, 12, 14, 15, 16, 17, 18],
-            minuteOptionsTime: [0, 15, 30, 45],
+            minuteOptionsTime: [0],
 
             disabled: true,
 

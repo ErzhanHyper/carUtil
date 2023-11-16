@@ -20,7 +20,7 @@
 
             <div class="row">
                 <div class="col q-mb-lg">
-                    <category-field :readonly="blocked" :vehicleType="vehicleType" :data="item.category_id" v-model="item.category_id"/>
+                    <category-field :readonly="blocked" :vehicleType="vehicleType" :data="item.category_id" v-model="item.category_id" @update:model-value="selectCategory()"/>
                 </div>
             </div>
 
@@ -125,6 +125,10 @@ export default {
         setVehicle(value) {
             this.item = value
             this.showFields = true
+        },
+
+        selectCategory(){
+            this.$emitter.emit('CarCategoryEvent')
         },
 
         search() {

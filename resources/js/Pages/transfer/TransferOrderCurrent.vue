@@ -63,7 +63,7 @@ export default {
         getData() {
             this.items = []
             getTransferCurrentList({params: {page: 1}}).then((res) => {
-                console.log(res.items)
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res.items
                 this.show = true
             })

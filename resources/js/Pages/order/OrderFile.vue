@@ -11,7 +11,7 @@
                 map-options
                 emit-value
                 @update:model-value="evt => selectFile(evt)"
-                class="q-mb-lg"
+                class="q-mb-sm"
                 outlined
                 dense
                 :readonly="blocked"
@@ -27,7 +27,7 @@
                 </template>
             </q-select>
 
-            <div class="text-body2">Загруженные файлы</div>
+<!--            <div class="text-body2">Загруженные файлы</div>-->
         </q-card-section>
 
         <q-separator inset/>

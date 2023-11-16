@@ -61,6 +61,7 @@ export default {
     methods: {
         getData() {
             getTransferList({params: {}}).then((res) => {
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res.items
                 this.show = true
             })

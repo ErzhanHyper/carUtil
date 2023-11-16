@@ -131,6 +131,7 @@ export default {
         getData(){
             this.$emitter.emit('contentLoaded', true);
             getSellList({params: {page: this.page}}).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 this.items = res.items
                 this.totalPage = res.pages
             })

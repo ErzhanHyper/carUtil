@@ -175,6 +175,7 @@ export default {
             this.$emitter.emit('contentLoaded', true);
             this.show = false
             getTransferById(this.id).then(res => {
+                this.$emitter.emit('contentLoaded', false);
                 if(res) {
                     if(res.deal) {
                         this.deal_id = res.deal.id

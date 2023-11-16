@@ -35,6 +35,7 @@ class ClientResource extends JsonResource
             'proxy' => $this->proxy,
             'proxy_type' => $this->proxy_type,
             '__meta' => $this->__meta,
+            'year' => $this->year,
         ];
     }
 }

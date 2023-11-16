@@ -28,7 +28,6 @@ let apiUrl = 'http://localhost:8060/app';
 // ];
 
 api.interceptors.request.use(function (config) {
-    // console.log(config.url)
     // if(disabled_loaded_content.indexOf(config.url) > -1){
     //     emitter.emit('contentLoaded', false);
     // }else{
@@ -40,7 +39,7 @@ api.interceptors.request.use(function (config) {
 api.interceptors.response.use(
     (response) => {
         // if(!disabled_loaded_content.indexOf(response.config.url) > -1) {
-            emitter.emit('contentLoaded', false);
+        //     emitter.emit('contentLoaded', false);
         // }
         return response
     },
