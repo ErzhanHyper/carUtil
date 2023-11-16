@@ -98,7 +98,8 @@
                     </q-tooltip>
                 </q-badge>
                 <q-badge color="teal-5" class="q-pa-xs" v-if="item.order && item.order.car && item.order.car.certificate">
-                    <router-link to="/certificate">Сертификат выдан</router-link>
+                    <router-link to="/certificate" v-if="user.role === 'liner'">Сертификат выдан</router-link>
+                    <template v-else>Сертификат выдан</template>
                 </q-badge>
                 <q-badge color="blue-8" class="q-pa-xs" v-if="!item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0">
                     На бронировании
