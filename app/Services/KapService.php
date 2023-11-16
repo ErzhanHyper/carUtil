@@ -93,7 +93,7 @@ class KapService
             $record = $xml->script->dataset->records->record;
             $result['items'] = $this->convertXmlDatToArray($record);
             $result['card'] = $kap_request->k_status;
-            $message = 'ТС найден';
+            $result['message'] = strlen($kap_request->k_status) < 30 ? $kap_request->k_status :'';
         }
 
         if($can){
@@ -118,6 +118,7 @@ class KapService
                 $record = $xml->script->dataset->records->record;
                 $result['items'] = $this->convertXmlDatToArray($record);
                 $result['card'] = $kap_request->k_status;
+                $result['message'] = strlen($kap_request->k_status) < 30 ? $kap_request->k_status :'';
 
                 $kap_request->base_on = $request->base_on;
                 $kap_request->save();
@@ -208,17 +209,24 @@ class KapService
         }
 
         if ($success_checking) {
-            $kap_request = new KapRequest;
-            $kap_request->iinbin = $iinbin;
-            $kap_request->k_status = $message;
-            $kap_request->xml_response = $result_data;
-            $kap_request->user_id = $user->id;
-            $kap_request->created_at = time();
-            $kap_request->save();
-            if (!empty($kap_request->id)) {
+            if($message !== 'Проверка VIN, номер кузова не снят с учета (V004)') {
+                $kap_request = new KapRequest;
+                $kap_request->iinbin = $iinbin;
+                $kap_request->k_status = $message;
+                $kap_request->xml_response = $result_data;
+                $kap_request->user_id = $user->id;
+                $kap_request->created_at = time();
+                $kap_request->save();
+                if (!empty($kap_request->id)) {
+                    return [
+                        'id' => $kap_request->id,
+                        'status' => true,
+                        'message' => $message
+                    ];
+                }
+            }else{
                 return [
-                    'id' => $kap_request->id,
-                    'status' => true,
+                    'status' => false,
                     'message' => $message
                 ];
             }

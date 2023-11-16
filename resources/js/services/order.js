@@ -22,6 +22,17 @@ export function getOrderItem(id, params) {
     })
 }
 
+export function getOrderDuplicates(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('/order/' + id + '/duplicates', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function sendToSignOrder(id, params) {
     return new Promise((resolve, reject) => {
         api.put('/order/'+id+'/sign', params).then(response => {

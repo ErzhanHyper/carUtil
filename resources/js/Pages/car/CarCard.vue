@@ -96,6 +96,7 @@
 
 import {checkVehicle} from "@/services/preorder";
 import CategoryField from "@/Components/Fields/CategoryField.vue";
+import {Notify} from "quasar";
 
 export default {
     components: {CategoryField},
@@ -137,6 +138,13 @@ export default {
                 preorder_id: this.preorder_id,
             }).then(res => {
                 if(res) {
+                    if(res.data && res.data.message && res.data.message !== ''){
+                        Notify.create({
+                            message: res.data.message,
+                            position: 'bottom',
+                            type: 'primary'
+                        })
+                    }
                     res.data.items.map((el, i) => {
                         this.kap_data.push({
                             m_model: el.model,

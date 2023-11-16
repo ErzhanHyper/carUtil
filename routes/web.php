@@ -59,6 +59,7 @@ Route::prefix('app')->group(function () {
         });
 
         Route::prefix('order')->group(function () {
+
             Route::get('/', [\App\Http\Controllers\OrderController::class, 'get'])->name('order');
             Route::get('{id}/get', [\App\Http\Controllers\OrderController::class, 'getById']);
             Route::put('{id}/sign', [\App\Http\Controllers\OrderController::class, 'sign']);
@@ -66,6 +67,8 @@ Route::prefix('app')->group(function () {
             Route::post('{id}/video', [\App\Http\Controllers\OrderController::class, 'video']);
 
             Route::middleware(['isModerator'])->group(function () {
+                Route::get('{id}/duplicates', [\App\Http\Controllers\OrderController::class, 'getDuplicatesById']);
+
                 Route::put('{id}/executeRun', [\App\Http\Controllers\OrderController::class, 'executeRun']);
                 Route::put('{id}/executeClose', [\App\Http\Controllers\OrderController::class, 'executeClose']);
 

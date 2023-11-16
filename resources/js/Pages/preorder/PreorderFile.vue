@@ -28,7 +28,7 @@
             </q-select>
 
 <!--            <div class="text-body2" v-if="filesDoc.length > 0 || filesPhoto.length > 0 || (transfer && transfer.closed === 2)">Загруженные файлы</div>-->
-            <div v-if="user.role === 'moderator' && (filesDoc.length === 0 || filesPhoto.length === 0 || (!transfer))">Файлы отсутствуют</div>
+            <div v-if="user.role === 'moderator' && (filesDoc.length === 0 && filesPhoto.length === 0 && (!transfer))">Файлы отсутствуют</div>
         </q-card-section>
 
         <q-separator inset/>
@@ -173,76 +173,91 @@ export default {
         },
 
         getItems() {
-            this.filesAll = []
-            this.filesDoc = []
-            this.filesPhoto = []
             this.filesOptions = []
             getPreOrderFileList({
                 preorder_id: this.preorder_id
             }).then(res => {
                 if (this.vehicleType === 'car') {
-                    res.map(el => {
-                        if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14
-                            || el.file_type_id === 15
-                            || el.file_type_id === 30
-                            || el.file_type_id === 31
-                            || el.file_type_id === 32
-                        ) {
-                            getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
-                                el.base64Image = 'data:image/jpeg;base64,'+res.data
-                                this.filesPhoto.push(el)
-                            })
-                        } else {
-                            this.filesDoc.push(el)
-                        }
+                    getFileTypeList().then(res => {
+                        res.forEach(el => {
+                            this.filesAll.push(el)
+                            if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
+                                this.options_photo.push(el)
+                                this.filesOptions.push(el)
+                            }
+                            if (el.id === 1 || el.id === 2 || el.id === 3 || el.id === 5 || el.id === 6 || el.id === 28) {
+                                this.options_file.push(el)
+                                this.filesOptions.push(el)
+                            }
+                        })
                     })
-
+                    this.filesPhoto = res.filter((el) => {
+                         return (el.file_type_id === 8 ||
+                            el.file_type_id === 9 ||
+                            el.file_type_id === 10 ||
+                            el.file_type_id === 11 ||
+                            el.file_type_id === 12 ||
+                            el.file_type_id === 13 ||
+                            el.file_type_id === 14 ||
+                            el.file_type_id === 15
+                        )
+                    })
+                    this.filesPhoto.map(el => {
+                         getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
+                             return el.base64Image = 'data:image/jpeg;base64,' + res.data
+                        })
+                    })
+                    this.filesDoc = res.filter((el) => {
+                        return (el.file_type_id === 1 ||
+                            el.file_type_id === 2 ||
+                            el.file_type_id === 3 ||
+                            el.file_type_id === 5 ||
+                            el.file_type_id === 6 ||
+                            el.file_type_id === 28
+                        )
+                    })
                 } else {
+                    getFileTypeAgroList().then(res => {
+                        res.forEach(el => {
+                            this.filesAll.push(el)
+                            if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
+                                this.options_photo.push(el)
+                                this.filesOptions.push(el)
+                            }
+                            if (el.id === 1 || el.id === 2 || el.id === 3 || el.id === 5 || el.id === 13 || el.id === 14) {
+                                this.options_file.push(el)
+                                this.filesOptions.push(el)
+                            }
+                        })
+                    })
                     res.map(el => {
-                        if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10
-                            || el.file_type_id === 11) {
-                            getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
-                                el.base64Image = 'data:image/jpeg;base64,'+res.data
-                                this.filesPhoto.push(el)
+                        this.filesPhoto = res.filter((el) => {
+                            return (el.file_type_id === 8 ||
+                                el.file_type_id === 4 || el.file_type_id === 5 ||
+                                el.file_type_id === 6 || el.file_type_id === 7 ||
+                                el.file_type_id === 8 || el.file_type_id === 9 ||
+                                el.file_type_id === 10 ||
+                                el.file_type_id === 11
+                            )
+                        })
+                        this.filesPhoto.map(el => {
+                            getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
+                                return el.base64Image = 'data:image/jpeg;base64,' + res.data
                             })
-                        } else {
-                            this.filesDoc.push(el)
-                        }
+                        })
+                        this.filesDoc = res.filter((el) => {
+                            return (el.file_type_id === 1 ||
+                                el.file_type_id === 2 ||
+                                el.file_type_id === 3 ||
+                                el.file_type_id === 5 ||
+                                el.file_type_id === 14 ||
+                                el.file_type_id === 13
+                            )
+                        })
                     })
                 }
             });
 
-            if (this.vehicleType === 'car') {
-                getFileTypeList().then(res => {
-                    res.forEach(el => {
-                        this.filesAll.push(el)
-                        if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15 || el.id === 30
-                            || el.id === 31
-                            || el.id === 32) {
-                            this.options_photo.push(el)
-                            this.filesOptions.push(el)
-                        }
-                        if (el.id === 1 || el.id === 2 || el.id === 5 || el.id === 28) {
-                            this.options_file.push(el)
-                            this.filesOptions.push(el)
-                        }
-                    })
-                })
-            } else {
-                getFileTypeAgroList().then(res => {
-                    res.forEach(el => {
-                        this.filesAll.push(el)
-                        if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
-                            this.options_photo.push(el)
-                            this.filesOptions.push(el)
-                        }
-                        if (el.id === 1 || el.id === 2 || el.id === 3) {
-                            this.options_file.push(el)
-                            this.filesOptions.push(el)
-                        }
-                    })
-                })
-            }
         },
 
         getFileTypeTitle(id) {

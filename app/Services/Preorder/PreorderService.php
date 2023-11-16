@@ -234,8 +234,6 @@ class PreorderService
                 }
 
                 if ($client) {
-                    $client = app(ClientService::class)->update($request->client, $client->id);
-                } else {
                     $client = app(ClientService::class)->create($request->client);
                 }
 
@@ -249,6 +247,7 @@ class PreorderService
                     $preorder->client_id = $client->id;
                     $preorder->car_id = $car->id;
                     $preorder->status = 1;
+                    $preorder->sended_dt = time();
                     $preorder->save();
                     $message = 'Отправлено на рассмотрение!';
                     $success = true;
@@ -302,7 +301,10 @@ class PreorderService
     {
         $preorder = PreOrderCar::find($id);
         if ($preorder && ($preorder->status === 0 || $preorder->status === 4)) {
-            $preorder->delete();
+            $client = Client::find($preorder->client_id);
+            if($client->delete()) {
+                $preorder->delete();
+            }
             return [
                 'message' => 'Заявка удалена',
                 'success' => true,

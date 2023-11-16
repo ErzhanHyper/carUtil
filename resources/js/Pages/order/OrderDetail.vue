@@ -51,7 +51,7 @@
             </div>
             <div>
                 <q-btn label="Проверка дубликатов" color="deep-orange-8" size="12px" icon="search" class="q-mr-md" @click="showDuplicatesDialog = true" v-if="user.role === 'moderator' && item.executor"/>
-                <order-kap :order_id="item.id" :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}" :blocked="!permissions.showApproveAction" v-if="user.role === 'moderator' && item.executor"/>
+                <order-kap :order_id="item.id" :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: (item.client ? item.client.idnum : '')}" :blocked="!permissions.showApproveAction" v-if="user.role === 'moderator' && item.executor"/>
             </div>
             </div>
         <order-send-action :order_id="item.id"
@@ -78,12 +78,12 @@
 
             <div class="col col-md-4 col-xs-12">
                 <order-document v-if="permissions.showSendToApproveAction" class="q-mb-md" :order_id="item.id" :category="item.car.category"/>
-                <OrderFile :order_id="item.id" :client_id="item.client.id" :blocked="blocked" :blockedVideo="blockedVideo" :vehicleType="item.vehicleType"/>
+                <OrderFile :order_id="item.id" :client_id="item.client.id" :blocked="blocked" :blockedVideo="blockedVideo" :vehicleType="item.vehicleType" v-if="item.client"/>
 
                 <template v-if="user && user.role==='moderator'">
                     <q-separator class="q-my-lg"/>
                     <div class="q-px-md q-mt-lg text-body1 text-weight-bold">Файлы предзаявки</div>
-                    <PreorderFile :preorder_id="item.preorder_id" :blocked="true" :client_id="item.client.id" :vehicleType="item.vehicleType" :transfer="item.transfer"/>
+                    <PreorderFile :preorder_id="item.preorder_id" :blocked="true" :client_id="item.client.id" :vehicleType="item.vehicleType" :transfer="item.transfer" v-if="item.client"/>
                 </template>
             </div>
 
@@ -97,7 +97,10 @@
                     <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
                 </q-card-section>
                 <q-card-section>
-                    <div class="row q-col-gutter-md">
+                    <div class="text-center q-mb-md" v-if="loading1">
+                        <q-spinner-dots size="md" />
+                    </div>
+                    <div class="row q-col-gutter-md" v-if="!loading1">
                         <div class="col">
                             <div class="text-body1 text-weight-bold text-blue-grey-8">Проверка 1</div>
                             <div class="q-mb-md">
@@ -196,7 +199,7 @@
 import {mapGetters} from "vuex";
 import FileDownload from "js-file-download";
 
-import { getOrderItem} from "../../services/order";
+import {getOrderDuplicates, getOrderItem} from "../../services/order";
 import {generateCertificate} from "../../services/certificate";
 
 import ClientCard from "@/Pages/client/ClientCard.vue";
@@ -248,6 +251,7 @@ export default {
             showFile: false,
             showProxy: false,
             loading: false,
+            loading1: false,
             blocked: true,
             blockedVideo: true,
 
@@ -333,12 +337,6 @@ export default {
                 this.showFile = true
                 this.item = res.item
 
-                this.duplicates1 = res.duplicates1
-                this.duplicates2 = res.duplicates2
-                this.body_duplicates1 = res.body_duplicates1
-                this.body_duplicates2 = res.body_duplicates2
-                this.chassis_duplicates1 = res.chassis_duplicates1
-
                 if(res.permissions) {
                     this.permissions.showApproveAction = res.permissions.approveOrder
                     this.permissions.showExecuteAction = res.permissions.executeOrder
@@ -351,6 +349,24 @@ export default {
                     this.blocked = res.permissions.blocked
                     this.blockedVideo = res.permissions.blockedVideo
                 }
+
+                if(this.user.role === 'moderator') {
+                    this.getDuplicates()
+                }
+
+            })
+        },
+
+        getDuplicates() {
+            this.loading1 = true
+            getOrderDuplicates(this.id).then(res => {
+                this.duplicates1 = res.duplicates1
+                this.duplicates2 = res.duplicates2
+                this.body_duplicates1 = res.body_duplicates1
+                this.body_duplicates2 = res.body_duplicates2
+                this.chassis_duplicates1 = res.chassis_duplicates1
+            }).finally(() => {
+                this.loading1 = false
             })
         },
 

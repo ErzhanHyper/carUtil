@@ -23,6 +23,12 @@ class OrderController extends Controller
         return response()->json($data);
     }
 
+    public function getDuplicatesById($id)
+    {
+        $data = app(OrderService::class)->checkDuplicates($id);
+        return response()->json($data);
+    }
+
     public function sign(Request $request, $id)
     {
         $data = app(OrderService::class)->sign($request, $id);

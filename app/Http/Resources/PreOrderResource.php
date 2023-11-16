@@ -53,7 +53,7 @@ class PreOrderResource extends JsonResource
             $closedDays = 0;
         }
 
-
+        $client = null;
         if($user->role === 'liner') {
             if ($this->client && $this->client->idnum === $user->idnum) {
                 $client = new ClientResource($this->client);

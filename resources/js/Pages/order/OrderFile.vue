@@ -111,7 +111,7 @@
 <script>
 import {ref} from 'vue'
 import {
-    deleteOrderFile,
+    deleteOrderFile, getCarFileImage,
     getFileTypeAgroList,
     getFileTypeList, getOrderFile,
     getOrderFileList, getOrderImage, getOrderVideo,
@@ -164,78 +164,116 @@ export default {
 
         getItems() {
             this.loading = true
-            this.filesAll = []
-            this.filesDoc = []
-            this.filesPhoto = []
             this.filesOptions = []
             getOrderFileList({
                 order_id: this.order_id
             }).then(res => {
                 if (this.vehicleType === 'car') {
-                    res.map(el => {
-                        if (el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11 || el.file_type_id === 12 || el.file_type_id === 13 || el.file_type_id === 14 || el.file_type_id === 15) {
-                            getOrderImage(el.id, {params: {order_id: this.order_id}}).then((res) => {
-                                el.base64Image = 'data:image/jpeg;base64,'+res.data
-                                this.filesPhoto.push(el)
-                            })
-                        } else {
-                            this.filesDoc.push(el)
-                            if(el.file_type_id === 29){
-                                getOrderVideo(el.id, {params: {order_id: this.order_id}}).then((res) => {
-                                    this.videoFile = 'data:video/webm;base64,'+res.data
-                                })
+                    getFileTypeList().then(res => {
+                        res.forEach(el => {
+                            this.filesAll.push(el)
+                            if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
+                                this.options_photo.push(el)
+                                this.filesOptions.push(el)
+                            } else if (el.id !== 4 && el.id !== 29) {
+                                this.options_file.push(el)
+                                this.filesOptions.push(el)
                             }
+                        })
+                    })
+
+                    this.filesPhoto = res.filter((el) => {
+                        return (el.file_type_id === 8 ||
+                            el.file_type_id === 9 ||
+                            el.file_type_id === 10 ||
+                            el.file_type_id === 11 ||
+                            el.file_type_id === 12 ||
+                            el.file_type_id === 13 ||
+                            el.file_type_id === 14 ||
+                            el.file_type_id === 15
+                        )
+                    })
+                    this.filesPhoto.map(el => {
+                        getOrderImage(el.id, {params: {order_id: this.order_id}}).then((res) => {
+                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
+                        })
+                    })
+                    this.filesDoc = res.filter((el) => {
+                        return (el.file_type_id === 1 ||
+                            el.file_type_id === 2 ||
+                            el.file_type_id === 3 ||
+                            el.file_type_id === 5 ||
+                            el.file_type_id === 6 ||
+                            el.file_type_id === 7 ||
+                            el.file_type_id === 16 ||
+                            el.file_type_id === 17 ||
+                            el.file_type_id === 18 ||
+                            el.file_type_id === 19 ||
+                            el.file_type_id === 20 ||
+                            el.file_type_id === 21 ||
+                            el.file_type_id === 22 ||
+                            el.file_type_id === 23 ||
+                            el.file_type_id === 24 ||
+                            el.file_type_id === 25 ||
+                            el.file_type_id === 26 ||
+                            el.file_type_id === 27 ||
+                            el.file_type_id === 28 ||
+                            el.file_type_id === 29
+                        )
+                    })
+                    res.map(el => {
+                        if (el.file_type_id === 29) {
+                            getOrderVideo(el.id, {params: {order_id: this.order_id}}).then((value) => {
+                                this.videoFile = 'data:video/webm;base64,' + value.data
+                            })
                         }
                     })
+
                 }else{
-                    res.map(el => {
-                        if (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 || el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11) {
-                            getOrderImage(el.id, {params: {order_id: this.order_id}}).then((res) => {
-                                el.base64Image = 'data:image/jpeg;base64,'+res.data
-                                this.filesPhoto.push(el)
-                            })
-                        } else {
-                            this.filesDoc.push(el)
-                            if(el.file_type_id === 29){
-                                getOrderVideo(el.id, {params: {order_id: this.order_id}}).then((res) => {
-                                    this.videoFile = 'data:video/webm;base64,'+res.data
-                                })
+                    getFileTypeAgroList().then(res => {
+                        res.forEach(el => {
+                            this.filesAll.push(el)
+                            if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
+                                this.options_photo.push(el)
+                                this.filesOptions.push(el)
                             }
+                            if (el.id === 1 || el.id === 2 || el.id === 3 || el.id === 14) {
+                                this.options_file.push(el)
+                                this.filesOptions.push(el)
+                            }
+                        })
+                    })
+
+                    this.filesPhoto = res.filter((el) => {
+                        return (el.file_type_id === 4 || el.file_type_id === 5 || el.file_type_id === 6 || el.file_type_id === 7 ||
+                            el.file_type_id === 8 || el.file_type_id === 9 || el.file_type_id === 10 || el.file_type_id === 11
+                        )
+                    })
+                    this.filesPhoto.map(el => {
+                        getOrderImage(el.id, {params: {order_id: this.order_id}}).then((res) => {
+                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
+                        })
+                    })
+                    this.filesDoc = res.filter((el) => {
+                        return (
+                            el.file_type_id === 1 ||
+                            el.file_type_id === 2 ||
+                            el.file_type_id === 3 ||
+                            el.file_type_id === 14 ||
+                            el.file_type_id === 29
+                    )
+                    })
+                    res.map(el => {
+                        if (el.file_type_id === 29) {
+                            getOrderVideo(el.id, {params: {order_id: this.order_id}}).then((value) => {
+                                this.videoFile = 'data:video/webm;base64,' + value.data
+                            })
                         }
                     })
                 }
             }).finally(() => {
                 this.loading = false
             });
-
-            if (this.vehicleType === 'car') {
-                getFileTypeList().then(res => {
-                    res.forEach(el => {
-                        this.filesAll.push(el)
-                        if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
-                            this.options_photo.push(el)
-                            this.filesOptions.push(el)
-                        } else if (el.id !== 4 && el.id !== 29) {
-                            this.options_file.push(el)
-                            this.filesOptions.push(el)
-                        }
-                    })
-                })
-            }else{
-                getFileTypeAgroList().then(res => {
-                    res.forEach(el => {
-                        this.filesAll.push(el)
-                        if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
-                            this.options_photo.push(el)
-                            this.filesOptions.push(el)
-                        }
-                        if (el.id === 1 || el.id === 2 || el.id === 3) {
-                            this.options_file.push(el)
-                            this.filesOptions.push(el)
-                        }
-                    })
-                })
-            }
         },
 
         getFileTypeTitle(id) {

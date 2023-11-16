@@ -50,7 +50,9 @@ export default {
                         sendToSignOrder(this.order_id, {
                             sign: res,
                         }).then(el => {
-                            this.$emitter.emit('orderActionEvent')
+                            if(el.success){
+                                this.$emitter.emit('orderActionEvent')
+                            }
                         }).finally(() => {
                             this.loading = false
                         })

@@ -19,13 +19,13 @@
             <div class="row q-col-gutter-md q-mb-none">
                 <div class="col col-md-12 col-xs-12">
                     <NameField :data="item.title" v-model="item.title" dense outlined square
-                               :rules="[val => !!val || '*']" :readonly="blocked"/>
+                               :rules="[val => !!val || '*']" :readonly="true"/>
                 </div>
             </div>
 
             <div class="row q-col-gutter-md q-mb-md">
                 <div class="col col-md-6 col-xs-12">
-                    <ClientIdField :data="item.idnum" v-model="item.idnum" dense outlined square :readonly="blocked" :label="item.client_type_id === 1 ? 'ИИН' : 'БИН'"/>
+                    <ClientIdField :data="item.idnum" v-model="item.idnum" dense outlined square :readonly="true" :label="item.client_type_id === 1 ? 'ИИН' : 'БИН'"/>
                 </div>
                 <div class="col col-md-6 col-xs-12">
                     <ClientUdNumField :data="item.ud_num" v-model="item.ud_num" dense outlined square
@@ -127,7 +127,7 @@ export default {
                 this.item.ud_expired = this.$moment(this.$moment(this.item.ud_expired, 'YYYY-MM-DD').toDate()).format('YYYY-MM-DD')
             }
         }else{
-            if(this.item.title == '') {
+            if(this.item.title == '' && this.user.profile) {
                 this.item.title = this.user.profile.fln
             }
             if(!this.item.idnum || this.item.idnum == '') {
