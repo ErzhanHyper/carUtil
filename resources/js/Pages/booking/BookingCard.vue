@@ -101,7 +101,7 @@ export default {
                 this.$emitter.emit('BookingCardEvent')
                 Notify.create({
                     message: 'Дата и время забронирована',
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'positive'
                 })
             }).catch(err => {
@@ -111,7 +111,7 @@ export default {
                 }
                 Notify.create({
                     message: mess,
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'warning'
                 })
 

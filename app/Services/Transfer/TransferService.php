@@ -50,23 +50,20 @@ class TransferService
         $pages = 0;
 
         if ($user->role === 'liner') {
-            $client = Client::where('idnum', $user->idnum)->first();
-            if ($client) {
-                $deal = TransferDeal::select(['id'])->where('client_id', $client->id)->get();
-                if($deal) {
-                    $deal_ids = [];
-                    foreach ($deal as $item) {
-                        $deal_ids[] = $item->id;
+            $deal = TransferDeal::select(['id'])->where('liner_id', $user->id)->get();
+            if($deal) {
+                $deal_ids = [];
+                foreach ($deal as $item) {
+                    $deal_ids[] = $item->id;
+                }
+                $orders_all = TransferOrder::whereIn('transfer_deal_id', $deal_ids)->orWhere('liner_id', $user->id)->whereIn('closed', [0, 1, 2]);
+                if($orders_all->count() > 0) {
+                    $paginate = 15;
+                    $pages = round($orders_all->count() / $paginate);
+                    if ($pages == 0) {
+                        $pages = 1;
                     }
-                    $orders_all = TransferOrder::whereIn('transfer_deal_id', $deal_ids)->orWhere('client_id', $client->id)->whereIn('closed', [0, 1, 2]);
-                    if($orders_all->count() > 0) {
-                        $paginate = 15;
-                        $pages = round($orders_all->count() / $paginate);
-                        if ($pages == 0) {
-                            $pages = 1;
-                        }
-                        $orders = TransferOrderResource::collection($orders_all->orderByDesc('date')->orderBy('closed')->paginate($paginate));
-                    }
+                    $orders = TransferOrderResource::collection($orders_all->orderByDesc('date')->orderBy('closed')->paginate($paginate));
                 }
             }
         }
@@ -81,7 +78,6 @@ class TransferService
     public function getById($id)
     {
         $user = app(AuthService::class)->auth();
-        $client = Client::where('idnum', $user->idnum)->first();
         if ($user->role === 'liner') {
             $order = TransferOrder::find($id);
             $deal = TransferDeal::find($order->transfer_deal_id);
@@ -89,7 +85,7 @@ class TransferService
                 return new TransferOrderResource($order);
             } else {
                 if($deal) {
-                    if ($order->client_id === $client->id || $deal->client_id === $client->id) {
+                    if ($order->liner_id === $user->id || $deal->liner_id === $user->id) {
                         return new TransferOrderResource($order);
                     }
                 }
@@ -100,19 +96,18 @@ class TransferService
     public function store($request)
     {
         $auth = app(AuthService::class)->auth();
-        $client = Client::where('idnum', $auth->idnum)->first();
-
         $data = [];
         $success = false;
         $message = 'Нет доступа';
 
-        if($auth->role === 'liner' && $client) {
+        if($auth->role === 'liner') {
             $order = Order::find($request->order_id);
             $transfer = TransferOrder::where('order_id', $order->id)->first();
             if (!$transfer && $order->blocked === 0 && $order->status === 0) {
                 $transfer = new TransferOrder;
                 $transfer->order_id = $order->id;
-                $transfer->client_id = $client->id;
+                $transfer->client_id = $order->client_id;
+                $transfer->liner_id = $auth->id;
                 $transfer->closed = 0;
                 $transfer->date = time();
                 if ($transfer->save()) {
@@ -178,12 +173,18 @@ class TransferService
         $success = false;
 
         $user = app(AuthService::class)->auth();
-        $authClient = Client::where('idnum', $user->idnum)->first();
+
         $sign = $request->sign;
         $transfer_order = TransferOrder::find($id);
         $order = Order::find($transfer_order->order_id);
-
         $transfer_deal = TransferDeal::find($transfer_order->transfer_deal_id);
+
+        if($user->id === $transfer_order->liner_id){
+            $authClient = Client::find($transfer_order->liner_id);
+        }else{
+            $authClient = Client::find($transfer_deal->liner_id);
+        }
+
         $client = Client::find($transfer_order->client_id);
         $hash = app(SignService::class)->__signTransferData($transfer_order->id);
 
@@ -193,13 +194,13 @@ class TransferService
         ]));
 
         if ($sign && $sign_data != '') {
-            if($authClient->id === $transfer_order->client_id) {
+            if($user->id === $transfer_order->liner_id) {
                 $this->ownerSign($id, $sign, $hash);
                 $message = 'Успешно подписано!';
                 $success = true;
             }
 
-            if($authClient->id === $transfer_deal->client_id) {
+            if($user->id === $transfer_deal->liner_id) {
                 $this->receiverSign($id, $sign, $hash);
 
                 $preorder = PreOrderCar::where('order_id', $transfer_order->order_id)->first();

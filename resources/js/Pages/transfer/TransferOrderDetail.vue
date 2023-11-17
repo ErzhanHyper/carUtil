@@ -244,7 +244,7 @@ export default {
         removeTransfer() {
             this.loading2 = true
             closeTransfer(this.item.id).then((res) => {
-                this.$router.push('/transfer/order')
+                this.$router.push('/preorder')
                 if(res && res.message !== '') {
                     Notify.create({
                         message: res.message,

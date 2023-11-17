@@ -42,7 +42,7 @@ class TransferOrderResource extends JsonResource
 
         $deal = null;
         if($currentClient) {
-            $deal = TransferDeal::where('client_id', $currentClient->id)->where('transfer_order_id', $this->id)->first();
+            $deal = TransferDeal::where('liner_id', $auth->id)->where('transfer_order_id', $this->id)->first();
             if($deal) {
                 $currentClient = Client::find($deal->client_id);
             }
@@ -71,7 +71,7 @@ class TransferOrderResource extends JsonResource
             $blocked = true;
         }
 
-        if($auth->idnum === $client->idnum){
+        if($auth->id === $this->liner_id){
             $isOwner = true;
         }
 

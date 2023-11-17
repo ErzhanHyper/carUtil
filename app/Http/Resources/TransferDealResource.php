@@ -20,7 +20,6 @@ class TransferDealResource extends JsonResource
     {
 
         $auth = app(AuthService::class)->auth();
-        $authClient = Client::where('idnum', $auth->idnum)->first();
 
         $client = Client::find($this->client_id);
         $client->region;
@@ -33,18 +32,19 @@ class TransferDealResource extends JsonResource
         $ownerSigned = false;
         $receiverSigned = false;
 
-        if($transferOrder->owner_sign != ''){
-            $ownerSigned = true;
-        }
-
-        if($transferOrder->receiver_sign != ''){
-            $receiverSigned = true;
-        }
-
         if ($transferOrder) {
+
+            if($transferOrder->owner_sign != ''){
+                $ownerSigned = true;
+            }
+
+            if($transferOrder->receiver_sign != ''){
+                $receiverSigned = true;
+            }
+
             $selected = true;
 
-            if ($transferOrder->client_id === $authClient->id) {
+            if ($transferOrder->liner_id === $auth->id) {
                 if($transferOrder->closed !== 2){
                     $canClose = true;
                 }
@@ -53,7 +53,7 @@ class TransferDealResource extends JsonResource
                 }
             }
 
-            if ($this->client_id === $authClient->id) {
+            if ($this->liner_id === $auth->id) {
                 if ($transferOrder->receiver_sign != '') {
                     $canSign = true;
                 }

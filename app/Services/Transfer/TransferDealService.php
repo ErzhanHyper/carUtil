@@ -16,10 +16,9 @@ class TransferDealService
     {
         $auth = app(AuthService::class)->auth();
         if ($auth->role === 'liner') {
-            $client = Client::where('idnum', $auth->idnum)->first();
             $transfer_order = TransferOrder::find($request->transfer_order_id);
-            if ($transfer_order->client_id === $client->id) {
-                $deals = TransferDeal::where('transfer_order_id', $request->transfer_order_id);
+            if ($transfer_order->liner_id === $auth->id) {
+                $deals = TransferDeal::where('transfer_order_id', $transfer_order->id);
                 return ['items' => TransferDealResource::collection($deals->orderByDesc('date')->get())];
             }
         }
@@ -39,13 +38,7 @@ class TransferDealService
 
             $transferOrder = TransferOrder::find($transfer_order_id);
             $owner_client = Client::find($transferOrder->client_id);
-            $client = Client::where('idnum', $request->client['idnum'])->first();
-            if ($client) {
-                $client = app(ClientService::class)->update($request->client, $client->id);
-            } else {
-                $client = app(ClientService::class)->create($request->client);
-            }
-
+            $client = app(ClientService::class)->create($request->client);
 
             if ($amount && $client && $owner_client) {
                 if ($auth->idnum !== $owner_client->idnum && $owner_client->idnum !== $client->idnum) {
@@ -55,6 +48,7 @@ class TransferDealService
 
                         $deal = new TransferDeal;
                         $deal->client_id = $client->id;
+                        $deal->liner_id = $auth->id;
                         $deal->transfer_order_id = $transfer_order_id;
                         $deal->amount = $amount;
                         $deal->date = time();
