@@ -30,7 +30,16 @@ class TransferDealResource extends JsonResource
         $canSign = false;
         $canClose = false;
         $selected = false;
-        $signed = false;
+        $ownerSigned = false;
+        $receiverSigned = false;
+
+        if($transferOrder->owner_sign != ''){
+            $ownerSigned = true;
+        }
+
+        if($transferOrder->receiver_sign != ''){
+            $receiverSigned = true;
+        }
 
         if ($transferOrder) {
             $selected = true;
@@ -41,16 +50,12 @@ class TransferDealResource extends JsonResource
                 }
                 if ($transferOrder->owner_sign == '') {
                     $canSign = true;
-                }else{
-                    $signed = true;
                 }
             }
 
             if ($this->client_id === $authClient->id) {
                 if ($transferOrder->receiver_sign != '') {
                     $canSign = true;
-                }else{
-                    $signed = true;
                 }
             }
         }
@@ -64,7 +69,8 @@ class TransferDealResource extends JsonResource
             'selected' => $selected,
             'canSign' => $canSign,
             'canClose' => $canClose,
-            'signed' => $signed
+            'ownerSigned' => $ownerSigned,
+            'receiverSigned' => $receiverSigned
         ];
     }
 }

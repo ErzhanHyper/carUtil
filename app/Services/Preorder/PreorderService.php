@@ -4,8 +4,11 @@
 namespace App\Services\Preorder;
 
 
+use App\Http\Controllers\FileController;
 use App\Http\Resources\PreOrderResource;
+use App\Models\AgroFile;
 use App\Models\Car;
+use App\Models\CarFile;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\PreOrderCar;
@@ -72,14 +75,10 @@ class PreorderService
                 $orders->whereIn('car_id', $car_ids);
             }
 
-            if ($user) {
-                if ($user->role === 'liner') {
-                    $orders->where('liner_id', $user->id);
-                } else {
-                    if ($user->role === 'moderator') {
-                        $orders->where('status', '<>', 0);
-                    }
-                }
+            if ($user->role === 'liner') {
+                $orders->where('liner_id', $user->id);
+            } else if ($user->role === 'moderator') {
+                $orders->whereNotIn('status', [0,2]);
             }
 
             if (isset($orders)) {
@@ -183,7 +182,7 @@ class PreorderService
                             }
                         }
                         if ($car) {
-                            $preorderDuplicate = PreOrderCar::where('client_id', $client->id)->where('car_id', $car->id)->whereIn('status', [1,2])->first();
+                            $preorderDuplicate = PreOrderCar::where('liner_id', $auth->id)->where('car_id', $car->id)->whereIn('status', [1,2])->first();
                             if ($preorderDuplicate) {
                                 $date = date('d.m.Y', $preorderDuplicate->date);
                                 $closedDate = strtotime($date . ' + 15 days');
@@ -233,8 +232,20 @@ class PreorderService
                     ]);
                 }
 
-                if ($client) {
+
+
+                if ($preorder->status === 0) {
                     $client = app(ClientService::class)->create($request->client);
+                }else if($preorder->status === 4){
+                    $client = Client::where('id', $preorder->client_id)->first();
+                    $client = app(ClientService::class)->update($request->client, $client->id);
+                }else{
+                    $client = Client::where('id', $preorder->client_id)->first();
+                }
+
+                if($client) {
+                    $preorder->client_id = $client->id;
+                    $preorder->save();
                 }
 
                 if ($car && !$car_find) {
@@ -264,8 +275,12 @@ class PreorderService
     public function store($query)
     {
         $liner = app(AuthService::class)->auth();
-        $client = Client::where('idnum', $liner->idnum)->first();
-
+        $client1 = Client::where('idnum', $liner->idnum)->first();
+        $client = null;
+        if($client1) {
+            $client = $client1->replicate();
+            $client->push();
+        }
         $recycleType = intval($query->recycle_type);
 
         if ($recycleType) {
@@ -302,9 +317,29 @@ class PreorderService
         $preorder = PreOrderCar::find($id);
         if ($preorder && ($preorder->status === 0 || $preorder->status === 4)) {
             $client = Client::find($preorder->client_id);
-            if($client->delete()) {
-                $preorder->delete();
+            $car = Car::find($preorder->car_id);
+            $files = [];
+            if($preorder->recycle_type === 1) {
+                $files = CarFile::where('preorder_id', $preorder->id)->get();
+            }else if($preorder->recycle_type === 2) {
+                $files = AgroFile::where('preorder_id', $preorder->id)->get();
             }
+            if(count($files) > 0) {
+                foreach ($files as $file){
+                    app(FileController::class)->deletePreOrderFile(new Request([
+                        'preorder_id' => $preorder->id,
+                        'file_id' => $file->id
+                    ]));
+                }
+            }
+
+            if($car) {
+                $car->delete();
+            }
+            if($client) {
+                $client->delete();
+            }
+            $preorder->delete();
             return [
                 'message' => 'Заявка удалена',
                 'success' => true,

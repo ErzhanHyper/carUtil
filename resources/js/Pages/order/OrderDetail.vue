@@ -9,10 +9,10 @@
                     {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
                 </span>
                 <span class="text-body1 text-blue-grey-7"> <b> - №{{ item.id }}</b></span>
-                <div :class="'text-'+setStatusColor(item.approve.id)">
+                <div :class="'text-'+setStatusColor(item.approve.id)" v-if="item.status.id !== 3">
                     {{ item.approve.title }}
                 </div>
-                <div :class="'text-'+setStatusColor(item.status.id)"  v-if="item.status.id === 5">
+                <div :class="'text-'+setStatusColor(item.status.id)"  v-if="item.status.id === 5 || item.status.id === 3">
                     {{ item.status.title }}
                 </div>
                 <div class="text-caption" v-if="item.executor">
@@ -27,18 +27,6 @@
                         Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
                     </q-tooltip>
                 </div>
-
-                <q-btn color="positive"
-                       push
-                       icon="verified"
-                       icon-right="download"
-                       label="Скидочный сертификат"
-                       @click="getCert(item.car.certificate.id)"
-                       class="q-mt-md"
-                       :loading="loading"
-                       v-if="item.status.id === 3 && item.approve.id === 3 && item.car.certificate"
-                />
-
             </div>
 
             <order-execute-action :order_id="item.id" :permissions="{start: permissions.showExecuteAction, stop: permissions.showApproveAction && item.executor}"/>
@@ -78,8 +66,12 @@
 
             <div class="col col-md-4 col-xs-12">
                 <order-document v-if="permissions.showSendToApproveAction" class="q-mb-md" :order_id="item.id" :category="item.car.category"/>
-                <OrderFile :order_id="item.id" :client_id="item.client.id" :blocked="blocked" :blockedVideo="blockedVideo" :vehicleType="item.vehicleType" v-if="item.client"/>
-
+                <OrderFile :order_id="item.id"
+                           :client_id="item.client.id" :blocked="blocked"
+                           :blockedVideo="blockedVideo"
+                           :vehicleType="item.vehicleType"
+                           :certificate_id="(item.status.id === 3 && item.approve.id === 3 && item.car.certificate) ? item.car.certificate.id : null"
+                           v-if="item.client"/>
                 <template v-if="user && user.role==='moderator'">
                     <q-separator class="q-my-lg"/>
                     <div class="q-px-md q-mt-lg text-body1 text-weight-bold">Файлы предзаявки</div>
@@ -219,6 +211,7 @@ import OrderVideoAction from "./actions/OrderVideoAction.vue";
 import OrderCertAction from "./actions/OrderCertAction.vue";
 import OrderKap from "./OrderKap.vue";
 import emitter from "../../mitt";
+import {secureData, signData} from "../../services/sign";
 
 export default {
     components: {
@@ -370,14 +363,7 @@ export default {
             })
         },
 
-        getCert(id) {
-            this.loading = true
-            generateCertificate(id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'certificate.pdf')
-            }).finally(() => {
-                this.loading = false
-            })
-        },
+
     },
 
     created() {

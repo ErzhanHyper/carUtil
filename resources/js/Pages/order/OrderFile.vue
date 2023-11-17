@@ -34,6 +34,14 @@
 
         <q-card-section>
 
+            <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-weight-bold" v-if="certificate_id">
+                <a href="#" class="text-primary" @click="getCert(certificate_id)">
+                <q-icon :name="'verified'" class="q-mr-sm" size="sm" v-if="!loading1"></q-icon>
+                 <q-circular-progress indeterminate rounded size="xs" v-if="loading1" color="primary" class="q-mr-xs"/>
+                Скидочный сертификат
+                </a>
+            </div>
+
             <template v-for="(doc, i) in filesDoc" :key="i">
                 <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10">
                     <q-icon :name="(doc.file_type_id === 29) ? 'videocam' : 'insert_drive_file'" class="q-mr-sm" size="sm" v-if="doc_id !== doc.id"></q-icon>
@@ -119,10 +127,11 @@ import {
 } from "../../services/file";
 import FileDownload from "js-file-download";
 import {Notify} from "quasar";
+import {generateCertificate} from "../../services/certificate";
 
 export default {
 
-    props: ['order_id', 'client_id', 'blocked', 'vehicleType', 'blockedVideo'],
+    props: ['order_id', 'client_id', 'blocked', 'vehicleType', 'blockedVideo', 'certificate_id'],
 
     setup() {
         return {
@@ -148,6 +157,7 @@ export default {
             file_id: null,
             uploadedFile: null,
             loading: false,
+            loading1: false,
 
             filesDoc: [],
             filesPhoto: [],
@@ -326,7 +336,7 @@ export default {
                 this.file_type_id = null
                 this.pickFile = null
                 this.file = null
-            }).finally(() => {
+            }).catch(() => {
                 this.loading = false
             });
         },
@@ -348,7 +358,16 @@ export default {
                     type: 'warning'
                 })
             })
-        }
+        },
+
+        getCert(id) {
+            this.loading1 = true
+            generateCertificate(id, {responseType: 'arraybuffer'}).then(value => {
+                FileDownload(value, 'certificate.pdf')
+            }).finally(() => {
+                this.loading1 = false
+            })
+        },
     },
 
     created() {

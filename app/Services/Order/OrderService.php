@@ -126,7 +126,9 @@ class OrderService
                 $t_car = Car::select(['order_id', 'vin', 'id'])->where('vin', 'like', '%' . $short_vin . '%')->where('id', '!=', $car->id)->get();
                 $tca = array();
                 foreach ($t_car as $nn => $tc) {
-                    $tca[] = array('id' => $tc->id, 'order_id' => $tc->order_id, 'vin' => $tc->vin);
+                    if($tc->vin) {
+                        $tca[] = array('id' => $tc->id, 'order_id' => $tc->order_id, 'vin' => $tc->vin);
+                    }
                 }
                 $c_repeat[$vin] = $tca;
                 unset($tca, $t_car);
@@ -139,7 +141,9 @@ class OrderService
                 $t_car = Car::select(['order_id', 'body_no', 'id'])->where('body_no', 'like', '%' . $short_body . '%')->where('id', '!=', $car->id)->get();
                 $tca = array();
                 foreach ($t_car as $nn => $tc) {
-                    $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);
+                    if($tc->body_no) {
+                        $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);
+                    }
                 }
                 $body_repeat[$body] = $tca;
                 unset($tca, $t_car);
@@ -152,7 +156,9 @@ class OrderService
                 $t_car = Car::select(['order_id', 'chassis_no', 'id'])->where('chassis_no', 'like', '%' . $short_chassis . '%')->where('id', '!=', $car->id)->get();
                 $tca = array();
                 foreach ($t_car as $nn => $tc) {
-                    $tca[] = array('id' => $tc->id, 'chassis_no' => $tc->chassis_no, 'order_id' => $tc->order_id,);
+                    if($tc->chassis_no) {
+                        $tca[] = array('id' => $tc->id, 'chassis_no' => $tc->chassis_no, 'order_id' => $tc->order_id,);
+                    }
                 }
                 $chassis_repeat[$chassis] = $tca;
                 unset($tca, $t_car);
@@ -165,7 +171,9 @@ class OrderService
                 $t_car = Car::select(['order_id', 'body_no', 'id', 'vin'])->where('body_no', 'like', '%' . $short_vin . '%')->where('id', '!=', $car->id)->get();
                 $tca = array();
                 foreach ($t_car as $nn => $tc) {
-                    $tca[] = array('id' => $tc->id, 'vin' => $tc->vin, 'order_id' => $tc->order_id,);
+                    if($tc->vin) {
+                        $tca[] = array('id' => $tc->id, 'vin' => $tc->vin, 'order_id' => $tc->order_id,);
+                    }
                 }
                 $c_body_repeat[$vin] = $tca;
                 unset($tca, $t_car);
@@ -178,7 +186,9 @@ class OrderService
                 $t_car = Car::select(['order_id', 'body_no', 'id', 'vin'])->where('vin', 'like', '%' . $short_body . '%')->where('id', '!=', $car->id)->get();
                 $tca = array();
                 foreach ($t_car as $nn => $tc) {
-                    $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);
+                    if($tc->body_no) {
+                        $tca[] = array('id' => $tc->id, 'body_no' => $tc->body_no, 'order_id' => $tc->order_id,);
+                    }
                 }
                 $body_vin_repeat[$body] = $tca;
                 unset($tca, $t_car);

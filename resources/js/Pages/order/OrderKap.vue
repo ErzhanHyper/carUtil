@@ -3,7 +3,6 @@
     <q-btn square size="12px" color="primary" label="Проверка в КАП" icon="add_task" @click="kapDialog = true" />
 
     <q-dialog v-model="kapDialog" size="md" persistent>
-<!--        <order-kap :order_id="order_id" :data="data" :blocked="data.status.id !== 1"/>-->
     <q-card class="kap_detail_block" style="width: 100%;max-width: 1400px;">
         <q-card-section class="flex q-py-sm">
             <div class="text-body1">Данные с КАП</div>
@@ -23,10 +22,10 @@
                 />
             </div>
 
-            <div v-if="!loading && items.length > 0 && !blocked">
+            <div v-if="!loading && !blocked">
                 Текущий запрос в КАП:
-                <div class="flex q-mb-lg no-wrap">
-                <q-markup-table flat bordered separator="cell" >
+                <div class="flex q-mb-lg no-wrap" v-if="items.length > 0">
+                    <q-markup-table flat bordered separator="cell" >
                     <tbody>
                         <tr style="background-color: #e0e6ed;">
                             <th>Дата операции</th>
@@ -72,8 +71,6 @@
                         </tr>
                     </tbody>
                 </q-markup-table>
-
-
             </div>
             <div class="bg-blue-8 q-pa-md text-white" v-if="!loading && card != ''">
                 <span v-html="card"></span>
@@ -177,8 +174,14 @@ export default {
             this.loading = true
             checkVehicle({ preorder_id: this.preorder_id, order_id: this.order_id, value: this.kap.value, type: this.kap.type, base_on: this.kap.message}).then(res => {
                 this.kap_request_id = res.data.id
-                this.items = res.data.items
-                this.card = res.data.card
+                if(res.data.card) {
+                    this.card = res.data.card
+                }
+                if(res.data.items) {
+                    this.items = res.data.items
+                }
+                console.log(this.items)
+
                 this.getKapHistory(0)
             }).finally(() => {
                 this.loading = false

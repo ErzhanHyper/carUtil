@@ -174,11 +174,14 @@ export default {
 
         getItems() {
             this.filesOptions = []
+            this.options_photo = []
+            this.options_file = []
             getPreOrderFileList({
                 preorder_id: this.preorder_id
             }).then(res => {
+                this.loading = false
                 if (this.vehicleType === 'car') {
-                    getFileTypeList().then(res => {
+                    getFileTypeList({params: {preorder_id: this.preorder_id}}).then(res => {
                         res.forEach(el => {
                             this.filesAll.push(el)
                             if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
@@ -191,6 +194,15 @@ export default {
                             }
                         })
                     })
+                    //     .finally(() => {
+                    //     let filePhotoArr = this.filesPhoto
+                    //     let filtered = this.options_photo.filter(function(el, i){
+                    //         return !filePhotoArr[i];
+                    //     });
+                    //     filtered.map(el => {
+                    //         this.filesOptions.push(el)
+                    //     })
+                    // })
                     this.filesPhoto = res.filter((el) => {
                          return (el.file_type_id === 8 ||
                             el.file_type_id === 9 ||
@@ -217,7 +229,7 @@ export default {
                         )
                     })
                 } else {
-                    getFileTypeAgroList().then(res => {
+                    getFileTypeAgroList({params: {preorder_id: this.preorder_id}}).then(res => {
                         res.forEach(el => {
                             this.filesAll.push(el)
                             if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
@@ -230,9 +242,18 @@ export default {
                             }
                         })
                     })
+                    //     .finally(() => {
+                    //     let filePhotoArr = this.filesPhoto
+                    //     let filtered = this.options_photo.filter(function(el, i){
+                    //         return !filePhotoArr[i];
+                    //     });
+                    //     filtered.map(el => {
+                    //         this.filesOptions.push(el)
+                    //     })
+                    // })
                     res.map(el => {
                         this.filesPhoto = res.filter((el) => {
-                            return (el.file_type_id === 8 ||
+                            return (
                                 el.file_type_id === 4 || el.file_type_id === 5 ||
                                 el.file_type_id === 6 || el.file_type_id === 7 ||
                                 el.file_type_id === 8 || el.file_type_id === 9 ||
@@ -241,7 +262,7 @@ export default {
                             )
                         })
                         this.filesPhoto.map(el => {
-                            getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
+                            getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
                                 return el.base64Image = 'data:image/jpeg;base64,' + res.data
                             })
                         })
@@ -256,7 +277,7 @@ export default {
                         })
                     })
                 }
-            });
+            })
 
         },
 
@@ -294,7 +315,7 @@ export default {
                 preorder_id: this.preorder_id,
                 file_id: value.id
             }).then(() => {
-
+                // this.getItems()
             });
         },
 
@@ -310,7 +331,9 @@ export default {
                 this.file_type_id = null
                 this.pickFile = null
                 this.file = null
-            }).finally(() => {
+
+
+            }).catch(() => {
                 this.loading = false
             })
 

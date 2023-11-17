@@ -17,7 +17,7 @@
             </div>
 
             <div class="q-gutter-sm">
-                <q-btn label="Подписать сделку" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
+                <q-btn label="Подписать" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
                        @click="signDialog = true" v-if="item.canSign"/>
 
                 <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
@@ -218,15 +218,17 @@ export default {
 
         signTransfer() {
             signData().then(res => {
-                this.loading1 = true
-                signTransferOrder(this.item.id, {
-                    sign: res,
-                }).then(() => {
-                    this.getData()
-                    this.signDialog = false
-                }).finally(() => {
-                    this.loading1 = false
-                })
+                if(res) {
+                    this.loading1 = true
+                    signTransferOrder(this.item.id, {
+                        sign: res,
+                    }).then(() => {
+                        this.getData()
+                        this.signDialog = false
+                    }).finally(() => {
+                        this.loading1 = false
+                    })
+                }
             })
         },
 

@@ -93,7 +93,7 @@
 
                 <preorder-history :comments="item.comment" v-if="user.role === 'moderator'"/>
             </div>
-            <div class="col col-md-4 col-xs-12" v-if="item.car">
+            <div class="col col-md-4 col-xs-12" v-show="item.car">
                 <preorder-file
                     :transfer="item.transfer"
                     :data="item.file"

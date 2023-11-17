@@ -227,7 +227,7 @@ export default {
             } else if (id === 4) {
                 color = 'deep-orange-5'
             } else if (id === 5) {
-                color = 'blue-grey-10'
+                color = 'teal-8'
             }
 
             return color;

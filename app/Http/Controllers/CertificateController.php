@@ -18,55 +18,8 @@ class CertificateController extends Controller
         return response()->json($data);
     }
 
-    public function generate($id)
+    public function generate(Request $request, $id)
     {
-        return app(CertificateService::class)->generateCert($id);
-    }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Certificate $certificate)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Certificate $certificate)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Certificate $certificate)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Certificate $certificate)
-    {
-        //
+        return app(CertificateService::class)->generateCert($request, $id);
     }
 }

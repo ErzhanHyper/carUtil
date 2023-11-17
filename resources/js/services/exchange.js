@@ -77,9 +77,9 @@ export function declineExchange(id) {
     })
 }
 
-export function storeExchangeFile(params) {
+export function storeExchangeFile(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/exchange/storeFile', params, {headers: {'Content-Type': 'multipart/form-data'}}).then(response => {
+        api.post('/exchange/'+id+'/storeFile', params, {headers: {'Content-Type': 'multipart/form-data'}}).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject(e.response.data)
@@ -88,9 +88,9 @@ export function storeExchangeFile(params) {
     })
 }
 
-export function getExchangeFile(params) {
+export function getExchangeFile(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/exchange/getFile', params).then(response => {
+        api.post('/exchange/'+id+'/getFile', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -99,10 +99,21 @@ export function getExchangeFile(params) {
     })
 }
 
-export function deleteExchangeFile(params) {
+export function deleteExchangeFile(id, params) {
     return new Promise((resolve, reject) => {
-        api.post('/exchange/deleteFile', params).then(response => {
+        api.post('/exchange/'+id+'/deleteFile', params).then(response => {
             resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function downloadExchangeFile(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/exchange/download', params).then(response => {
+            resolve(response)
         }).catch((e) => {
             reject('Ошибка при загрузке')
         }).finally(() => {

@@ -52,20 +52,6 @@ class AuthController extends Controller
         return response()->json($idnum);
     }
 
-    public function validUser(Request $request)
-    {
-        try {
-            $data = app(AuthService::class)->validCurrentUser($request);
-            $result = ['status' => 200, 'data' => $data];
-        } catch (Exception $e) {
-            $result = [
-                'status' => 500,
-                'error' => $e->getMessage()
-            ];
-        }
-        return response()->json($result, $result['status']);
-    }
-
     public function logout(Request $request)
     {
         $token = $request->header('Authorization');

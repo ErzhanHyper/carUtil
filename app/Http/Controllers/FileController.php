@@ -6,7 +6,10 @@ use App\Http\Resources\FileResource;
 use App\Models\AgroFile;
 use App\Models\Car;
 use App\Models\CarFile;
+use App\Models\Certificate;
 use App\Models\Client;
+use App\Models\Exchange;
+use App\Models\ExchangeFile;
 use App\Models\File;
 use App\Models\Liner;
 use App\Models\Order;
@@ -132,6 +135,7 @@ class FileController extends Controller
             $original_name = time() . '_' . $file->getClientOriginalName();
             $extension = $file->extension();
             $path = 'preorder/files/'.$preorder->id.'/';
+
             Storage::putFileAs($path, $file, $original_name);
 
             if ($preorder->recycle_type === 1) {
@@ -183,9 +187,23 @@ class FileController extends Controller
 
         if ($preorder && ($preorder->status === 0 || $preorder->status === 4)) {
             if ($preorder->recycle_type === 1) {
-                CarFile::where('preorder_id', $preorder_id)->where('id', $file_id)->delete();
+                $file = CarFile::where('preorder_id', $preorder_id)->where('id', $file_id)->first();
+                if($file) {
+                    $path = 'preorder/files/'.$preorder->id.'/'.$file->original_name;
+                    if(Storage::exists($path)) {
+                        Storage::delete($path);
+                    }
+                    $file->delete();
+                }
             } else if ($preorder->recycle_type === 2) {
-                AgroFile::where('preorder_id', $preorder_id)->where('id', $file_id)->delete();
+                $file = AgroFile::where('preorder_id', $preorder_id)->where('id', $file_id)->first();
+                if($file) {
+                    $path = 'preorder/files/'.$preorder->id.'/'.$file->original_name;
+                    if(Storage::exists($path)) {
+                        Storage::delete($path);
+                    }
+                    $file->delete();
+                }
             }
             $message = ['status' => 'deleted'];
         }
@@ -204,7 +222,14 @@ class FileController extends Controller
             if ($file) {
                 $order = Order::find($file->order_id);
                 if ($order && ($order->status === 4 || $order->status === 0)) {
-                    File::where('order_id', $order->id)->where('id', $file_id)->delete();
+                    File::where('order_id', $order->id)->where('id', $file_id)->first();
+                    if($file) {
+                        $path = 'order/files/'.$order->id.'/'.$file->original_name;
+                        if(Storage::exists($path)) {
+                            Storage::delete($path);
+                        }
+                        $file->delete();
+                    }
                     $message = ['status' => 'deleted'];
                 }
             }
@@ -388,6 +413,32 @@ class FileController extends Controller
                 $path = Storage::disk('local')->get($filePath);
 
                 return base64_encode($path);
+            }
+        }
+    }
+
+    public function downloadExchangeFile(Request $request, $id)
+    {
+        $user = app(AuthService::class)->auth();
+        $exchange = Exchange::find($request->exchange_id);
+        $can = false;
+        if($exchange) {
+
+            $cert = Certificate::find($exchange->certificate_id);
+            if($user->role === 'liner') {
+                if ($user->idnum === $cert->idnum_1 || $user->idnum === $exchange->idnum) {
+                    $can = true;
+                }
+            }else if($user->role === 'moderator'){
+                $can = true;
+            }
+            if($can) {
+                $file = ExchangeFile::find($id);
+                $filePath = '/exchange/files/' . $exchange->id . '/' . $file->orig_name;
+                $path = Storage::disk('local')->path($filePath);
+                header('Content-Disposition: inline; filename="' . $file->orig_name . '');
+
+                return response()->file($path);
             }
         }
     }

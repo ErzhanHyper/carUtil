@@ -18,11 +18,6 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
-Route::group(['middleware' => 'client_credentials'], function () {
-    Route::post('eds/check', [\App\Http\Controllers\AuthController::class, 'checkEds']);
-
-    Route::post('userAll', function() {
-        return response()->json(['test']);
-    });
-    Route::post('order/video', [\App\Http\Controllers\API\OrderFileController::class, 'uploadVideo']);
-});
+//Route::group(['middleware' => 'client_credentials'], function () {
+//    Route::post('eds/check', [\App\Http\Controllers\AuthController::class, 'checkEds']);
+//});

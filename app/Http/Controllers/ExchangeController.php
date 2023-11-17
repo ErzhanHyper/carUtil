@@ -8,6 +8,7 @@ use App\Models\Exchange;
 use App\Models\ExchangeFile;
 use App\Services\AuthService;
 use App\Services\Exchange\ExchangeApproveService;
+use App\Services\Exchange\ExchangeFileService;
 use App\Services\Exchange\ExchangeService;
 use App\Services\SignService;
 use Exception;
@@ -102,51 +103,40 @@ class ExchangeController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function storeFile(Request $request)
+    public function storeFile(Request $request, $id)
     {
-
-        $validator = Validator::make($request->all(),
-            [
-                'file' => 'required | mimes:pdf,jpg,png,jpeg,webp,heic | max:512000',
-            ],
-        );
-
-        if ($validator->fails()) {
-            return response()->json($validator->messages(), 400);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(ExchangeFileService::class)->store($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-
-        $exchange = Exchange::find($request->exchange_id);
-
-        if ($exchange) {
-            $file = $request->file;
-            $original_name = time() . '_' . $file->getClientOriginalName();
-            $extension = $file->extension();
-            $file->move(public_path('storage / uploads / exchange / files / ' . $exchange->id), $original_name);
-
-            $exchangeFile = new ExchangeFile;
-            $exchangeFile->type = $request->type;
-            $exchangeFile->exchange_id = $exchange->id;
-            $exchangeFile->orig_name = $original_name;
-            $exchangeFile->ext = $extension;
-            $exchangeFile->save();
-
-            return response()->json(['Успешно загружена']);
-        }
+        return response()->json($result['data'], $result['status']);
     }
 
-    public function getFile(Request $request)
+    public function getFile(Request $request, $id)
     {
-        $files = ExchangeFile::where('exchange_id', $request->exchange_id)->get();
-        return response()->json($files);
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(ExchangeFileService::class)->get($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
     }
 
-    public function deleteFile(Request $request)
+    public function deleteFile(Request $request,$id)
     {
-        $file = ExchangeFile::find($request->exchange_file_id);
-        if ($file) {
-            $file->delete();
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(ExchangeFileService::class)->delete($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-        return response()->json(['Удалено']);
+        return response()->json($result['data'], $result['status']);
     }
 
 }

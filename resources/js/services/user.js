@@ -25,7 +25,7 @@ export function getUser(params) {
 
 export function getUserCollection(params) {
     return new Promise((resolve, reject) => {
-        api.post('/user/all', params).then(response => {
+        api.get('/user', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -36,21 +36,10 @@ export function getUserCollection(params) {
 
 export function getUserById(id) {
     return new Promise((resolve, reject) => {
-        api.post('/user/'+id + '/get').then(response => {
+        api.get('/user/'+id).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject(e)
-        }).finally(() => {
-        })
-    })
-}
-
-export function validUser(params) {
-    return new Promise((resolve, reject) => {
-        api.post('/validUser', params).then(response => {
-            resolve(response.data)
-        }).catch((e) => {
-            reject('Ошибка при загрузке')
         }).finally(() => {
         })
     })
@@ -91,7 +80,7 @@ export function updateUser(id, params) {
 
 export function getRoleList(params) {
     return new Promise((resolve, reject) => {
-        api.post('/role', params).then(response => {
+        api.get('/role', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

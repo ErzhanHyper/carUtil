@@ -3,7 +3,7 @@
         <q-card-section class="q-pb-xs ">
             <div class="q-gutter-sm flex justify-between">
                 <div class="text-body2">{{ vehicleType === 'car' ? 'ТС' : 'СХТ' }}</div>
-                <q-btn label="Получить данные ТС" color="primary" class="text-overline q-mb-sm" icon="manage_search"
+                <q-btn label="Получить данные" color="primary" class="text-overline q-mb-sm" icon="manage_search" icon-right="directions_car"
                        :loading="loading"
                        @click="search()" v-if="!showFields && kap_data.length === 0" />
             </div>
@@ -16,7 +16,7 @@
 
         </q-card-section>
 
-        <q-card-section v-if="showFields">
+        <q-card-section v-show="showFields">
 
             <div class="row">
                 <div class="col q-mb-lg">

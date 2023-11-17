@@ -32,9 +32,9 @@
         <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
              v-for="(doc, i) in files"
              :key="i">
-            <q-icon name="file_copy" class="q-mr-sm" size="sm"></q-icon>
-            <a :href="'/storage/uploads/preorder/files/' + doc.exchange_id + '/' + doc.orig_name"
-               class="text-dark">
+            <q-icon name="file_copy" class="q-mr-sm" size="sm" v-if="doc_id !== doc.id"></q-icon>
+            <q-circular-progress indeterminate rounded size="xs" v-if="doc_id === doc.id" color="primary" class="q-mr-sm"/>
+            <a href="#" @click="downloadFile(doc.id)" class="text-dark">
                 {{ getFileTypeTitle(doc.type) }}
             </a>
             <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
@@ -46,8 +46,9 @@
 
 <script>
 import {ref} from "vue";
-import {deleteExchangeFile, getExchangeFile, storeExchangeFile} from "../../services/exchange";
+import {deleteExchangeFile, downloadExchangeFile, getExchangeFile, storeExchangeFile} from "../../services/exchange";
 import {Notify} from "quasar";
+import FileDownload from "js-file-download";
 
 export default {
 
@@ -62,6 +63,7 @@ export default {
 
     data() {
         return {
+            doc_id: null,
             loading: false,
             loading1: false,
             files: [],
@@ -115,10 +117,9 @@ export default {
 
         uploadFile(evt) {
             this.loading1 = true
-            storeExchangeFile({
+            storeExchangeFile(this.data.id,{
                 type: this.type,
                 file: evt.target.files[0],
-                exchange_id: this.data.id
             }).then(() => {
                 this.getFiles()
                 this.type = null
@@ -130,13 +131,25 @@ export default {
                     position: 'bottom-right',
                     type: 'warning'
                 })
+            }).finally(() => {
+                this.loading1 = false
+            })
+        },
+
+        downloadFile(id){
+            this.doc_id = id
+            downloadExchangeFile(id, {params: {exchange_id: this.data.id}, responseType: 'arraybuffer'}).then(res => {
+                if(res) {
+                    let parts = res.headers.get('Content-Disposition').split(';');
+                    let filename = parts[1].split('=')[1];
+                    FileDownload(res.data, filename)
+                    this.doc_id = null
+                }
             })
         },
 
         getFiles() {
-            getExchangeFile({
-                exchange_id: this.data.id
-            }).then(res => {
+            getExchangeFile(this.data.id).then(res => {
                 this.files = res
             }).finally(() => {
                 this.loading1 = false
@@ -147,9 +160,7 @@ export default {
         deleteFile(id){
             this.loading = true
             this.loading1 = true
-            deleteExchangeFile({
-                exchange_file_id: id
-            }).then(res => {
+            deleteExchangeFile(id).then(res => {
                 this.getFiles()
             })
         }

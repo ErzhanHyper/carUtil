@@ -172,6 +172,18 @@ class ExchangeService
         $message = 'Нет доступа';
         $messages = [];
 
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'idnum' => 'required',
+            'phone' => 'required',
+            'sign' => 'required',
+            'cert_owner_address' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $message = 'Не заполнены объязательные поля!';
+            $messages =  $validator->messages();
+        }
+
         $log = Log::create([
             'event' => 'sign',
             'object_type' => 'exchange',
@@ -193,9 +205,14 @@ class ExchangeService
                 }
             }
             if ($userType === 'owner' && $canSign) {
+                if($request->idnum === $auth->idnum){
+                    return [
+                        'success' => $success,
+                        'message' => 'ИИН не должен совпадать с вашим',
+                    ];
+                }
                 $signedData = $this->signOwner($request, $id);
                 $message = $signedData['message'];
-                $messages = $signedData['messages'];
                 if($signedData['success'] === true){
                     $success = true;
                     $exchangeAfter = Exchange::find($id);
@@ -205,7 +222,6 @@ class ExchangeService
             } else if ($userType === 'receiver' && $canSign) {
                 $signedData = $this->signReceiver($request, $id);
                 $message = $signedData['message'];
-                $messages = $signedData['messages'];
 
                 if($signedData['success'] === true){
                     $this->sendToApprove($id);
@@ -229,22 +245,12 @@ class ExchangeService
     private function signOwner($request, $id)
     {
         $auth = app(AuthService::class)->auth();
-        $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'idnum' => 'required',
-            'phone' => 'required',
-            'sign' => 'required',
-            'cert_owner_address' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return ['message' => 'Не заполнены объязательные поля!', 'success' => false, 'messages' => $validator->messages()];
-        }
 
         $exchange = Exchange::find($id);
         $hash = app(SignService::class)->__signExchangeData($exchange->id);
         $signData = app(EdsService::class)->check(new Request(['hash' => $hash, 'sign' => $request->sign]));
 
-//        if($signData && $signData->iin === $auth->idnum) {
+        if($signData && $signData->iin === $auth->idnum) {
             $this->setData(new Request([
                 'title' => $request->title,
                 'idnum' => $request->idnum,
@@ -256,9 +262,8 @@ class ExchangeService
                 'cert_owner_address' => $request->cert_owner_address,
             ]), $exchange);
             return ['message' => 'Успешно подписано!',  'success' => true];
-//        }
-
-//        return ['message' => 'Ошибка',  'success' => false];
+        }
+        return ['message' => 'Ошибка',  'success' => false];
     }
 
     private function signReceiver($request, $id)
@@ -275,16 +280,16 @@ class ExchangeService
         $hash = app(SignService::class)->__signExchangeData($exchange->id);
         $signData = app(EdsService::class)->check(new Request(['hash' => $hash, 'sign' => $request->sign]));
 
-//        if($signData && $signData->iin === $auth->idnum) {
+        if($signData && $signData->iin === $auth->idnum) {
             $this->setData(new Request([
                 'receiver_sign' => $request->sign,
                 'receiver_sign_time' => time(),
                 'sended_to_approve' => time(),
             ]), $exchange);
             return ['message' => 'Успешно подписано!',  'success' => true];
-//        }
+        }
 
-//        return ['message' => 'Ошибка',  'success' => false];
+        return ['message' => 'Ошибка',  'success' => false];
     }
 
     private function sendToApprove($id)

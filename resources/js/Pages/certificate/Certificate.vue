@@ -44,7 +44,7 @@
                     <td class="text-left">
                         <q-btn icon="verified"
                                color="indigo-8"
-                               flat
+
                                dense size="11px"
                                label="Скидочный сертификат"
                                icon-right="download"
@@ -54,7 +54,7 @@
 
                     <td class="text-right">
                         <q-btn icon="verified"
-                               flat
+
                                icon-right="sync_alt"
                                color="pink-10"
                                size="11px"
@@ -102,7 +102,7 @@
                 <tr v-for="item in exchanges">
                     <td>
                         <router-link :to="'/exchange/'+item.id" class="text-primary">
-                            <q-icon name="open_in_new"/>
+                            <q-icon name="open_in_new" size="xs"/>
                             {{ item.certificate ? item.certificate.id : '-' }}
                         </router-link>
                     </td>
@@ -133,6 +133,7 @@ import {generateCertificate, getCertificateList} from "../../services/certificat
 import FileDownload from "js-file-download";
 import {getExchangeList, storeExchange} from "../../services/exchange";
 import {Notify} from "quasar";
+import {secureData} from "../../services/sign";
 
 export default {
 
@@ -164,20 +165,18 @@ export default {
         },
 
         downloadCert(id) {
-            // secureData().then(res => {
-            //     if(res){
-            this.loading = true
-            // validUser().then(() => {
-            generateCertificate(id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'certificate.pdf')
-            }).finally(() => {
+            secureData().then(res => {
+                if(res){
+                    this.loading = true
+                    generateCertificate(id, {params: res, responseType: 'arraybuffer'}).then(value => {
+                        FileDownload(value, 'certificate.pdf')
+                    }).finally(() => {
+                        this.loading = false
+                    })
+                }
+            }).catch(() => {
                 this.loading = false
             })
-            // }).catch(() => {
-            //     this.loading = false
-            // })
-            //     }
-            // })
         },
 
         exchangeCert(id) {

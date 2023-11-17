@@ -65,6 +65,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'checkToken' => \App\Http\Middleware\CheckTokenValid::class,
         'isModerator' => \App\Http\Middleware\CheckModerator::class,
+        'isOperator' => \App\Http\Middleware\CheckOperator::class,
         'client_credentials' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
     ];
 }
