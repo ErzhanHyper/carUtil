@@ -35,6 +35,8 @@ class TransferOrderResource extends JsonResource
 
         $car = Car::where('order_id', $this->order_id)->first();
 
+        $vehicleType = '';
+
         if($car) {
             if ($car->car_type_id === 1 || $car->car_type_id === 2) {
                 $vehicleType = 'car';
