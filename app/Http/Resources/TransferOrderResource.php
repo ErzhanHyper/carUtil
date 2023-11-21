@@ -34,10 +34,13 @@ class TransferOrderResource extends JsonResource
         $preorder = PreOrderCar::where('order_id', $this->order_id)->first();
 
         $car = Car::where('order_id', $this->order_id)->first();
-        if($car->car_type_id === 1 || $car->car_type_id === 2){
-            $vehicleType = 'car';
-        }else{
-            $vehicleType = 'agro';
+
+        if($car) {
+            if ($car->car_type_id === 1 || $car->car_type_id === 2) {
+                $vehicleType = 'car';
+            } else {
+                $vehicleType = 'agro';
+            }
         }
 
         $deal = null;
