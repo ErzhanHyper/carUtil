@@ -3,14 +3,18 @@
         <q-space/>
         <template v-if="show">
             <div class="q-gutter-sm">
-                <q-btn icon="sell" dense size="md" color="pink-10" label="Выставить ТС на продажу"
-                       @click="sellPreorder" :loading="loading"></q-btn>
+                <q-btn icon="sell" dense size="md" color="pink-10" label="Выставить на продажу"
+                       @click="sellPreorder" :loading="loading">
+                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" >
+                        Передача ТС/СХТ
+                    </q-tooltip>
+                </q-btn>
             </div>
         </template>
 
         <template v-if="!show && transfer && transfer.closed !== 2">
             <div class="text-blue-10">
-                ТС выставлен на продажу
+                ТС/СХТ выставлен на продажу
 
                 <q-space/>
 

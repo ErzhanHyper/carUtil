@@ -55,7 +55,7 @@ class TransferDealService
 
                         if (!$exist) {
                             $deal->save();
-                            $message = 'Предложение отправлена владельцу!';
+                            $message = 'Предложение отправлена владельцу';
                             $success = true;
                         }
                     }else{
@@ -63,7 +63,7 @@ class TransferDealService
                     }
                 }
             } else {
-                $message = 'Не все данные заполнены!';
+                $message = 'Не все данные заполнены';
             }
         }
 

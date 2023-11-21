@@ -6,6 +6,7 @@ namespace App\Services\Preorder;
 
 use App\Http\Controllers\FileController;
 use App\Http\Resources\PreOrderResource;
+use App\Http\Resources\TransferOrderResource;
 use App\Models\AgroFile;
 use App\Models\Car;
 use App\Models\CarFile;
@@ -110,9 +111,13 @@ class PreorderService
             $blockedBooking = true;
 
             $transfer = null;
+            $transferResource = null;
 
             if ($order) {
                 $transfer = TransferOrder::where('order_id', $order->id)->first();
+                if($transfer) {
+                    $transferResource = new TransferOrderResource(TransferOrder::where('order_id', $order->id)->first());
+                }
                 if($user->role === 'liner') {
                     if ($preorder->status === 2 && $order->status === 0 && $order->approve === 0) {
                         if($transfer && $transfer->closed !== 2){
@@ -138,9 +143,10 @@ class PreorderService
                 }
             }
 
+
             return [
                 'item' => new PreOrderResource($preorder),
-                'transfer' => $transfer,
+                'transfer' => $transferResource,
                 'permissions' => [
                     'transferOrder' => $canTransfer,
                     'sendToApprove' => $canSend,

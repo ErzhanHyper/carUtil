@@ -10,3 +10,14 @@ export function getCertReport(params) {
         })
     })
 }
+
+export function getSellReport(params) {
+    return new Promise((resolve, reject) => {
+        api.get('/report/sell', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

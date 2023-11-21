@@ -1,6 +1,6 @@
 {
-  "_index-aec10401.js": {
-    "file": "assets/index-aec10401.js",
+  "_index-40a6af95.js": {
+    "file": "assets/index-40a6af95.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -27,9 +27,9 @@
       "assets/app-5e28e6fb.css"
     ],
     "dynamicImports": [
-      "_index-aec10401.js"
+      "_index-40a6af95.js"
     ],
-    "file": "assets/app-1c39169c.js",
+    "file": "assets/app-70c73145.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },

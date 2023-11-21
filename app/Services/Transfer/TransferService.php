@@ -115,10 +115,10 @@ class TransferService
                     $order->save();
                     $data = $transfer;
                     $success = true;
-                    $message = 'Транспортное средство выставлена на продажу';
+                    $message = 'ТС/СХТ выставлен на продажу';
                 }
             } else {
-                $message = 'Транспортное средство уже была выставлена на продажу';
+                $message = 'ТС/СХТ уже была выставлена на продажу';
             }
         }
 
@@ -154,7 +154,7 @@ class TransferService
                 $order->blocked = 0;
                 if($order->save()) {
                     $transferOrder->delete();
-                    $message = 'Продажа транспортного средство отменена';
+                    $message = 'Продажа ТС/СХТ отменена';
                     $success = true;
                 }
             }
@@ -179,13 +179,9 @@ class TransferService
         $order = Order::find($transfer_order->order_id);
         $transfer_deal = TransferDeal::find($transfer_order->transfer_deal_id);
 
-        if($user->id === $transfer_order->liner_id){
-            $authClient = Client::find($transfer_order->liner_id);
-        }else{
-            $authClient = Client::find($transfer_deal->liner_id);
-        }
+        $client1 = Client::find($transfer_order->client_id);
+        $client2 = Client::find($transfer_deal->client_id);
 
-        $client = Client::find($transfer_order->client_id);
         $hash = app(SignService::class)->__signTransferData($transfer_order->id);
 
         $sign_data = app(EdsService::class)->check(new Request([
@@ -194,35 +190,42 @@ class TransferService
         ]));
 
         if ($sign && $sign_data != '') {
-            if($user->id === $transfer_order->liner_id) {
+            if($user->id === $transfer_order->liner_id && ($user->idnum === $sign_data->iin || $user->idnum === $sign_data->bin)) {
                 $this->ownerSign($id, $sign, $hash);
-                $message = 'Успешно подписано!';
+                $message = 'Успешно подписано';
                 $success = true;
             }
 
-            if($user->id === $transfer_deal->liner_id) {
+            if($user->id === $transfer_deal->liner_id
+//                && ($user->idnum === $sign_data->iin || $user->idnum === $sign_data->bin)
+            ) {
                 $this->receiverSign($id, $sign, $hash);
 
                 $preorder = PreOrderCar::where('order_id', $transfer_order->order_id)->first();
-                $preorder->client_id = $authClient->id;
-                $preorder->liner_id = $user->id;
+
+                if($preorder) {
+                    $preorder->client_id = $client2->id;
+                    $preorder->liner_id = $user->id;
+                }
 
                 $car = Car::where('order_id', $transfer_order->order_id)->first();
 
-                $car->cert_title = $authClient->title;
-                $car->cert_idnum = $authClient->idnum;
+                if($car) {
+                    $car->cert_title = $client2->title;
+                    $car->cert_idnum = $client2->idnum;
 
-                $car->owner_title = $client->title;
-                $car->owner_idnum = $client->idnum;
+                    $car->owner_title = $client1->title;
+                    $car->owner_idnum = $client1->idnum;
+                }
 
                 $order->blocked = 0;
-                $order->client_id = $authClient->id;
+                $order->client_id = $client2->id;
 
                 $preorder->save();
                 $car->save();
                 $order->save();
 
-                $message = 'Успешно подписано!';
+                $message = 'Успешно подписано';
                 $success = true;
             }
         }
@@ -259,7 +262,6 @@ class TransferService
         $log->action = $request->action;
         $log->transfer_order_id = $request->transfer_order_id;
         $log->transfer_deal_id = $request->transfer_deal_id;
-        $log->sign = $request->sign;
         $log->idnum = $request->idnum;
         $log->title = $request->title;
         $log->save();

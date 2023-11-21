@@ -108,7 +108,7 @@
                     На отправке
                 </q-badge>
                 <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-pa-xs">
-                    <router-link :to="'/transfer/order/'+item.transfer.id">Выставлена на продажу</router-link>
+                    <router-link :to="'/transfer/order/'+item.transfer.id">Выставлен на продажу</router-link>
                 </q-badge>
                 <q-badge :color="setOrderStatusColor(item.order.status.id)" v-if="item.order && (item.order.status.id === 1 || item.order.status.id === 2 || item.order.status.id === 4 || item.order.status.id === 5)">
                     {{ item.order.status.title }}
@@ -299,21 +299,24 @@ export default {
             if (!this.item.recycle_type) {
                 Notify.create({
                     message: 'Выберите тип заявки',
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'warning'
                 })
             }
-            this.loading = true
-            storeOrder({
-                recycle_type: this.item.recycle_type
-            }).then(res => {
-                if (res.status === 200) {
-                    this.orderDialog = false
-                    this.$router.push('/preorder/' + res.data.id)
-                }
-            }).finally(() => {
-                this.loading = false
-            })
+
+            if(this.item.recycle_type) {
+                this.loading = true
+                storeOrder({
+                    recycle_type: this.item.recycle_type
+                }).then(res => {
+                    if (res.status === 200) {
+                        this.orderDialog = false
+                        this.$router.push('/preorder/' + res.data.id)
+                    }
+                }).finally(() => {
+                    this.loading = false
+                })
+            }
         },
 
         getData() {

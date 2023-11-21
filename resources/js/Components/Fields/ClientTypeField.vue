@@ -1,5 +1,5 @@
 <template>
-    <q-select square v-model="field" :options="options" option-value="id" option-label="title" label="Тип клиента" map-options emit-value/>
+    <q-select square v-model="field" :options="options" option-value="id" option-label="title" label="Физ./Юр. лицо" map-options emit-value/>
 </template>
 
 <script>

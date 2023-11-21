@@ -40,6 +40,7 @@
                     clickable
                     v-ripple
                     active-class="my-menu-link"
+                    :disabled="item.readonly"
                     v-if="!item.expand"
                 >
                     <q-item-section avatar>

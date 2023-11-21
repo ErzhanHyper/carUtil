@@ -35,11 +35,6 @@ Route::prefix('app')->group(function () {
         Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);
         Route::post('booking/order/delete', [\App\Http\Controllers\BookingOrderController::class, 'delete']);
 
-        Route::get('client', [\App\Http\Controllers\ClientController::class, 'get']);
-        Route::get('client/{id}', [\App\Http\Controllers\ClientController::class, 'showById']);
-
-        Route::get('report', [\App\Http\Controllers\ReportController::class, 'index']);
-
         Route::prefix('document')->group(function () {
             Route::middleware(['isOperator'])->group(function () {
                 Route::get('/order/{id}/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
@@ -215,6 +210,9 @@ Route::prefix('app')->group(function () {
 
         Route::prefix('report')->group(function () {
             Route::get('/cert', [\App\Http\Controllers\ReportController::class, 'getCert']);
+            Route::get('/sell', [\App\Http\Controllers\ReportController::class, 'getSell']);
+            Route::get('/exchange', [\App\Http\Controllers\ReportController::class, 'getExchange']);
+            Route::get('/action', [\App\Http\Controllers\ReportController::class, 'getAction']);
         });
     });
 });

@@ -2,7 +2,7 @@
 
     <div class="q-gutter-sm text-right">
         <q-btn icon="close" color="negative" size="11px"
-               label="Отменить продажу ТС" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2" :loading="loading2"/>
+               label="Отменить продажу ТС/СХТ" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2" :loading="loading2"/>
         <q-btn icon="close" color="negative" size="11px"
                label="Отменить предложение" @click="removeTransferDeal" v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2"/>
     </div>
@@ -199,7 +199,7 @@ export default {
                 if (res && res.message !== '') {
                     Notify.create({
                         message: res.message,
-                        position: 'bottom-right',
+                        position: 'bottom',
                         type: res.success === true ? 'positive' : 'warning'
                     })
                 }
@@ -222,9 +222,21 @@ export default {
                     this.loading1 = true
                     signTransferOrder(this.item.id, {
                         sign: res,
-                    }).then(() => {
-                        this.getData()
-                        this.signDialog = false
+                    }).then((res) => {
+                        if(res){
+                            if (res.message !== '') {
+                                Notify.create({
+                                    message: res.message,
+                                    position: 'bottom',
+                                    type: res.success === true ? 'positive' : 'warning'
+                                })
+                            }
+                            if (res.success === true) {
+                                this.signDialog = false
+                                this.getData()
+                                this.$emitter.emit('TransferDealEvent');
+                            }
+                        }
                     }).finally(() => {
                         this.loading1 = false
                     })

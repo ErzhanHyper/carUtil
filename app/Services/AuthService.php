@@ -49,7 +49,7 @@ class AuthService
         $secure = app(EdsService::class)->secure($pem);
 
         if ($secure) {
-            $idnum = $secure->iin;
+            $idnum = $secure->iin ?? $secure->bin;
             $liner = Liner::where('idnum', $idnum)->first();
             if ($liner) {
                 return true;
@@ -64,7 +64,7 @@ class AuthService
         $secure = app(EdsService::class)->secure($pem);
 
         if ($secure) {
-            $idnum = $secure->iin;
+            $idnum = $secure->iin ?? $secure->bin;
             $hash = Hash::make(Config::get('APP_SALT') . $idnum);
             $user = null;
 
@@ -180,7 +180,7 @@ class AuthService
 
         $dte = Carbon::parse(str_replace(' ALMT', '', $secure->dte))->format('Y-m-d H:i');
         $liner = new Liner;
-        $liner->idnum = $secure->iin;
+        $liner->idnum = $secure->iin ?? $secure->bin;
         $liner->active = 0;
         $liner->opt = 0;
         $liner->lts = strtotime($dte);
@@ -190,7 +190,7 @@ class AuthService
             'ftype' => $secure->bin != '' ? 'ut' : 'ft'
         ]);
         if ($liner->save()) {
-            $idnum = $secure->iin;
+            $idnum = $secure->iin ?? $secure->bin;
             $hash = Hash::make(Config::get('APP_SALT') . $idnum);
 
             $session = new Session();

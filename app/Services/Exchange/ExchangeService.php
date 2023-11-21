@@ -250,7 +250,7 @@ class ExchangeService
         $hash = app(SignService::class)->__signExchangeData($exchange->id);
         $signData = app(EdsService::class)->check(new Request(['hash' => $hash, 'sign' => $request->sign]));
 
-        if($signData && $signData->iin === $auth->idnum) {
+        if($signData && ($signData->iin === $auth->idnum || $signData->bin === $auth->idnum)) {
             $this->setData(new Request([
                 'title' => $request->title,
                 'idnum' => $request->idnum,

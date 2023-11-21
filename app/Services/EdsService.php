@@ -48,9 +48,9 @@ class EdsService
         if ($check) {
             $sign = '';
             $j = json_decode(base64_decode($check[0]));
-            if ($j->sign != 'FAILED') {
+//            if ($j->sign != 'FAILED') {
                 $sign = $j;
-            }
+//            }
 
             return $sign;
         }

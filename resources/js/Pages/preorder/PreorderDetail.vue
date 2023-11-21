@@ -23,7 +23,7 @@
             </div>
 
             <div>
-                <preorder-sell :transfer="item.transfer" :order_id="item.order.id" :show="permissions.transferOrder" v-if="item.order && !item.booking"/>
+                <preorder-sell :transfer="transfer" :order_id="item.order.id" :show="permissions.transferOrder" v-if="item.order && !item.booking"/>
 
                 <div class="q-gutter-md" >
                     <q-btn color="blue-8"
@@ -95,7 +95,7 @@
             </div>
             <div class="col col-md-4 col-xs-12" v-show="item.car">
                 <preorder-file
-                    :transfer="item.transfer"
+                    :transfer="transfer"
                     :data="item.file"
                     :preorder_id="item.id"
                     :client_id="item.client ? item.client.id : null"
@@ -180,6 +180,8 @@ export default {
                 transferOrder: false,
             },
 
+            transfer: {},
+
             item: {
                 transferShow: false,
                 blockedVideo: false,
@@ -236,13 +238,14 @@ export default {
             this.$emitter.emit('contentLoaded', true);
             getPreorderById(this.id).then(res => {
                 this.$emitter.emit('contentLoaded', false);
-                this.item = res.item
+                this.show = true
+                this.transfer = res.transfer
                 this.blocked = res.permissions.blocked
                 this.blockedBooking = res.permissions.blockedBooking
                 this.permissions.transferOrder = res.permissions.transferOrder
                 this.permissions.sendToApprove = res.permissions.sendToApprove
                 this.permissions.approveOrder = res.permissions.approveOrder
-                this.show = true
+                this.item = res.item
             })
         },
 

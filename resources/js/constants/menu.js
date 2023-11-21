@@ -73,14 +73,16 @@ export default {
             icon: 'feedback',
             color: color1,
             expand: false,
-            link: '/service'
+            link: '/service',
+            readonly: true
         },
         {
             name: 'Отчеты',
             icon: 'report',
             color: color1,
             expand: false,
-            link: '/report'
+            link: '/report',
+            readonly: true
         },
         {
             name: 'Погашения',

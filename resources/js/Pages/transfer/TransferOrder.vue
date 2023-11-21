@@ -3,26 +3,39 @@
         <div class="text-h6 text-primary">Продажа ТС</div>
     </div>
 
-    <q-tabs
-        v-model="tab"
-        dense
-        class="text-grey"
-        active-color="primary"
-        indicator-color="primary"
-        style="width: 400px"
-    >
-        <q-tab :name="1" label="Все" />
-        <q-tab :name="2" label="Мои" />
-    </q-tabs>
 
-    <q-tab-panels v-model="tab" animated vertical>
-        <q-tab-panel :name="1" class="q-pa-none">
+    <div class="row q-col-gutter-sm">
+        <div class="col col-md-7">
+            <span class="text-weight-bold text-body1">Все</span>
             <transfer-order-all class="q-pt-sm"/>
-        </q-tab-panel>
-        <q-tab-panel :name="2" class="q-pa-none">
+        </div>
+
+        <div class="col col-md-5">
+             <span class="text-weight-bold text-body1">Мои</span>
             <transfer-order-current class="q-pt-sm"/>
-        </q-tab-panel>
-    </q-tab-panels>
+        </div>
+    </div>
+
+<!--    <q-tabs-->
+<!--        v-model="tab"-->
+<!--        dense-->
+<!--        class="text-grey"-->
+<!--        active-color="primary"-->
+<!--        indicator-color="primary"-->
+<!--        style="width: 400px"-->
+<!--    >-->
+<!--        <q-tab :name="1" label="Все" />-->
+<!--        <q-tab :name="2" label="Мои" />-->
+<!--    </q-tabs>-->
+
+<!--    <q-tab-panels v-model="tab" animated vertical>-->
+<!--        <q-tab-panel :name="1" class="q-pa-none">-->
+<!--            <transfer-order-all class="q-pt-sm"/>-->
+<!--        </q-tab-panel>-->
+<!--        <q-tab-panel :name="2" class="q-pa-none">-->
+<!--            <transfer-order-current class="q-pt-sm"/>-->
+<!--        </q-tab-panel>-->
+<!--    </q-tab-panels>-->
 
     <q-dialog v-model="transferTermsDialog">
         <q-card>

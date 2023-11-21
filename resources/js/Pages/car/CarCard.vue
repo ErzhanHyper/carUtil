@@ -175,7 +175,9 @@ export default {
 
     mounted() {
         this.$emitter.on('CarCardEvent', () => {
-            this.getCar(this.item)
+            if(this.getCar) {
+                this.getCar(this.item)
+            }
         })
     }
 }

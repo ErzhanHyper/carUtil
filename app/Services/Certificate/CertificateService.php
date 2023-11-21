@@ -75,7 +75,7 @@ class CertificateService
 
         if($user->role === 'liner' && $user->idnum === $cert->idnum_1){
             $secure = app(EdsService::class)->secure($request->pem);
-            if($secure->iin === $cert->idnum_1){
+            if($secure->iin === $cert->idnum_1 || $secure->bin === $cert->idnum_1){
                 $can = true;
             }else{
                 throw new InvalidArgumentException(json_encode(['Нет доступа']));

@@ -29,12 +29,13 @@
                 <q-card-section>
                     <div class="row">
                         <div class="col q-mr-lg">
-                            <q-input type="date" hint="начало"/>
+                            <q-input type="date" hint="начало" v-model="sell.start"/>
                         </div>
                         <div class="col">
-                            <q-input type="date" hint="конец"/>
+                            <q-input type="date" hint="конец" v-model="sell.end"/>
                         </div>
                     </div>
+                    <q-btn label="Запустить" color="indigo-8" size="12px" class="q-mt-md" @click="runSell" :loading="loading2"/>
                 </q-card-section>
             </q-card>
         </div>
@@ -83,13 +84,18 @@
 </template>
 
 <script>
-import {getCertReport} from "../../services/report";
+import {getCertReport, getSellReport} from "../../services/report";
 import FileDownload from "js-file-download";
 
 export default {
     data() {
         return{
             loading1:false,
+            loading2:false,
+            sell: {
+                start: '',
+                end: ''
+            },
             cert: {
                 start: '',
                 end: ''
@@ -105,11 +111,25 @@ export default {
             }).finally(() => {
                 this.loading1 = false
             })
+        },
+
+        runSell() {
+            this.loading2 = true
+            getSellReport({params: this.sell, responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'sell.xlsx')
+            }).finally(() => {
+                this.loading2 = false
+            })
         }
     },
 
     created() {
+    },
 
+    mounted() {
+        setTimeout(() => {
+            this.$emitter.emit('contentLoaded', false);
+        }, 10)
     }
 }
 </script>

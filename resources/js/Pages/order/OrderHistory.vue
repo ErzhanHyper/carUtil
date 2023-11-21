@@ -7,7 +7,7 @@
                     <q-banner :class="(text.action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
                               style="max-width: 380px">
                         <div class="text-subtitle2 text-weight-bold">
-                            <span v-if="text.action === 'approve'">Одобрена</span>
+                            <span v-if="text.action === 'approve'">Одобрено</span>
                             <span v-if="text.action === 'decline'">Отклонена</span>
                             <span v-if="text.action === 'revision'">На доработку</span>
                             <span v-if="text.action === 'revisionVideo'">На доработку</span>
