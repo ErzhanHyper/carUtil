@@ -64,8 +64,8 @@ class CertificateResource extends JsonResource
         }
 
         $exchange_status = '';
-        if($exchange) {
-            if ($this->blocked == 1 && $this->closed == 0) {
+        if($exchange && $this->closed == 0) {
+            if ($this->blocked == 1) {
                 if ($exchange->approve == 1) {
                     $exchange_status = 'Отправлена на одобрение';
                 }else{
@@ -73,10 +73,9 @@ class CertificateResource extends JsonResource
                     $exchange_status = 'На переоформлении';
                 }
             }else{
-                if($this->blocked == 0 && ($exchange->approve == 3 || $exchange->approve == 2)){
+                if(($exchange->approve == 3 || $exchange->approve == 2)){
                     $showExchange = true;
                 }else{
-                    $showExchange = false;
                     $exchange_status = 'На переоформлении';
                 }
             }

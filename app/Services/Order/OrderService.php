@@ -305,6 +305,12 @@ class OrderService
                         $order->user_id = $user->id;
                         $order->status = 5;
                         $order->save();
+
+                        app(OrderApproveService::class)->storeHistory(new Request([
+                            'action' => 'SIGN_ACTION',
+                            'order_id' => $order->id,
+                            'user_id' => $user->id,
+                        ]));
                     }
                     $response = ['success' => true];
                 }
@@ -323,9 +329,15 @@ class OrderService
         if($order) {
             $order->user_id = $user->id;
             $order->approve = 1;
-            $order->status = 2;
+            $order->status = 1;
             $order->sended_to_approve = time();
             $order->save();
+
+            app(OrderApproveService::class)->storeHistory(new Request([
+                'action' => 'SENDED_TO_MODERATOR',
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+            ]));
         }
 
         return [
@@ -338,12 +350,19 @@ class OrderService
         $user = app(AuthService::class)->auth();
         $order = Order::find($id);
         $success = false;
-        if($order->approve !== 1 || $order->approve !== 0) {
-            if (!$order->executor_uid) {
-                $order->executor_uid = $user->id;
-                $order->save();
-                $success = true;
-            }
+
+        if($order->approve === 1 && !$order->executor_uid) {
+            $order->executor_uid = $user->id;
+            $order->status = 2;
+            $order->save();
+            $success = true;
+
+            app(OrderApproveService::class)->storeHistory(new Request([
+                'action' => 'ORDER_STATUS_IN_PROCESSING',
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'comment' => '#'.$user->title.'('. $user->role. ')'. ': взял(а) заявку на исполнение'
+            ]));
         }
 
         return [
@@ -356,7 +375,7 @@ class OrderService
         $user = app(AuthService::class)->auth();
         $success = false;
         $order = Order::find($id);
-        if($order->approve !== 1 || $order->approve !== 0) {
+        if($order->approve === 1) {
             if ($order->executor_uid === $user->id) {
                 $order->executor_uid = null;
                 $order->save();

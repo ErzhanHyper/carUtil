@@ -43,7 +43,7 @@ class OrderResource extends JsonResource
             default => '',
         };
 
-        $booking = [];
+        $booking = null;
         $categories = [];
         $files = [];
         $vehicleType = '';
@@ -65,6 +65,13 @@ class OrderResource extends JsonResource
         if($this->preorder && $this->preorder->booking_id) {
             $booking = BookingOrder::find($this->preorder->booking_id);
             $booking = new BookingOrderResource($booking);
+        }
+
+
+        $history = [];
+
+        if($this->history) {
+            $history = OrderHistoryResource::collection($this->history);
         }
 
         return [
@@ -93,7 +100,7 @@ class OrderResource extends JsonResource
             'categories' => $categories,
             'transfer' => $this->transfer,
             'vehicleType' => $vehicleType,
-            'history' => OrderHistoryResource::collection($this->history),
+            'history' => $history,
         ];
     }
 }

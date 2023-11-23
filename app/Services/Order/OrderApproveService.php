@@ -58,7 +58,7 @@ class OrderApproveService
                 }
 
                 $this->storeHistory(new Request([
-                    'action' => 'approve',
+                    'action' => 'APPROVED',
                     'order_id' => $order->id,
                     'comment' => 'Одобрено',
                     'user_id' => $user->id,
@@ -90,7 +90,7 @@ class OrderApproveService
             $order->save();
 
             $this->storeHistory(new Request([
-                'action' => 'decline',
+                'action' => 'DECLINED',
                 'order_id' => $order->id,
                 'comment' => $request->comment,
                 'user_id' => $user->id,
@@ -115,7 +115,7 @@ class OrderApproveService
             $order->save();
 
             $this->storeHistory(new Request([
-                'action' => 'revision',
+                'action' => 'RETURNED_TO_OPERATOR',
                 'order_id' => $order->id,
                 'comment' => $request->comment,
                 'user_id' => $user->id,

@@ -58,14 +58,15 @@
                 </div>
             </template>
 
+            <template v-if="filesPhoto.length > 0">
             <q-carousel
                 animated
                 v-model="slide"
                 arrows
                 infinite
-                v-if="filesPhoto.length > 0"
             >
-                <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" v-for="(slide, i) in filesPhoto" :key="i">
+            <template v-for="(slide, i) in filesPhoto" :key="i" v-if="slide">
+                <q-carousel-slide :name="i+1" class="q-pb-lg relative-position"  >
                     <q-img :src="slide.base64Image" class="full-height cursor-pointer" @click="showImage(slide.base64Image)"/>
                     <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
                     <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
@@ -73,8 +74,10 @@
                            @click="deleteFile({ type: 'photo', id: slide.id })"
                     />
                 </q-carousel-slide>
+            </template>
 
             </q-carousel>
+            </template>
 
             <input type="file" ref="file_dialog" v-bind:value="uploadedFile" v-on:input="event => uploadFile(event)" :readonly="blocked"
                    v-if="!blocked" class="hidden"/>

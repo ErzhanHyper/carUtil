@@ -57,7 +57,7 @@
 <!--                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>-->
                     </div>
                     <div class="col col-md-7 col-sm-12 col-xs-12">
-                        <booking class="q-mb-md" :data="item.booking" :getBooking="getBooking" :blocked="true"/>
+                        <booking class="q-mb-md" :data="item.booking" :getBooking="getBooking" :blocked="true" v-if="item.booking"/>
                         <car-card :data="item.car" :getCar="getCar" :blocked="true" :vehicleType="item.vehicleType"/>
                     </div>
                 </div>

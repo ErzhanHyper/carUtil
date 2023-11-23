@@ -12,7 +12,7 @@ class LogController extends Controller
     {
         try {
             $result['status'] = 200;
-            $result['data'] = ['items' => Log::paginate(10)];
+            $result['data'] = ['items' => Log::orderByDesc('when')->paginate(10)];
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];
