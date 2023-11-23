@@ -121,12 +121,12 @@ export default {
                 this.$emitter.emit('contentLoaded', false);
 
                 let profile = res.profile
+                this.user.title = res.title
 
                 if (res.role === 'liner') {
                     this.user.phone = (profile.phone) ?? ''
                     this.user.email = (profile.email) ?? ''
                 } else {
-                    this.user.title = res.title
                     this.user.phone = res.phone
                     this.user.email = res.email
                     this.user.for_docs = res.for_docs
