@@ -111,7 +111,7 @@ class FileController extends Controller
             if ($car->car_type_id === 1 || $car->car_type_id === 2) {
                 $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [1,2,3,5,6,17,28, 29])->get());
                 $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,16])->get());
-                $file_types = FileType::whereIn('id', [1,2,3,5,6,17,28, 8,9,10,11,12,13,14,15,16])->get();
+                $file_types = FileType::whereIn('id', [1,2,3,5,6,17,28, 8,9,10,11,12,13,14,15,16, 29])->get();
             } else if ($car->car_type_id === 3 || $car->car_type_id === 4) {
                 $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [1,2,3,13,14, 29])->get());
                 $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get());
