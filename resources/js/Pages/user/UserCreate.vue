@@ -10,7 +10,7 @@
     </q-banner>
 
     <div class="row q-col-gutter-md">
-        <user-form :getData="getData"/>
+        <user-form :data="item"/>
     </div>
     <div class="q-mt-md">
         <q-btn color="primary" icon="save" label="Сохранить" @click="store" :loading="loading"/>
@@ -35,9 +35,6 @@ export default {
     },
 
     methods: {
-        getData(value) {
-            this.item = value
-        },
 
         store() {
             this.showBanner = false

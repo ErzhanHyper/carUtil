@@ -352,9 +352,7 @@ export default {
     },
 
     mounted() {
-        setTimeout(() => {
-            this.$emitter.emit('contentLoaded', false);
-        }, 10)
+
     }
 }
 </script>

@@ -89,9 +89,7 @@ export default {
     },
 
     mounted() {
-        this.$emitter.on('UserCreateEvent', () => {
-            this.getData(this.item)
-        })
+
     }
 }
 </script>
