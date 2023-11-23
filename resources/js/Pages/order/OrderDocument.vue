@@ -31,43 +31,13 @@
             <q-separator />
 
             <q-card-section style="max-height: 70vh" class="scroll">
-                <div class="flex column" v-if="category.title === 'M1' || category.title === 'M2' || category.title === 'M3'">
-                    <q-checkbox label="Кузов (Шасси)" v-model="item.id1"/>
-                    <q-checkbox label="Крышка капота" v-model="item.id2"/>
-                    <q-checkbox label="Крышка багажника" v-model="item.id3"/>
-                    <q-checkbox label="Двери (штатное кол-во)" v-model="item.id4"/>
-                    <q-checkbox label="Колеса с шинами (штатное кол-во)" v-model="item.id5"/>
-                    <q-checkbox label="Ограждающие покрытия колес (крылья) (штатное кол-во)" v-model="item.id6"/>
-                    <q-checkbox label="Двигатель с генератором, стартером, карбюратором/системой впрыска (установлено на штатных местах)" v-model="item.id7"/>
-                    <q-checkbox label="Радиатор" v-model="item.id8"/>
-                    <q-checkbox label="Редуктор" v-model="item.id9"/>
-                    <q-checkbox label="Аккумулятор" v-model="item.id10"/>
-                    <q-checkbox label="Коробка передач" v-model="item.id11"/>
-                    <q-checkbox label="Раздаточная коробка, мосты и редуктора мостов, карданные валы" v-model="item.id12"/>
-                </div>
-
-                <div class="flex column" v-if="category.title === 'N1' || category.title === 'N2' || category.title === 'N3'">
-                    <q-checkbox label="Кузов/ фургон/ платформа/ специальное оборудование на шасси (в случае если они предусмотрены штатным оснащением изготовителя)" v-model="item.id1"/>
-                    <q-checkbox label="Кабина, шасси, двери (штатное количество)" v-model="item.id2"/>
-                    <q-checkbox label="Колеса с шинами (штатное количество)" v-model="item.id3"/>
-                    <q-checkbox label="Двигатель с генератором, стартером, карбюратором/системой впрыска" v-model="item.id4"/>
-                    <q-checkbox label="Радиатор" v-model="item.id5"/>
-                    <q-checkbox label="Редуктор" v-model="item.id6"/>
-                    <q-checkbox label="Аккумулятор" v-model="item.id7"/>
-                    <q-checkbox label="Коробка передач" v-model="item.id8"/>
-                    <q-checkbox label="Раздаточная коробка, мосты и редуктора мостов, крупноузловые детали, подвески ходовой части, карданные валы (в случае если она предусмотрена штатным оснащением изготовителя, установлено на штатных местах)" v-model="item.id9"/>
-                </div>
-
-                <div class="flex column" v-if="category.title === 'tractor' || category.title === 'combain'">
-                    <q-checkbox label="Кузов/ фургон/ платформа/ специальное оборудование на шасси (в случае если они предусмотрены штатным оснащением изготовителя)" v-model="item.id1"/>
-                    <q-checkbox label="Кабина, шасси, двери (штатное количество)" v-model="item.id2"/>
-                    <q-checkbox label="Колеса с шинами (штатное количество)" v-model="item.id3"/>
-                    <q-checkbox label="Двигатель с генератором, стартером, карбюратором/системой впрыска" v-model="item.id4"/>
-                    <q-checkbox label="Радиатор" v-model="item.id5"/>
-                    <q-checkbox label="Редуктор" v-model="item.id6"/>
-                    <q-checkbox label="Аккумулятор" v-model="item.id7"/>
-                    <q-checkbox label="Коробка передач" v-model="item.id8"/>
-                    <q-checkbox label="Раздаточная коробка, мосты и редуктора мостов, крупноузловые детали, подвески ходовой части, карданные валы (в случае если она предусмотрена штатным оснащением изготовителя, установлено на штатных местах)" v-model="item.id9"/>
+                <div class="flex column" >
+                    <div class="text-center">
+                    <q-spinner-dots v-if="complect.length === 0" />
+                    </div>
+                    <template v-for="(el, i) in complect" :key="i">
+                        <q-checkbox :label="el.label" v-model="el.value"/>
+                    </template>
                 </div>
 
             </q-card-section>
@@ -75,7 +45,7 @@
             <q-separator />
 
             <q-card-actions align="right">
-                <q-btn  label="Сохранить" color="blue-8" v-close-popup @click="genComplect" />
+                <q-btn  label="Сохранить" color="blue-8" v-close-popup @click="genComplectApp" />
             </q-card-actions>
         </q-card>
     </q-dialog>
@@ -85,6 +55,7 @@
 import {getComplectApp, getContractDoc, getStatementDoc} from "../../services/document";
 import {generateOrderPFS} from "../../services/file";
 import FileDownload from "js-file-download";
+import {getCategoryComplectList} from "../../services/category";
 
 export default {
 
@@ -99,31 +70,32 @@ export default {
 
             showComplectDialog: false,
 
-            item: {
-                id1: false,
-                id2: false,
-                id3: false,
-                id4: false,
-                id5: false,
-                id6: false,
-                id7: false,
-                id8: false,
-                id9: false,
-                id10: false,
-                id11: false,
-                id12: false,
-            }
+            item: {},
+
+            complect: [],
         }
     },
 
     methods: {
 
-        genComplect() {
+        genComplectApp() {
+            console.log(this.complect)
             this.loading2 = true
-            getComplectApp(this.order_id, {params: {complect: this.item}, responseType: 'arraybuffer'}).then(res => {
+            getComplectApp(this.order_id, {params: {complect: this.complect}, responseType: 'arraybuffer'}).then(res => {
                 FileDownload(res, 'statement.pdf')
             }).finally(() => {
                 this.loading2 = false
+            })
+        },
+
+        getComplect(){
+            getCategoryComplectList({params: {category: this.category.title}}).then(res => {
+                res.items.map(el => {
+                    this.complect.push({
+                        label: el,
+                        value: false
+                    })
+                })
             })
         },
 
@@ -147,7 +119,7 @@ export default {
     },
 
     created(){
-        console.log(this.category)
+        this.getComplect()
     }
 }
 </script>

@@ -169,10 +169,24 @@ export default {
                 return;
             }
 
-            this.signIn({data: base64EncodedSignature, auth_point: 'manager'}).then(() => {
-                this.$router.replace({
-                    name: 'order'
-                })
+            this.signIn({data: base64EncodedSignature, auth_point: 'manager'}).then((res) => {
+                if(res.data.data.role === 'dealer-light'){
+                    this.$router.replace({
+                        name: 'sell'
+                    })
+                }else if(res.data.data.role === 'dealer-chief'){
+                    this.$router.replace({
+                        name: 'report'
+                    })
+                }else if(res.data.data.role === 'moderator'){
+                    this.$router.replace({
+                        name: 'preorder'
+                    })
+                }else {
+                    this.$router.replace({
+                        name: 'order'
+                    })
+                }
             }).catch(reject => {
                 this.errors = JSON.parse(reject.response.data.error)
                 this.showBanner = true

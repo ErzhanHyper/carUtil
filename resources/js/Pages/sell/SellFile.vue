@@ -36,8 +36,9 @@
             <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
                  v-for="(doc, i) in items"
                  :key="i">
-                <q-icon :name="'insert_drive_file'" class="q-mr-sm" size="sm"></q-icon>
-                <a :href="'/storage/uploads/order/files/' + doc.sell_id + '/' + doc.orig_name" class="text-dark">
+                <q-icon name="insert_drive_file" class="q-mr-sm" size="sm" v-if="doc_id !== doc.id"></q-icon>
+                <q-circular-progress indeterminate rounded size="xs" v-if="doc_id === doc.id" color="primary" class="q-mr-sm"/>
+                <a href="#" class="text-dark" @click="downloadFile(doc.id)">
                     {{ getFileTypeTitle(doc.type) }}
                 </a>
                 <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
@@ -54,9 +55,12 @@
 <script>
 import {deleteSellFile, getSellFilesById, storeSellFile} from "../../services/sell";
 import {ref} from "vue";
+import {downloadExchangeFile} from "../../services/exchange";
+import FileDownload from "js-file-download";
+import {downloadSellFile} from "../../services/file";
 
 export default {
-   props: ['id', 'blocked'],
+   props: ['id', 'blocked', 'status'],
 
     setup() {
         return {
@@ -67,9 +71,11 @@ export default {
 
     data(){
        return{
+           doc_id: null,
            item: {},
            file_type_id: null,
-           options: [
+           options: [],
+           fileTypes: [
                {
                    id: 'ID',
                    title: 'Удостоверяющие документы'
@@ -78,10 +84,7 @@ export default {
                    id: 'APP_SELL',
                    title: 'Расписка об использовании'
                },
-               {
-                   id: 'ACT_SELL',
-                   title: 'Акт об использовании'
-               },
+
                {
                    id: 'ID_VEHICLE',
                    title: 'Паспорт ТС'
@@ -89,6 +92,10 @@ export default {
                {
                    id: 'PHOTO',
                    title: 'Фото заявителя'
+               },
+               {
+                   id: 'ACT_SELL',
+                   title: 'Акт об использовании'
                }
            ],
            items: [],
@@ -101,7 +108,7 @@ export default {
 
         getFileTypeTitle(value){
             let type = ''
-            this.options.map(el => {
+            this.fileTypes.map(el => {
                 if(value === el.id){
                     type = el.title
                 }
@@ -134,7 +141,43 @@ export default {
             })
         },
 
+        downloadFile(id){
+            this.doc_id = id
+            downloadSellFile(id, {params: {sell_id: this.id}, responseType: 'arraybuffer'}).then(res => {
+                if(res) {
+                    let parts = res.headers.get('Content-Disposition').split(';');
+                    let filename = parts[1].split('=')[1];
+                    FileDownload(res.data, filename)
+                    this.doc_id = null
+                }
+            })
+        },
+
         getData(){
+            if(this.status.id === 2){
+                this.options.push({
+                    id: 'ACT_SELL',
+                    title: 'Акт об использовании'
+                })
+            }else{
+                this.options.push( {
+                        id: 'ID',
+                        title: 'Удостоверяющие документы'
+                    },
+                    {
+                        id: 'APP_SELL',
+                        title: 'Расписка об использовании'
+                    },
+
+                    {
+                        id: 'ID_VEHICLE',
+                        title: 'Паспорт ТС'
+                    },
+                    {
+                        id: 'PHOTO',
+                        title: 'Фото заявителя'
+                    })
+            }
             getSellFilesById(this.id).then(res => {
                 this.items = res.items
                 this.loading = false

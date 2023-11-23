@@ -74,7 +74,6 @@ export default {
             color: color1,
             expand: false,
             link: '/service',
-            readonly: true
         },
         {
             name: 'Отчеты',
@@ -82,7 +81,6 @@ export default {
             color: color1,
             expand: false,
             link: '/report',
-            readonly: true
         },
         {
             name: 'Погашения',
@@ -158,20 +156,6 @@ export default {
                 },
             ]
         },
-
-        // {
-        //     name: 'Клиенты',
-        //     icon: 'people',
-        //     color: color1,
-        //     expand: false,
-        //     link: '/client'
-        // },
-        // {
-        //     name: 'Сервис',
-        //     icon: 'feedback',
-        //     color: color1,
-        //     expand: false,
-        // },
         {
             name: 'Отчеты',
             icon: 'report',
@@ -185,12 +169,21 @@ export default {
     dealerLightItems: [
         {
             name: 'Погашения',
-            icon: 'report',
+            icon: 'article',
             color: color1,
             expand: false,
             link: '/sell'
         },
+    ],
 
+    dealerChiefItems: [
+        {
+            name: 'Отчеты',
+            icon: 'report',
+            color: color1,
+            expand: false,
+            link: '/report'
+        },
     ],
 
 }

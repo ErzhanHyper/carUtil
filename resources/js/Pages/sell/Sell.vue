@@ -11,10 +11,10 @@
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Номер погашения" v-model="filter.idnum" outlined dense/>
+                    <q-input label="№ погашения" v-model="filter.idnum" outlined dense/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Номер сертификата" v-model="filter.title" outlined dense/>
+                    <q-input label="№ сертификата" v-model="filter.title" outlined dense/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input label="Статус" v-model="filter.title" outlined dense/>
@@ -51,10 +51,10 @@
                 <tr v-for="item in items" >
                     <td><router-link :to="'/sell/'+item.id" class="text-blue-10 text-body2"><q-icon name="open_in_new" size="xs" />{{ item.id }}</router-link></td>
                     <td>
-                        <div class="text-body2">Номер основного сертификата: <b>{{ item.cert_1 }}</b></div>
-                        <div class="text-body2">Номер второго сертификата: <b>{{ item.cert_2 }}</b></div>
-                        <div class="text-body2">Номер третьего сертификата: <b>{{ item.cert_3 }}</b></div>
-                        <div class="text-body2">Номер четвертого сертификата: <b>{{ item.cert_4 }}</b></div>
+                        <div class="text-body2">№ основного сертификата: <b>{{ item.cert_1 }}</b></div>
+                        <div class="text-body2">№ второго сертификата: <b>{{ item.cert_2 }}</b></div>
+                        <div class="text-body2">№ третьего сертификата: <b>{{ item.cert_3 }}</b></div>
+                        <div class="text-body2">№ четвертого сертификата: <b>{{ item.cert_4 }}</b></div>
                     </td>
                     <td>{{ item.sended_dt ?? '-' }}</td>
                     <td>{{ item.approved_dt ?? '-'  }}</td>
@@ -140,7 +140,9 @@ export default {
 
     created() {
         this.getData()
-    }
+    },
+
+
 }
 </script>
 

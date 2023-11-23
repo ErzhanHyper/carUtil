@@ -59,7 +59,7 @@ export default {
             updateFactory(this.item.id, this.item).then(() => {
                 Notify.create({
                     message: 'Изменено',
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'info'
                 })
             }).finally(() =>{
@@ -73,7 +73,7 @@ export default {
                 this.$router.push('/factory')
                 Notify.create({
                     message: 'Удалено',
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'negative'
                 })
             }).finally(() =>{

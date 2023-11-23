@@ -128,7 +128,7 @@ export default {
             }).catch(err => {
                 Notify.create({
                     message: err.file,
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'warning'
                 })
             }).finally(() => {

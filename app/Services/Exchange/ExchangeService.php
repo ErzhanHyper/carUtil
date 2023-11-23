@@ -83,7 +83,7 @@ class ExchangeService
         }
 
         if (isset($exchange)) {
-            $paginate = 10;
+            $paginate = 1000;
             $pages = round($exchange->count() / $paginate);
             if ($pages == 0) {
                 $pages = 1;

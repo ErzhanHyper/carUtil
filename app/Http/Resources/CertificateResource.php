@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Exchange;
+use App\Services\Certificate\CalcCertificatePriceService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -30,9 +31,8 @@ class CertificateResource extends JsonResource
         $dateNotOvered = 0;
         $car = $this->car;
         if($car){
-            $car_cat = $car->category->title;
-            $car_type = $car->car_type_id;
-            $sum = in_array($car->category_id, ['tractor','combain']) ? $this->__cat_agro_sum($car_cat, $car_type) : $this->__cat_sum($car_cat);
+            $certPrice = app(CalcCertificatePriceService::class)->run($this->id);
+            $sum = $certPrice['sum'];
             $dateNotOvered = strtotime($dateTill) > time();
         }
 
@@ -59,6 +59,10 @@ class CertificateResource extends JsonResource
             $showExchange = false;
         }
 
+        if($this->closed == 1){
+            $showExchange = false;
+        }
+
         $exchange_status = '';
         if($exchange) {
             if ($this->blocked == 1 && $this->closed == 0) {
@@ -81,23 +85,25 @@ class CertificateResource extends JsonResource
         return [
             'dateTill' => $dateTill,
             'id' => $this->id,
+            'num' => str_pad($this->id, 9, 0, STR_PAD_LEFT),
+
             'car_id' => $this->car_id,
 
             'title_1' => $this->title_1,
             'idnum_1' => $this->idnum_1,
-            'date_1' => $this->date_1,
+            'date_1' => date('Y-m-d', $this->date_1),
 
             'title_2' => $this->title_2,
             'idnum_2' => $this->idnum_2,
-            'date_2' => $this->date_2,
+            'date_2' => $this->date_2 ? date('Y-m-d', $this->date_2) : '',
 
             'title_3' => $this->title_3,
             'idnum_3' => $this->idnum_3,
-            'date_3' => $this->date_3,
+            'date_3' => $this->date_3 ? date('Y-m-d', $this->date_3) : '',
 
             'title_4' => $this->title_4,
             'idnum_4' => $this->idnum_4,
-            'date_4' => $this->date_4,
+            'date_4' => $this->date_4 ? date('Y-m-d', $this->date_4) : '',
 
             'blocked' => $this->blocked,
             'status' => $status,
@@ -110,53 +116,6 @@ class CertificateResource extends JsonResource
             'showExchange' => $showExchange,
             'exchangeStatus' => $exchange_status
         ];
-    }
-
-    public function __cat_agro_sum($cat, $car_type_id) {
-        $sum = 0;
-
-        if($cat == "tractor") {
-            if ($car_type_id == 1){
-                $sum = 1000000;
-            } elseif ($car_type_id == 2) {
-                $sum = 560000;
-            }
-        } elseif($cat == "combain"){
-            if ($car_type_id == 1){
-                $sum = 2000000;
-            } elseif ($car_type_id == 2) {
-                $sum = 1500000;
-            }
-        }
-
-        return $sum;
-    }
-
-
-    public function __cat_sum($cat, $day = 0) {
-        if($day != 0 && $day < 1549854000) {
-            // старые цены
-            if($cat == "M1") {
-                return 315000;
-            }
-            if($cat == "M2" || $cat == "N1" || $cat == "N2") {
-                return 450000;
-            }
-            if($cat == "N3" || $cat == "M3") {
-                return 650000;
-            }
-        } else {
-            // цены после 11.02.2019
-            if($cat == "M1") {
-                return 315000;
-            }
-            if($cat == "M2" || $cat == "N1" || $cat == "N2") {
-                return 550000;
-            }
-            if($cat == "N3" || $cat == "M3") {
-                return 750000;
-            }
-        }
     }
 
 

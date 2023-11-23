@@ -17,7 +17,6 @@
                 :readonly="blocked"
                 v-if="!blocked"
                 :loading="loading"
-                :disable="loading"
             >
                 <template v-slot:before>
                     <q-icon name="folder"/>
@@ -95,12 +94,12 @@
 
     <q-dialog v-model="fileDialog">
         <q-card style="width: 100%;max-width:1200px;">
-            <q-card-section class="flex justify-between q-py-xs q-px-xs">
+            <q-card-section class="flex justify-between q-py-xs q-px-xs ">
                 <q-space/>
                 <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
             </q-card-section>
-            <q-card-section >
-                <q-img :src="base64Image" />
+            <q-card-section style="max-height: 90vh" class="scroll">
+                <q-img :src="base64Image" style="width: 100%; "/>
             </q-card-section>
         </q-card>
     </q-dialog>
@@ -173,117 +172,35 @@ export default {
         },
 
         getItems() {
-            this.filesOptions = []
-            this.options_photo = []
-            this.options_file = []
             getPreOrderFileList({
                 preorder_id: this.preorder_id
             }).then(res => {
                 this.loading = false
-                if (this.vehicleType === 'car') {
-                    getFileTypeList({params: {preorder_id: this.preorder_id}}).then(res => {
-                        res.forEach(el => {
-                            this.filesAll.push(el)
-                            if (el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11 || el.id === 12 || el.id === 13 || el.id === 14 || el.id === 15) {
-                                this.options_photo.push(el)
-                                this.filesOptions.push(el)
-                            }
-                            if (el.id === 1 || el.id === 2 || el.id === 3 || el.id === 5 || el.id === 6 || el.id === 28) {
-                                this.options_file.push(el)
-                                this.filesOptions.push(el)
-                            }
+                this.filesOptions = res.file_types
+                this.filesDoc = res.docs
+                this.filesPhoto = res.photos
+
+                if(this.vehicleType === 'agro') {
+                    this.filesPhoto.filter(el => {
+                        getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
+                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
                         })
                     })
-                    //     .finally(() => {
-                    //     let filePhotoArr = this.filesPhoto
-                    //     let filtered = this.options_photo.filter(function(el, i){
-                    //         return !filePhotoArr[i];
-                    //     });
-                    //     filtered.map(el => {
-                    //         this.filesOptions.push(el)
-                    //     })
-                    // })
-                    this.filesPhoto = res.filter((el) => {
-                         return (el.file_type_id === 8 ||
-                            el.file_type_id === 9 ||
-                            el.file_type_id === 10 ||
-                            el.file_type_id === 11 ||
-                            el.file_type_id === 12 ||
-                            el.file_type_id === 13 ||
-                            el.file_type_id === 14 ||
-                            el.file_type_id === 15
-                        )
-                    })
-                    this.filesPhoto.map(el => {
-                         getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
-                             return el.base64Image = 'data:image/jpeg;base64,' + res.data
-                        })
-                    })
-                    this.filesDoc = res.filter((el) => {
-                        return (el.file_type_id === 1 ||
-                            el.file_type_id === 2 ||
-                            el.file_type_id === 3 ||
-                            el.file_type_id === 5 ||
-                            el.file_type_id === 6 ||
-                            el.file_type_id === 28
-                        )
-                    })
-                } else {
-                    getFileTypeAgroList({params: {preorder_id: this.preorder_id}}).then(res => {
-                        res.forEach(el => {
-                            this.filesAll.push(el)
-                            if (el.id === 4 || el.id === 5 || el.id === 6 || el.id === 7 || el.id === 8 || el.id === 9 || el.id === 10 || el.id === 11) {
-                                this.options_photo.push(el)
-                                this.filesOptions.push(el)
-                            }
-                            if (el.id === 1 || el.id === 2 || el.id === 3 || el.id === 5 || el.id === 13 || el.id === 14) {
-                                this.options_file.push(el)
-                                this.filesOptions.push(el)
-                            }
-                        })
-                    })
-                    //     .finally(() => {
-                    //     let filePhotoArr = this.filesPhoto
-                    //     let filtered = this.options_photo.filter(function(el, i){
-                    //         return !filePhotoArr[i];
-                    //     });
-                    //     filtered.map(el => {
-                    //         this.filesOptions.push(el)
-                    //     })
-                    // })
-                    res.map(el => {
-                        this.filesPhoto = res.filter((el) => {
-                            return (
-                                el.file_type_id === 4 || el.file_type_id === 5 ||
-                                el.file_type_id === 6 || el.file_type_id === 7 ||
-                                el.file_type_id === 8 || el.file_type_id === 9 ||
-                                el.file_type_id === 10 ||
-                                el.file_type_id === 11
-                            )
-                        })
-                        this.filesPhoto.map(el => {
-                            getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
-                                return el.base64Image = 'data:image/jpeg;base64,' + res.data
-                            })
-                        })
-                        this.filesDoc = res.filter((el) => {
-                            return (el.file_type_id === 1 ||
-                                el.file_type_id === 2 ||
-                                el.file_type_id === 3 ||
-                                el.file_type_id === 5 ||
-                                el.file_type_id === 14 ||
-                                el.file_type_id === 13
-                            )
+                }else if(this.vehicleType === 'car'){
+                    this.filesPhoto.filter(el => {
+                        getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
+                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
                         })
                     })
                 }
+
             })
 
         },
 
         getFileTypeTitle(id) {
             let title = '';
-            this.filesAll.filter(el => {
+            this.filesOptions.filter(el => {
                 if (el.id === id) {
                     title = el.title
                 }
@@ -331,8 +248,6 @@ export default {
                 this.file_type_id = null
                 this.pickFile = null
                 this.file = null
-
-
             }).catch(() => {
                 this.loading = false
             })

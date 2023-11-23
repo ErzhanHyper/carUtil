@@ -177,3 +177,14 @@ export function getAgroFileImage(id, params) {
         })
     })
 }
+
+export function downloadSellFile(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('file/'+id+'/sell/download', params).then(response => {
+            resolve(response)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

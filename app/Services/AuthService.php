@@ -62,6 +62,7 @@ class AuthService
     {
         $pem = $request->data['pem'];
         $secure = app(EdsService::class)->secure($pem);
+        $role = '';
 
         if ($secure) {
             $idnum = $secure->iin ?? $secure->bin;
@@ -91,6 +92,7 @@ class AuthService
                 $session->save();
 
                 return [
+                    'role' => $role,
                     'hash' => $hash,
                 ];
 
@@ -98,6 +100,7 @@ class AuthService
 //                throw new InvalidArgumentException(json_encode(['title' => ['Пользователь не существует']]));
                 $hash = $this->newLiner($secure, $request);
                 return [
+                    'role' => $role,
                     'hash' => $hash,
                 ];
             }

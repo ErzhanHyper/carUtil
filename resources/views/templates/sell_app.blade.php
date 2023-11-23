@@ -12,29 +12,29 @@
 <body>
 
 <p style="text-align: right; width: 50%; float: right;">
-    <strong>Кому:</strong> [USER_FOR_DOCS]<br />
-    <strong>Представитель: </strong> [USER_TITLE]<br /><br />
-    <strong>От:</strong> [CERT_TITLE]<br />
-    <strong>ИИН / БИН</strong> [CERT_IDNUM]
+    <strong>Кому:</strong> {{ $data['user_for_docs'] }}<br />
+    <strong>Представитель: </strong> {{ $data['user_title'] }}<br /><br />
+    <strong>От:</strong> {{ $data['cert_title'] }}<br />
+    <strong>ИИН / БИН</strong> {{ $data['cert_idnum'] }}
 </p>
 
 <p style="text-align: center; padding-top: 100px; clear: both; text-transform: uppercase;"><strong>Анкета на использование скидочного сертификата</strong></p>
 
-<p style="text-align: left; width: 40%; float: left;">Город [USER_CUSTOM_3]</p>
-<p style="text-align: right; width: 40%; float: right;">Дата [CURRENT_DATE]</p>
+<p style="text-align: left; width: 40%; float: left;">Город {{ $data['user_custom_3'] }}</p>
+<p style="text-align: right; width: 40%; float: right;">Дата {{ $data['current_date'] }}</p>
 <div style="clear: both;"></div>
 
 <p style="text-align: justify; margin-top: 20px;">
-    Прошу вас одобрить использование скидочного сертификата №[CERT_NUM], дата выдачи [CERT_DATE] соответственно, принадлежащего [CERT_TITLE], ИИН / БИН [CERT_IDNUM] на покупку автомобильного транспортного средства марки ___________________________________, VIN ___________________________________, год выпуска ______________.
+    Прошу вас одобрить использование скидочного сертификата №{{ $data['cert_num'] }}, дата выдачи {{ $data['cert_date'] }} соответственно, принадлежащего {{ $data['cert_title'] }}, ИИН / БИН {{ $data['cert_idnum'] }} на покупку автомобильного транспортного средства марки ___________________________________, VIN ___________________________________, год выпуска ______________.
 </p>
 <p style="text-align: justify; margin-top: 20px;">Настоящим сообщаю, что за предоставленные данные несу персональную ответственность. Скидочный сертификат ранее не использовлся, с условиями покупки, возврата приобретаемого автомобильного транспортного ознакомлен, претензий не имею.</p>
 <p style="text-align: justify; margin-top: 20px;">Даю согласие на сбор, обработку и хранение персональных данных.</p>
 
-<p style="text-align: right; margin-top: 100px;"><strong>[CERT_TITLE]</strong></p>
+<p style="text-align: right; margin-top: 100px;"><strong>{{ $data['cert_title'] }}</strong></p>
 <p style="text-align: right; margin-top: 40px;">___________________________________</p>
 <p style="text-align: right; margin-top: 10px;">М.П. (при наличии)</p>
 
-<p style="text-align: right; margin-top: 50px;"><strong>[USER_TITLE]</strong></p>
+<p style="text-align: right; margin-top: 50px;"><strong>{{ $data['user_title'] }}</strong></p>
 <p style="text-align: right; margin-top: 40px;">___________________________________</p>
 <p style="text-align: right; margin-top: 10px;">М.П.</p>
 </body>

@@ -2,25 +2,18 @@
 
     <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
         <div class="text-h6 text-primary">Сертификаты</div>
+
+        <div class="flex justify-between">
+            <a href="https://recycle.kz/ru/novosti/zheildik-sertifikatyn-shinshi-tl-rsimdeuge-bolady" target="_blank">
+                <q-btn color="indigo-8" size="12px" push icon="open_in_new" label="Инструкция" class="q-ml-md text-weight-bold"/>
+            </a>
+        </div>
     </div>
 
 
-    <q-tabs
-        v-model="tab"
-        dense
-        class="text-grey"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-        style="width: 400px"
-    >
-        <q-tab :name="1" label="Мои сертификаты"/>
-        <q-tab :name="2" label="Передача сертификатов"/>
-    </q-tabs>
-
-    <q-tab-panels v-model="tab" animated vertical>
-        <q-tab-panel :name="1" class="q-pa-none">
+    <div class="row q-col-gutter-sm">
+        <div class="col col-md-7">
+            <span class="text-weight-bold text-body1">Мои</span>
             <q-markup-table flat bordered dense >
                 <thead>
                 <tr>
@@ -35,42 +28,41 @@
                 </thead>
                 <tbody>
                 <template v-if="items.length > 0 && show">
-                <tr v-for="(item, i) in items" :key="i">
-                    <td class="text-left">{{ item.id }}</td>
-                    <td class="text-left">{{ item.date }}</td>
-                    <td class="text-left">{{ item.dateTill }}</td>
-                    <td class="text-left">{{ item.status }}</td>
-                    <td class="text-left">{{ item.sum }}</td>
-                    <td class="text-left">
-                        <q-btn icon="verified"
-                               color="indigo-8"
+                    <tr v-for="(item, i) in items" :key="i">
+                        <td class="text-left">{{ item.id }}</td>
+                        <td class="text-left">{{ item.date }}</td>
+                        <td class="text-left">{{ item.dateTill }}</td>
+                        <td class="text-left">{{ item.status }}</td>
+                        <td class="text-left">{{ item.sum }} &#8376;</td>
+                        <td class="text-left">
+                            <q-btn icon="verified"
+                                   color="light-green-8"
+                                   size="11px"
+                                   label="Скачать"
+                                   icon-right="download"
+                                   @click="downloadCert(item.id)"
+                                   :loading="loading"></q-btn>
+                        </td>
 
-                               dense size="11px"
-                               label="Скидочный сертификат"
-                               icon-right="download"
-                               @click="downloadCert(item.id)"
-                               :loading="loading"></q-btn>
-                    </td>
+                        <td class="text-right">
+                            <q-btn icon="verified"
 
-                    <td class="text-right">
-                        <q-btn icon="verified"
-
-                               icon-right="sync_alt"
-                               color="pink-10"
-                               size="11px"
-                               label="Переоформить сертификат"
-                               dense
-                               :loading="loading2"
-                               @click="exchangeCert(item.id)"
-                               v-if="item.showExchange">
-                        </q-btn>
-                        <q-badge v-if="!item.showExchange && item.exchangeStatus != ''">
-                            <router-link :to="'/exchange/'+item.exchange.id" v-if="item.exchange">
-                                {{ item.exchangeStatus }}
-                            </router-link>
-                        </q-badge>
-                    </td>
-                </tr>
+                                   icon-right="sync_alt"
+                                   color="pink-10"
+                                   size="11px"
+                                   label="Переоформить сертификат"
+                                   dense
+                                   :loading="loading2"
+                                   @click="exchangeCert(item.id)"
+                                   v-if="item.showExchange">
+                            </q-btn>
+                            <q-badge v-if="!item.showExchange && item.exchangeStatus != ''">
+                                <router-link :to="'/exchange/'+item.exchange.id" v-if="item.exchange">
+                                    {{ item.exchangeStatus }}
+                                </router-link>
+                            </q-badge>
+                        </td>
+                    </tr>
                 </template>
                 <div class="q-ma-xs" v-if="show && items.length === 0">Нет записей</div>
                 </tbody>
@@ -84,9 +76,10 @@
                     v-if="!show"
                 />
             </div>
-        </q-tab-panel>
+        </div>
 
-        <q-tab-panel :name="2" class="q-pa-none">
+        <div class="col col-md-5">
+            <span class="text-weight-bold text-body1">Передачи</span>
             <q-markup-table flat bordered dense >
                 <thead>
                 <tr>
@@ -114,6 +107,7 @@
 
                 </tbody>
             </q-markup-table>
+
             <div class="flex justify-center">
                 <q-spinner-dots
                     color="primary"
@@ -122,9 +116,8 @@
                     v-if="!show"
                 />
             </div>
-        </q-tab-panel>
-
-    </q-tab-panels>
+        </div>
+    </div>
 
 </template>
 
@@ -187,7 +180,7 @@ export default {
                 }
                 Notify.create({
                     message: res.message,
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: res.success ? 'positive' : 'warning'
                 })
             }).finally(() => {

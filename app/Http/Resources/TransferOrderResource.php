@@ -46,9 +46,11 @@ class TransferOrderResource extends JsonResource
         }
 
         $deal = null;
+        $amount = 0;
         if($currentClient) {
             $deal = TransferDeal::where('liner_id', $auth->id)->where('transfer_order_id', $this->id)->first();
             if($deal) {
+                $amount = $deal->amount;
                 $currentClient = Client::find($deal->client_id);
             }
         }
@@ -102,6 +104,7 @@ class TransferOrderResource extends JsonResource
             'canAccept' => $canAccept,
             'vehicleType' => $vehicleType,
             'preorder_id' => $preorder->id,
+            'amount' => $amount,
             'status' => [
                 'id' => $this->closed,
                 'title' => $status

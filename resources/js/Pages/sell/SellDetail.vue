@@ -8,9 +8,12 @@
         <div class="flex justify-between">
             <!--            <q-btn color="purple-10" unelevated icon="tune" class="q-ml-md"/>-->
             <q-btn color="indigo-8" push size="12px" icon="add" label="Запросить одобрение" class="q-ml-md text-weight-bold" v-if="item.canSend" @click="send" :loading="loading1"/>
+            <q-btn color="indigo-8" push size="12px" icon="add" label="Запросить погашение" class="q-ml-md text-weight-bold" v-if="item.canSendToSell" @click="sendToSell" :loading="loading1"/>
         </div>
     </div>
-    <div v-if="show"><q-chip square :label="item.status.title" color="blue-grey-1" /> </div>
+    <div v-if="show">
+        <q-chip :color="setStatusColor(item.status.id)" v-if="item.status" dark square>{{ item.status.title }}</q-chip>
+    </div>
 
     <div class="row q-col-gutter-lg" v-if="show">
 
@@ -19,7 +22,7 @@
                 <q-card-section class="q-px-none">
                     <div class="q-gutter-md">
                         <q-btn label="Скачать расписку о подтверждении условий использования сертификата" color="indigo-8" size="11px" icon-right="download" icon="description"
-                               :loading="loading" @click="getApplication"/>
+                               :loading="loading" @click="getApplication" v-if="item.status.id !== 5"/>
                     </div>
                 </q-card-section>
                 <q-card-section class="q-px-none" >
@@ -40,23 +43,24 @@
         </div>
 
         <div class="col col-md-4">
-            <sell-file :id="item.id" :blocked="!item.canEdit"/>
+            <sell-file :id="item.id" :blocked="blockedFile" :status="item.status"/>
         </div>
 
     </div>
 
     <q-separator class="q-my-lg" />
-    <sell-action />
+    <sell-action :permissions="permissions.approve" :sell_id="item.id"/>
+
 </template>
 
 <script>
-import {getSellById, updateSell} from "../../services/sell";
+import {getSellById, updateSell, updateToGetClose} from "../../services/sell";
 import SellFile from "./SellFile.vue";
 import ManufactureField from "../../Components/Fields/ManufactoryField.vue";
 import VehicleSelect from "../../Components/Fields/VehicleSelect.vue";
 import SellAction from "./SellAction.vue";
 
-import {getExchangeApp, getSellApplication} from "../../services/document";
+import {getSellApplication} from "../../services/document";
 import FileDownload from "js-file-download";
 
 export default {
@@ -69,9 +73,15 @@ export default {
             loading: false,
             loading1: false,
             readonly: true,
+            blockedFile: true,
+            permissions: {
+              approve: {}
+            },
             item: {
+                canApprove: false,
                 canEdit: false,
                 canSend:false,
+                canSendToSell: false,
                 factory: '',
                 model: '',
                 status: {},
@@ -82,6 +92,22 @@ export default {
 
     methods: {
 
+        setStatusColor(id) {
+            let color = 'blue-grey-5'
+            if(id === 1){
+                color = 'blue-5'
+            }else if(id === 2){
+                color = 'green-5'
+            }else if(id === 3){
+                color = 'pink-5'
+            }else if(id === 4){
+                color = 'deep-orange-5'
+            }else if(id === 5){
+                color = 'teal-5'
+            }
+            return color
+        },
+
         getVehicle(value) {
             this.item.vehicle_id = value.id
             this.item.model = value.title
@@ -89,8 +115,16 @@ export default {
 
         send(){
             this.loading1 = true
-            this.item.canEdit = false
             updateSell(this.item.id, this.item).then(() => {
+                this.getData()
+            }).finally(() => {
+                this.loading1 = false
+            })
+        },
+
+        sendToSell(){
+            this.loading1 = true
+            updateToGetClose(this.item.id, this.item).then(() => {
                 this.getData()
             }).finally(() => {
                 this.loading1 = false
@@ -118,6 +152,7 @@ export default {
                     this.item.sended_at = res.sended_at
                     this.item.canEdit = res.canEdit
                     this.item.canSend = res.canSend
+                    this.item.canSendToSell = res.canSendToSell
                     this.item.status = res.status
                     if(res.manufacture) {
                         this.item.factory = res.manufacture.title
@@ -125,8 +160,17 @@ export default {
                     if(res.vehicle) {
                         this.item.model = res.vehicle.brand+', '+res.vehicle.model
                     }
+
+                    if(res.canEdit || res.canSendToSell){
+                        this.blockedFile = false
+                    }
                     this.show = true
 
+                    this.permissions.approve = {
+                        canApprove: res.canApprove,
+                        canDecline: res.canDecline,
+                        canSell: res.canSell
+                    }
                 }
             })
         }
@@ -134,6 +178,12 @@ export default {
 
     created() {
         this.getData()
+    },
+
+    mounted(){
+        this.$emitter.on('SellActionEvent', () => {
+            this.getData();
+        })
     }
 }
 </script>

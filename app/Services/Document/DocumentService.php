@@ -8,6 +8,7 @@ use App\Models\Car;
 use App\Models\Certificate;
 use App\Models\Client;
 use App\Models\Exchange;
+use App\Models\Factory;
 use App\Models\KapRequest;
 use App\Models\Order;
 use App\Services\AuthService;
@@ -173,6 +174,9 @@ class DocumentService
         $data['operator_company'] = 'АО «Жасыл Даму»';
         $data['operator_req'] = 'АО «Жасыл Даму»';
 
+        $factory = Factory::find($auth->factory_id);
+        $data['factory_name'] = $factory->title;
+
         if($client->client_type_id === 2 || $client->client_type_id === 3){
             $pdf = PDF::loadView('templates.contract_company', compact('data'));
             $pdf->setPaper('a4', 'portrait')->setWarnings(false);
@@ -214,18 +218,40 @@ class DocumentService
         $data['operator_company'] = 'АО «Жасыл Даму»';
         $data['operator_req'] = 'АО «Жасыл Даму»';
 
+        $factory = Factory::find($auth->factory_id);
+        $data['factory_name'] = $factory->title ?? '';
+
+        $data['doors_count'] = $car->doors_count;
+        $data['weight'] = $car->weight;
+        $data['wheels_count'] = $car->wheels_count;
+        $data['wheels_protector_count'] = $car->wheels_protector_count;
+        $data['percent_of_original_weight'] = '';
+        $data['vssht_1_cert_sum'] = '';
+        $data['vssht_2_cert_sum'] = '';
+
         if ($request->complect){
 //            foreach ($request->complect as $i){
 //                $data['VL_'.$i] = '✔';
 //            }
-            $k = 1;
-            for ($k; $k < 13; $k++){
-                if($request->complect['id'.$k] == 'true'){
-                    $data['VL_'.$k] = '✔';
-                }else{
-                    $data['VL_' . $k] = '';
+//            $k = 1;
+//            for ($k; $k < 13; $k++){
+//                if($request->complect['id'.$k] == 'true'){
+//                    $data['VL_'.$k] = '✔';
+//                }else{
+//                    $data['VL_' . $k] = '';
+//                }
+//            }
+            if(count($request->complect) > 0) {
+                foreach ($request->complect as $key => $complect) {
+                    $k = $key +1 ;
+                    if($complect['value'] === true || $complect['value'] ==='true') {
+                        $data['VL_' . $k] = '✔';
+                    }else{
+                        $data['VL_' . $k] = '';
+                    }
                 }
             }
+
         }
 
         if($car->category->title == "M1") {

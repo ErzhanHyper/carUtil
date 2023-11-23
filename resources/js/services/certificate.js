@@ -11,6 +11,17 @@ export function getCertificateList(params) {
     })
 }
 
+export function findCertificateById(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('/certificate/'+id+'/check', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function generateCertificate(id, params) {
     return new Promise((resolve, reject) => {
         api.get('/certificate/'+id+'/file', params).then(response => {

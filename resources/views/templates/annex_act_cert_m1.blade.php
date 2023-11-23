@@ -5,8 +5,6 @@
 	<style>
 	body {
         font-family: 'DeJaVu Sans', sans-serif; font-size: 12px; }
-	table {
-        font-family: 'DeJaVu Sans', sans-serif; font-size: 12px; }
 	table.bordered { border-bottom: 1px solid #000000; border-right: 1px solid #000000; }
 	table.bordered tr td, table.bordered tr th { border-top: 1px solid #000000; border-left: 1px solid #000000; }
 	</style>
@@ -25,7 +23,7 @@ VIN: {{ $data['car_vin'] }}</strong></p>
 <div style="float: right;">{{ $data['order_date'] }}</div>
 <div style="clear: both;"></div>
 
-<p style="text-align: justify;">Товарищество с ограниченной ответственностью «Recycling Company»,
+<p style="text-align: justify;">{{ $data['factory_name'] }},
 в лице {{ $data['operator_name_for_docs'] }}, действующего на основании доверенности №{{ $data['operator_base'] }} именуемое в
 дальнейшем «Сторона-1», {{ $data['client_name'] }}, ИИН/БИН {{ $data['client_idnum'] }} именуемый в дальнейшем «Сторона-2»,
 составили настоящий акт, подтверждающий комплектацию вышедшего из эксплуатации транспортного средства.</p>
@@ -108,7 +106,7 @@ VIN: {{ $data['car_vin'] }}</strong></p>
 	</tr>
 	<tr>
 		<td>12</td>
-		<td>Раздаточная коробка, мосты и редуктора мостов, карданные валы</td>
+		<td>'Раздаточная коробка, мосты и редуктора мостов, карданные валы'</td>
 		<td>{{ $data['VL_12'] }}</td>
 		<td>(в случае если предусмотрена штатным оснащением изготовителя, установлено на штатных местах).</td>
 	</tr>
@@ -117,15 +115,15 @@ VIN: {{ $data['car_vin'] }}</strong></p>
 
 <p>&nbsp;</p>
 
-<table style="width: 100%;" cellspacing="0">
+<table style="width: 100%;">
     <tr>
         <td><strong>Сторона-1</strong></td>
     </tr>
     <tr>
-        <td>ТБО<br />
+        <td style="width: 50%">{{ $data['factory_name'] }}<br />
             <br>_____________________ <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br />
         </td>
-        <td class="text-right">{{ $data['client_name'] }} <br />
+        <td class="text-right" style="width: 50%">{{ $data['client_name'] }} <br />
             <br>_____________________ <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br />
         </td>
     </tr>

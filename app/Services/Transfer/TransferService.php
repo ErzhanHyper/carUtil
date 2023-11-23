@@ -50,13 +50,13 @@ class TransferService
         $pages = 0;
 
         if ($user->role === 'liner') {
-            $deal = TransferDeal::select(['id'])->where('liner_id', $user->id)->get();
+            $deal = TransferDeal::select(['id', 'transfer_order_id'])->where('liner_id', $user->id)->get();
+            $order_ids = [];
             if($deal) {
-                $deal_ids = [];
                 foreach ($deal as $item) {
-                    $deal_ids[] = $item->id;
+                    $order_ids[] = $item->transfer_order_id;
                 }
-                $orders_all = TransferOrder::whereIn('transfer_deal_id', $deal_ids)->orWhere('liner_id', $user->id)->whereIn('closed', [0, 1, 2]);
+                $orders_all = TransferOrder::whereIn('id', $order_ids)->orWhere('liner_id', $user->id)->whereIn('closed', [0, 1, 2]);
                 if($orders_all->count() > 0) {
                     $paginate = 15;
                     $pages = round($orders_all->count() / $paginate);

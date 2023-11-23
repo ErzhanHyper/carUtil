@@ -10,6 +10,7 @@ use App\Models\Sell;
 use App\Models\SellFile;
 use App\Services\AuthService;
 use App\Services\Certificate\CalcCertificatePriceService;
+use Illuminate\Support\Facades\Validator;
 
 class SellService
 {
@@ -49,10 +50,23 @@ class SellService
         }
     }
 
-    public function update($request, $id){
+    public function update($request, $id)
+    {
+        $can = true;
+
+        $validator = Validator::make($request->all(), [
+            'vehicle_id' => 'required',
+            'vin' => 'required',
+            'year' => 'required',
+            'phone' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $message = 'Не заполнены объязательные поля!';
+            $messages =  $validator->messages();
+            $can = false;
+        }
 
         $user = app(AuthService::class)->auth();
-        $can = true;
         $message = '';
         $success = false;
 
@@ -93,6 +107,27 @@ class SellService
                     $success = true;
                 }
             }
+        }
+
+        return [
+            'message' => $message,
+            'success' => $success
+        ];
+    }
+
+    public function updateToSell($request, $id)
+    {
+
+        $message = 'Нет доступа';
+        $success = false;
+
+        $sell = Sell::find($id);
+
+        if($sell) {
+            $sell->approve = 4;
+            $sell->save();
+            $success = true;
+            $message = 'Запрос на погашение отправлен';
         }
 
         return [

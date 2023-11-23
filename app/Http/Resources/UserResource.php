@@ -30,9 +30,9 @@ class UserResource extends JsonResource
             'custom_4' => $this->custom_4,
             'gp_id' => $this->gp_id,
             'factory' => $this->factory,
-            'manufacture' => $this->manufactory,
+            'manufacture' => $this->manufacture,
             'region' => $this->region,
-            'active' => ($this->password === 'disabled')
+            'active' => ($this->password === 'disabled') ? false : true
         ];
     }
 }

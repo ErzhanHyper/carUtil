@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Manufacture;
 use App\Models\RefFactory;
+use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -35,14 +36,33 @@ class SellResource extends JsonResource
         $manufacture = [];
         $canEdit = false;
         $canSend = false;
+        $canApprove = false;
+        $canDecline = false;
+        $canSell = false;
+        $canSendToSell = false;
+
+        $dealer = User::find($this->user_id);
+        if($dealer) {
+            $manufacture = Manufacture::find($dealer->custom_2);
+        }
         if($user->role === 'dealer-light' || $user->role === 'dealer-chief'){
-//          if($user->id === $this->user_id) {
-                if($this->approve === 0) {
-                    $canSend = true;
-                    $canEdit = true;
-                    $manufacture = Manufacture::find($user->custom_2);
-                }
-//          }
+            if($this->approve === 0) {
+                $canSend = true;
+                $canEdit = true;
+            }
+            if($this->approve === 2){
+                $canSendToSell = true;
+            }
+        }else if($user->role === 'moderator'){
+            if($this->approve === 1 || $this->approve === 2 || $this->approve === 4){
+                $canDecline = true;
+            }
+            if($this->approve === 1){
+                $canApprove = true;
+            }
+            if($this->approve === 4){
+                $canSell = true;
+            }
         }
 
         $ref_factory = RefFactory::find($this->subject);
@@ -66,11 +86,14 @@ class SellResource extends JsonResource
             'cert_2' => $this->cert_2 ? str_pad($this->cert_2, 9, 0, STR_PAD_LEFT) : 'нет',
             'cert_3' => $this->cert_3 ? str_pad($this->cert_3, 9, 0, STR_PAD_LEFT) : 'нет',
             'cert_4' => $this->cert_4 ? str_pad($this->cert_4, 9, 0, STR_PAD_LEFT) : 'нет',
+            'manufacture' => $manufacture,
             'status' => $status,
             'canEdit' => $canEdit,
             'canSend' => $canSend,
-            'manufacture' => $manufacture
-
+            'canApprove' => $canApprove,
+            'canSell' => $canSell,
+            'canDecline' => $canDecline,
+            'canSendToSell' => $canSendToSell
         ];
     }
 }

@@ -55,6 +55,17 @@ export function updateSell(id, params) {
     })
 }
 
+export function updateToGetClose(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/sell/'+id+'/getClose', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function storeSellFile(params) {
     return new Promise((resolve, reject) => {
         api.post('sellFile', params, {headers: {'Content-Type': 'multipart/form-data'}}).then(response => {
@@ -69,6 +80,51 @@ export function storeSellFile(params) {
 export function deleteSellFile(id) {
     return new Promise((resolve, reject) => {
         api.delete('sellFile/'+id).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function approveSell(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/sell/'+id+'/approve', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+
+export function declineSell(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/sell/'+id+'/decline', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function messageSell(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/sell/'+id+'/message', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function closeSell(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/sell/'+id+'/close', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

@@ -39,19 +39,20 @@
 
 <p><strong>При одобрении АО "Жасыл Даму" заявки «Стороны-2» на выдачу скидочного сертификата или выплату денежных средств, право собственности на ВЭТС и (или) ВЭССХТ переходит «Стороне-1» и ВЭТС и (или) ВЭССХТ возврату не подлежит.</strong></p>
 
-<table style="width: 100%;" cellspacing="0">
+<table style="width: 100%;">
     <tr>
         <td><strong>Сторона-1</strong></td>
     </tr>
     <tr>
-        <td>ТБО<br />
+        <td style="width: 50%">{{ $data['factory_name'] }}<br />
             <br>_____________________ <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br />
         </td>
-        <td class="text-right">{{ $data['client_name'] }} <br />
+        <td class="text-right" style="width: 50%">{{ $data['client_name'] }} <br />
             <br>_____________________ <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br />
         </td>
     </tr>
 </table>
+
 
 </body>
 </html>

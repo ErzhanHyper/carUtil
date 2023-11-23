@@ -1,10 +1,10 @@
 <template>
     <div class="row q-col-gutter-md">
-        <user-form :data="item"/>
+        <user-form :data="item" v-if="show"/>
     </div>
 
     <div class="q-mt-md">
-        <q-btn color="primary" icon="save" label="Сохранить" @click="updateData"/>
+        <q-btn color="primary" icon="save" label="Сохранить" @click="updateData" :loading="loading"/>
     </div>
 </template>
 
@@ -40,16 +40,22 @@ export default {
             getUserById(this.id).then(res => {
                 this.$emitter.emit('contentLoaded', false);
                 this.item = res
+                this.item.factory = res.factory ? res.factory.id : null
+                this.item.region = res.region ? res.region.id : null
+                this.item.manufacture = res.manufacture ? res.manufacture.id : null
+
+                this.show = true
             })
         },
 
         updateData(){
+            console.log(this.item)
             this.loading = true
             updateUser(this.item.id, this.item).then(() => {
                 this.getData()
                 Notify.create({
                     message: 'Данные пользователя успешно были изменены',
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'positive'
                 })
             }).finally(() => {

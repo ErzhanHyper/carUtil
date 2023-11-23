@@ -27,6 +27,8 @@ Route::prefix('app')->group(function () {
         Route::post('profile/update', [\App\Http\Controllers\AuthController::class, 'update']);
 
         Route::get('category', [\App\Http\Controllers\CategoryController::class, 'get']);
+        Route::get('category/complect', [\App\Http\Controllers\CategoryController::class, 'getComplect']);
+
         Route::get('region', [\App\Http\Controllers\RegionController::class, 'get']);
         Route::get('fileType', [\App\Http\Controllers\FileTypeController::class, 'get']);
         Route::get('fileTypeAgro', [\App\Http\Controllers\FileTypeController::class, 'getAgro']);
@@ -56,7 +58,7 @@ Route::prefix('app')->group(function () {
                 Route::get('/', [\App\Http\Controllers\UserController::class, 'get']);
                 Route::get('/{id}', [\App\Http\Controllers\UserController::class, 'getById']);
                 Route::post('/store', [\App\Http\Controllers\UserController::class, 'store']);
-                Route::post('/{id}/update', [\App\Http\Controllers\UserController::class, 'update']);
+                Route::put('/{id}/update', [\App\Http\Controllers\UserController::class, 'update']);
             });
         });
 
@@ -101,12 +103,19 @@ Route::prefix('app')->group(function () {
                 Route::put('{id}/revisionVideo', [\App\Http\Controllers\OrderController::class, 'revisionVideo']);
 
                 Route::post('/cert', [\App\Http\Controllers\OrderController::class, 'cert']);
+
+                Route::get('{id}/certificate/download', [\App\Http\Controllers\OrderController::class, 'downloadCertByOrderId']);
+
             });
         });
 
         Route::prefix('certificate')->group(function () {
             Route::get('/', [\App\Http\Controllers\CertificateController::class, 'get'])->name('certificate');
             Route::get('{id}/file', [\App\Http\Controllers\CertificateController::class, 'generate']);
+
+            Route::middleware(['isModerator'])->group(function () {
+                Route::get('{id}/check', [\App\Http\Controllers\CertificateController::class, 'checkById']);
+            });
         });
 
         Route::prefix('exchange')->group(function () {
@@ -163,6 +172,8 @@ Route::prefix('app')->group(function () {
             Route::get('/{id}/preorder/agroFile', [\App\Http\Controllers\FileController::class, 'getAgroFile']);
             Route::get('/{id}/preorder/agroImage', [\App\Http\Controllers\FileController::class, 'getAgroFileImage']);
             Route::get('/{id}/exchange/download', [\App\Http\Controllers\FileController::class, 'downloadExchangeFile']);
+            Route::get('/{id}/sell/download', [\App\Http\Controllers\FileController::class, 'downloadSellFile']);
+
 
         });
 
@@ -201,6 +212,13 @@ Route::prefix('app')->group(function () {
             Route::get('/{id}/files', [\App\Http\Controllers\SellController::class, 'getFilesById']);
             Route::post('/', [\App\Http\Controllers\SellController::class, 'store']);
             Route::put('/{id}', [\App\Http\Controllers\SellController::class, 'update']);
+            Route::put('/{id}/getClose', [\App\Http\Controllers\SellController::class, 'updateToSell']);
+            Route::middleware(['isModerator'])->group(function () {
+                Route::put('/{id}/approve', [\App\Http\Controllers\SellController::class, 'approve']);
+                Route::put('/{id}/decline', [\App\Http\Controllers\SellController::class, 'decline']);
+                Route::put('/{id}/message', [\App\Http\Controllers\SellController::class, 'message']);
+                Route::put('/{id}/close', [\App\Http\Controllers\SellController::class, 'close']);
+            });
         });
 
         Route::prefix('sellFile')->group(function () {
@@ -209,10 +227,12 @@ Route::prefix('app')->group(function () {
         });
 
         Route::prefix('report')->group(function () {
-            Route::get('/cert', [\App\Http\Controllers\ReportController::class, 'getCert']);
             Route::get('/sell', [\App\Http\Controllers\ReportController::class, 'getSell']);
-            Route::get('/exchange', [\App\Http\Controllers\ReportController::class, 'getExchange']);
-            Route::get('/action', [\App\Http\Controllers\ReportController::class, 'getAction']);
+            Route::middleware(['isModerator'])->group(function () {
+                Route::get('/exchange', [\App\Http\Controllers\ReportController::class, 'getExchange']);
+                Route::get('/cert', [\App\Http\Controllers\ReportController::class, 'getCert']);
+                Route::get('/action', [\App\Http\Controllers\ReportController::class, 'getAction']);
+            });
         });
     });
 });

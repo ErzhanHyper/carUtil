@@ -11,9 +11,13 @@ use App\Models\Client;
 use App\Models\Exchange;
 use App\Models\ExchangeFile;
 use App\Models\File;
+use App\Models\FileType;
+use App\Models\FileTypeAgro;
 use App\Models\Liner;
 use App\Models\Order;
 use App\Models\PreOrderCar;
+use App\Models\Sell;
+use App\Models\SellFile;
 use App\Models\TransferOrder;
 use App\Services\AuthService;
 use Carbon\Carbon;
@@ -96,27 +100,45 @@ class FileController extends Controller
 
     public function getOrderFile(Request $request)
     {
-        $user = app(AuthService::class)->auth();
+        $order = Order::find((int)$request->order_id);
+        $car = Car::where('order_id', $order->id)->first();
+        $docs = [];
+        $photos = [];
+        $file_types = [];
+        $videos = [];
 
-        if ($user) {
-            $order_id = $request->order_id;
-            $order = Order::find($order_id);
-            $files = [];
-
-            if ($order) {
-                $files = FileResource::collection(File::where('order_id', $order->id)->get());
+        if ($order) {
+            if ($car->car_type_id === 1 || $car->car_type_id === 2) {
+                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [1,2,3,5,6,17,28, 29])->get());
+                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,16])->get());
+                $file_types = FileType::whereIn('id', [1,2,3,5,6,17,28, 8,9,10,11,12,13,14,15,16])->get();
+            } else if ($car->car_type_id === 3 || $car->car_type_id === 4) {
+                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [1,2,3,13,14, 29])->get());
+                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get());
+                $file_types = FileTypeAgro::whereIn('id', [1,2,3,13,14, 4,5,6,7,8,9,10,11,12, 29])->get();
             }
-
-            return response()->json($files);
         }
+        return response()->json([
+            'docs' => $docs,
+            'photos' => $photos,
+            'file_types' => $file_types,
+        ]);
     }
 
     public function storePreOrderFile(Request $request)
     {
+        $preorder = PreOrderCar::find($request->preorder_id);
 
         $types = 'mimes:pdf,doc,docx,xlsx,jpeg,png,jpg,jfif,webp';
-        if (in_array($request->file_type_id, [8, 9, 10, 11, 12, 13, 14, 15, 16])) {
-            $types = 'mimes:jpeg,png,jpg,jfif';
+
+        if($preorder->recycle_type === 1) {
+            if (in_array($request->file_type_id, [8, 9, 10, 11, 12, 13, 14, 15, 16])) {
+                $types = 'mimes:jpeg,png,jpg,jfif';
+            }
+        }else{
+            if (in_array($request->file_type_id, [4,5,6,7,8,9,10,11,12])) {
+                $types = 'mimes:jpeg,png,jpg,jfif';
+            }
         }
 
         $validator = Validator::make($request->all(),
@@ -129,7 +151,6 @@ class FileController extends Controller
             throw new InvalidArgumentException($validator->messages());
         }
 
-        $preorder = PreOrderCar::find($request->preorder_id);
         if ($preorder) {
             $file = $request->file;
             $original_name = time() . '_' . $file->getClientOriginalName();
@@ -164,17 +185,28 @@ class FileController extends Controller
         $preorder_id = $request->preorder_id;
         $preorder = PreOrderCar::find($preorder_id);
 
-        $files = [];
+        $docs = [];
+        $photos = [];
+        $file_types = [];
 
         if ($preorder) {
             if ($preorder->recycle_type === 1) {
-                $files = CarFile::where('preorder_id', $preorder_id)->get();
+                $docs = CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,5,6,17,28])->get();
+                $photos =  CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,16])->get();
+                $file_types = FileType::whereIn('id', [1,2,3,5,6,17,28, 8,9,10,11,12,13,14,15,16])->get();
+
             } else if ($preorder->recycle_type === 2) {
-                $files = AgroFile::where('preorder_id', $preorder_id)->get();
+                $docs = AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,13,14])->get();
+                $photos =  AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get();
+                $file_types = FileTypeAgro::whereIn('id', [1,2,3,13,14, 4,5,6,7,8,9,10,11,12])->get();
             }
         }
 
-        return response()->json($files);
+        return response()->json([
+            'docs' => $docs,
+            'photos' => $photos,
+            'file_types' => $file_types
+        ]);
     }
 
     public function deletePreOrderFile(Request $request)
@@ -435,6 +467,31 @@ class FileController extends Controller
             if($can) {
                 $file = ExchangeFile::find($id);
                 $filePath = '/exchange/files/' . $exchange->id . '/' . $file->orig_name;
+                $path = Storage::disk('local')->path($filePath);
+                header('Content-Disposition: inline; filename="' . $file->orig_name . '');
+
+                return response()->file($path);
+            }
+        }
+    }
+
+    public function downloadSellFile(Request $request, $id)
+    {
+        $user = app(AuthService::class)->auth();
+        $sell = Sell::find($request->sell_id);
+        $can = false;
+        if($sell) {
+
+            if($user->role === 'dealer-light') {
+                if ($user->id === $sell->user_id) {
+                    $can = true;
+                }
+            }else if($user->role === 'moderator'){
+                $can = true;
+            }
+            if($can) {
+                $file = SellFile::find($id);
+                $filePath = '/sell/files/' . $sell->id . '/' . $file->orig_name;
                 $path = Storage::disk('local')->path($filePath);
                 header('Content-Disposition: inline; filename="' . $file->orig_name . '');
 

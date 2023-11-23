@@ -8,8 +8,33 @@
         </div>
     </div>
 
+
+
     <q-card bordered flat >
         <q-card-section style="max-width: 960px">
+
+            <div class="q-gutter-y-md" style="max-width: 350px">
+                <q-option-group
+                    v-model="panel"
+                    inline
+                    :options="[
+                      { label: 'Транспортное средство', value: 'ts' },
+                      { label: 'Сельхозтехника', value: 'sxt' },
+                    ]"
+                />
+
+                <q-tab-panels v-model="panel" animated class="shadow-2 rounded-borders">
+                    <q-tab-panel name="mails">
+                        <div class="text-h6">Транспортное средство</div>
+                    </q-tab-panel>
+
+                    <q-tab-panel name="alarms">
+                        <div class="text-h6">Сельхозтехника</div>
+                    </q-tab-panel>
+
+                </q-tab-panels>
+            </div>
+
             <div class="row q-gutter-md q-mb-md" v-for="(item, i) in items">
                 <div class="col">
                     <q-input label="Номер сертификата" outlined dense v-model="item.cert_num" type="number" counter/>
@@ -24,15 +49,21 @@
                     <q-btn icon="close" color="negative" size="sm" dense class="q-mt-sm" v-if="i > 0" @click="removeCert(i)"/>
                 </div>
             </div>
-            <q-btn label="Добавить сертификат" color="indigo-8" size="11px" icon="add" @click="addCert" v-if="items.length < 4"/>
+            <q-btn label="Добавить сертификат" color="indigo-8" size="11px" icon="add" @click="addCert" v-if="(panel === 'ts') ? items.length < 2 : items.length < 4"/>
         </q-card-section>
     </q-card>
 </template>
 
 <script>
+import { ref } from 'vue'
 import {storeSell} from "../../services/sell";
 
 export default {
+    setup () {
+        return {
+            panel: ref('ts')
+        }
+    },
 
     data() {
         return {
@@ -49,12 +80,22 @@ export default {
 
     methods: {
         addCert() {
-            if(this.items.length <= 3){
-                this.items.push({
-                    cert_num : '',
-                    cert_date: '',
-                    cert_idnum: ''
-                })
+            if(this.panel === 'ts'){
+                if(this.items.length <= 1){
+                    this.items.push({
+                        cert_num : '',
+                        cert_date: '',
+                        cert_idnum: ''
+                    })
+                }
+            }else {
+                if (this.items.length <= 3) {
+                    this.items.push({
+                        cert_num: '',
+                        cert_date: '',
+                        cert_idnum: ''
+                    })
+                }
             }
         },
 
@@ -72,6 +113,12 @@ export default {
                 this.loading = false
             })
         }
+    },
+
+    mounted() {
+        setTimeout(() => {
+            this.$emitter.emit('contentLoaded', false);
+        }, 10)
     }
 }
 </script>

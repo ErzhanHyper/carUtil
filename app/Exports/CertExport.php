@@ -4,6 +4,8 @@ namespace App\Exports;
 
 use App\Models\Car;
 use App\Models\Certificate;
+use App\Models\Client;
+use App\Models\Order;
 use App\Services\Certificate\CalcCertificatePriceService;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -66,6 +68,20 @@ class CertExport implements FromCollection, WithMapping, WithHeadings, WithHeadi
 
         if($car) {
             $category = $car->category->title;
+        }
+
+        $order = Order::find($car->order_id);
+
+        if($order){
+
+            $client = Client::find($order->client_id);
+            if($client){
+                if($client->client_type_id === 1){
+                    $client_type = 'ФЛ';
+                }else{
+                    $client_type = 'ЮЛ';
+                }
+            }
         }
 
         $sum = app(CalcCertificatePriceService::class)->run($row->id);

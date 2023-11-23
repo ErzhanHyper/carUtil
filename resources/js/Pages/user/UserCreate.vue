@@ -47,7 +47,7 @@ export default {
             storeUser(this.item).then(res => {
                 Notify.create({
                     message: 'Пользователь успешно добавлен',
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'positive'
                 })
                 this.$router.push('/user')

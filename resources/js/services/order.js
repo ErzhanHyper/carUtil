@@ -142,3 +142,15 @@ export function sendVideoOrder(id, params) {
         })
     })
 }
+
+
+export function findCertificateByOrderId(id, params) {
+    return new Promise((resolve, reject) => {
+        api.get('/order/'+id+'/certificate/download', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

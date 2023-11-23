@@ -21,3 +21,25 @@ export function getSellReport(params) {
         })
     })
 }
+
+export function getExchangeReport(params) {
+    return new Promise((resolve, reject) => {
+        api.get('/report/exchange', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
+export function getActionReport(params) {
+    return new Promise((resolve, reject) => {
+        api.get('/report/action', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}

@@ -25,6 +25,19 @@ class UserController extends Controller
         if($request->role){
             $user->where('role', $request->role);
         }
+
+        if($request->factory){
+            $user->where('factory_id', $request->factory);
+        }
+
+        if($request->manufacture){
+            $user->where('custom_2', $request->manufacture);
+        }
+
+        if($request->region){
+            $user->where('custom_3', $request->region);
+        }
+
         return UserResource::collection($user->paginate(15))->response();
     }
 
@@ -73,8 +86,10 @@ class UserController extends Controller
             $user->custom_4 = $request->custom_4;
             $user->factory_id = $request->factory;
 
-            if ($request->active && $request->active === 'false') {
+            if (!$request->active) {
                 $user->password = 'disabled';
+            }else{
+                $user->password = md5('Aa123456' . 'KZ.UNIDADE.2016');
             }
             $user->save();
 
@@ -123,14 +138,17 @@ class UserController extends Controller
             $user->base = $request->base;
             $user->for_docs = $request->for_docs;
             $user->custom_1 = $request->custom_1;
-            $user->custom_2 = $request->custom_2;
-            $user->custom_3 = $request->custom_3;
+            $user->custom_2 = $request->manufacture;
+            $user->custom_3 = $request->region;
             $user->custom_4 = $request->custom_4;
             $user->factory_id = $request->factory;
 
-            if ($request->active && $request->active === 'false') {
+            if (!$request->active) {
                 $user->password = 'disabled';
+            }else{
+                $user->password = md5('Aa123456' . 'KZ.UNIDADE.2016');
             }
+
             $user->save();
         }
 

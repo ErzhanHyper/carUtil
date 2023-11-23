@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Sell\SellApproveService;
 use App\Services\Sell\SellFileService;
 use App\Services\Sell\SellService;
 use Exception;
@@ -69,6 +70,18 @@ class SellController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
+    public function updateToSell(Request $request, $id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(SellService::class)->updateToSell($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
     public function storeFile(Request $request)
     {
         try {
@@ -86,6 +99,54 @@ class SellController extends Controller
         try {
             $result['status'] = 200;
             $result['data'] = app(SellFileService::class)->delete($id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
+    public function approve(Request $request, $id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(SellApproveService::class)->approve($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
+    public function decline(Request $request, $id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(SellApproveService::class)->decline($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
+    public function message(Request $request, $id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(SellApproveService::class)->message($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
+    public function close(Request $request, $id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(SellApproveService::class)->close($request, $id);
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];

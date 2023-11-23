@@ -15,45 +15,65 @@
                         <phone-field outlined dense v-model="user.phone"/>
                     </div>
 
-                    <template v-if="user.role === 'operator'">
-                        <div class="col col-md-12 col-xs-12">
-                            <q-input label="Пароль мобильного приложения" outlined dense
-                                     :type="(!isLock) ? 'password' : 'text'"
-                                     v-model="user.password">
-                                <template v-slot:prepend>
-                                    <q-icon name="lock"/>
-                                </template>
-                                <template v-slot:append>
-                                    <q-btn flat>
-                                        <q-icon name="visibility" v-if="isLock" @click="isLock = false"/>
-                                        <q-icon name="visibility_off" v-if="!isLock" @click="isLock = true"/>
-                                    </q-btn>
-                                </template>
-                            </q-input>
-                        </div>
-
-                        <div class="col col-md-12 col-xs-12">
-                            <q-input label="Подтверждение пароля мобильного приложения" outlined dense
-                                     :type="(!isLock) ? 'password' : 'text'" v-model="user.password_confirm">
-                                <template v-slot:prepend>
-                                    <q-icon name="lock"/>
-                                </template>
-                                <template v-slot:append>
-                                    <q-btn flat>
-                                        <q-icon name="visibility" v-if="isLock" @click="isLock = false"/>
-                                        <q-icon name="visibility_off" v-if="!isLock" @click="isLock = true"/>
-                                    </q-btn>
-                                </template>
-                            </q-input>
-                        </div>
-                    </template>
-
 <!--                    <template v-else>-->
 <!--                        <div class="col col-md-12 col-xs-12">-->
 <!--                            <region-field v-model="user.region"/>-->
 <!--                        </div>-->
 <!--                    </template>-->
                 </div>
+
+                <div class="row q-col-gutter-md q-mt-xs">
+                    <div class="col col-md-12 col-xs-12">
+                        <name-field v-model="user.title" outlined dense :square="false"
+                                    label="ФИО" />
+                    </div>
+                    <div class="col col-md-12 col-xs-12">
+                        <name-field v-model="user.for_docs" outlined dense :square="false"
+                                    label="Наименование вашей компании (для документов)"  v-if="user.role === 'dealer-light' || user.role === 'dealer-chief'"/>
+
+                        <name-field v-model="user.for_docs" outlined dense :square="false"
+                                    label="ФИО в родительном падеже (для документов)"  v-if="user.role === 'moderator' || user.role === 'operator'"/>
+                    </div>
+                    <div class="col col-md-12 col-xs-12" v-if="user.role === 'dealer-light' || user.role === 'dealer-chief'">
+                        <address-field label="Адрес салона или компании (для диллеров)" v-model="user.custom_1" outlined dense/>
+                    </div>
+                </div>
+
+                <div class="row q-col-gutter-md q-mt-lg">
+                <template v-if="user.role === 'operator'">
+                    <div class="col col-md-12 col-xs-12">
+                        <q-input label="Пароль мобильного приложения" outlined dense
+                                 :type="(!isLock) ? 'password' : 'text'"
+                                 v-model="user.password">
+                            <template v-slot:prepend>
+                                <q-icon name="lock"/>
+                            </template>
+                            <template v-slot:append>
+                                <q-btn flat>
+                                    <q-icon name="visibility" v-if="isLock" @click="isLock = false"/>
+                                    <q-icon name="visibility_off" v-if="!isLock" @click="isLock = true"/>
+                                </q-btn>
+                            </template>
+                        </q-input>
+                    </div>
+
+                    <div class="col col-md-12 col-xs-12">
+                        <q-input label="Подтверждение пароля мобильного приложения" outlined dense
+                                 :type="(!isLock) ? 'password' : 'text'" v-model="user.password_confirm">
+                            <template v-slot:prepend>
+                                <q-icon name="lock"/>
+                            </template>
+                            <template v-slot:append>
+                                <q-btn flat>
+                                    <q-icon name="visibility" v-if="isLock" @click="isLock = false"/>
+                                    <q-icon name="visibility_off" v-if="!isLock" @click="isLock = true"/>
+                                </q-btn>
+                            </template>
+                        </q-input>
+                    </div>
+                </template>
+                </div>
+
             </div>
         </div>
 
@@ -71,9 +91,11 @@ import {Notify} from "quasar";
 import EmailField from "../../Components/Fields/EmailField.vue";
 import PhoneField from "../../Components/Fields/PhoneField.vue";
 import RegionField from "../../Components/Fields/RegionField.vue";
+import AddressField from "../../Components/Fields/AddressField.vue";
+import NameField from "../../Components/Fields/NameField.vue";
 
 export default {
-    components: {RegionField, PhoneField, EmailField},
+    components: {RegionField, PhoneField, EmailField, AddressField, NameField},
 
     data() {
         return {
@@ -104,8 +126,11 @@ export default {
                     this.user.phone = (profile.phone) ?? ''
                     this.user.email = (profile.email) ?? ''
                 } else {
+                    this.user.title = res.title
                     this.user.phone = res.phone
                     this.user.email = res.email
+                    this.user.for_docs = res.for_docs
+                    this.user.custom_1 = res.custom_1
                 }
                 this.user.id = res.id
                 this.user.role = res.role
@@ -125,7 +150,7 @@ export default {
 
                 Notify.create({
                     message: 'Данные сохранены',
-                    position: 'bottom-right',
+                    position: 'bottom',
                     type: 'positive'
                 })
 

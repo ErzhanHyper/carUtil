@@ -41,6 +41,8 @@ export default {
         async signIn({dispatch}, credentials) {
             let response = await api.post('login', credentials)
             dispatch('attempt', response.data.data.hash)
+
+            return response
         },
 
         async signInMobile({dispatch}, credentials) {

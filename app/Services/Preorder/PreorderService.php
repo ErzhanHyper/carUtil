@@ -32,54 +32,57 @@ class PreorderService
 
             $orders = PreOrderCar::with(['car', 'client']);
 
-            if (isset($request->title) && $request->title != '') {
-                $client = Client::select(['id', 'title'])->where('title', 'like', '%' . $request->title . '%')->get();
-                $client_ids = [];
-                if (count($client) > 0) {
-                    foreach ($client as $c) {
-                        $client_ids[] = $c->id;
-                    }
-                }
-                $orders->whereIn('client_id', $client_ids);
-            }
-
-            if (isset($request->idnum) && $request->idnum != '') {
-                $client = Client::select(['id', 'idnum'])->where('idnum', 'like', '%' . $request->idnum . '%')->get();
-                $client_ids = [];
-                if (count($client) > 0) {
-                    foreach ($client as $c) {
-                        $client_ids[] = $c->id;
-                    }
-                }
-                $orders->whereIn('client_id', $client_ids);
-            }
-
-            if (isset($request->vin) && $request->vin != '') {
-                $car = Car::select(['id', 'vin'])->where('vin', 'like', '%' . $request->vin . '%')->get();
-                $car_ids = [];
-                if (count($car) > 0) {
-                    foreach ($car as $c) {
-                        $car_ids[] = $c->id;
-                    }
-                }
-                $orders->whereIn('car_id', $car_ids);
-            }
-
-            if (isset($request->grnz) && $request->grnz != '') {
-                $car = Car::select(['id', 'grnz'])->where('grnz', 'like', '%' . $request->grnz . '%')->get();
-                $car_ids = [];
-                if (count($car) > 0) {
-                    foreach ($car as $c) {
-                        $car_ids[] = $c->id;
-                    }
-                }
-                $orders->whereIn('car_id', $car_ids);
-            }
-
             if ($user->role === 'liner') {
                 $orders->where('liner_id', $user->id);
             } else if ($user->role === 'moderator') {
-                $orders->whereNotIn('status', [0,2]);
+                if (isset($request->title) && $request->title != '') {
+                    $client = Client::select(['id', 'title'])->where('title', 'like', '%' . $request->title . '%')->get();
+                    $client_ids = [];
+                    if (count($client) > 0) {
+                        foreach ($client as $c) {
+                            $client_ids[] = $c->id;
+                        }
+                    }
+                    $orders->whereIn('client_id', $client_ids);
+                }
+
+                if (isset($request->idnum) && $request->idnum != '') {
+                    $client = Client::select(['id', 'idnum'])->where('idnum', 'like', '%' . $request->idnum . '%')->get();
+                    $client_ids = [];
+                    if (count($client) > 0) {
+                        foreach ($client as $c) {
+                            $client_ids[] = $c->id;
+                        }
+                    }
+                    $orders->whereIn('client_id', $client_ids);
+                }
+
+                if (isset($request->vin) && $request->vin != '') {
+                    $car = Car::select(['id', 'vin'])->where('vin', 'like', '%' . $request->vin . '%')->get();
+                    $car_ids = [];
+                    if (count($car) > 0) {
+                        foreach ($car as $c) {
+                            $car_ids[] = $c->id;
+                        }
+                    }
+                    $orders->whereIn('car_id', $car_ids);
+                }
+
+                if (isset($request->grnz) && $request->grnz != '') {
+                    $car = Car::select(['id', 'grnz'])->where('grnz', 'like', '%' . $request->grnz . '%')->get();
+                    $car_ids = [];
+                    if (count($car) > 0) {
+                        foreach ($car as $c) {
+                            $car_ids[] = $c->id;
+                        }
+                    }
+                    $orders->whereIn('car_id', $car_ids);
+                }
+                
+                if (isset($request->status) && $request->status != '') {
+                    $orders->where('status', $request->status);
+                }
+//                $orders->whereNotIn('status', [0,2]);
             }
 
             if (isset($orders)) {

@@ -11,15 +11,28 @@
     <q-card class="q-mb-md q-mt-md">
         <q-card-section>
             <div class="row q-col-gutter-md">
-                <div class="col col-md-3 col-sm-6 col-xs-12">
+                <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input label="ИИН" v-model="filter.idnum" outlined dense/>
                 </div>
-                <div class="col col-md-3 col-sm-6 col-xs-12">
+                <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input label="ФИО" v-model="filter.title" outlined dense/>
                 </div>
-                <div class="col col-md-3 col-sm-6 col-xs-12">
+                <div class="col col-md-2 col-sm-6 col-xs-12">
                     <role-field v-model="filter.role" outlined dense/>
                 </div>
+
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                <region-field v-model="filter.region" emit-value map-options outlined dense square/>
+                </div>
+
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <manufactory-field v-model="filter.manufacture" outlined dense label="Производители (для диллеров)" square/>
+                </div>
+
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <factory-field v-model="filter.factory" outlined dense label="Заводы (для региональных менеджеров)" square/>
+                </div>
+
                 <div class="col col-md-2 col-sm-2 col-xs-12">
                     <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
                     <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
@@ -85,16 +98,20 @@
 <script>
 import {getUserCollection} from "../../services/user";
 import RoleField from "../../Components/Fields/RoleField.vue";
+import ManufactoryField from "../../Components/Fields/ManufactoryField.vue";
+import FactoryField from "../../Components/Fields/FactoryField.vue";
+import RegionField from "../../Components/Fields/RegionField.vue";
 
 export default {
-    components: {RoleField},
+    components: {RoleField, ManufactoryField, FactoryField, RegionField},
     data() {
         return {
             items: [],
             filter: {
                 idnum: '',
                 title: '',
-                role: ''
+                role: '',
+                page: this.page
             },
             page: 1,
             totalPage: 1,
@@ -109,25 +126,22 @@ export default {
 
         applyFilter() {
             this.page = 1
-            this.loading1 = true
+            this.filter.page = this.page
             this.getData()
+            this.loading1 = true
         },
 
         resetFilter() {
             this.page = 1
-            this.loading2 = true
             this.filter = {}
             this.getData()
+            this.loading2 = true
         },
 
         getData() {
+            this.filter.page = this.page
             this.$emitter.emit('contentLoaded', true);
-            getUserCollection({
-                idnum: this.filter.idnum,
-                title: this.filter.title,
-                role: this.filter.role,
-                page: this.page
-            }).then(res => {
+            getUserCollection({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
                 this.items = res.data
                 this.totalPage = res.meta.last_page

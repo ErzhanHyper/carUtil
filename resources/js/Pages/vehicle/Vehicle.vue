@@ -11,16 +11,13 @@
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <manufactory-field v-model="filter.manufacture" outlined dense/>
+                    <manufactory-field v-model="filter.manufacture" outlined dense option-value="title"/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input label="Марка" v-model="filter.brand" outlined dense/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input label="Модель" v-model="filter.model" outlined dense/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ИИН/БИН" v-model="filter.idnum" outlined dense type="number"/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <category-field outlined dense v-model="filter.category"/>
@@ -94,7 +91,9 @@ export default {
     data() {
         return {
             items: [],
-            filter: {},
+            filter: {
+                page: this.page
+            },
 
             show: false,
             loading1: false,
@@ -108,20 +107,29 @@ export default {
     methods: {
 
         applyFilter() {
-            console.log(this.filter)
+            this.page = 1
+            this.filter.page = this.page
+            this.getData()
+            this.loading1 = true
         },
 
-        resetFilter(){
-
+        resetFilter() {
+            this.page = 1
+            this.filter = {}
+            this.getData()
+            this.loading2 = true
         },
 
         getData(){
+            this.filter.page = this.page
             this.$emitter.emit('contentLoaded', true);
-            getVehicleList({params: {page: this.page}}).then(res => {
+            getVehicleList({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
                 this.totalPage = res.pages
                 this.items = res.items
                 this.show = true
+                this.loading1 = false
+                this.loading2 = false
             })
         }
     },

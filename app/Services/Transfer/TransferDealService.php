@@ -105,10 +105,10 @@ class TransferDealService
     public function close($id): array
     {
         $user = app(AuthService::class)->auth();
-        $authClient = Client::where('idnum', $user->idnum)->first();
 
         $transferDeal = TransferDeal::find($id);
         $transferOrder = TransferOrder::find($transferDeal->transfer_order_id);
+        $authClient = Client::find($transferOrder->client_id);
 
         $success = false;
         $message = '';
@@ -138,9 +138,11 @@ class TransferDealService
 
     public function delete($id){
         $user = app(AuthService::class)->auth();
-        $authClient = Client::where('idnum', $user->idnum)->first();
 
         $deal = TransferDeal::find($id);
+
+        $authClient = Client::find($deal->client_id);
+
         if($deal) {
             if ($authClient->id === $deal->client_id) {
                 $transferOrder = TransferOrder::find($deal->transfer_order_id);

@@ -6,6 +6,7 @@
             <th class="text-left">VIN</th>
             <th class="text-left">Категория</th>
             <th class="text-left">ФИО владельца</th>
+            <th class="text-left">Сумма</th>
             <th class="text-left">Статус</th>
         </tr>
         </thead>
@@ -15,6 +16,8 @@
                 <td><router-link :to="'/transfer/order/'+item.id" class="text-primary"><q-icon name="open_in_new" size="sm" />{{ item.order.car.vin }}</router-link></td>
                 <td>{{ item.order.car.category.title_ru }}</td>
                 <td>{{ item.order.client.title }}</td>
+                <td>{{ item.amount }}</td>
+
                 <td>
                     <q-chip color="blue-grey-1" label="Открыта" v-if="item.closed === 0"/>
                     <q-chip color="blue-grey-1" label="В работе" v-if="item.closed === 1"/>

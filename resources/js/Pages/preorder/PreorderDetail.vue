@@ -14,12 +14,20 @@
                         {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
                     </span>
                     <span :class="'text-'+setStatusColor(item.status.id)"> - {{ item.status.title }}
+
+                    <template v-if="item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0">
+                        | <q-badge color="green-5" class="q-pa-xs" >
+                            На отправке
+                        </q-badge>
+                    </template>
+
                     <span class="text-green-8 text-overline"
                           v-if="item.order && item.order.status.id === 3"> | Сертификат выдан</span>
                 </span>
                 <div class="text-body1 text-weight-bold text-blue-grey-8" v-if="item.order">
                     № заявки: {{ item.order.id }}
                 </div>
+
             </div>
 
             <div>

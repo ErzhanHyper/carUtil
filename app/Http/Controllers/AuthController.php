@@ -107,6 +107,14 @@ class AuthController extends Controller
                     }
                     $manager->email = $request->email;
                     $manager->phone = $request->phone;
+
+                    if($request->custom_1){
+                        $manager->custom_1 = $request->custom_1;
+                    }
+                    if($request->for_docs){
+                        $manager->for_docs = $request->for_docs;
+                    }
+
                     $manager->save();
                 }
             }

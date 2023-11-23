@@ -20,12 +20,35 @@ class RefFactoryController extends Controller
                 $manufacture = Manufacture::find($user->custom_2);
                 $data = RefFactoryResource::collection(RefFactory::orderBy('brand')->where('factory', $manufacture->title)->get());
             }else{
+                $ref_factoy = RefFactory::orderBy('brand');
+
+                if($request->category){
+                    $ref_factoy->where('category', $request->category);
+                }
+
+                if($request->manufacture){
+                    $ref_factoy->where('factory', $request->manufacture);
+                }
+
+                if($request->brand){
+                    $ref_factoy->where('brand', $request->brand);
+                }
+
+                if($request->model){
+                    $ref_factoy->where('model', $request->model);
+                }
+
+                if($request->class){
+                    $ref_factoy->where('class', $request->class);
+                }
+
                 $paginate = 15;
-                $pages = round(RefFactory::count() / $paginate);
+                $pages = round($ref_factoy->count() / $paginate);
                 if ($pages == 0) {
                     $pages = 1;
                 }
-                $data = RefFactoryResource::collection(RefFactory::orderBy('brand')->paginate($paginate));
+
+                $data = RefFactoryResource::collection($ref_factoy->paginate($paginate));
             }
 
             $result['status'] = 200;

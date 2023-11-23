@@ -53,7 +53,7 @@ export default {
                 approveExchange(this.data.id).then((res) => {
                     Notify.create({
                         message: res.message,
-                        position: 'bottom-right',
+                        position: 'bottom',
                         type: res.success ? 'positive' : 'warning'
                     })
                     this.$emitter.emit('ExchangeActionEvent')
@@ -67,7 +67,7 @@ export default {
                 declineExchange(this.data.id).then((res) => {
                     Notify.create({
                         message: res.message,
-                        position: 'bottom-right',
+                        position: 'bottom',
                         type: res.success ? 'positive' : 'warning'
                     })
                     this.$emitter.emit('ExchangeActionEvent')

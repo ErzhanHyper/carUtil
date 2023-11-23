@@ -25,6 +25,9 @@
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input label="ИИН/БИН" v-model="filter.idnum" outlined dense/>
                 </div>
+                <div class="col col-md-2 col-sm-6 col-xs-12">
+                    <q-select label="Статус" :options="statuses" dense outlined option-value="id" option-label="title" v-model="filter.status" emit-value map-options/>
+                </div>
                 <div class="col col-md-2 col-sm-2 col-xs-12">
                     <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
                     <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
@@ -193,7 +196,6 @@ export default {
     data() {
         return {
             data: null,
-            statuses: [],
             sum: null,
 
             show: false,
@@ -203,12 +205,34 @@ export default {
             loading2: false,
 
             filter: {
+                status: 1,
                 page: this.page
             },
             recycleTypeRules: {},
 
-            sign_statuses: ['Подписан', 'Не подписан'],
             items: [],
+            statuses: [
+                {
+                    id: 0,
+                    title: 'Формирование заявки'
+                },
+                {
+                    id: 1,
+                    title: 'На рассмотрении'
+                },
+                {
+                    id: 2,
+                    title: 'Одобрена'
+                },
+                {
+                    id: 3,
+                    title: 'Отклонена'
+                },
+                {
+                    id: 4,
+                    title: 'Возвращена на доработку'
+                },
+            ],
 
             page: 1,
             totalPage: 1,
@@ -321,6 +345,7 @@ export default {
 
         getData() {
             this.$emitter.emit('contentLoaded', true);
+            this.filter.page = this.page
             getOrderList({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
                 this.items = res.items

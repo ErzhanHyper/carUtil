@@ -26,7 +26,7 @@ class CertificateService
             $orders = Certificate::class;
         }
 
-        return CertificateResource::collection($orders->paginate(10));
+        return CertificateResource::collection($orders->paginate(1000));
     }
 
     public function storeCert($request)
@@ -219,5 +219,12 @@ class CertificateService
 
             return $pdf->download('certificate.pdf');
         }
+    }
+
+    public function downloadCertByOrderId($request, $id){
+        $order = Order::find($id);
+        $car = Car::where('order_id', $order->id)->first();
+        $cert = Certificate::where('car_id', $car->id)->first();
+        return $this->generateCert($request, $cert->id);
     }
 }

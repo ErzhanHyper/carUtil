@@ -107,7 +107,7 @@ export default {
                     if (res.message !== '') {
                         Notify.create({
                             message: res.message,
-                            position: 'bottom-right',
+                            position: 'bottom',
                             type: res.success === true ? 'positive' : 'warning'
                         })
                     }

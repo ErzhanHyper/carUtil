@@ -1,10 +1,13 @@
 <template>
 
     <div class="q-gutter-sm text-right">
+        <q-btn label="Перейти к заявке" color="blue-grey-5" size="11px" class="q-mt-sm"
+               icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.isOwner"/>
+
         <q-btn icon="close" color="negative" size="11px"
                label="Отменить продажу ТС/СХТ" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2" :loading="loading2"/>
         <q-btn icon="close" color="negative" size="11px"
-               label="Отменить предложение" @click="removeTransferDeal" v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2"/>
+               label="Отменить предложение" @click="removeTransferDeal" v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2" />
     </div>
 
     <transfer-deal :id="item.id" :data="item" v-if="show && item.isOwner" />
@@ -23,9 +26,6 @@
                 <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
                        icon="picture_as_pdf"
                        @click="downloadPFS" :loading="loading" v-if="item.closed === 2"/>
-
-                <q-btn label="Перейти к заявке" color="blue-grey-5" size="12px" class="q-mt-sm"
-                       icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.closed === 2"/>
             </div>
 
         </div>
@@ -56,13 +56,14 @@
 
                 <client-card :data="item.currentClient" :blocked="blocked" :getClient="getClient" class="q-mb-lg" v-if="!item.isOwner" label="Заполните ваши данные"/>
 
-                <template v-if="item.canDeal && !item.isOwner">
+                <template v-if="!item.isOwner">
 
                     <q-input label="Сумма" v-model="amount" class="text-body1 text-weight-bold"
                              mask="#"
                              fill-mask=""
                              reverse-fill-mask
                              input-class="text-right"
+                             :readonly="!item.canDeal"
                     >
                         <template v-slot:after>
                             &#8376;
@@ -70,7 +71,7 @@
                     </q-input>
 
                     <q-btn label="Добавить предложение" icon="swap_horiz" color="indigo-8"
-                           class="text-weight-bold" push @click="sendData" :loading="loading3" />
+                           class="text-weight-bold" push @click="sendData" :loading="loading3" v-if="item.canDeal"/>
                 </template>
 
             </div>
@@ -158,7 +159,11 @@ export default {
                 canDeal: true,
                 deals: [],
                 file: {},
+                client: {
+                    title: ''
+                },
                 order: {
+                    client: {},
                     car: {}
                 }
             }
@@ -180,6 +185,7 @@ export default {
                     if(res.deal) {
                         this.deal_id = res.deal.id
                     }
+                    this.amount = res.amount
                     this.item = res
                     this.blocked = res.blocked
                 }
