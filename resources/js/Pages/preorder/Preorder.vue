@@ -213,10 +213,6 @@ export default {
             items: [],
             statuses: [
                 {
-                    id: 0,
-                    title: 'Формирование заявки'
-                },
-                {
                     id: 1,
                     title: 'На рассмотрении'
                 },
