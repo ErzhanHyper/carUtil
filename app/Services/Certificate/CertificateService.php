@@ -217,7 +217,9 @@ class CertificateService
             $pdf = PDF::loadView('templates.certificate', compact('data'));
             $pdf->setPaper('a4', 'portrait')->setWarnings(false);
 
-            return $pdf->download('certificate.pdf');
+            if($cert) {
+                return $pdf->download('certificate.pdf');
+            }
         }
     }
 
