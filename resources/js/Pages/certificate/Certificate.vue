@@ -94,7 +94,7 @@
                 <tbody>
                 <tr v-for="item in exchanges">
                     <td>
-                        <router-link :to="'/exchange/'+item.id" class="text-primary">
+                        <router-link :to="'/exchange/'+item.id" class="text-primary" >
                             <q-icon name="open_in_new" size="xs"/>
                             {{ item.certificate ? item.certificate.id : '-' }}
                         </router-link>
@@ -105,6 +105,8 @@
                     <td>
                         <q-badge size="12px" v-if="item.approve === 0">В ожидании подписи</q-badge>
                         <q-badge size="12px" v-if="item.approve === 1">На рассмотрении у модератора</q-badge>
+                        <q-badge size="12px" color="positive" v-if="item.approve === 2">Одобрена</q-badge>
+                        <q-badge size="12px" color="negative" v-if="item.approve === 3">Отклонена</q-badge>
                     </td>
                 </tr>
                 <div class="q-ma-xs" v-if="show && exchanges.length === 0">Нет записей</div>

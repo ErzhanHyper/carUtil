@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BookingOrder;
 use App\Models\PreOrderCar;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 
 class BookingOrderController extends Controller
@@ -28,12 +29,16 @@ class BookingOrderController extends Controller
     public function delete(Request $request){
         $booking = BookingOrder::find($request->id);
         $preorder = PreOrderCar::find($request->preorder_id);
+        $user = app(AuthService::class)->auth();
+
         if($booking && $preorder){
-            $preorder->booking_id = null;
-            $preorder->factory_id = null;
-            if($preorder->save()) {
-                $booking->delete();
-                return ['message' => 'deleted'];
+            if($preorder->liner_id === $user->id) {
+                $preorder->booking_id = null;
+                $preorder->factory_id = null;
+                if ($preorder->save()) {
+                    $booking->delete();
+                    return ['message' => 'deleted'];
+                }
             }
         }
     }

@@ -3,7 +3,7 @@
         <div class="text-h6 text-primary">
             Переоформление сертификата
             <br>
-            <div class="text-overline text-blue-5 text-uppercase" v-if="show && user.role === 'liner'">{{ item.info }}</div>
+            <div class="text-overline text-blue-5 text-uppercase" v-if="show && user.role === 'liner' && (item.approve === 0 || item.approve === 1)">{{ item.info }}</div>
             <div class="text-overline text-blue-5 text-uppercase" v-if="show && user.role === 'moderator'">{{ item.status.title }}</div>
         </div>
 

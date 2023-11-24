@@ -2,7 +2,7 @@
 
     <div class="q-gutter-sm text-right">
         <q-btn label="Перейти к заявке" color="blue-grey-5" size="11px" class="q-mt-sm"
-               icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.isOwner"/>
+               icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.isOwner && item.closed === 0"/>
 
         <q-btn icon="close" color="negative" size="11px"
                label="Отменить продажу ТС/СХТ" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2" :loading="loading2"/>
@@ -26,13 +26,16 @@
                 <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
                        icon="picture_as_pdf"
                        @click="downloadPFS" :loading="loading" v-if="item.closed === 2"/>
+
+                <q-btn label="Перейти к заявке" color="blue-grey-5" size="11px" class="q-mt-sm"
+                       icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.closed === 2"/>
             </div>
 
         </div>
     </template>
 
     <div class="q-mt-lg">
-        <div class="row q-col-gutter-md" v-if="show">
+        <div class="row q-col-gutter-md" v-if="show && ((item.isOwner && item.closed === 0 || item.closed === 1) || !item.isOwner)">
 
             <div class="col col-md-4">
 

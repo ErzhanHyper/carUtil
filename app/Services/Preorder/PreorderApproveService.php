@@ -34,7 +34,7 @@ class PreorderApproveService
                     $orderRel = Order::find($item->order_id);
                     if ($orderRel && $orderRel->approve === 3) {
                         $can = false;
-                        $message = 'ТС с таким VIN кодом уже одобрена в другой заявке';
+                        $message = 'ТС с таким VIN кодом уже одобрена';
                     }
                 }
             }

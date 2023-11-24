@@ -221,10 +221,16 @@ class CertificateService
         }
     }
 
-    public function downloadCertByOrderId($request, $id){
+    public function downloadCertByOrderId($request, $id)
+    {
         $order = Order::find($id);
-        $car = Car::where('order_id', $order->id)->first();
-        $cert = Certificate::where('car_id', $car->id)->first();
-        return $this->generateCert($request, $cert->id);
+
+        if($order) {
+            $car = Car::where('order_id', $order->id)->first();
+            $cert = Certificate::where('car_id', $car->id)->first();
+            if ($cert) {
+                return $this->generateCert($request, $cert->id);
+            }
+        }
     }
 }

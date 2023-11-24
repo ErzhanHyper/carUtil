@@ -20,8 +20,14 @@
 
                 <td>
                     <q-chip color="blue-grey-1" label="Открыта" v-if="item.closed === 0"/>
-                    <q-chip color="blue-grey-1" label="В работе" v-if="item.closed === 1"/>
                     <q-chip color="positive" dark label="Завершено" v-if="item.closed === 2"/>
+
+                    <template v-if="item.isOwner">
+                        <q-badge v-if="item.closed === 1">На подписи</q-badge>
+                    </template>
+                    <template v-else>
+                        <q-badge v-if="item.closed === 1">В ожидании подписи</q-badge>
+                    </template>
                 </td>
             </tr>
         </template>

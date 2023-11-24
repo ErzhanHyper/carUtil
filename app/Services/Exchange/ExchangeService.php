@@ -77,7 +77,7 @@ class ExchangeService
 
         if ($auth->role === 'liner') {
             $exchange = Exchange::where('idnum', $auth->idnum)->whereNotNull('owner_sign')
-                ->whereIn('approve', [0, 1]);
+                ->whereIn('approve', [0, 1, 2, 3]);
         } else if ($auth->role === 'moderator') {
             $exchange = Exchange::whereIn('approve', [1,2,3]);
         }

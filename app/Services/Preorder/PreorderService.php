@@ -78,7 +78,7 @@ class PreorderService
                     }
                     $orders->whereIn('car_id', $car_ids);
                 }
-                
+
                 if (isset($request->status) && $request->status != '') {
                     $orders->where('status', $request->status);
                 }
@@ -103,8 +103,19 @@ class PreorderService
     public function getById($id)
     {
         $user = app(AuthService::class)->auth();
-        if($user->role === 'liner' || $user->role === 'moderator') {
-            $preorder = PreOrderCar::find($id);
+        $preorder = PreOrderCar::find($id);
+
+        $can = false;
+
+        if($user->role === 'moderator'){
+            $can = true;
+        }else if($user->role === 'liner'){
+            if($user->id === $preorder->liner_id){
+                $can = true;
+            }
+        }
+
+        if($can) {
             $order = Order::find($preorder->order_id);
 
             $canTransfer = false;

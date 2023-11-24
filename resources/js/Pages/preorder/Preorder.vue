@@ -100,7 +100,7 @@
                         Ожидайте выдачу сертификата
                     </q-tooltip>
                 </q-badge>
-                <q-badge color="teal-5" class="q-pa-xs" v-if="item.order && item.order.car && item.order.status === 3 && item.order.approve === 3">
+                <q-badge color="teal-5" class="q-pa-xs" v-if="item.order && item.order.car && item.order.status.id === 3 && item.order.approve.id === 3">
                     <router-link to="/certificate" v-if="user.role === 'liner'">Сертификат выдан</router-link>
                     <template v-else>Сертификат выдан</template>
                 </q-badge>
@@ -116,6 +116,7 @@
                 <q-badge :color="setOrderStatusColor(item.order.status.id)" v-if="item.order && (item.order.status.id === 1 || item.order.status.id === 2 || item.order.status.id === 4 || item.order.status.id === 5)">
                     {{ item.order.status.title }}
                 </q-badge>
+
             </td>
         </tr>
         </template>

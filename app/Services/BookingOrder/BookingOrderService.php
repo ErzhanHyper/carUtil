@@ -18,7 +18,7 @@ class BookingOrderService
 
         if (isset($request->preorder_id)) {
             $preorder = PreOrderCar::find($request->preorder_id);
-            if ($preorder) {
+            if ($preorder && $preorder->liner_id === $user->id) {
 
                 if ($preorder->order && $preorder->order->status === 3 && $preorder->order->approve === 3) {
                     throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, заявка уже была обработана']]));
@@ -28,7 +28,6 @@ class BookingOrderService
                     throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, заявка была отклонена']]));
                 }
 
-                if ($user) {
                     $datetime = strtotime($request->datetime);
                     $factory_id = $request->factory_id;
 
@@ -57,7 +56,6 @@ class BookingOrderService
                     return $data;
                 }
 
-            }
         }
     }
 

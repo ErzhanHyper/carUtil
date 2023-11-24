@@ -85,14 +85,14 @@
 
 
     <q-dialog v-model="dialog1" persistent >
-        <q-card style="width: 100%;max-width: 800px; " >
+        <q-card style="width: 100%;max-width: 800px; " v-if="item">
             <q-card-section class="flex justify-between q-pa-sm">
                 <q-space/>
                 <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
             </q-card-section>
 
             <q-card-section style="height: 80vh" class="scroll">
-            <q-card-section>
+            <q-card-section v-if="item.cert">
                 <span class="text-subtitle1">Основная информация</span>
                 <q-markup-table dense flat bordered separator="cell" >
                     <tr >
@@ -133,7 +133,7 @@
 
             </q-card-section>
 
-            <q-card-section>
+            <q-card-section v-if="item.cert">
                 <span class="text-subtitle1">Предыдущий хозяин (слот 1)</span>
                 <q-markup-table dense flat bordered separator="cell">
 
@@ -153,7 +153,7 @@
                 </q-markup-table>
             </q-card-section>
 
-            <q-card-section>
+            <q-card-section v-if="item.cert">
                 <span class="text-subtitle1">Предыдущий хозяин (слот 2)</span>
                 <q-markup-table dense flat bordered separator="cell">
                     <tr>
@@ -171,7 +171,7 @@
                 </q-markup-table>
             </q-card-section>
 
-            <q-card-section>
+            <q-card-section v-if="item.cert">
                 <span class="text-subtitle1">Предыдущий хозяин (слот 3)</span>
                 <q-markup-table dense flat bordered separator="cell">
                     <tr>
@@ -280,6 +280,7 @@
 import {findCertificateById, generateCertificate} from "../../services/certificate";
 import FileDownload from "js-file-download";
 import {findCertificateByOrderId} from "../../services/order";
+import {Notify} from "quasar";
 
 export default {
 
@@ -325,8 +326,19 @@ export default {
         checkCert(){
             this.loading1 = true
             findCertificateById(this.cert1.id).then(res => {
-                this.item = res
-                this.dialog1 = true
+                if(res.cert || res.sell) {
+                    this.cert1 = {
+                        id: null
+                    }
+                    this.item = res
+                    this.dialog1 = true
+                }else{
+                    Notify.create({
+                        message: 'Данные не найдены',
+                        position: 'bottom',
+                        type: 'warning'
+                    })
+                }
             }).finally(() => {
                 this.loading1 = false
             })
@@ -335,18 +347,52 @@ export default {
         downloadOrderCert(){
             this.loading2 = true
             findCertificateByOrderId(this.order.id, {responseType: 'arraybuffer'}).then(value => {
-               FileDownload(value, 'certificate.pdf')
+                this.order = {
+                    id: null
+                }
+                if(value.byteLength > 0) {
+                    FileDownload(value, 'certificate.pdf')
+                }else{
+                    Notify.create({
+                        message: 'Данные не найдены',
+                        position: 'bottom',
+                        type: 'warning'
+                    })
+                }
             }).finally(() => {
                 this.loading2 = false
+            }).catch(() => {
+                Notify.create({
+                    message: 'Данные не найдены',
+                    position: 'bottom',
+                    type: 'warning'
+                })
             })
         },
 
         downloadCert(){
             this.loading3 = true
             generateCertificate(this.cert.id, {responseType: 'arraybuffer'}).then(value => {
-                FileDownload(value, 'certificate.pdf')
+                this.cert = {
+                    id: null
+                }
+                if(value.byteLength > 0) {
+                    FileDownload(value, 'certificate.pdf')
+                }else{
+                    Notify.create({
+                        message: 'Данные не найдены',
+                        position: 'bottom',
+                        type: 'warning'
+                    })
+                }
             }).finally(() => {
                 this.loading3 = false
+            }).catch(() => {
+                Notify.create({
+                    message: 'Данные не найдены',
+                    position: 'bottom',
+                    type: 'warning'
+                })
             })
         }
     },
