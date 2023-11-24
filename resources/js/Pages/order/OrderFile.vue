@@ -97,7 +97,7 @@
             <q-separator />
 
             <q-card-section style="max-height: 80vh" class="scroll">
-                <video :src="videoFile" controls style="width: 100%"/>
+                <video :src="videoFile" controls style="width: 100%;max-height: 60vh;"/>
             </q-card-section>
 
             <q-separator />
