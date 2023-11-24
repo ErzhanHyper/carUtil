@@ -53,7 +53,7 @@ export default {
                     link: '/preorder'
                 },
                 {
-                    name: 'Заявки',
+                    name: 'Заявка',
                     icon: 'article',
                     color: color1,
                     link: '/order'

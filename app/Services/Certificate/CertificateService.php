@@ -230,7 +230,7 @@ class CertificateService
         if($order) {
             $car = Car::where('order_id', $order->id)->first();
             $cert = Certificate::where('car_id', $car->id)->first();
-            if ($cert) {
+            if ($cert && $car) {
                 return $this->generateCert($request, $cert->id);
             }
         }
