@@ -100,7 +100,7 @@ export default {
 //     volume: 1.0
 // }
         startCamera(){
-            navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: this.cameraMode, aspectRatio: 16/9 }}).then(mediaStream => {
+            navigator.mediaDevices.getUserMedia({audio: false, video: {width: { ideal: 1920 },  height: { ideal: 1080 } , facingMode: this.cameraMode, aspectRatio: 16/9 }}).then(mediaStream => {
                 this.$refs.video.srcObject = mediaStream;
                 this.$refs.video.play()
                 this.mediaStream = mediaStream
