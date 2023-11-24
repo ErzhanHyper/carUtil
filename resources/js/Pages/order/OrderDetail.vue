@@ -380,6 +380,9 @@ export default {
         this.$emitter.on('VideoSendEvent', () => {
             this.getData()
         })
+        this.$emitter.on('orderBlockEvent', (value) => {
+            this.blockedVideo = value
+        })
     }
 
 }

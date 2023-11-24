@@ -103,6 +103,18 @@ class ExchangeController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
+    public function message(Request $request, $id)
+    {
+        try {
+            $result['status'] = 200;
+            $result['data'] = app(ExchangeApproveService::class)->message($request, $id);
+        } catch (Exception $e) {
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
+        }
+        return response()->json($result['data'], $result['status']);
+    }
+
     public function storeFile(Request $request, $id)
     {
         try {

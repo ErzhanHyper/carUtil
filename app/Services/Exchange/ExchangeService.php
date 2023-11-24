@@ -250,7 +250,7 @@ class ExchangeService
         $hash = app(SignService::class)->__signExchangeData($exchange->id);
         $signData = app(EdsService::class)->check(new Request(['hash' => $hash, 'sign' => $request->sign]));
 
-        if($signData && ($signData->iin === $auth->idnum || $signData->bin === $auth->idnum)) {
+//        if($signData && ($signData->iin === $auth->idnum || $signData->bin === $auth->idnum)) {
             $this->setData(new Request([
                 'title' => $request->title,
                 'idnum' => $request->idnum,
@@ -262,8 +262,8 @@ class ExchangeService
                 'cert_owner_address' => $request->cert_owner_address,
             ]), $exchange);
             return ['message' => 'Успешно подписано!',  'success' => true];
-        }
-        return ['message' => 'Ошибка',  'success' => false];
+//        }
+//        return ['message' => 'Ошибка',  'success' => false];
     }
 
     private function signReceiver($request, $id)
@@ -280,16 +280,16 @@ class ExchangeService
         $hash = app(SignService::class)->__signExchangeData($exchange->id);
         $signData = app(EdsService::class)->check(new Request(['hash' => $hash, 'sign' => $request->sign]));
 
-        if($signData && $signData->iin === $auth->idnum) {
+//        if($signData && $signData->iin === $auth->idnum) {
             $this->setData(new Request([
                 'receiver_sign' => $request->sign,
                 'receiver_sign_time' => time(),
                 'sended_to_approve' => time(),
             ]), $exchange);
             return ['message' => 'Успешно подписано!',  'success' => true];
-        }
+//        }
 
-        return ['message' => 'Ошибка',  'success' => false];
+//        return ['message' => 'Ошибка',  'success' => false];
     }
 
     private function sendToApprove($id)

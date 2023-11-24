@@ -101,12 +101,12 @@ class DocumentService
         $data['ex_idnum'] = $exchange->idnum;
         $data['ex_title'] = $exchange->title;
 
-        $data['owner_sign_time'] = date('d.m.Y H:i:s', $exchange->owner_sign_time);
-        $data['receiver_sign_time'] = date('d.m.Y H:i:s', $exchange->receiver_sign_time);
+        $data['owner_sign_time'] = $exchange->owner_sign_time ? date('d.m.Y H:i:s', $exchange->owner_sign_time) : '';
+        $data['receiver_sign_time'] = $exchange->receiver_sign_time ? date('d.m.Y H:i:s', $exchange->receiver_sign_time) : '';
 
-        $data['receiver_sign'] = 'ПРОВЕРКА ПОДПИСИ ДОКУМЕНТА: ' . "\n" . mb_strtoupper(md5($exchange->receiver_sign));;
-        $data['owner_sign'] = 'ПРОВЕРКА ПОДПИСИ ДОКУМЕНТА: ' . "\n" . mb_strtoupper(md5($exchange->owner_sign));
-        $data['sign_info_qr'] = 'ДАННЫЕ ДЛЯ ПРОВЕРКИ ДОКУМЕНТА: ' . mb_strtoupper(md5($exchange->hash));
+        $data['receiver_sign'] = $exchange->receiver_sign ? 'ПРОВЕРКА ПОДПИСИ ДОКУМЕНТА: ' . "\n" . mb_strtoupper(md5($exchange->receiver_sign)) : '';
+        $data['owner_sign'] = $exchange->owner_sign ? 'ПРОВЕРКА ПОДПИСИ ДОКУМЕНТА: ' . "\n" . mb_strtoupper(md5($exchange->owner_sign)) : '';
+        $data['sign_info_qr'] = $exchange->hash ? 'ДАННЫЕ ДЛЯ ПРОВЕРКИ ДОКУМЕНТА: ' . mb_strtoupper(md5($exchange->hash)) : '';
 
         $data['cert_date'] = date('d.m.Y', $cert->date);
         $data['cert_num'] = '№' . str_pad($cert->id, 9, 0, STR_PAD_LEFT);

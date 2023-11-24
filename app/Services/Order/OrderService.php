@@ -310,6 +310,7 @@ class OrderService
                             'action' => 'SIGN_ACTION',
                             'order_id' => $order->id,
                             'user_id' => $user->id,
+                            'comment' => '#'.$user->title.'('. $user->role. ')'. ': подписал(а) заявку'
                         ]));
                     }
                     $response = ['success' => true];

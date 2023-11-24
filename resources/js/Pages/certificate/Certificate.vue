@@ -87,7 +87,7 @@
                     <th class="text-left">Дата создания</th>
                     <th class="text-left">ФИО владельца</th>
                     <th class="text-left">ИИН/БИН владельца</th>
-                    <th class="text-left"></th>
+                    <th class="text-left">Статус</th>
                 </tr>
                 </thead>
 
@@ -102,6 +102,10 @@
                     <td>{{ item.created }}</td>
                     <td>{{ item.certificate ? item.certificate.title_1 : '' }}</td>
                     <td>{{ item.certificate ? item.certificate.idnum_1 : '' }}</td>
+                    <td>
+                        <q-badge size="12px" v-if="item.approve === 0">В ожидании подписи</q-badge>
+                        <q-badge size="12px" v-if="item.approve === 1">На рассмотрении у модератора</q-badge>
+                    </td>
                 </tr>
                 <div class="q-ma-xs" v-if="show && exchanges.length === 0">Нет записей</div>
 

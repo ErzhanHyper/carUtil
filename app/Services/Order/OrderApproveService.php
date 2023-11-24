@@ -135,7 +135,7 @@ class OrderApproveService
             $order->save();
 
             $this->storeHistory(new Request([
-                'action' => 'revisionVideo',
+                'action' => 'RETURNED_TO_OPERATOR_AFTER_SIGN',
                 'order_id' => $order->id,
                 'comment' => $request->comment,
                 'user_id' => $user->id,

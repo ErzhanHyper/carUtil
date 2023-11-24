@@ -70,10 +70,6 @@ export default {
             item: {},
             options: [
                 {
-                    name: 'APP_EXCHANGE',
-                    title: 'Заявление на перерегистрацию'
-                },
-                {
                     name: 'ID_SOURCE',
                     title: 'Удостоверяющие документы/свидетельство владельца(представителя)'
                 },

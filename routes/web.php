@@ -131,6 +131,7 @@ Route::prefix('app')->group(function () {
             Route::middleware(['isModerator'])->group(function () {
                 Route::match(['put', 'patch'], '/{id}/approve', [\App\Http\Controllers\ExchangeController::class, 'approve']);
                 Route::match(['put', 'patch'], '/{id}/decline', [\App\Http\Controllers\ExchangeController::class, 'decline']);
+                Route::match(['put', 'patch'], '/{id}/message', [\App\Http\Controllers\ExchangeController::class, 'message']);
             });
         });
 

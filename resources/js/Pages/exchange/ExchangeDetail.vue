@@ -14,7 +14,7 @@
                    dense
                    icon="download"
                    icon-right="description"
-                   label="Скачать заявление"
+                   label="Заявление на перерегистрацию"
                    class="text-weight-bold"
                    :loading="loading1"
                    @click="getExchangeDoc"/>
@@ -28,8 +28,6 @@
 
     <q-card v-if="show">
         <q-card-section>
-
-
             <div class="text-weight-bold q-mt-md">Владелец сертификата</div>
             <div>ФИО: {{ item.certificate ? item.certificate.title_1 : '' }}</div>
             <div>ИИН/БИН: {{ item.certificate ? item.certificate.idnum_1 : '' }}</div>
@@ -82,7 +80,9 @@
         </q-card-section>
     </q-card>
 
-    <exchange-action :show="item.status !== 0" :data="item" class="q-mt-md" v-if="user && user.role === 'moderator' && item.approve === 1"/>
+    <div class="q-mt-md">
+        <exchange-action :show="item.status !== 0" :data="item" v-if="user && user.role === 'moderator' && item.approve === 1"/>
+    </div>
 
 </template>
 

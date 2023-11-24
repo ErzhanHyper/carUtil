@@ -31,7 +31,7 @@ class ExchangeResource extends JsonResource
         $canDelete = false;
         if ($cert->idnum_1 === $auth->idnum) {
 
-            if ($this->approve === 0 || $this->approve === 1) {
+            if ($this->approve === 0) {
                 $canDelete = true;
             }
 
@@ -54,7 +54,7 @@ class ExchangeResource extends JsonResource
 
         $info = 'На переоформлении';
         if ($this->approve == 1) {
-            $info = 'Отправлена на одобрение';
+            $info = 'На рассмотрении у модератора';
         }
 
         return [
@@ -67,7 +67,7 @@ class ExchangeResource extends JsonResource
             'idnum' => $this->idnum,
             'phone' => $this->phone,
             'approve' => $this->approve,
-            'approved' => $this->approved,
+            'approved' => date('Y-m-d H:i',$this->approved),
             'sended_to_approve' => date('Y-m-d H:i', $this->sended_to_approve),
             '__meta' => $this->__meta,
             'owner_sign' => $this->owner_sign,

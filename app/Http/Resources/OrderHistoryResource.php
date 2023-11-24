@@ -19,8 +19,9 @@ class OrderHistoryResource extends JsonResource
             'APPROVED' => 'Одобрено',
             'SIGN_ACTION' => 'Подписано',
             'CREATED_ORDER' => 'Заявка создана',
-            'SENDED_TO_MODERATOR' => 'Отправлено модератору',
+            'SENDED_TO_MODERATOR' => 'Отправлено на рассмотрение',
             'RETURNED_TO_OPERATOR' => 'Возвращена на доработку',
+            'RETURNED_TO_OPERATOR_AFTER_SIGN' => 'Возвращена на доработку',
             'COMMENT' => 'Комментарий',
             default => '',
         };

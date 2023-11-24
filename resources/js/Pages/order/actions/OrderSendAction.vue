@@ -36,6 +36,7 @@ export default {
 
     methods: {
         sendData(value) {
+            this.$emitter.emit('orderBlockEvent', true)
             if(value === 'send_to_moderator'){
                 this.loading = true
                 sendToApproveOrder(this.order_id).then(res => {
@@ -46,6 +47,9 @@ export default {
             }else {
                 signData().then(res => {
                     if (res) {
+                        setTimeout(() => {
+                            this.$emitter.emit('orderBlockEvent', true)
+                        }, 10)
                         this.loading = true
                         sendToSignOrder(this.order_id, {
                             sign: res,
@@ -57,6 +61,8 @@ export default {
                             this.loading = false
                         })
                     }
+                }).finally(() => {
+                    this.$emitter.emit('orderBlockEvent', false)
                 })
             }
         },

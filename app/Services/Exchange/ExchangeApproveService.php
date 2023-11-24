@@ -76,7 +76,7 @@ class ExchangeApproveService
             $cert->save();
 
             $success = true;
-            $message ='Запрос одобрен!';
+            $message ='Запрос одобрен';
 
             $exchangeAfter = Exchange::select(['id', 'created', 'user_id', 'certificate_id', 'title', 'idnum', 'approve', 'approved', 'sended_to_approve', '__meta', 'hash'])->find($id);
             $log->object_after = json_encode($exchangeAfter);
@@ -118,6 +118,37 @@ class ExchangeApproveService
         return [
             'success' => $success,
             'message' => $message
+        ];
+    }
+
+
+    public function message($request, $id)
+    {
+        $user = app(AuthService::class)->auth();
+
+        $message = 'Нет доступа';
+        $success = false;
+
+        $exchange = Exchange::find($id);
+
+        if($exchange) {
+            $log = new Log();
+            $log->event = 'msg';
+            $log->object_type = 'exchange';
+            $log->object_id = $exchange->id;
+            $log->user_id = $user->id;
+            $log->when = time();
+            $log->object_before = $request->comment;
+            $log->object_after = $request->comment;
+            $log->__meta = $user->idnum . ' ' . $exchange->approve . 'ID:' . $exchange->id;
+            $log->save();
+            $success = true;
+            $message = 'Комментарий добавлены';
+        }
+
+        return [
+            'message' => $message,
+            'success' => $success
         ];
     }
 }

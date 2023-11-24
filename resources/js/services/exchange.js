@@ -77,6 +77,18 @@ export function declineExchange(id) {
     })
 }
 
+
+export function messageExchange(id, params) {
+    return new Promise((resolve, reject) => {
+        api.put('/exchange/'+id+'/message', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject('Ошибка при загрузке')
+        }).finally(() => {
+        })
+    })
+}
+
 export function storeExchangeFile(id, params) {
     return new Promise((resolve, reject) => {
         api.post('/exchange/'+id+'/storeFile', params, {headers: {'Content-Type': 'multipart/form-data'}}).then(response => {

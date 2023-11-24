@@ -253,7 +253,7 @@ class FileController extends Controller
             $file = File::find($id);
             if ($file) {
                 $order = Order::find($file->order_id);
-                if ($order && ($order->status === 4 || $order->status === 0)) {
+                if ($order && ($order->status === 4 || $order->status === 0) && $user->id === $order->user_id) {
                     File::where('order_id', $order->id)->where('id', $file_id)->first();
                     if($file) {
                         $path = 'order/files/'.$order->id.'/'.$file->original_name;
