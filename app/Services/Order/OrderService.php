@@ -330,7 +330,9 @@ class OrderService
         if($order) {
             $order->user_id = $user->id;
             $order->approve = 1;
-            $order->status = 1;
+            if($order->status === 0) {
+                $order->status = 1;
+            }
             $order->sended_to_approve = time();
             $order->save();
 
@@ -379,6 +381,9 @@ class OrderService
         if($order->approve === 1) {
             if ($order->executor_uid === $user->id) {
                 $order->executor_uid = null;
+                if($order->status === 2) {
+                    $order->status = 1;
+                }
                 $order->save();
                 $success = true;
             }

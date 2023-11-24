@@ -3,7 +3,6 @@
 
 namespace App\Services\Preorder;
 
-
 use App\Http\Controllers\FileController;
 use App\Http\Resources\PreOrderResource;
 use App\Http\Resources\TransferOrderResource;
@@ -19,7 +18,6 @@ use App\Services\BookingOrder\BookingOrderService;
 use App\Services\Car\CarService;
 use App\Services\Client\ClientService;
 use Illuminate\Http\Request;
-use InvalidArgumentException;
 
 class PreorderService
 {
@@ -28,13 +26,14 @@ class PreorderService
     {
         $user = app(AuthService::class)->auth();
 
-        if ($user->role === 'liner' || $user->role === 'moderator' ) {
+        if ($user->role === 'liner' || $user->role === 'moderator') {
 
             $orders = PreOrderCar::with(['car', 'client']);
 
             if ($user->role === 'liner') {
                 $orders->where('liner_id', $user->id);
             } else if ($user->role === 'moderator') {
+                $orders->whereNot('status', 0);
                 if (isset($request->title) && $request->title != '') {
                     $client = Client::select(['id', 'title'])->where('title', 'like', '%' . $request->title . '%')->get();
                     $client_ids = [];
@@ -107,15 +106,15 @@ class PreorderService
 
         $can = false;
 
-        if($user->role === 'moderator'){
+        if ($user->role === 'moderator') {
             $can = true;
-        }else if($user->role === 'liner'){
-            if($user->id === $preorder->liner_id){
+        } else if ($user->role === 'liner') {
+            if ($user->id === $preorder->liner_id) {
                 $can = true;
             }
         }
 
-        if($can) {
+        if ($can) {
             $order = Order::find($preorder->order_id);
 
             $canTransfer = false;
@@ -129,14 +128,14 @@ class PreorderService
 
             if ($order) {
                 $transfer = TransferOrder::where('order_id', $order->id)->first();
-                if($transfer) {
+                if ($transfer) {
                     $transferResource = new TransferOrderResource(TransferOrder::where('order_id', $order->id)->first());
                 }
-                if($user->role === 'liner') {
+                if ($user->role === 'liner') {
                     if ($preorder->status === 2 && $order->status === 0 && $order->approve === 0) {
-                        if($transfer && $transfer->closed !== 2){
+                        if ($transfer && $transfer->closed !== 2) {
                             $blockedBooking = true;
-                        }else{
+                        } else {
                             $blockedBooking = false;
                         }
                     }
@@ -145,14 +144,14 @@ class PreorderService
                     }
                 }
             }
-            if($preorder->status === 0 || $preorder->status === 4){
-                if($user->role === 'liner') {
+            if ($preorder->status === 0 || $preorder->status === 4) {
+                if ($user->role === 'liner') {
                     $canSend = true;
                     $blocked = false;
                 }
             }
-            if($preorder->status === 1){
-                if($user->role === 'moderator') {
+            if ($preorder->status === 1) {
+                if ($user->role === 'moderator') {
                     $canApprove = true;
                 }
             }
@@ -190,45 +189,45 @@ class PreorderService
                 $can = false;
             }
 
-                if ($preorder->status === 0) {
-                    $client = Client::where('idnum', $request->client['idnum'])->first();
-                    if ($client) {
-                        $car = Car::where('vin', $request->car['vin'])->first();
-                        if ($car) {
-                            $order = Order::find($car->order_id);
-                            if ($order && $order->approve === 3) {
-                                $message = 'ТС с таким VIN кодом уже был обработан';
-                                $can = false;
-                            }
+            if ($preorder->status === 0) {
+                $client = Client::where('idnum', $request->client['idnum'])->first();
+                if ($client) {
+                    $car = Car::where('vin', $request->car['vin'])->first();
+                    if ($car) {
+                        $order = Order::find($car->order_id);
+                        if ($order && $order->approve === 3) {
+                            $message = 'ТС с таким VIN кодом уже был обработан';
+                            $can = false;
                         }
-                        if ($car) {
-                            $preorderDuplicate = PreOrderCar::where('liner_id', $auth->id)->where('car_id', $car->id)->whereIn('status', [1,2])->first();
-                            if ($preorderDuplicate) {
-                                $date = date('d.m.Y', $preorderDuplicate->date);
-                                $closedDate = strtotime($date . ' + 15 days');
-                                if($closedDate >= time()){
-                                    $diffDate = $closedDate - time();
-                                    $closedDays = date('j', $diffDate);
-                                }else{
-                                    $closedDays = 0;
-                                }
-                                if($closedDays > 0) {
-                                    $message = 'ТС с таким VIN кодом уже привязан к другой заявке';
-                                    $can = false;
-                                }else{
-                                    $car_find = true;
-                                }
+                    }
+                    if ($car) {
+                        $preorderDuplicate = PreOrderCar::where('liner_id', $auth->id)->where('car_id', $car->id)->whereIn('status', [1, 2])->first();
+                        if ($preorderDuplicate) {
+                            $date = date('d.m.Y', $preorderDuplicate->date);
+                            $closedDate = strtotime($date . ' + 15 days');
+                            if ($closedDate >= time()) {
+                                $diffDate = $closedDate - time();
+                                $closedDays = date('j', $diffDate);
+                            } else {
+                                $closedDays = 0;
+                            }
+                            if ($closedDays > 0) {
+                                $message = 'ТС с таким VIN кодом уже привязан к другой заявке';
+                                $can = false;
+                            } else {
+                                $car_find = true;
                             }
                         }
                     }
-                } else if ($preorder->status === 4) {
-                    $client = Client::where('id', $preorder->client_id)->first();
-                    $car = Car::where('id', $preorder->car_id)->first();
                 }
+            } else if ($preorder->status === 4) {
+                $client = Client::where('id', $preorder->client_id)->first();
+                $car = Car::where('id', $preorder->car_id)->first();
+            }
 
-                if($can){
+            if ($can) {
 
-                if($request->car) {
+                if ($request->car) {
                     $car_request = new Request([
                         'vin' => $request->car['vin'],
                         'grnz' => $request->car['grnz'],
@@ -253,17 +252,16 @@ class PreorderService
                 }
 
 
-
                 if ($preorder->status === 0) {
                     $client = app(ClientService::class)->create($request->client);
-                }else if($preorder->status === 4){
+                } else if ($preorder->status === 4) {
                     $client = Client::where('id', $preorder->client_id)->first();
                     $client = app(ClientService::class)->update($request->client, $client->id);
-                }else{
+                } else {
                     $client = Client::where('id', $preorder->client_id)->first();
                 }
 
-                if($client) {
+                if ($client) {
                     $preorder->client_id = $client->id;
                     $preorder->save();
                 }
@@ -297,7 +295,7 @@ class PreorderService
         $liner = app(AuthService::class)->auth();
         $client1 = Client::where('idnum', $liner->idnum)->first();
         $client = null;
-        if($client1) {
+        if ($client1) {
             $client = $client1->replicate();
             $client->push();
         }
@@ -339,13 +337,13 @@ class PreorderService
             $client = Client::find($preorder->client_id);
             $car = Car::find($preorder->car_id);
             $files = [];
-            if($preorder->recycle_type === 1) {
+            if ($preorder->recycle_type === 1) {
                 $files = CarFile::where('preorder_id', $preorder->id)->get();
-            }else if($preorder->recycle_type === 2) {
+            } else if ($preorder->recycle_type === 2) {
                 $files = AgroFile::where('preorder_id', $preorder->id)->get();
             }
-            if(count($files) > 0) {
-                foreach ($files as $file){
+            if (count($files) > 0) {
+                foreach ($files as $file) {
                     app(FileController::class)->deletePreOrderFile(new Request([
                         'preorder_id' => $preorder->id,
                         'file_id' => $file->id
@@ -353,10 +351,10 @@ class PreorderService
                 }
             }
 
-            if($car) {
+            if ($car) {
                 $car->delete();
             }
-            if($client) {
+            if ($client) {
                 $client->delete();
             }
             $preorder->delete();

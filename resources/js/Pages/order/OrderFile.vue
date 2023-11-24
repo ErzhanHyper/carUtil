@@ -183,6 +183,7 @@ export default {
                 this.filesAll = res.file_types
                 this.filesDoc = res.docs
                 this.filesPhoto = res.photos
+                this.filesOptions = []
 
                 res.file_types.map(el => {
                     if(el.id !== 29){

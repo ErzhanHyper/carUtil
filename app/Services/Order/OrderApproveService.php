@@ -52,7 +52,7 @@ class OrderApproveService
                         $order->approve = 3;
                         $order->status = 4;
                         $order->save();
-                        $message = 'Одобрено!';
+                        $message = 'Одобрено';
                         $success = true;
                     }
                 }
@@ -60,7 +60,7 @@ class OrderApproveService
                 $this->storeHistory(new Request([
                     'action' => 'APPROVED',
                     'order_id' => $order->id,
-                    'comment' => 'Одобрено',
+                    'comment' => '#'.$user->title.'('. $user->role. ')'. ': одобрил(а) заявку',
                     'user_id' => $user->id,
                 ]));
 
@@ -111,7 +111,6 @@ class OrderApproveService
         }
         if($can) {
             $order->approve = 4;
-            $order->status = 1;
             $order->save();
 
             $this->storeHistory(new Request([
