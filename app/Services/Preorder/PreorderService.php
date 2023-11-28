@@ -15,8 +15,6 @@ use App\Models\PreOrderCar;
 use App\Models\TransferOrder;
 use App\Services\AuthService;
 use App\Services\BookingOrder\BookingOrderService;
-use App\Services\Car\CarService;
-use App\Services\Client\ClientService;
 use Illuminate\Http\Request;
 
 class PreorderService
@@ -139,7 +137,7 @@ class PreorderService
                             $blockedBooking = false;
                         }
                     }
-                    if ($order->status === 0 && !$transfer && $order->approve === 0) {
+                    if ($order->status === 0 && !$transfer && $order->approve === 0 && $this->checkOrderReviewDate($preorder->car_id)) {
                         $canTransfer = true;
                     }
                 }
@@ -171,129 +169,6 @@ class PreorderService
         }
     }
 
-    public function send($request, $id)
-    {
-
-        $success = false;
-        $can = true;
-        $message = '';
-
-        $auth = app(AuthService::class)->auth();
-        $preorder = PreOrderCar::find($id);
-        $car = null;
-        $car_find = null;
-        $client = null;
-        if ($preorder->status === 0 || $preorder->status === 4) {
-            if ($auth->idnum !== $request->client['idnum']) {
-                $message = 'ИИН не совпадает с учетными данными';
-                $can = false;
-            }
-
-            if ($preorder->status === 0) {
-                $client = Client::where('idnum', $request->client['idnum'])->first();
-                if ($client) {
-                    $car = Car::where('vin', $request->car['vin'])->first();
-                    if ($car) {
-                        $order = Order::find($car->order_id);
-                        if ($order && $order->approve === 3) {
-                            $message = 'ТС с таким VIN кодом уже был обработан';
-                            $can = false;
-                        }
-                    }
-                    if ($car) {
-                        $preorderDuplicate = PreOrderCar::where('liner_id', $auth->id)->where('car_id', $car->id)->whereIn('status', [1, 2])->first();
-                        if ($preorderDuplicate) {
-                            $date = date('d.m.Y', $preorderDuplicate->date);
-                            $closedDate = strtotime($date . ' + 15 days');
-                            if ($closedDate >= time()) {
-                                $diffDate = $closedDate - time();
-                                $closedDays = date('j', $diffDate);
-                            } else {
-                                $closedDays = 0;
-                            }
-                            if ($closedDays > 0) {
-                                $message = 'ТС с таким VIN кодом уже привязан к другой заявке';
-                                $can = false;
-                            } else {
-                                $car_find = true;
-                            }
-                        }
-                    }
-                }
-            } else if ($preorder->status === 4) {
-                $client = Client::where('id', $preorder->client_id)->first();
-                $car = Car::where('id', $preorder->car_id)->first();
-            }
-
-            if ($can) {
-
-                if ($request->car) {
-                    $car_request = new Request([
-                        'vin' => $request->car['vin'],
-                        'grnz' => $request->car['grnz'],
-                        'category_id' => $request->car['category_id'],
-                        'year' => $request->car['year'] ?? '',
-                        'color' => $request->car['color'] ?? '',
-                        'engine_no' => $request->car['engine_no'] ?? '',
-                        'm_model' => $request->car['m_model'],
-                        'body_no' => $request->car['body_no'] ?? '',
-                        'chassis_no' => $request->car['chassis_no'] ?? '',
-                        'weight' => $request->car['weight'] ?? '',
-                        'doors_count' => $request->car['doors_count'] ?? '',
-                        'wheels_count' => $request->car['wheels_count'] ?? '',
-                        'wheels_protector_count' => $request->car['wheels_protector_count'] ?? '',
-                        'proxy_num' => $request->car['proxy_num'] ?? '',
-                        'proxy_date' => $request->car['proxy_date'] ?? '',
-                        'cert_idnum' => $request->client['idnum'] ?? '',
-                        'cert_title' => $request->client['title'] ?? '',
-                        'owner_idnum' => $request->client['idnum'] ?? '',
-                        'onwer_title' => $request->client['title'] ?? '',
-                    ]);
-                }
-
-
-                if ($preorder->status === 0) {
-                    $client = app(ClientService::class)->create($request->client);
-                } else if ($preorder->status === 4) {
-                    $client = Client::where('id', $preorder->client_id)->first();
-                    $client = app(ClientService::class)->update($request->client, $client->id);
-                } else {
-                    $client = Client::where('id', $preorder->client_id)->first();
-                }
-
-                if ($client) {
-                    $preorder->client_id = $client->id;
-                    $preorder->save();
-                }
-
-                if ($car && !$car_find) {
-                    $car = app(CarService::class)->update($car_request, $car->id);
-                } else {
-                    $car = app(CarService::class)->create($car_request);
-                }
-
-                if ($car && $client) {
-                    $preorder->client_id = $client->id;
-                    $preorder->car_id = $car->id;
-                    $preorder->status = 1;
-                    $preorder->sended_dt = time();
-                    $preorder->save();
-                    $message = 'Отправлено на рассмотрение!';
-                    $success = true;
-
-                    app(PreorderCommentService::class)->run(new Request([
-                        'status' => 'SEND_TO_MODERATOR',
-                    ]), $preorder->id);
-                }
-            }
-        }
-
-        return [
-            'success' => $success,
-            'message' => $message
-        ];
-    }
-
     public function store($query)
     {
         $liner = app(AuthService::class)->auth();
@@ -307,7 +182,7 @@ class PreorderService
 
         if ($recycleType) {
             $preorder = new PreOrderCar;
-            $preorder->status = 0;
+            $preorder->status = config("constants.NEW_PREORDER");
             $preorder->date = time();
             $preorder->liner_id = $liner->id;
             $preorder->recycle_type = $recycleType;
@@ -322,22 +197,10 @@ class PreorderService
         }
     }
 
-    public function status($status_value)
-    {
-        return match ($status_value) {
-            0 => 'Формирование заявки',
-            1 => 'На рассмотрении у модератора',
-            2 => 'Одобрена',
-            3 => 'Отклонена',
-            4 => 'Возвращена на доработку',
-            default => '',
-        };
-    }
-
     public function delete($id)
     {
         $preorder = PreOrderCar::find($id);
-        if ($preorder && ($preorder->status === 0 || $preorder->status === 4)) {
+        if ($preorder && ($preorder->status === config("constants.NEW_PREORDER") || $preorder->status === config("constants.RETURNED_BACK_PREORDER"))) {
             $client = Client::find($preorder->client_id);
             $car = Car::find($preorder->car_id);
             $files = [];
@@ -386,5 +249,23 @@ class PreorderService
 
         }
         return $preorder;
+    }
+
+    public function checkOrderReviewDate($car_id): bool
+    {
+        $user = app(AuthService::class)->auth();
+        $preorder = PreOrderCar::where('liner_id', $user->id)->where('car_id', $car_id)->whereIn('status', [1, 2])->first();
+
+        if (!$preorder) {
+            return false;
+        }
+
+        $closedDate = strtotime(date('d.m.Y', $preorder->date) . ' + 15 days');
+
+        if ($closedDate >= time()) {
+            return true;
+        }
+
+        return false;
     }
 }

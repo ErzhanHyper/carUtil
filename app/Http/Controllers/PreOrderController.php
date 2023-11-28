@@ -12,6 +12,7 @@ use App\Models\Region;
 use App\Services\AuthService;
 use App\Services\KapService;
 use App\Services\Preorder\PreorderApproveService;
+use App\Services\Preorder\PreorderSendService;
 use App\Services\Preorder\PreorderService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -56,7 +57,7 @@ class PreOrderController extends Controller
     {
         try {
             $result['status'] = 200;
-            $result['data'] = app(PreorderService::class)->send($request, $id);
+            $result['data'] = app(PreorderSendService::class)->send($request, $id);
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];

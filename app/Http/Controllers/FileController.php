@@ -285,7 +285,9 @@ class FileController extends Controller
                     return response()->file($path);
                 }else{
                     $filePath2 = base_path('/private/docs'). '/' .$file->id.'.'. $file->extension;
-                    return response()->file($filePath2);
+                    if(file_exists($filePath2)) {
+                        return response()->file($filePath2);
+                    }
                 }
             }
         }
@@ -305,7 +307,9 @@ class FileController extends Controller
                     return base64_encode($path);
                 }else{
                     $filePath2 = base_path('/private/docs'). '/' .$file->id.'.'. $file->extension;
-                    return base64_encode($filePath2);
+                    if(file_exists($filePath2)) {
+                        return base64_encode($filePath2);
+                    }
                 }
             }
         }

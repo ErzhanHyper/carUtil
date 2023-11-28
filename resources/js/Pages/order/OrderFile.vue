@@ -58,27 +58,25 @@
                 </div>
             </template>
 
-            <template v-if="filesPhoto.length > 0">
             <q-carousel
                 animated
                 v-model="slide"
                 arrows
                 control-color="pink-5"
                 infinite
+                v-if="filesPhoto.length > 0 && photoFind"
             >
-            <template v-for="(slide, i) in filesPhoto" :key="i" v-if="slide">
-                <q-carousel-slide :name="i+1" class="q-pb-lg relative-position"  >
-                    <q-img :src="slide.base64Image" class="full-height cursor-pointer" @click="showImage(slide.base64Image)"/>
-                    <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
-                    <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
-                           style="position:absolute;right:7px;top:7px" v-if="!blocked"
-                           @click="deleteFile({ type: 'photo', id: slide.id })"
-                    />
-                </q-carousel-slide>
-            </template>
-
+                <template v-for="(slide, i) in filesPhoto" :key="i">
+                    <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" >
+                        <q-img :src="slide.base64Image" class="full-height cursor-pointer" @click="showImage(slide.base64Image)"/>
+                        <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
+                        <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
+                               style="position:absolute;right:7px;top:7px" v-if="!blocked"
+                               @click="deleteFile({ type: 'photo', id: slide.id })"
+                        />
+                    </q-carousel-slide>
+                </template>
             </q-carousel>
-            </template>
 
             <input type="file" ref="file_dialog" v-bind:value="uploadedFile" v-on:input="event => uploadFile(event)" :readonly="blocked"
                    v-if="!blocked" class="hidden"/>
@@ -147,6 +145,7 @@ export default {
         return {
             fileDialog: false,
             base64Image: '',
+            photoFind: false,
             doc_id: null,
             videoFile: '',
             showFileDialog: false,
@@ -194,20 +193,28 @@ export default {
                 this.filesDoc.map(el => {
                     if(el.file_type_id === 29) {
                         getOrderVideo(el.id, {params: {order_id: this.order_id}}).then((value) => {
-                            this.videoFile = 'data:video/webm;base64,' + value.data
+                            if(value.data) {
+                                this.videoFile = 'data:video/webm;base64,' + value.data
+                            }
                         })
                     }
                 })
                 if(this.vehicleType === 'agro') {
                     this.filesPhoto.filter(el => {
-                        getOrderImage(el.id, {params: {order_id: this.order_id}}).then((res) => {
-                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
+                        getOrderImage(el.id, {params: {order_id: this.order_id}}).then((value) => {
+                            if(value.data) {
+                                this.photoFind = true
+                                return el.base64Image = 'data:image/jpeg;base64,' + value.data
+                            }
                         })
                     })
                 }else if(this.vehicleType === 'car'){
                     this.filesPhoto.filter(el => {
-                        getOrderImage(el.id, {params: {order_id: this.order_id}}).then((res) => {
-                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
+                        getOrderImage(el.id, {params: {order_id: this.order_id}}).then((value) => {
+                            if(value.data) {
+                                this.photoFind = true
+                                return el.base64Image = 'data:image/jpeg;base64,' + value.data
+                            }
                         })
                     })
                 }

@@ -1,29 +1,38 @@
 <template>
-    <q-card class="q-mb-none q-mt-md" bordered square flat>
+    <q-card bordered class="q-mb-none q-mt-md" flat square>
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-select label="Тип заявки" v-model="item.type" outlined dense :options="['ВЭТС', 'ВЭССХТ']"/>
+                    <q-select
+                        v-model="item.type"
+                        :options="['ВЭТС', 'ВЭССХТ']"
+                        dense
+                        label="Тип заявки"
+                        outlined
+                        rounded
+                        transition-hide="jump-up"
+                        transition-show="jump-up"
+                    />
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="VIN" v-model="item.vin" outlined dense/>
+                    <q-input v-model="item.vin" dense label="VIN" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ГРНЗ" v-model="item.grnz" outlined dense/>
+                    <q-input v-model="item.grnz" dense label="ГРНЗ" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ФИО" v-model="item.title" outlined dense/>
+                    <q-input v-model="item.title" dense label="ФИО" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ИИН/БИН" v-model="item.idnum" outlined dense/>
+                    <q-input v-model="item.idnum" dense label="ИИН/БИН" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-select
-                        label="Статус"
                         v-model="item.approve"
                         :options="statuses"
                         dense
                         emit-value
+                        label="Статус"
                         map-options
                         option-label="title"
                         option-value="id" outlined
@@ -38,9 +47,9 @@
                 <!--                    <q-input label="Дата (до)" v-model="filter.date_end" outlined dense type="date"/>-->
                 <!--                </div>-->
                 <div class="col col-md-2 col-sm-2 col-xs-12">
-                    <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
-                    <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
-                           :loading="loading2"/>
+                    <q-btn :loading="loading1" color="blue-8" icon="search" round @click="applyFilter"/>
+                    <q-btn :loading="loading2" class="q-ml-sm" color="orange-8" icon="close" round size="sm"
+                           @click="resetFilter"/>
                 </div>
             </div>
         </q-card-section>
@@ -52,12 +61,12 @@ export default {
     props: ['filter', 'applyAction', 'resetAction'],
 
     data() {
-        return{
+        return {
             loading1: false,
             loading2: false,
             item: {},
 
-            statuses:[
+            statuses: [
                 {
                     id: 1,
                     title: 'На рассмотрении',
@@ -83,14 +92,14 @@ export default {
             this.applyAction(this.item)
         },
 
-        resetFilter(){
+        resetFilter() {
             this.item = {}
             this.resetAction(this.item)
         },
     },
 
-    mounted(){
-        if(this.filter) {
+    mounted() {
+        if (this.filter) {
             this.item = this.filter
         }
     }

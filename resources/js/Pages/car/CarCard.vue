@@ -147,6 +147,7 @@ export default {
                     }
                     res.data.items.map((el, i) => {
                         this.kap_data.push({
+                            category_id: null,
                             m_model: el.model,
                             grnz: el.grnz,
                             vin: el.vin,

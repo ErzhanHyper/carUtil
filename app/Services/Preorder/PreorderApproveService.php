@@ -41,7 +41,7 @@ class PreorderApproveService
         }
 
         if($can) {
-            $preorder->status = 2;
+            $preorder->status = config("constants.APPROVED_PREORDER");
             $order = new Order;
             $order->client_id = $preorder->client_id;
             $order->created = time();
@@ -86,7 +86,7 @@ class PreorderApproveService
         $preorder = PreOrderCar::find($id);
         $commentText = $request->comment;
 
-        $preorder->status = 3;
+        $preorder->status = config("constants.DECLINED_PREORDER");
         $preorder->save();
 
         app(PreorderCommentService::class)->run(new Request([
@@ -102,7 +102,7 @@ class PreorderApproveService
         $preorder = PreOrderCar::find($id);
         $commentText = $request->comment;
 
-        $preorder->status = 4;
+        $preorder->status = config("constants.RETURNED_BACK_PREORDER");
         $preorder->save();
 
         app(PreorderCommentService::class)->run(new Request([

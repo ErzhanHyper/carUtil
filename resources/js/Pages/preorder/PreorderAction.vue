@@ -1,13 +1,20 @@
 <template>
     <div class="q-gutter-sm" >
         <template v-if="show">
+
         <q-btn :loading="loading" square size="12px" color="light-green" label="Одобрить"
                @click="send('approve')"
-               icon="send" :disabled="disabled"></q-btn>
+               icon="send" :disabled="loading2">
+        </q-btn>
+
         <q-btn square size="12px" color="orange-5" label="На доработку" @click="send('revision')"
-               icon="keyboard_return"></q-btn>
+               icon="keyboard_return" :disabled="loading">
+        </q-btn>
+
         <q-btn square size="12px" color="red-5" label="Отклонить" @click="send('decline')"
-               icon="block"></q-btn>
+               icon="block" :disabled="loading">
+        </q-btn>
+
         </template>
 
     </div>

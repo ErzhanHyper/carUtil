@@ -4,7 +4,6 @@ export default {
     items: [
         {
             name: 'Заявки',
-            caption: 'по сертификатам',
             icon: 'home',
             color: color1,
             expand: true,
@@ -12,10 +11,11 @@ export default {
 
             children: [
                 {
-                    name: 'Все заявки',
+                    name: 'Заявка',
                     icon: 'article',
                     color: color1,
-                    link: '/preorder'
+                    link: '/preorder',
+                    caption: 'по сертификатам',
                 },
                 {
                     name: 'Продажа ТС',
@@ -129,13 +129,13 @@ export default {
             expand: false,
             link: '/user'
         },
-        {
-            name: 'Логи',
-            icon: 'error',
-            color: color1,
-            expand: false,
-            link: '/log'
-        }
+        // {
+        //     name: 'Логи',
+        //     icon: 'error',
+        //     color: color1,
+        //     expand: false,
+        //     link: '/log'
+        // }
     ],
 
     operatorItems: [

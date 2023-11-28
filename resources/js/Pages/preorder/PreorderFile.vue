@@ -86,7 +86,7 @@
                 arrows
                 control-color="pink-5"
                 infinite
-                v-if="filesPhoto.length > 0"
+                v-if="filesPhoto.length > 0 && photoFind"
             >
                 <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" v-for="(slide, i) in filesPhoto"
                                   :key="i">
@@ -149,7 +149,7 @@ export default {
 
     data() {
         return {
-
+            photoFind: false,
             imageLoaded: false,
             base64Image: '',
             doc_id: null,
@@ -197,14 +197,20 @@ export default {
 
                 if(this.vehicleType === 'agro') {
                     this.filesPhoto.filter(el => {
-                        getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
-                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
+                        getAgroFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((value) => {
+                            if(value.data) {
+                                this.photoFind = true
+                                return el.base64Image = 'data:image/jpeg;base64,' + value.data
+                            }
                         })
                     })
                 }else if(this.vehicleType === 'car'){
                     this.filesPhoto.filter(el => {
-                        getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((res) => {
-                            return el.base64Image = 'data:image/jpeg;base64,' + res.data
+                        getCarFileImage(el.id, {params: {preorder_id: this.preorder_id}}).then((value) => {
+                            if(value.data) {
+                                this.photoFind = true
+                                return el.base64Image = 'data:image/jpeg;base64,' + value.data
+                            }
                         })
                     })
                 }
