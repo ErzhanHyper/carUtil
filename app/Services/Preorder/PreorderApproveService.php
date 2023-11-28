@@ -63,7 +63,7 @@ class PreorderApproveService
                         $preorder->save();
 
                         app(PreorderCommentService::class)->run(new Request([
-                            'status' => 'approve',
+                            'status' => 'APPROVED',
                             'comment' => ''
                         ]), $preorder->id);
 
@@ -90,7 +90,7 @@ class PreorderApproveService
         $preorder->save();
 
         app(PreorderCommentService::class)->run(new Request([
-            'status' => 'decline',
+            'status' => 'DECLINED',
             'comment' => $commentText
         ]), $preorder->id);
 
@@ -106,7 +106,7 @@ class PreorderApproveService
         $preorder->save();
 
         app(PreorderCommentService::class)->run(new Request([
-            'status' => 'revision',
+            'status' => 'RETURNED_BACK_LINER',
             'comment' => $commentText
         ]), $preorder->id);
 

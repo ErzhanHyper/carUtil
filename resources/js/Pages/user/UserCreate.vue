@@ -27,7 +27,9 @@ export default {
 
     data() {
         return {
-            item: {},
+            item: {
+                active: false,
+            },
             errors: [],
             loading: false,
             showBanner: false,

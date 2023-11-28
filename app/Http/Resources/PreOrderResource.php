@@ -70,7 +70,7 @@ class PreOrderResource extends JsonResource
             'booking' => new BookingOrderResource($this->booking),
             'date' => date('d.m.Y H:i', $this->date),
             'files' => $vehicleType === 'car' ? $this->car_file : $this->agro_file,
-            'comment' => CommentResource::collection($this->comment),
+            'comment' => PreOrderHistoryResource::collection($this->history),
             'vehicleType' => $vehicleType,
             'closedDate' => $closedDays
         ];

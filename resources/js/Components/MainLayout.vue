@@ -4,7 +4,7 @@
     <q-layout view="lHh LpR fFf" v-if="authenticated">
 
         <q-header elevated class="bg-white text-dark">
-            <q-linear-progress indeterminate color="warning" size="lg" v-if="contentLoad"/>
+            <q-linear-progress indeterminate color="warning" size="md" v-if="contentLoad"/>
             <q-toolbar>
                 <q-btn dense flat round icon="menu" @click="toggleLeftDrawer"/>
 
@@ -12,13 +12,8 @@
                     ВЭТС/ВЭССХТ
                 </q-toolbar-title>
 
-                <!--                <div class="notification-btn flex flex-center q-mr-lg">-->
-                <!--                    <q-btn link dense flat round icon="notifications">-->
-                <!--                    </q-btn>-->
-                <!--                    <q-badge>2</q-badge>-->
-                <!--                </div>-->
-
                 <div class="profile-btn flex flex-center">
+                    <notification v-if="user && user.role === 'liner'"/>
                     <q-btn dense flat v-if="user">
                         <div class="q-mr-sm flex column text-right">
                                 <span class="text-body2 text-capitalize">{{
@@ -67,15 +62,17 @@
 
 <script>
 import {ref} from 'vue'
-import MainMenuList from "@/Components/MainMenuList.vue";
-import Login from "@/Pages/Login.vue";
+import {mapGetters} from 'vuex'
+
 import PageLayout from "./PageLayout.vue";
-import {getUser, logout} from "../services/user";
-import {mapGetters, mapActions} from 'vuex'
+import Notification from "./Notification.vue";
+import MainMenuList from "./MainMenuList.vue";
+
+import Login from "@/Pages/Login.vue";
 
 export default {
 
-    components: {PageLayout, Login, MainMenuList},
+    components: {Notification, PageLayout, Login, MainMenuList},
 
     setup() {
         const leftDrawerOpen = ref(false)

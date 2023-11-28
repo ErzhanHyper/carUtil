@@ -42,7 +42,7 @@ class PreOrderCar extends Model
         return $this->hasMany(AgroFile::class, 'preorder_id', 'id');
     }
 
-    public function comment()
+    public function history()
     {
         return $this->hasMany(PreorderComment::class, 'preorder_id', 'id')->orderByDesc('created_at');
     }

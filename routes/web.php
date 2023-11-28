@@ -111,11 +111,15 @@ Route::prefix('app')->group(function () {
 
         Route::prefix('certificate')->group(function () {
             Route::get('/', [\App\Http\Controllers\CertificateController::class, 'get'])->name('certificate');
-            Route::get('{id}/file', [\App\Http\Controllers\CertificateController::class, 'generate']);
+            Route::get('{id}/file', [\App\Http\Controllers\DocumentController::class, 'getCertificate']);
 
             Route::middleware(['isModerator'])->group(function () {
                 Route::get('{id}/check', [\App\Http\Controllers\CertificateController::class, 'checkById']);
             });
+        });
+
+        Route::prefix('notification')->group(function () {
+            Route::get('/', [\App\Http\Controllers\NotificationController::class, 'get']);
         });
 
         Route::prefix('exchange')->group(function () {

@@ -19,11 +19,6 @@ class CertificateController extends Controller
         return response()->json($data);
     }
 
-    public function generate(Request $request, $id)
-    {
-        return app(CertificateService::class)->generateCert($request, $id);
-    }
-
     public function checkById(Request $request, $id): JsonResponse
     {
         $data = app(CheckupService::class)->checkCertById($id);

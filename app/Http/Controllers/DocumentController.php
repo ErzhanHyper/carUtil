@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Document\DocumentCertService;
 use App\Services\Document\DocumentSellService;
 use App\Services\Document\DocumentService;
 use App\Services\Document\DocumentTransferService;
@@ -42,5 +43,10 @@ class DocumentController extends Controller
     public function getKapReference(Request $request, $id)
     {
         return app(DocumentService::class)->generateKapReference($request, $id);
+    }
+
+    public function getCertificate(Request $request, $id)
+    {
+        return app(DocumentCertService::class)->generateCert($request, $id);
     }
 }

@@ -280,6 +280,10 @@ class PreorderService
                     $preorder->save();
                     $message = 'Отправлено на рассмотрение!';
                     $success = true;
+
+                    app(PreorderCommentService::class)->run(new Request([
+                        'status' => 'SEND_TO_MODERATOR',
+                    ]), $preorder->id);
                 }
             }
         }

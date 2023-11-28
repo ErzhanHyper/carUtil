@@ -63,6 +63,7 @@
                 animated
                 v-model="slide"
                 arrows
+                control-color="pink-5"
                 infinite
             >
             <template v-for="(slide, i) in filesPhoto" :key="i" v-if="slide">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Certificate\CertificateService;
 use App\Services\Order\OrderApproveService;
+use App\Services\Order\OrderCheckDuplicatesService;
 use App\Services\Order\OrderService;
 use Exception;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class OrderController extends Controller
 
     public function getDuplicatesById($id)
     {
-        $data = app(OrderService::class)->checkDuplicates($id);
+        $data = app(OrderCheckDuplicatesService::class)->run($id);
         return response()->json($data);
     }
 

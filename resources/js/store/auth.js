@@ -1,6 +1,7 @@
 import { logout } from '@/services/user'
 import router from '@/router'
 import api from "../api";
+
 export default {
     namespaced: true,
 

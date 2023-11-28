@@ -75,4 +75,9 @@ class CategoryService
 
         return $complect;
     }
+
+    public function photo($category)
+    {
+
+    }
 }

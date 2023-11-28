@@ -192,13 +192,13 @@ class FileController extends Controller
         if ($preorder) {
             if ($preorder->recycle_type === 1) {
                 $docs = CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,5,6,17,28])->get();
-                $photos =  CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,16])->get();
-                $file_types = FileType::whereIn('id', [1,2,3,5,6,17,28, 8,9,10,11,12,13,14,15,16])->get();
+                $photos =  CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,36])->get();
+                $file_types = FileType::whereIn('id', [1,2,3,5,6,17,28, 8,9,10,11,12,13,14,15,36])->get();
 
             } else if ($preorder->recycle_type === 2) {
                 $docs = AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,13,14])->get();
                 $photos =  AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get();
-                $file_types = FileTypeAgro::whereIn('id', [1,2,3,13,14, 4,5,6,7,8,9,10,11,12])->get();
+                $file_types = FileTypeAgro::whereIn('id', [1,2,3,13,14, 4,5,6,7,8,9,10,11])->get();
             }
         }
 
@@ -281,9 +281,12 @@ class FileController extends Controller
                 $filePath = '/order/files/' . $order->id . '/' . $file->original_name;
                 $path = Storage::disk('local')->path($filePath);
                 header('Content-Disposition: inline; filename="' . $file->original_name . '');
-
-                return response()->file($path);
-
+                if(file_exists($path)) {
+                    return response()->file($path);
+                }else{
+                    $filePath2 = base_path('/private/docs'). '/' .$file->id.'.'. $file->extension;
+                    return response()->file($filePath2);
+                }
             }
         }
     }
@@ -297,7 +300,13 @@ class FileController extends Controller
                 $file = File::find($id);
                 $filePath = '/order/files/' . $order->id . '/' . $file->original_name;
                 $path = Storage::disk('local')->get($filePath);
-                return base64_encode($path);
+                header('Content-Disposition: inline; filename="' . $file->original_name . '');
+                if(file_exists(Storage::disk('local')->path($filePath))) {
+                    return base64_encode($path);
+                }else{
+                    $filePath2 = base_path('/private/docs'). '/' .$file->id.'.'. $file->extension;
+                    return base64_encode($filePath2);
+                }
             }
         }
     }

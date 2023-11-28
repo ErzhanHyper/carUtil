@@ -14,6 +14,19 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        $role_title = match ($this->role) {
+            'admin' => 'Админ',
+            'callcenter' => 'Колцентр',
+            'mio-manager' => 'Менеджер МИО',
+            'moderator' => 'Модератор',
+            'accountant' => 'Бухгалтер',
+            'dealer-chief' => 'Руководитель дилерского центра (для отчетов)',
+            'dealer-light' => 'Дилер (для погашений)',
+            'operator' => 'Региональный менеджер',
+            'operator-chief' => 'Руководитель регионального менеджера (для отчетов)',
+            default => '',
+        };
+
         return [
             'id' => $this->id,
             'login' => $this->login,
@@ -21,6 +34,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'title' => $this->title,
             'role' => $this->role,
+            'role_title' => $role_title,
             'bin' => $this->bin,
             'base' => $this->base,
             'for_docs' => $this->for_docs,

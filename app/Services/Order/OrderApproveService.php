@@ -57,7 +57,7 @@ class OrderApproveService
                     }
                 }
 
-                $this->storeHistory(new Request([
+                app(OrderService::class)->storeHistory(new Request([
                     'action' => 'APPROVED',
                     'order_id' => $order->id,
                     'comment' => '#'.$user->title.'('. $user->role. ')'. ': одобрил(а) заявку',
@@ -89,7 +89,7 @@ class OrderApproveService
             $order->status = 3;
             $order->save();
 
-            $this->storeHistory(new Request([
+            app(OrderService::class)->storeHistory(new Request([
                 'action' => 'DECLINED',
                 'order_id' => $order->id,
                 'comment' => $request->comment,
@@ -113,7 +113,7 @@ class OrderApproveService
             $order->approve = 4;
             $order->save();
 
-            $this->storeHistory(new Request([
+            app(OrderService::class)->storeHistory(new Request([
                 'action' => 'RETURNED_TO_OPERATOR',
                 'order_id' => $order->id,
                 'comment' => $request->comment,
@@ -133,7 +133,7 @@ class OrderApproveService
             $order->status = 4;
             $order->save();
 
-            $this->storeHistory(new Request([
+            app(OrderService::class)->storeHistory(new Request([
                 'action' => 'RETURNED_TO_OPERATOR_AFTER_SIGN',
                 'order_id' => $order->id,
                 'comment' => $request->comment,
@@ -144,15 +144,5 @@ class OrderApproveService
         }
     }
 
-    public function storeHistory($request)
-    {
-        $history = new OrderHistory();
-        $history->action = $request->action;
-        $history->order_id = $request->order_id;
-        $history->comment = $request->comment;
-        $history->user_id = $request->user_id;
-        $history->created_at = time();
-        $history->save();
-        return $history;
-    }
+
 }

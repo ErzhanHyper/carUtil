@@ -3,41 +3,57 @@
     <div class="q-gutter-sm q-mb-md q-mt-xs flex justify-between">
         <div class="text-h6 text-primary">Предзаявка</div>
 
-        <div class="flex justify-between" v-if="show && user.role === 'liner'">
-            <!--            <q-btn color="purple-10" unelevated icon="tune" class="q-ml-md"/>-->
-            <q-btn color="indigo-8" push icon="add" label="Создать заявку" class="q-ml-md text-weight-bold"
-                   @click="orderDialog = true"/>
+        <div v-if="show && user.role === 'liner'" class="flex justify-between">
+            <q-btn class="q-ml-md text-weight-bold"
+                color="indigo-8"
+                icon="add"
+                label="Создать заявку"
+                push
+                @click="orderDialog = true"
+            />
         </div>
     </div>
 
-    <q-card class="q-mb-none q-mt-md" bordered square flat v-if="show && user.role === 'moderator'">
+    <q-card v-if="show && user.role === 'moderator'" bordered class="q-mb-none q-mt-md" flat square>
         <q-card-section>
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="VIN" v-model="filter.vin" outlined dense/>
+                    <q-input v-model="filter.vin" dense label="VIN" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ГРНЗ" v-model="filter.grnz" outlined dense/>
+                    <q-input v-model="filter.grnz" dense label="ГРНЗ" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ФИО" v-model="filter.title" outlined dense/>
+                    <q-input v-model="filter.title" dense label="ФИО" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ИИН/БИН" v-model="filter.idnum" outlined dense/>
+                    <q-input v-model="filter.idnum" dense label="ИИН/БИН" outlined/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-select label="Статус" :options="statuses" dense outlined option-value="id" option-label="title" v-model="filter.status" emit-value map-options/>
+                    <q-select
+                        v-model="filter.status"
+                        :options="statuses"
+                        dense
+                        emit-value
+                        label="Статус"
+                        map-options
+                        option-label="title"
+                        option-value="id"
+                        outlined
+                        transition-hide="jump-up"
+                        transition-show="jump-up"
+                    />
                 </div>
                 <div class="col col-md-2 col-sm-2 col-xs-12">
-                    <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
-                    <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
-                           :loading="loading2"/>
+                    <q-btn :loading="loading1" color="blue-8" icon="search" round @click="applyFilter"/>
+                    <q-btn :loading="loading2" class="q-ml-sm" color="orange-8" icon="close" round size="sm"
+                           @click="resetFilter"/>
                 </div>
             </div>
         </q-card-section>
     </q-card>
 
-    <q-markup-table flat bordered dense>
+    <q-markup-table bordered dense flat>
         <thead>
         <tr>
             <th class="text-left">VIN</th>
@@ -52,95 +68,102 @@
         </thead>
         <tbody>
         <template v-if="show && items.length > 0">
-        <tr v-for="(item, i) in items" :key="i">
-            <td class="text-left">
-                <router-link :to="'/preorder/'+item.id">
-                    <q-btn icon="open_in_new" size="sm" round flat color="primary" style="margin-bottom: 2px"/>
-                    <span class="text-primary">{{ (item.car) ? item.car.vin : '-' }}</span>
-                </router-link>
-            </td>
-            <td class="text-left">
-                <span class="text-primary">{{ (item.car) ? item.car.grnz : '-' }}</span>
-            </td>
-            <td class="text-left">
-                <q-chip dark :color="(item.vehicleType === 'car') ? 'teal-8' : 'orange-9'" size="12px">
-                    {{ (item.car) ? (item.car.category ? item.car.category.title_ru + ' | ' : '') : '' }}
-                    {{ (item.vehicleType) ? ((item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
-                </q-chip>
-            </td>
-            <td class="text-left">
-                <template v-if="item.client">
-                    <span class="text-body2">{{ item.client.title }}</span>
-                </template>
-                <template v-else>-</template>
-            </td>
-            <td class="text-left">
-                <template v-if="item.client">
-                    <span class="text-body2">{{ item.client.idnum }}</span>
-                </template>
-                <template v-else>-</template>
-            </td>
-            <td class="text-left"> {{ (item.date) ? item.date : '-' }}</td>
-            <td class="text-left">
-                <q-chip square size="12px" dark :color="setStatusColor(item.status.id)"
-                        class="text-overline">
-                    {{ item.status.title }}
-                </q-chip>
-            </td>
-            <td class="text-right">
-                <q-badge color="deep-orange" class="q-pa-xs" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && !item.order.videoUploaded"  >
-                    В ожидании получения видеозаписи
-                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" >
-                        Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру заявки
-                    </q-tooltip>
-                </q-badge>
-                <q-badge color="blue--8" v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && item.order.videoUploaded">
-                    Видеозапись отправлена
-                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]" >
-                        Ожидайте выдачу сертификата
-                    </q-tooltip>
-                </q-badge>
-                <q-badge color="teal-5" class="q-pa-xs" v-if="item.order && item.order.car && item.order.status.id === 3 && item.order.approve.id === 3">
-                    <router-link to="/certificate" v-if="user.role === 'liner'">Сертификат выдан</router-link>
-                    <template v-else>Сертификат выдан</template>
-                </q-badge>
-                <q-badge color="blue-8" class="q-pa-xs" v-if="!item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0">
-                    На бронировании
-                </q-badge>
-                <q-badge color="green-5" class="q-pa-xs" v-if="item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0">
-                    На отправке
-                </q-badge>
-                <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-pa-xs">
-                    <router-link :to="'/transfer/order/'+item.transfer.id">Выставлен на продажу</router-link>
-                </q-badge>
-                <q-badge :color="setOrderStatusColor(item.order.status.id)" v-if="item.order && (item.order.status.id === 1 || item.order.status.id === 2 || item.order.status.id === 4 || item.order.status.id === 5)">
-                    {{ item.order.status.title }}
-                </q-badge>
+            <tr v-for="(item, i) in items" :key="i">
+                <td class="text-left">
+                    <router-link :to="'/preorder/'+item.id">
+                        <q-btn color="primary" flat icon="open_in_new" round size="sm" style="margin-bottom: 2px"/>
+                        <span class="text-primary">{{ (item.car) ? item.car.vin : '-' }}</span>
+                    </router-link>
+                </td>
+                <td class="text-left">
+                    <span class="text-primary">{{ (item.car) ? item.car.grnz : '-' }}</span>
+                </td>
+                <td class="text-left">
+                    <q-chip :color="(item.vehicleType === 'car') ? 'teal-1' : 'orange-1'" size="12px">
+                        {{ (item.car) ? (item.car.category ? item.car.category.title_ru + ' | ' : '') : '' }}
+                        {{ (item.vehicleType) ? ((item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
+                    </q-chip>
+                </td>
+                <td class="text-left">
+                    <template v-if="item.client">
+                        <span class="text-body2">{{ item.client.title }}</span>
+                    </template>
+                    <template v-else>-</template>
+                </td>
+                <td class="text-left">
+                    <template v-if="item.client">
+                        <span class="text-body2">{{ item.client.idnum }}</span>
+                    </template>
+                    <template v-else>-</template>
+                </td>
+                <td class="text-left"> {{ (item.date) ? item.date : '-' }}</td>
+                <td class="text-left">
+                    <q-chip :color="setStatusColor(item.status.id)" class="text-overline" dark size="12px"
+                            square>
+                        {{ item.status.title }}
+                    </q-chip>
+                </td>
+                <td class="text-right">
+                    <q-badge v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && !item.order.videoUploaded" class="q-pa-xs"
+                             color="deep-orange">
+                        В ожидании получения видеозаписи
+                        <q-tooltip :offset="[10, 10]" class="bg-indigo text-body2">
+                            Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по
+                            номеру заявки
+                        </q-tooltip>
+                    </q-badge>
+                    <q-badge v-if="item.order && item.order.status.id === 2 && item.order.approve.id === 3 && item.order.videoUploaded"
+                             color="blue--8">
+                        Видеозапись отправлена
+                        <q-tooltip :offset="[10, 10]" class="bg-indigo text-body2">
+                            Ожидайте выдачу сертификата
+                        </q-tooltip>
+                    </q-badge>
+                    <q-badge v-if="item.order && item.order.car && item.order.status.id === 3 && item.order.approve.id === 3" class="q-pa-xs"
+                             color="teal-5">
+                        <router-link v-if="user.role === 'liner'" to="/certificate">Сертификат выдан</router-link>
+                        <template v-else>Сертификат выдан</template>
+                    </q-badge>
+                    <q-badge v-if="!item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0" class="q-pa-xs"
+                             color="blue-8">
+                        На бронировании
+                    </q-badge>
+                    <q-badge v-if="item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0" class="q-pa-xs"
+                             color="green-5">
+                        На отправке
+                    </q-badge>
+                    <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-pa-xs">
+                        <router-link :to="'/transfer/order/'+item.transfer.id">Выставлен на продажу</router-link>
+                    </q-badge>
+                    <q-badge v-if="item.order && (item.order.status.id === 1 || item.order.status.id === 2 || item.order.status.id === 4 || item.order.status.id === 5)"
+                             :color="setOrderStatusColor(item.order.status.id)">
+                        {{ item.order.status.title }}
+                    </q-badge>
 
-            </td>
-        </tr>
+                </td>
+            </tr>
         </template>
-        <div class="q-ma-xs" v-if="show && items.length === 0">Нет записей</div>
+        <div v-if="show && items.length === 0" class="q-ma-xs">Нет записей</div>
         </tbody>
     </q-markup-table>
 
     <div class="flex justify-center">
         <q-spinner-dots
+            v-if="!show"
+            class="q-ma-xs"
             color="primary"
             size="2em"
-            class="q-ma-xs"
-            v-if="!show"
         />
     </div>
 
     <div class="q-pa-lg flex flex-center">
         <q-pagination
+            v-if="items.length > 0"
             v-model="page"
             :max="totalPage"
             :max-pages="10"
             direction-links
             @click="getData()"
-            v-if="items.length > 0"
         />
     </div>
 
@@ -149,21 +172,21 @@
             <q-card-section class="row items-center">
                 Создать заявку
                 <q-space/>
-                <q-btn icon="close" flat round dense v-close-popup/>
+                <q-btn v-close-popup dense flat icon="close" round/>
             </q-card-section>
 
             <q-card-section>
                 <q-select
-                    square
                     v-model="item.recycle_type"
-                    label="Тип заявки"
-                    :options="recycle_types"
                     :model-value="item.recycle_type"
-                    option-value="id"
-                    option-label="title"
-                    map-options
+                    :options="recycle_types"
                     emit-value
+                    label="Тип заявки"
+                    map-options
+                    option-label="title"
+                    option-value="id"
                     options-selected-class="text-deep-orange"
+                    square
                 >
                     <template v-slot:option="scope">
                         <q-item v-bind="scope.itemProps">
@@ -180,7 +203,7 @@
             </q-card-section>
 
             <q-card-section>
-                <q-btn color="primary" label="Выбрать" unelevated icon="add" @click="create()" :loading="loading"/>
+                <q-btn :loading="loading" color="primary" icon="add" label="Выбрать" unelevated @click="create()"/>
             </q-card-section>
 
         </q-card>
@@ -304,12 +327,12 @@ export default {
             return color;
         },
 
-        applyFilter(){
+        applyFilter() {
             this.page = 1
             this.getData({params: this.filter})
         },
 
-        resetFilter(){
+        resetFilter() {
             this.filter = {
                 page: this.page
             }
@@ -325,7 +348,7 @@ export default {
                 })
             }
 
-            if(this.item.recycle_type) {
+            if (this.item.recycle_type) {
                 this.loading = true
                 storeOrder({
                     recycle_type: this.item.recycle_type
@@ -347,7 +370,7 @@ export default {
                 this.$emitter.emit('contentLoaded', false);
                 this.items = res.items
                 this.totalPage = res.pages
-            }).finally(()=> {
+            }).finally(() => {
                 this.show = true
             })
         }

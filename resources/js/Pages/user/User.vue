@@ -47,12 +47,11 @@
         <thead>
         <tr>
             <th class="text-left">Логин</th>
-            <th class="text-left">Телефон</th>
-            <th class="text-left">Email</th>
             <th class="text-left">ФИО</th>
             <th class="text-left">Роль</th>
+            <th class="text-left">Телефон</th>
+            <th class="text-left">Email</th>
             <th class="text-left">Поле (base)</th>
-            <th class="text-left">Адрес</th>
             <th class="text-left">Производитель (диллер)</th>
             <th class="text-left">Регион</th>
         </tr>
@@ -66,13 +65,12 @@
                     {{ item.login }}
                 </router-link>
             </td>
+            <td>{{ item.title }}</td>
+            <td><q-badge :label="item.role_title" v-if="item.role" size="11px"></q-badge></td>
             <td>{{ item.phone }}</td>
             <td>{{ item.email }}</td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.role }}</td>
             <td>{{ item.base }}</td>
-            <td>{{ item.custom_1 }}</td>
-            <td>{{ item.custom_2 }}</td>
+            <td><span class="text-caption">{{ item.manufacture ? item.manufacture.title : '' }}</span></td>
             <td>{{ item.region ? item.region.title : '' }}</td>
         </tr>
         </template>

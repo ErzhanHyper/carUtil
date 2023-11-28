@@ -322,7 +322,7 @@ class DocumentService
         }
         $data['response'] = $status;
 
-        $content_qr = 'id_'.$kap_request->id. '_status_'. $kap_request->state .'_date_'.date('d.m.Y', $kap_request->created_at).'_user_'.$auth->idnum;
+        $content_qr = 'id_'.$kap_request->id. '_status_'. $status .'_date_'.date('d.m.Y', $kap_request->created_at).'_user_'.$auth->idnum;
         $content_sign = md5($content_qr.md5(Config::get('APP_SALT')));
         $png = QrCode::format('png')->color(60, 60, 60)->backgroundColor(255, 255, 255)->size(165)->margin(1)->generate($content_sign);
         $png = base64_encode($png);
