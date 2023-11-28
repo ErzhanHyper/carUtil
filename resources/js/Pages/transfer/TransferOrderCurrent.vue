@@ -16,7 +16,7 @@
                 <td><router-link :to="'/transfer/order/'+item.id" class="text-primary"><q-icon name="open_in_new" size="sm" />{{ item.order.car.vin }}</router-link></td>
                 <td>{{ item.order.car.category.title_ru }}</td>
                 <td>{{ item.order.client.title }}</td>
-                <td>{{ item.amount }}</td>
+                <td>{{ item.amount }} &#8376;</td>
 
                 <td>
                     <q-chip color="blue-grey-1" label="Открыта" v-if="item.closed === 0"/>

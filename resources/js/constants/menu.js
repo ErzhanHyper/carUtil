@@ -39,7 +39,6 @@ export default {
     moderatorItems: [
         {
             name: 'Заявки',
-            caption: 'по сертификатам',
             icon: 'home',
             color: color1,
             expand: true,
@@ -54,6 +53,7 @@ export default {
                 },
                 {
                     name: 'Заявка',
+                    caption: 'по сертификатам',
                     icon: 'article',
                     color: color1,
                     link: '/order'
@@ -142,28 +142,10 @@ export default {
         {
             name: 'Заявки',
             caption: 'по сертификатам',
-            icon: 'home',
+            icon: 'article',
             color: color1,
-            expand: true,
-            link: '/',
-
-            children: [
-                {
-                    name: 'Заявки в работе',
-                    icon: 'article',
-                    color: color1,
-                    link: '/order'
-                },
-            ]
+            link: '/order',
         },
-        {
-            name: 'Отчеты',
-            icon: 'report',
-            color: color1,
-            expand: false,
-            link: '/report'
-        },
-
     ],
 
     dealerLightItems: [

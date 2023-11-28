@@ -29,7 +29,10 @@
                                 <q-icon :name="child.icon"/>
                             </q-item-section>
 
-                            <q-item-section>{{ child.name }}</q-item-section>
+                            <q-item-section>
+                                <q-item-label>{{ child.name }}</q-item-label>
+                                <q-item-label caption v-if="child.caption">{{ child.caption }}</q-item-label>
+                            </q-item-section>
                         </q-item>
                     </router-link>
                 </template>
