@@ -9,10 +9,9 @@ use App\Services\AuthService;
 
 class PreorderCommentService
 {
-
+    //Сохранение истории о действиях предзаявки
     public function run($request, $id)
     {
-
         $auth = app(AuthService::class)->auth();
         $user_id = null;
         $liner_id = null;

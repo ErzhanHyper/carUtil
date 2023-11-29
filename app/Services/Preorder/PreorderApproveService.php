@@ -5,82 +5,40 @@ namespace App\Services\Preorder;
 
 
 use App\Models\Car;
-use App\Models\Order;
 use App\Models\PreOrderCar;
+use App\Services\AuthService;
+use App\Services\Order\OrderService;
+use Exception;
 use Illuminate\Http\Request;
-use InvalidArgumentException;
+use Illuminate\Support\Facades\Lang;
 
 class PreorderApproveService
 {
 
-    public function approve($request, $id)
+    protected PreorderCommentService $history;
+    protected AuthService $authService;
+    protected PreorderService $preorderService;
+    protected OrderService $orderService;
+
+    private string $message;
+    private bool $success;
+
+    public function __construct(
+        PreorderCommentService $history,
+        AuthService $authService,
+        PreorderService $preorderService,
+        OrderService $orderService
+    )
     {
-        $success = false;
-        $message = 'Нет доступа';
-        $can = true;
-        $preorder = PreOrderCar::find($id);
-        $car = Car::find($preorder->car_id);
-
-        if($preorder){
-            if($preorder->status !== 1){
-                $can = false;
-                $message = 'Предзаявка уже была одобрена';
-            }
-        }
-        if($car){
-            $carDuplicate = Car::where('vin', $car->vin)->get();
-            if($carDuplicate) {
-                foreach ($carDuplicate as $item) {
-                    $orderRel = Order::find($item->order_id);
-                    if ($orderRel && $orderRel->approve === 3) {
-                        $can = false;
-                        $message = 'ТС с таким VIN кодом уже одобрена';
-                    }
-                }
-            }
-        }
-
-        if($can) {
-            $preorder->status = config("constants.APPROVED_PREORDER");
-            $order = new Order;
-            $order->client_id = $preorder->client_id;
-            $order->created = time();
-            $order->user_id = null;
-            $order->approve = 0;
-            $order->sended_to_approve = 0;
-            $order->order_type = 2;
-            $order->pay_approve = 0;
-            $order->sended_to_pay = 0;
-            $order->status = 0;
-            $order->executor_uid = null;
-
-            if ($order->save()) {
-                if ($car) {
-                    $car->order_id = $order->id;
-                    $car->car_type_id = ($preorder->recycle_type === 1) ? 1 : 3;
-                    if ($car->save()) {
-                        $preorder->order_id = $order->id;
-                        $preorder->save();
-
-                        app(PreorderCommentService::class)->run(new Request([
-                            'status' => 'APPROVED',
-                            'comment' => ''
-                        ]), $preorder->id);
-
-                        $success = true;
-                        $message = 'Предзаявка одобрена';
-                    }
-                }
-            }
-        }
-
-        return [
-            'success' => $success,
-            'message' => $message
-        ];
+        $this->message = '';
+        $this->success = false;
+        $this->history = $history;
+        $this->authService = $authService;
+        $this->preorderService = $preorderService;
+        $this->orderService = $orderService;
     }
 
-
+    //Отклонение предзаявки
     public function decline($request, $id)
     {
         $preorder = PreOrderCar::find($id);
@@ -89,7 +47,7 @@ class PreorderApproveService
         $preorder->status = config("constants.DECLINED_PREORDER");
         $preorder->save();
 
-        app(PreorderCommentService::class)->run(new Request([
+        $this->history->run(new Request([
             'status' => 'DECLINED',
             'comment' => $commentText
         ]), $preorder->id);
@@ -97,6 +55,7 @@ class PreorderApproveService
         return ['decline'];
     }
 
+    //Возвращение на доработку клиенту
     public function revision($request, $id)
     {
         $preorder = PreOrderCar::find($id);
@@ -105,11 +64,84 @@ class PreorderApproveService
         $preorder->status = config("constants.RETURNED_BACK_PREORDER");
         $preorder->save();
 
-        app(PreorderCommentService::class)->run(new Request([
+        $this->history->run(new Request([
             'status' => 'RETURNED_BACK_LINER',
             'comment' => $commentText
         ]), $preorder->id);
 
         return ['revision'];
+    }
+
+    //Одобрение заявки модератором
+    public function approve($request, int $id)
+    {
+        $preorder = PreOrderCar::find($id);
+        $car = Car::find($preorder->car_id);
+
+        if ($this->canApprovePreorder($preorder)) {
+            $preorder->status = config("constants.APPROVED_PREORDER");
+
+            try {
+                $order = $this->orderService->store(new Request([
+                    'client_id' => $preorder->client_id
+                ]));
+
+                if ($order && $car) {
+                    $car->order_id = $order->id;
+                    if ($car->save()) {
+                        $preorder->order_id = $order->id;
+                        $preorder->save();
+                        $this->history->run(new Request([
+                            'status' => 'APPROVED',
+                        ]), $preorder->id);
+
+                        $this->success = true;
+                        $this->message = Lang::get('messages.preorder_approved');
+                    }
+                }
+            } catch (Exception $e) {
+                // Обработка исключений при сохранении заказа
+            }
+        }
+
+        return [
+            'success' => $this->success,
+            'message' => $this->message
+        ];
+    }
+
+    //Проверка на возможность одобрение
+    public function canApprovePreorder($preorder): bool
+    {
+        if ($this->isPreorderAlreadyApproved($preorder)) {
+            $this->message = Lang::get('messages.preorder_credentials_1');
+            return false;
+        }
+
+        $car = Car::find($preorder->car_id);
+        if ($car && $this->findCarDuplicates($car)) {
+            $this->message = Lang::get('messages.vin_credentials_1');
+            return false;
+        }
+
+        return true;
+    }
+
+    //Проверка предзаявки на одобренность
+    public function isPreorderAlreadyApproved($preorder): bool
+    {
+        return $preorder->status === config("constants.APPROVED_PREORDER");
+    }
+
+    //Проверка заявки на существование и одобренность
+    public function findCarDuplicates($car): bool
+    {
+        $cars = Car::where('vin', $car->vin)->get();
+
+        foreach ($cars as $item) {
+            return $this->preorderService->isOrderAlreadyApproved($item->order_id);
+        }
+
+        return false;
     }
 }

@@ -60,8 +60,7 @@
 
 <script>
 import {Notify} from "quasar";
-import {deleteBookingOrder, getBookingOrderList} from "../../services/booking";
-import {bookingOrder} from "../../services/preorder";
+import {bookingOrder, deleteBookingOrder, getBookingOrderList} from "../../services/booking";
 import FactoryField from "../../Components/Fields/FactoryField.vue";
 
 export default {
@@ -95,7 +94,8 @@ export default {
 
         bookingOrder(){
             this.loading = true
-            bookingOrder(this.preorder_id, this.item).then(res => {
+            this.item.preorder_id = this.preorder_id
+            bookingOrder(this.item).then(res => {
                 this.item.id = res.booking_id
                 this.disabled = true
                 this.$emitter.emit('BookingCardEvent')

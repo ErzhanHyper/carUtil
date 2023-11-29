@@ -4,7 +4,7 @@
         <q-timeline color="secondary">
             <template v-for="(text, i) in items">
                 <q-timeline-entry class="q-mb-sm" :body="text.created_at" >
-                    <q-banner :class="(text.action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
+                    <q-banner :class="(text.action === 'APPROVED') ? 'bg-green-1' : 'bg-purple-1'"
                               style="max-width: 380px">
                         <div class="text-overline text-weight-bold">
                             <span>{{ text.action_title }}</span>

@@ -109,14 +109,3 @@ export function revisionOrder(id, params) {
         })
     })
 }
-
-export function bookingOrder(id, params) {
-    return new Promise((resolve, reject) => {
-        api.post('/preorder/' + id + '/booking', params).then(response => {
-            resolve(response.data)
-        }).catch((e) => {
-            reject(e)
-        }).finally(() => {
-        })
-    })
-}

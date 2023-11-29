@@ -6,12 +6,12 @@ namespace App\Services\Preorder;
 
 use App\Models\Car;
 use App\Models\Client;
-use App\Models\Order;
 use App\Models\PreOrderCar;
 use App\Services\AuthService;
 use App\Services\Car\CarService;
 use App\Services\Client\ClientService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 
 class PreorderSendService
 {
@@ -27,10 +27,17 @@ class PreorderSendService
      */
     private bool $success;
 
-    public function __construct(PreorderCommentService $history, AuthService $authService, ClientService $clientService, CarService $carService, PreorderService $preorderService)
+    public function __construct(
+        PreorderCommentService $history,
+        AuthService $authService,
+        ClientService $clientService,
+        CarService $carService,
+        PreorderService $preorderService,
+    )
     {
         $this->message = '';
         $this->success = false;
+
         $this->history = $history;
         $this->authService = $authService;
         $this->clientService = $clientService;
@@ -38,11 +45,14 @@ class PreorderSendService
         $this->preorderService = $preorderService;
     }
 
+    //Отправка предзаявки на рассмотрение модератору
     public function send($request, int $id): array
     {
         $preorder = PreOrderCar::find($id);
 
-        if ($this->validatePreorder($preorder, $request)) {
+        //Проверка на дубликаты и время
+        if ($this->canSendPreorder($preorder, $request)) {
+
             $client = $this->processClient($preorder, $request->client);
             $car = $this->processCar($preorder, $request->car);
 
@@ -57,15 +67,17 @@ class PreorderSendService
         ];
     }
 
-    private function validatePreorder($preorder, $request): bool
+    //Проверка данных предзаявки на возможность отправки на рассмотрение
+    private function canSendPreorder($preorder, $request): bool
     {
         $this->resetValidationState();
         $user = $this->authService->auth();
 
         if ($preorder) {
+            //Проверка клиента на совпадение ИИН с учетной записью
             if ($preorder->status === config("constants.NEW_PREORDER") || $preorder->status === config("constants.RETURNED_BACK_PREORDER")) {
                 if ($user->idnum !== $request->client['idnum']) {
-                    $this->setMessage('ИИН не совпадает с учетными данными');
+                    $this->setMessage(Lang::get('messages.iin_credentials_1'));
                     return false;
                 }
             }
@@ -73,19 +85,22 @@ class PreorderSendService
             if ($preorder->status === config("constants.NEW_PREORDER")) {
                 $car = Car::select(['id', 'order_id', 'vin'])->where('vin', $request->car['vin'])->get();
 
-                if(count($car) > 0){
+                if (count($car) > 0) {
                     foreach ($car as $item) {
-                        if ($this->checkApprovedOrder($item->order_id)) {
-                            $this->setMessage('ТС с таким VIN кодом уже был обработан');
+                        //Проверка на одобренную заявку с текущим VIN
+                        if ($this->preorderService->isOrderAlreadyApproved($item->order_id)) {
+                            $this->setMessage(Lang::get('messages.vin_credentials_1'));
                             return false;
                         }
 
+                        //Поиск дубликатов предзаявок
                         $preorderDuplicate = PreOrderCar::select(['id', 'liner_id', 'status', 'car_id'])->where('liner_id', $user->id)
                             ->where('car_id', $item->id)->whereIn('status', [1, 2])
                             ->first();
 
+                        //Проверка на срок истечение дублирующих предзаявок
                         if ($preorderDuplicate && $this->preorderService->checkOrderReviewDate($item->id)) {
-                            $this->setMessage('ТС с таким VIN кодом уже привязан к другой заявке');
+                            $this->setMessage(Lang::get('messages.vin_credentials_2'));
                             return false;
                         }
                     }
@@ -107,12 +122,7 @@ class PreorderSendService
         $this->message = $message;
     }
 
-    private function checkApprovedOrder($order_id): bool
-    {
-        $order = Order::find($order_id);
-        return $order && $order->approve === config("constants.APPROVED_ORDER");
-    }
-
+    //Проверка и заполнение данных о клиенте
     private function processClient($preorder, $request)
     {
         $client = Client::find($preorder->client_id);
@@ -131,6 +141,7 @@ class PreorderSendService
         return $client;
     }
 
+    //Проверка и заполнение данных о ТС/СХТ
     private function processCar($preorder, $request)
     {
         $car_request = new Request([
@@ -171,6 +182,7 @@ class PreorderSendService
         return $car;
     }
 
+    //Сохранение данных предзаявки
     private function sendToModerator($preorder, $client, $car)
     {
         $preorder->client_id = $client->id;
@@ -179,11 +191,14 @@ class PreorderSendService
         $preorder->sended_dt = time();
         $preorder->save();
 
+        $car->car_type_id = ($preorder->recycle_type === 1) ? 1 : 3;
+        $car->save();
+
         $this->history->run(new Request([
             'status' => 'SEND_TO_MODERATOR',
         ]), $preorder->id);
 
-        $this->setMessage('Отправлено на рассмотрение!');
+        $this->setMessage(Lang::get('messages.sended_to_moderator'));
         $this->success = true;
     }
 }

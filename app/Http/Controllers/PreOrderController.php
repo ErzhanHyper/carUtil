@@ -2,20 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bank;
-use App\Models\Category;
-use App\Models\Client;
-use App\Models\FileType;
-use App\Models\Order;
-use App\Models\PreOrderCar;
-use App\Models\Region;
-use App\Services\AuthService;
 use App\Services\KapService;
 use App\Services\Preorder\PreorderApproveService;
 use App\Services\Preorder\PreorderSendService;
 use App\Services\Preorder\PreorderService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Exception;
 
 class PreOrderController extends Controller
@@ -41,16 +32,13 @@ class PreOrderController extends Controller
     public function store(Request $request)
     {
         try {
-            $data = app(PreorderService::class)->store($request);
-            $result = ['status' => 200, 'data' => $data];
+            $result['status'] = 200;
+            $result['data'] = app(PreorderService::class)->store($request);
         } catch (Exception $e) {
-            $result = [
-                'status' => 500,
-                'error' => $e->getMessage()
-            ];
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-
-        return response()->json($result, $result['status']);
+        return response()->json($result['data'], $result['status']);
     }
 
     public function send(Request $request, $id)
@@ -76,7 +64,6 @@ class PreOrderController extends Controller
         }
         return response()->json($result['data'], $result['status']);
     }
-
 
     public function approve(Request $request, $id)
     {
@@ -106,6 +93,7 @@ class PreOrderController extends Controller
         }
         return response()->json($result['data'], $result['status']);
     }
+
     public function kapHistory(Request $request){
         try {
             $result['status'] = 200;
@@ -116,12 +104,4 @@ class PreOrderController extends Controller
         }
         return response()->json($result['data'], $result['status']);
     }
-
-
-    public function booking(Request $request, $id)
-    {
-        $data = app(PreorderService::class)->booking($request, $id);
-        return response()->json($data);
-    }
-
 }

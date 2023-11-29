@@ -350,4 +350,21 @@ class OrderService
         ];
     }
 
+    public function store($request)
+    {
+        $order = new Order;
+        $order->client_id = $request->client_id;
+        $order->created = time();
+        $order->user_id = null;
+        $order->approve = 0;
+        $order->sended_to_approve = 0;
+        $order->order_type = 2;
+        $order->pay_approve = 0;
+        $order->sended_to_pay = 0;
+        $order->status = 0;
+        $order->executor_uid = null;
+        $order->save();
+
+        return $order;
+    }
 }

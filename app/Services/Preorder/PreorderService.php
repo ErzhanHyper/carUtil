@@ -14,187 +14,110 @@ use App\Models\Order;
 use App\Models\PreOrderCar;
 use App\Models\TransferOrder;
 use App\Services\AuthService;
-use App\Services\BookingOrder\BookingOrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 
 class PreorderService
 {
+    protected AuthService $authService;
+    private bool $success;
+    private string $message;
+
+    public function __construct(
+        AuthService $authService,
+    )
+    {
+        $this->success = false;
+        $this->message = '';
+
+        $this->authService = $authService;
+    }
 
     public function getCollection($request)
     {
-        $user = app(AuthService::class)->auth();
+        $user = $this->authService->auth();
+        $data = [];
 
         if ($user->role === 'liner' || $user->role === 'moderator') {
+            $preorder = PreOrderCar::with(['car', 'client']);
 
-            $orders = PreOrderCar::with(['car', 'client']);
-
-            if ($user->role === 'liner') {
-                $orders->where('liner_id', $user->id);
-            } else if ($user->role === 'moderator') {
-                $orders->whereNot('status', 0);
-                if (isset($request->title) && $request->title != '') {
-                    $client = Client::select(['id', 'title'])->where('title', 'like', '%' . $request->title . '%')->get();
-                    $client_ids = [];
-                    if (count($client) > 0) {
-                        foreach ($client as $c) {
-                            $client_ids[] = $c->id;
-                        }
-                    }
-                    $orders->whereIn('client_id', $client_ids);
+            if($preorder) {
+                if ($user->role === 'liner') {
+                    $preorder->where('liner_id', $user->id);
+                } else if ($user->role === 'moderator') {
+                    $preorder->whereNot('status', 0);
+                    $this->applyFilters($preorder, $request);
                 }
-
-                if (isset($request->idnum) && $request->idnum != '') {
-                    $client = Client::select(['id', 'idnum'])->where('idnum', 'like', '%' . $request->idnum . '%')->get();
-                    $client_ids = [];
-                    if (count($client) > 0) {
-                        foreach ($client as $c) {
-                            $client_ids[] = $c->id;
-                        }
-                    }
-                    $orders->whereIn('client_id', $client_ids);
-                }
-
-                if (isset($request->vin) && $request->vin != '') {
-                    $car = Car::select(['id', 'vin'])->where('vin', 'like', '%' . $request->vin . '%')->get();
-                    $car_ids = [];
-                    if (count($car) > 0) {
-                        foreach ($car as $c) {
-                            $car_ids[] = $c->id;
-                        }
-                    }
-                    $orders->whereIn('car_id', $car_ids);
-                }
-
-                if (isset($request->grnz) && $request->grnz != '') {
-                    $car = Car::select(['id', 'grnz'])->where('grnz', 'like', '%' . $request->grnz . '%')->get();
-                    $car_ids = [];
-                    if (count($car) > 0) {
-                        foreach ($car as $c) {
-                            $car_ids[] = $c->id;
-                        }
-                    }
-                    $orders->whereIn('car_id', $car_ids);
-                }
-
-                if (isset($request->status) && $request->status != '') {
-                    $orders->where('status', $request->status);
-                }
-//                $orders->whereNotIn('status', [0,2]);
-            }
-
-            if (isset($orders)) {
-                $paginate = 10;
-                $pages = round($orders->count() / $paginate);
-                if ($pages == 0) {
-                    $pages = 1;
-                }
-                return [
-                    'pages' => $pages,
-                    'page' => $request->page ?? 1,
-                    'items' => PreOrderResource::collection($orders->orderByDesc('date')->paginate($paginate))
-                ];
             }
         }
+
+        if (isset($preorder)) {
+            $paginate = 10;
+            $pages = round($preorder->count() / $paginate);
+            if ($pages == 0) {
+                $pages = 1;
+            }
+            $data = [
+                'pages' => $pages,
+                'page' => $request->page ?? 1,
+                'items' => PreOrderResource::collection($preorder->orderByDesc('date')->paginate($paginate))
+            ];
+        }
+        return $data;
     }
 
-    public function getById($id)
+    private function applyFilters($preorder, $request): void
     {
-        $user = app(AuthService::class)->auth();
-        $preorder = PreOrderCar::find($id);
-
-        $can = false;
-
-        if ($user->role === 'moderator') {
-            $can = true;
-        } else if ($user->role === 'liner') {
-            if ($user->id === $preorder->liner_id) {
-                $can = true;
+        foreach (['title', 'idnum'] as $filter) {
+            if (isset($request->$filter) && $request->$filter != '') {
+                $clientIds = Client::select(['id', 'title', 'idnum'])->where($filter, 'like', '%' . $request->$filter . '%')->pluck('id')->toArray();
+                $preorder->whereIn('client_id', $clientIds);
             }
         }
-
-        if ($can) {
-            $order = Order::find($preorder->order_id);
-
-            $canTransfer = false;
-            $canSend = false;
-            $canApprove = false;
-            $blocked = true;
-            $blockedBooking = true;
-
-            $transfer = null;
-            $transferResource = null;
-
-            if ($order) {
-                $transfer = TransferOrder::where('order_id', $order->id)->first();
-                if ($transfer) {
-                    $transferResource = new TransferOrderResource(TransferOrder::where('order_id', $order->id)->first());
-                }
-                if ($user->role === 'liner') {
-                    if ($preorder->status === 2 && $order->status === 0 && $order->approve === 0) {
-                        if ($transfer && $transfer->closed !== 2) {
-                            $blockedBooking = true;
-                        } else {
-                            $blockedBooking = false;
-                        }
-                    }
-                    if ($order->status === 0 && !$transfer && $order->approve === 0 && $this->checkOrderReviewDate($preorder->car_id)) {
-                        $canTransfer = true;
-                    }
-                }
+        foreach (['vin', 'grnz'] as $filter) {
+            if (isset($request->$filter) && $request->$filter != '') {
+                $orderIds = Car::select(['vin', 'grnz', 'order_id'])->where($filter, 'like', '%' . $request->$filter . '%')->pluck('order_id')->toArray();
+                $preorder->whereIn('order_id', $orderIds);
             }
-            if ($preorder->status === 0 || $preorder->status === 4) {
-                if ($user->role === 'liner') {
-                    $canSend = true;
-                    $blocked = false;
-                }
+        }
+        foreach (['status'] as $filter) {
+            if (isset($request->$filter) && $request->$filter != '') {
+                $preorder->where('status', $request->$filter);
             }
-            if ($preorder->status === 1) {
-                if ($user->role === 'moderator') {
-                    $canApprove = true;
-                }
-            }
-
-
-            return [
-                'item' => new PreOrderResource($preorder),
-                'transfer' => $transferResource,
-                'permissions' => [
-                    'transferOrder' => $canTransfer,
-                    'sendToApprove' => $canSend,
-                    'approveOrder' => $canApprove,
-                    'blocked' => $blocked,
-                    'blockedBooking' => $blockedBooking
-                ]
-            ];
         }
     }
 
     public function store($query)
     {
-        $liner = app(AuthService::class)->auth();
-        $client1 = Client::where('idnum', $liner->idnum)->first();
+        $user = $this->authService->auth();
+        $client1 = Client::where('idnum', $user->idnum)->first();
+
         $client = null;
         if ($client1) {
             $client = $client1->replicate();
             $client->push();
         }
+
         $recycleType = intval($query->recycle_type);
 
         if ($recycleType) {
-            $preorder = new PreOrderCar;
-            $preorder->status = config("constants.NEW_PREORDER");
-            $preorder->date = time();
-            $preorder->liner_id = $liner->id;
-            $preorder->recycle_type = $recycleType;
-
-            if ($client) {
-                $preorder->client_id = $client->id;
-            }
-
+            $preorder = new PreOrderCar([
+                'status' => config("constants.NEW_PREORDER"),
+                'date' => time(),
+                'liner_id' => $user->id,
+                'recycle_type' => $recycleType,
+                'client_id' => $client ? $client->id : null,
+            ]);
             $preorder->save();
-
-            return $preorder;
+            $this->success = true;
+            $this->message = Lang::get('messages.preorder_created');
         }
+
+        return [
+            'data' => $preorder ?? null,
+            'success' => $this->success,
+            'message' => $this->message
+        ];
     }
 
     public function delete($id)
@@ -232,23 +155,87 @@ class PreorderService
         }
     }
 
-    public function booking($request, $id)
+    //Проверка заявки на одобрение
+    public function isOrderAlreadyApproved($order_id): bool
     {
+        $order = Order::find($order_id);
+        return $order && $order->approve === config("constants.APPROVED_ORDER");
+    }
+
+    //Проверка на истечение срока рассмотрение заявки
+    public function getById($id)
+    {
+        $user = app(AuthService::class)->auth();
         $preorder = PreOrderCar::find($id);
 
-        if ($request->datetime && $request->factory_id) {
-            $booking = app(BookingOrderService::class)->store(new Request([
-                'preorder_id' => $preorder->id,
-                'datetime' => $request->datetime,
-                'factory_id' => $request->factory_id,
-            ]));
+        $data = [];
 
-            $preorder->booking_id = $booking->id;
-            $preorder->factory_id = $request->factory_id;
-            $preorder->save();
+        $can = false;
 
+        if ($user->role === 'moderator') {
+            $can = true;
+        } else if ($user->role === 'liner') {
+            if ($user->id === $preorder->liner_id) {
+                $can = true;
+            }
         }
-        return $preorder;
+        if ($can) {
+            $order = Order::find($preorder->order_id);
+            $data = [
+                'item' => new PreOrderResource($preorder),
+                'transfer' => $order ? new TransferOrderResource(TransferOrder::where('order_id', $order->id)->first()) : null,
+                'permissions' => $this->permission($preorder)
+            ];
+        }
+
+        return $data;
+    }
+
+    //Предоставление доступа о действиях для фронта(для отображения кнопок)
+    private function permission($preorder): array
+    {
+        $user = $this->authService->auth();
+        $order = Order::find($preorder->order_id);
+
+        $canTransfer = false;
+        $canSend = false;
+        $canApprove = false;
+        $blocked = true;
+        $blockedBooking = true;
+
+        if ($order) {
+            $transfer = TransferOrder::where('order_id', $order->id)->first();
+            if ($user->role === 'liner') {
+                if ($preorder->status === 2 && $order->status === 0 && $order->approve === 0) {
+                    if ($transfer && $transfer->closed !== 2) {
+                        $blockedBooking = true;
+                    } else {
+                        $blockedBooking = false;
+                    }
+                }
+                if ($order->status === 0 && !$transfer && $order->approve === 0 && $this->checkOrderReviewDate($preorder->car_id)) {
+                    $canTransfer = true;
+                }
+            }
+        }
+        if ($preorder->status === 0 || $preorder->status === 4) {
+            if ($user->role === 'liner') {
+                $canSend = true;
+                $blocked = false;
+            }
+        }
+        if ($preorder->status === 1) {
+            if ($user->role === 'moderator') {
+                $canApprove = true;
+            }
+        }
+        return [
+            'transferOrder' => $canTransfer,
+            'sendToApprove' => $canSend,
+            'approveOrder' => $canApprove,
+            'blocked' => $blocked,
+            'blockedBooking' => $blockedBooking
+        ];
     }
 
     public function checkOrderReviewDate($car_id): bool
@@ -259,13 +246,8 @@ class PreorderService
         if (!$preorder) {
             return false;
         }
-
         $closedDate = strtotime(date('d.m.Y', $preorder->date) . ' + 15 days');
 
-        if ($closedDate >= time()) {
-            return true;
-        }
-
-        return false;
+        return $closedDate >= time();
     }
 }

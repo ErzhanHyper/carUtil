@@ -12,6 +12,14 @@ class PreOrderCar extends Model
     protected $table = 'pre_order_car';
     public $timestamps = false;
 
+    protected $fillable = [
+        'status',
+        'date',
+        'liner_id',
+        'recycle_type',
+        'client_id',
+    ];
+
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id', 'id');

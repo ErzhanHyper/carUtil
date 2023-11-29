@@ -42,6 +42,7 @@ class BookingOrderService
                         $data->factory_id = $factory_id;
                         $data->datetime = $datetime;
                         $data->reserve = 1;
+
                         if($data->save()){
                             $preorder->booking_id = $data->id;
                             $preorder->factory_id = $factory_id;

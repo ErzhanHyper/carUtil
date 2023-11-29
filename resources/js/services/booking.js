@@ -21,3 +21,15 @@ export function deleteBookingOrder(params) {
         })
     })
 }
+
+
+export function bookingOrder(params) {
+    return new Promise((resolve, reject) => {
+        api.post('/booking/store', params).then(response => {
+            resolve(response.data)
+        }).catch((e) => {
+            reject(e)
+        }).finally(() => {
+        })
+    })
+}

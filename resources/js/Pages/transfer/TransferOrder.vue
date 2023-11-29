@@ -43,8 +43,8 @@
                 <div class="text-h6">Общая информация</div>
             </q-card-section>
             <q-separator/>
-            <q-card-section style="max-height: 70vh" class="scroll">
-                Продажа транспортного средства
+            <q-card-section style="max-height: 70vh" class="scroll text-subtitle2">
+                В данной вкладке вы можете подать заявку на продажу ТС/СХТ, затем выбрать транспортировщика(покупателя)
             </q-card-section>
             <q-separator/>
             <q-card-actions align="right">

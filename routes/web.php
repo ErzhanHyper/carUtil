@@ -34,6 +34,7 @@ Route::prefix('app')->group(function () {
         Route::get('fileTypeAgro', [\App\Http\Controllers\FileTypeController::class, 'getAgro']);
         Route::get('log', [\App\Http\Controllers\LogController::class, 'get']);
 
+        Route::post('booking/store', [\App\Http\Controllers\BookingOrderController::class, 'store']);
         Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);
         Route::post('booking/order/delete', [\App\Http\Controllers\BookingOrderController::class, 'delete']);
 
@@ -69,7 +70,6 @@ Route::prefix('app')->group(function () {
 
             Route::get('/{id}', [\App\Http\Controllers\PreOrderController::class, 'getById']);
             Route::put('/{id}/send', [\App\Http\Controllers\PreOrderController::class, 'send']);
-            Route::post('/{id}/booking', [\App\Http\Controllers\PreOrderController::class, 'booking']);
 
             Route::post('checkVehicle', [\App\Http\Controllers\PreOrderController::class, 'searchFromKap']);
             Route::post('checkVehicleHistory', [\App\Http\Controllers\PreOrderController::class, 'kapHistory']);

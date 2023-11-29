@@ -99,7 +99,7 @@
                     </div>
                 </div>
 
-                <preorder-history :comments="item.comment" v-if="user.role === 'moderator'"/>
+                <preorder-history :comments="item.comment"/>
             </div>
             <div class="col col-md-4 col-xs-12" v-show="item.car">
                 <preorder-file

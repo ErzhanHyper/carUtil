@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\BookingOrder;
 use App\Models\PreOrderCar;
 use App\Services\AuthService;
+use App\Services\BookingOrder\BookingOrderService;
+use App\Services\Preorder\PreorderService;
 use Illuminate\Http\Request;
 
 class BookingOrderController extends Controller
@@ -24,6 +26,12 @@ class BookingOrderController extends Controller
         }
 
         return response()->json($datetime);
+    }
+
+    public function store(Request $request)
+    {
+        $data = app(BookingOrderService::class)->store($request);
+        return response()->json($data);
     }
 
     public function delete(Request $request){

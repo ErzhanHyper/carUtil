@@ -353,7 +353,7 @@ export default {
                 storeOrder({
                     recycle_type: this.item.recycle_type
                 }).then(res => {
-                    if (res.status === 200) {
+                    if (res.success === true) {
                         this.orderDialog = false
                         this.$router.push('/preorder/' + res.data.id)
                     }

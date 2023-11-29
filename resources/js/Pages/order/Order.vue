@@ -4,7 +4,7 @@
         <div class="text-h6 text-primary">Заявки</div>
 
         <div>
-            <q-btn color="primary" @click="showFilter = !showFilter" v-if="user && user.role === 'moderator'">
+            <q-btn color="indigo-8" @click="showFilter = !showFilter" v-if="user && user.role === 'moderator'">
                 <q-icon name="sort" ></q-icon>
             </q-btn>
         </div>
