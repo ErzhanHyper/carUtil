@@ -53,7 +53,7 @@
                         <div class="text-caption">({{ doc.created_at }})</div>
                     </a>
                     <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
-                            v-if="(!blocked || (blocked && doc.file_type_id === 29 && !blockedVideo))" @click="deleteFile({doc: doc, type: 'doc', id: doc.id })">
+                            v-if="(!blocked || (blocked && doc.file_type_id === 29 && !blockedVideo))" @click="showDeleteDialog({doc: doc, type: 'doc', id: doc.id })">
                     </q-icon>
                 </div>
             </template>
@@ -72,7 +72,7 @@
                         <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
                         <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
                                style="position:absolute;right:7px;top:7px" v-if="!blocked"
-                               @click="deleteFile({ type: 'photo', id: slide.id })"
+                               @click="showDeleteDialog({ type: 'photo', id: slide.id })"
                         />
                     </q-carousel-slide>
                 </template>
@@ -115,6 +115,21 @@
         </q-card>
     </q-dialog>
 
+    <q-dialog v-model="deleteDialog" size="xs">
+        <q-card style="width: 600px">
+            <q-card-section class="row items-center q-pb-none">
+                <div class="text-body1">Вы действительно хотите удалить файл?</div>
+                <q-space/>
+                <q-btn v-close-popup dense flat icon="close" round/>
+            </q-card-section>
+            <q-card-actions class="q-mt-md q-mx-sm q-mb-sm">
+                <q-btn :loading="loading" color="pink-5" label="Да" @click="deleteFile()"/>
+                <q-space/>
+                <q-btn v-close-popup color="primary" label="Нет"/>
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
+
 </template>
 
 <script>
@@ -143,6 +158,7 @@ export default {
 
     data() {
         return {
+            deleteDialog: false,
             fileDialog: false,
             base64Image: '',
             photoFind: false,
@@ -169,6 +185,12 @@ export default {
     },
 
     methods: {
+
+        showDeleteDialog(value){
+            this.deleteDialog = true
+            this.item = value
+        },
+
         showImage(image){
             this.fileDialog = true
             this.base64Image = image
@@ -239,7 +261,9 @@ export default {
             this.pickFile.click();
         },
 
-        deleteFile(value) {
+        deleteFile() {
+            this.deleteDialog = false
+            let value = this.item
             if (value.type === 'doc') {
                 const objWithIdIndex = this.filesDoc.findIndex((obj) => obj.id === value.id);
                 if (objWithIdIndex > -1) {

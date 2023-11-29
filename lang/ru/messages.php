@@ -9,6 +9,7 @@ return [
 
     'preorder_credentials_1' => 'Предзаявка уже была одобрена',
     'preorder_approved' => 'Предзаявка одобрена',
-    'preorder_created' => 'Заявка создана'
+    'preorder_created' => 'Заявка создана',
+    'file_credentials' => 'Не все файлы прикреплены',
 
 ];

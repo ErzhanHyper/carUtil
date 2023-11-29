@@ -36,6 +36,7 @@ class KapService
                 $record = $xml->script->dataset->records->record;
                 $user = User::find($item->user_id);
                 $result[] = [
+                    'id' => $item->id,
                     'k_status' => $item->k_status,
                     'username' => $user ? $user->title : '',
                     'record' => $this->convertXmlDatToArray($record),

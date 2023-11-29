@@ -4,8 +4,11 @@
 namespace App\Services\Preorder;
 
 
+use App\Models\AgroFile;
 use App\Models\Car;
+use App\Models\CarFile;
 use App\Models\Client;
+use App\Models\FileType;
 use App\Models\PreOrderCar;
 use App\Services\AuthService;
 use App\Services\Car\CarService;
@@ -104,6 +107,28 @@ class PreorderSendService
                             return false;
                         }
                     }
+                }
+            }
+
+            if($preorder->recycle_type === 1){
+                $file_type_ids = [1,2,8,9,10,11,12,13,14];
+                $files = CarFile::select(['preorder_id', 'file_type_id'])->where('preorder_id', $preorder->id)->whereIn('file_type_id', $file_type_ids)->get();
+
+                if(count($files) < 9) {
+                    $names = '';
+                    $file_types = FileType::whereIn('id', $file_type_ids)->get();
+                    foreach ($file_types as $item){
+                        $names .= $item->title .", ";
+                    }
+                    $this->setMessage(Lang::get('messages.file_credentials'));
+                    return false;
+                }
+            }else if($preorder->recycle_type === 2){
+                $file_type_ids = [1,4,5,6,7,8,9,10,11,12];
+                $files = AgroFile::select(['preorder_id', 'file_type_id'])->where('preorder_id', $preorder->id)->whereIn('file_type_id', $file_type_ids)->get();
+                if(count($files) < 10) {
+                    $this->setMessage(Lang::get('messages.file_credentials'));
+                    return false;
                 }
             }
         }

@@ -75,6 +75,9 @@ class CarService
             'chassis_no' => 'required',
             'weight' => 'required',
             'm_model' => 'required',
+            'doors_count' => 'required',
+            'wheels_count' => 'required',
+            'wheels_protector_count' => 'required',
         ]);
 
         if ($validator->fails()) {

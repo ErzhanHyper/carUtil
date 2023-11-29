@@ -16,7 +16,7 @@
                         <template v-slot:prepend>
                             <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked || disabled" v-close-popup>
+                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked || disabled" >
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Закрыть" color="primary" flat/>
                                         </div>
@@ -34,7 +34,6 @@
                                             format24h
                                             flat
                                             bordered
-                                            v-close-popup
                                             :readonly="blocked || disabled"
                                     >
                                         <div class="row items-center justify-end">
@@ -138,6 +137,7 @@ export default {
 
     created() {
         if(this.data){
+            console.log(this.data)
             this.item = this.data
         }else {
             this.disabled = false

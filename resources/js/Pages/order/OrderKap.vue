@@ -90,7 +90,8 @@
                 История запросов в КАП:
                 <div v-for="el in history">
                     {{ el['created_at'] }} | {{ el['username'] ? el['username'] : '-'}}
-                    <div v-html="el['k_status']" class="q-mb-md bg-blue-grey-1 q-pa-sm"></div>
+                    | <q-btn label="Справка запроса" size="12px" dense flat icon-right="download" @click="getHistoryRef(el['id'])" :loading="(history_id === el['id'])"/>
+                    <div v-html="el['k_status']" class="q-mb-md bg-blue-grey-1 q-pa-sm q-mt-xs"></div>
                 </div>
             </div>
             <div v-if="history.length === 0 && show">Нет запросов</div>
@@ -100,7 +101,7 @@
         <q-card-actions class="q-px-md" v-if="!blocked">
             <q-btn icon="add_task" square color="indigo-8" label="Отправить запрос" :loading="loading" @click="getKapData"/>
             <q-space />
-            <q-btn icon-right="download" icon="file_copy" square color="primary" label="Скачать справку" :loading="loading1" v-if="this.card" @click="getRef"/>
+            <q-btn icon-right="download" icon="file_copy" square color="primary" label="Скачать справку текущего запроса" :loading="loading1" v-if="this.card" @click="getRef"/>
         </q-card-actions>
     </q-card>
     </q-dialog>
@@ -122,6 +123,7 @@ export default {
             loading1: false,
             show: false,
             kap_request_id: null,
+            history_id: null,
             kap: {
                 type: 'vin',
                 message: 'Проверка',
@@ -157,6 +159,16 @@ export default {
                 FileDownload(res, 'kap_request.pdf')
             }).finally(() => {
                 this.loading1 = false
+            })
+        },
+
+        getHistoryRef(id){
+            this.history_id = id
+            getKapReference(id, {responseType: 'arraybuffer'}).then(res => {
+                FileDownload(res, 'kap_request.pdf')
+            }).finally(() => {
+                this.loading1 = false
+                this.history_id = null
             })
         },
 

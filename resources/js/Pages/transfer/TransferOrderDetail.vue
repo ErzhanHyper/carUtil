@@ -35,7 +35,7 @@
     </template>
 
     <div class="q-mt-lg">
-        <div class="row q-col-gutter-md" v-if="show && ((item.isOwner && item.closed === 0 || item.closed === 1) || !item.isOwner)">
+        <div class="row q-col-gutter-md" v-if="show && ((item.isOwner && item.closed === 1) || !item.isOwner)">
 
             <div class="col col-md-4">
 

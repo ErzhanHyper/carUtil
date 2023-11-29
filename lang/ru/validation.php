@@ -228,5 +228,8 @@ return [
         'chassis_no' => '№ шасси',
         'category_id' => 'Категория',
         'weight' => 'Вес',
+        'doors_count' => 'Количество дверей',
+        'wheels_count' => 'Количество колес',
+        'wheels_protector_count' => 'Ограждающие покрытие колес'
     ],
 ];
