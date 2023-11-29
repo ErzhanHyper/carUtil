@@ -54,9 +54,14 @@ class TransferOrderResource extends JsonResource
             }
         }
 
-        $transferDealAccept = TransferDeal::where('transfer_order_id', $this->id)->where('id', $this->transfer_deal_id)->first();
-        if($transferDealAccept){
-            $amount = $transferDealAccept->amount;
+        if($auth->id === $this->liner_id) {
+            $transferDealAccept = TransferDeal::where('transfer_order_id', $this->id)->where('id', $this->transfer_deal_id)->first();
+            if ($transferDealAccept) {
+                $amount = $transferDealAccept->amount;
+            }
+        }else{
+            $transferDeal = TransferDeal::where('transfer_order_id', $this->id)->where('liner_id', $auth->id)->first();
+            $amount = $transferDeal->amount;
         }
 
         $isOwner = false;
