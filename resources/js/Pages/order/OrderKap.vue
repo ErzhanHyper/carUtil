@@ -192,7 +192,6 @@ export default {
                 if(res.data.items) {
                     this.items = res.data.items
                 }
-                console.log(this.items)
 
                 this.getKapHistory(0)
             }).finally(() => {

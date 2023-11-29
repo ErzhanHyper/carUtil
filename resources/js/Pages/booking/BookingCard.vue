@@ -137,7 +137,6 @@ export default {
 
     created() {
         if(this.data){
-            console.log(this.data)
             this.item = this.data
         }else {
             this.disabled = false

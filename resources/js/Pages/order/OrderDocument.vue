@@ -79,10 +79,9 @@ export default {
     methods: {
 
         genComplectApp() {
-            console.log(this.complect)
             this.loading2 = true
             getComplectApp(this.order_id, {params: {complect: this.complect}, responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'statement.pdf')
+                FileDownload(res, 'Акт_комплектности.pdf')
             }).finally(() => {
                 this.loading2 = false
             })
@@ -102,7 +101,7 @@ export default {
         statementDoc(){
             this.loading1 = true
             getStatementDoc(this.order_id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'statement.pdf')
+                FileDownload(res.data, 'Заявление_на_ТС/СХТ.pdf')
             }).finally(() => {
                 this.loading1 = false
             })
@@ -111,7 +110,7 @@ export default {
         contractDoc(){
             this.loading3 = true
             getContractDoc(this.order_id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'contract.pdf')
+                FileDownload(res, 'Акт_приема_передачи.pdf')
             }).finally(() => {
                 this.loading3 = false
             })

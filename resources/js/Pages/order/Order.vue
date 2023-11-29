@@ -232,7 +232,6 @@ export default {
         },
 
         getData() {
-            console.log(this.filter)
             this.filter.page = this.page
             this.$emitter.emit('contentLoaded', true);
             getOrderList({params: this.filter}).then(res => {
