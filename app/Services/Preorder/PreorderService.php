@@ -180,16 +180,19 @@ class PreorderService
             }
         }
 
-        $transfer = null;
+        $transferResource = null;
         $order = Order::find($preorder->order_id);
         if($order) {
-            $transfer = new TransferOrderResource(TransferOrder::where('order_id', $order->id)->first());
+            $transfer = TransferOrder::where('order_id', $order->id)->first();
+            if($transfer) {
+                $transferResource = new TransferOrderResource($transfer);
+            }
         }
 
         if ($can) {
             $data = [
                 'item' => new PreOrderResource($preorder),
-                'transfer' => $transfer,
+                'transfer' => $transferResource,
                 'permissions' => $this->permission($preorder)
             ];
         }
