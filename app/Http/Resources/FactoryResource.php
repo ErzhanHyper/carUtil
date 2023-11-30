@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrderFileResource extends JsonResource
+class FactoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,6 +14,14 @@ class OrderFileResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'address' => $this->address,
+            'region'=> $this->region,
+            'region_title' => $this->region ? $this->region->title :'',
+            'region_id' => $this->region_id
+
+        ];
     }
 }

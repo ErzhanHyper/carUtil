@@ -21,8 +21,9 @@ class TransferDealResource extends JsonResource
 
         $auth = app(AuthService::class)->auth();
 
-        $client = Client::find($this->client_id);
-        $client->region;
+        if($this->client_id) {
+            $client = Client::find($this->client_id);
+        }
 
         $transferOrder = TransferOrder::where('id', $this->transfer_order_id)->where('transfer_deal_id', $this->id)->first();
 

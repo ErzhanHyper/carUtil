@@ -25,9 +25,9 @@ class DocumentController extends Controller
         return app(DocumentService::class)->generateExchangeApplication($id);
     }
 
-    public function getTransferContract($id)
+    public function getTransferContract(Request $request, $id)
     {
-        return app(DocumentTransferService::class)->generateTransferContract($id);
+        return app(DocumentTransferService::class)->generateTransferContract($request, $id);
     }
 
     public function getSellApplication($id)

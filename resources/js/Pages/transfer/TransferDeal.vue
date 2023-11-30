@@ -37,7 +37,6 @@
                 <q-badge color="positive" class="q-pa-xs q-mr-sm" dark square style="top: 2px" v-if="item.receiverSigned" label="Подписано (Получатель)"/>
 
                 <q-btn label="Выбрать" class="q-mr-sm" outline color="indigo-8" size="11px" icon="add" @click="acceptTransfer(item.id)" :loading="loading1" v-if="data.canAccept"/>
-                <q-btn icon="gesture" class="q-mr-sm" label="Подписать сделку" color="indigo-8" size="sm" @click="signDialog = true" v-if="item.canSign"/>
                 <q-btn icon="close" class="q-mr-sm" color="negative" size="sm" @click="closeDeal(item.id)" v-if="item.canClose" :loading="loading2"/>
             </td>
         </tr>
@@ -47,17 +46,6 @@
 
         </tbody>
     </q-markup-table>
-
-    <q-dialog v-model="signDialog">
-        <q-card style="width: 100%;max-width: 960px;" class="q-pa-none">
-            <transfer-term :id="id"/>
-            <q-card-actions align="right">
-                <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer(transfer_id)"
-                       :loading="loading"/>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
-
 
 </template>
 
@@ -113,34 +101,6 @@ export default {
                 this.$emitter.emit('TransferDealEvent');
             }).finally(() => {
                 this.loading1 = false
-            })
-        },
-
-        signTransfer() {
-            signData().then(res => {
-                if(res) {
-                    this.loading = true
-                    signTransferOrder(this.id, {
-                        sign: res,
-                    }).then(res => {
-                        if(res){
-                            if (res.message !== '') {
-                                Notify.create({
-                                    message: res.message,
-                                    position: 'bottom',
-                                    type: res.success === true ? 'positive' : 'warning'
-                                })
-                            }
-                            if (res.success === true) {
-                                this.getData()
-                                this.$emitter.emit('TransferDealEvent');
-                            }
-                        }
-                    }).finally(() => {
-                        this.loading = false
-                        this.signDialog = false
-                    })
-                }
             })
         },
 

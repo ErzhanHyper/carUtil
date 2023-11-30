@@ -16,7 +16,7 @@
                         <template v-slot:prepend>
                             <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked || disabled" >
+                                    <q-date v-model="item.datetime" mask="YYYY-MM-DD HH:mm" :readonly="blocked || disabled" minimal :options="options">
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Закрыть" color="primary" flat/>
                                         </div>
@@ -29,6 +29,7 @@
                             <q-icon name="access_time" class="cursor-pointer">
                                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                                     <q-time v-model="item.datetime" mask="YYYY-MM-DD HH:mm"
+                                            minimal
                                             :minute-options="minuteOptionsTime"
                                             :hour-options="hourOptionsTime"
                                             format24h
@@ -64,7 +65,7 @@ import FactoryField from "../../Components/Fields/FactoryField.vue";
 
 export default {
     components: {FactoryField},
-    props: ['preorder_id', 'data', 'getBooking', 'blocked'],
+    props: ['preorder_id', 'data', 'getBooking', 'blocked', 'options'],
 
     data() {
         return {
@@ -132,10 +133,13 @@ export default {
                     datetime_string: null
                 }
             })
-        }
+        },
+
     },
 
     created() {
+        console.log(this.options)
+
         if(this.data){
             this.item = this.data
         }else {
@@ -146,6 +150,7 @@ export default {
                 datetime_string: null
             }
         }
+
     },
 
     mounted() {

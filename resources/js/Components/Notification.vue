@@ -23,12 +23,14 @@
                         <template v-slot:avatar>
                             <q-icon color="blue-3" name="edit_note"/>
                         </template>
+                        <router-link :to="'/preorder/'+item.preorder_id" class="text-blue-grey-8 text-weight-bold">
                         <span class="text-caption">
-                            <router-link :to="'/preorder/'+item.preorder_id" class="text-blue-grey-5 text-weight-bold">Заявка №{{ item.preorder_id }}</router-link>
+                            Заявка №{{ item.preorder_id }}
                             <br>
                             <span :class="item.action === 'APPROVED' ? 'text-green-5' : 'text-blue-grey-5'">{{ item.action_title }}</span>
                             <span v-if="item.comment"><br>{{ item.comment }}</span>
                         </span>
+                        </router-link>
                         <br>
                         <div class="text-right" style="font-size: 11px">{{ item.time }}</div>
                     </q-banner>

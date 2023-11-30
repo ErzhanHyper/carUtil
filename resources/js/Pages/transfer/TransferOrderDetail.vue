@@ -1,132 +1,127 @@
 <template>
 
-    <div class="q-gutter-sm text-right">
-        <q-btn label="Перейти к заявке" color="blue-grey-5" size="11px" class="q-mt-sm"
-               icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.isOwner && item.closed === 0"/>
+    <div class="q-gutter-sm text-right" v-if="show">
+        <q-btn v-if="item.canSign" class="q-mt-sm" color="indigo-8" icon="gesture" label="Подписать"
+               size="12px" @click="showSignDialog"/>
 
-        <q-btn icon="close" color="negative" size="11px"
-               label="Отменить продажу ТС/СХТ" @click="removeTransfer" v-if="item.isOwner && item.closed !== 2" :loading="loading2"/>
-        <q-btn icon="close" color="negative" size="11px"
-               label="Отменить предложение" @click="removeTransferDeal" v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2" />
+        <q-btn v-if="item.isOwner && item.closed === 0" :to="'/preorder/'+item.order.preorder_id" class="q-mt-sm" color="blue-grey-5"
+               icon="open_in_new" label="Перейти к заявке" size="11px"/>
+
+        <q-btn v-if="item.isOwner && item.closed !== 2" :loading="loading2" color="negative"
+               icon="close" label="Отменить продажу ТС/СХТ" size="11px"
+               @click="removeTransfer"/>
+        <q-btn v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2" color="negative"
+               icon="close" label="Отменить предложение"
+               size="11px" @click="removeTransferDeal"/>
     </div>
 
-    <transfer-deal :id="item.id" :data="item" v-if="show && item.isOwner" />
+    <transfer-deal v-if="show && item.isOwner" :id="item.id" :data="item"/>
 
     <template v-if="!item.canDeal">
         <div class="q-mt-md flex justify-between">
             <div class="q-gutter-sm">
-                <q-chip class="text-body1" color="blue-1" square v-if="!item.canDeal && item.canSign">Предложение выбрана</q-chip>
-                <q-chip class="text-body1" color="blue-1" square v-if="!item.canDeal && item.canSign">В ожидании подписи</q-chip>
+                <q-chip v-if="!item.canDeal && item.canSign" class="text-body1" color="blue-1" square>Предложение
+                    выбрана
+                </q-chip>
+                <q-chip v-if="!item.canDeal && item.canSign" class="text-body1" color="blue-1" square>В ожидании
+                    подписи
+                </q-chip>
             </div>
 
             <div class="q-gutter-sm">
-                <q-btn label="Подписать" color="indigo-8" size="12px" class="q-mt-sm" icon="gesture"
-                       @click="signDialog = true" v-if="item.canSign"/>
 
-                <q-btn label="Скачать договор" color="deep-orange-10" size="12px" class="q-mt-sm q-mr-md"
+                <q-btn v-if="item.closed === 2" :loading="loading" class="q-mt-sm q-mr-md" color="deep-orange-10"
                        icon="picture_as_pdf"
-                       @click="downloadPFS" :loading="loading" v-if="item.closed === 2"/>
+                       label="Скачать договор" size="12px" @click="downloadPFS"/>
 
-                <q-btn label="Перейти к заявке" color="blue-grey-5" size="11px" class="q-mt-sm"
-                       icon="open_in_new" :to="'/preorder/'+item.order.preorder_id" v-if="item.closed === 2"/>
+                <q-btn v-if="item.closed === 2" :to="'/preorder/'+item.order.preorder_id" class="q-mt-sm" color="blue-grey-5"
+                       icon="open_in_new" label="Перейти к заявке" size="11px"/>
             </div>
 
         </div>
     </template>
 
     <div class="q-mt-lg">
-        <div class="row q-col-gutter-md" v-if="show && ((item.isOwner && item.closed === 1) || !item.isOwner)">
+        <div v-if="show && ((item.isOwner && item.closed === 1) || !item.isOwner)" class="row q-col-gutter-md">
 
             <div class="col col-md-4">
 
-                <q-card class="q-mt-md q-mb-md" v-if="item.isOwner">
+                <q-card v-if="item.isOwner" class="q-mt-md q-mb-md">
                     <q-card-section class="q-gutter-md">
-                        <q-input label="№ заявки" v-model="item.order_id" :readonly="true" outlined dense/>
-                        <q-input label="Дата одобрение" v-model="item.order.created" :readonly="true" outlined
-                                 dense/>
-                        <q-input label="ФИО владельца" v-model="item.order.client.title" :readonly="true" outlined
-                                 dense/>
-                        <q-input label="ИИН владельца" v-model="item.order.client.idnum" :readonly="true" outlined
-                                 dense/>
+                        <q-input v-model="item.order_id" :readonly="true" dense label="№ заявки" outlined/>
+                        <q-input v-model="item.order.created" :readonly="true" dense label="Дата одобрение"
+                                 outlined/>
+                        <q-input v-model="item.order.client.title" :readonly="true" dense label="ФИО владельца"
+                                 outlined/>
+                        <q-input v-model="item.order.client.idnum" :readonly="true" dense label="ИИН владельца"
+                                 outlined/>
                     </q-card-section>
                 </q-card>
 
-                <q-banner class="q-mb-sm bg-orange-3 q-mt-md" v-if="showError">
+                <q-banner v-if="showError" class="q-mb-sm bg-orange-3 q-mt-md">
                     <div v-for="error in errors">
                         <span v-for="e in error">{{ e }}</span>
                     </div>
                 </q-banner>
 
-                <client-card :data="item.currentClient" :blocked="blocked" :getClient="getClient" class="q-mb-lg" v-if="!item.isOwner" label="Заполните ваши данные"/>
+                <client-card v-if="!item.isOwner" :blocked="blocked" :data="item.currentClient" :getClient="getClient"
+                             class="q-mb-lg" label="Заполните ваши данные"/>
 
                 <template v-if="!item.isOwner">
 
-                    <q-input label="Сумма" v-model="amount" class="text-body1 text-weight-bold"
-                             mask="#"
+                    <q-input v-model="amount" :readonly="!item.canDeal" class="text-body1 text-weight-bold"
                              fill-mask=""
-                             reverse-fill-mask
                              input-class="text-right"
-                             :readonly="!item.canDeal"
+                             label="Сумма"
+                             mask="#"
+                             reverse-fill-mask
                     >
                         <template v-slot:after>
                             &#8376;
                         </template>
                     </q-input>
 
-                    <q-btn label="Добавить предложение" icon="swap_horiz" color="indigo-8"
-                           class="text-weight-bold" push @click="sendData" :loading="loading3" v-if="item.canDeal"/>
+                    <q-btn v-if="item.canDeal" :loading="loading3" class="text-weight-bold"
+                           color="indigo-8" icon="swap_horiz" label="Добавить предложение" push @click="sendData"/>
                 </template>
 
             </div>
 
             <div class="col col-md-4">
-                <q-card class="q-mt-md q-mb-md" v-if="!item.isOwner">
+                <q-card v-if="!item.isOwner" class="q-mt-md q-mb-md">
                     <q-card-section class="q-gutter-md">
-                        <q-input label="№ заявки" v-model="item.order_id" :readonly="true" outlined dense/>
-                        <q-input label="Дата одобрение" v-model="item.order.created" :readonly="true" outlined
-                                 dense/>
-                        <q-input label="ФИО владельца" v-model="item.order.client.title" :readonly="true" outlined
-                                 dense/>
-                        <q-input label="ИИН владельца" v-model="item.order.client.idnum" :readonly="true" outlined
-                                 dense/>
+                        <q-input v-model="item.order_id" :readonly="true" dense label="№ заявки" outlined/>
+                        <q-input v-model="item.order.created" :readonly="true" dense label="Дата одобрение"
+                                 outlined/>
+                        <q-input v-model="item.order.client.title" :readonly="true" dense label="ФИО владельца"
+                                 outlined/>
+                        <q-input v-model="item.order.client.idnum" :readonly="true" dense label="ИИН владельца"
+                                 outlined/>
                     </q-card-section>
                 </q-card>
 
-                <car-card :data="item.order.car" :order_id="item.order.id" :vehicleType="item.vehicleType" :blocked="true"/>
+                <car-card :blocked="true" :data="item.order.car" :order_id="item.order.id"
+                          :vehicleType="item.vehicleType"/>
             </div>
 
             <div class="col col-md-4">
-                <preorder-file :preorder_id="item.preorder_id" :blocked="true" :onlyPhoto="true" :vehicleType="item.vehicleType"/>
+                <preorder-file :blocked="true" :onlyPhoto="true" :preorder_id="item.preorder_id"
+                               :vehicleType="item.vehicleType"/>
             </div>
         </div>
 
     </div>
 
+    <transfer-term v-if="show" :id="item.id" :contract="contract" :canGenerate="item.isOwner"/>
 
-    <q-dialog v-model="signDialog">
-        <q-card style="width: 100%;max-width: 960px;">
-            <transfer-term :id="item.id"/>
-            <q-card-actions align="right">
-                <q-btn label="Подписать" icon="gesture" color="indigo-8" @click="signTransfer()"
-                       :loading="loading1"/>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
 
 </template>
 
 <script>
 import {Notify} from "quasar";
 import FileDownload from "js-file-download";
-import {
-    closeTransfer,
-    deleteTransferDeal,
-    getTransferById,
-    signTransferOrder,
-    storeTransferDeal
-} from "../../services/transfer";
+import {closeTransfer, deleteTransferDeal, getTransferById, storeTransferDeal} from "../../services/transfer";
 
-import {signData} from "../../services/sign";
 import {getTransferContract} from "../../services/document";
 
 import PreorderFile from "../preorder/PreorderFile.vue";
@@ -155,6 +150,7 @@ export default {
             signDialog: false,
 
             errors: [],
+            contract: {},
             item: {
                 currentClient: {},
                 signAccess: false,
@@ -175,22 +171,28 @@ export default {
 
     methods: {
 
+        showSignDialog(){
+            this.$emitter.emit('transferSignDialog', true);
+        },
+
         getClient(value) {
             this.item.client = value
         },
 
-        getData() {
+        async getData() {
             this.$emitter.emit('contentLoaded', true);
             this.show = false
-            getTransferById(this.id).then(res => {
+            await getTransferById(this.id).then(res => {
                 this.$emitter.emit('contentLoaded', false);
-                if(res) {
-                    if(res.deal) {
-                        this.deal_id = res.deal.id
+                this.contract = res.contract
+                let itemData = res.item
+                if (itemData) {
+                    if (itemData.deal) {
+                        this.deal_id = itemData.deal.id
                     }
-                    this.amount = res.amount
-                    this.item = res
-                    this.blocked = res.blocked
+                    this.amount = itemData.amount
+                    this.item = itemData
+                    this.blocked = itemData.blocked
                 }
                 this.show = true
             })
@@ -213,7 +215,7 @@ export default {
                     })
                 }
 
-                if(res && res.success === true){
+                if (res && res.success === true) {
                     this.blocked = true
                     this.getData()
                 }
@@ -225,33 +227,6 @@ export default {
             })
         },
 
-        signTransfer() {
-            signData().then(res => {
-                if(res) {
-                    this.loading1 = true
-                    signTransferOrder(this.item.id, {
-                        sign: res,
-                    }).then((res) => {
-                        if(res){
-                            if (res.message !== '') {
-                                Notify.create({
-                                    message: res.message,
-                                    position: 'bottom',
-                                    type: res.success === true ? 'positive' : 'warning'
-                                })
-                            }
-                            if (res.success === true) {
-                                this.signDialog = false
-                                this.getData()
-                                this.$emitter.emit('TransferDealEvent');
-                            }
-                        }
-                    }).finally(() => {
-                        this.loading1 = false
-                    })
-                }
-            })
-        },
 
         downloadPFS() {
             this.loading = true
@@ -266,7 +241,7 @@ export default {
             this.loading2 = true
             closeTransfer(this.item.id).then((res) => {
                 this.$router.push('/preorder')
-                if(res && res.message !== '') {
+                if (res && res.message !== '') {
                     Notify.create({
                         message: res.message,
                         position: 'bottom',
@@ -277,10 +252,10 @@ export default {
                 this.loading2 = false
             })
         },
-        removeTransferDeal(){
+        removeTransferDeal() {
             this.loading2 = true
             deleteTransferDeal(this.deal_id).then(res => {
-                if(res && res.message !== '') {
+                if (res && res.message !== '') {
                     Notify.create({
                         message: res.message,
                         position: 'bottom',

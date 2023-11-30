@@ -31,6 +31,7 @@
                 :readonly="blocked"
                 v-if="!blocked"
                 :loading="loading"
+                :disable="loading"
             >
                 <template v-slot:before>
                     <q-icon name="folder"/>
@@ -125,8 +126,6 @@ import {ref} from 'vue'
 import {
     deletePreOrderFile, getAgroFile, getAgroFileImage,
     getCarFile, getCarFileImage,
-    getFileTypeAgroList,
-    getFileTypeList,
     getPreOrderFileList,
     storePreOrderFile
 } from "../../services/file";
@@ -189,7 +188,6 @@ export default {
             getPreOrderFileList({
                 preorder_id: this.preorder_id
             }).then(res => {
-                this.loading = false
                 this.filesOptions = res.file_types
                 this.filesDoc = res.docs
                 this.filesPhoto = res.photos
@@ -241,13 +239,13 @@ export default {
                 preorder_id: this.preorder_id,
                 file_id: value.id
             }).then(() => {
-                // this.getItems()
+                this.getItems()
             });
         },
 
-        uploadFile(evt) {
+         uploadFile(evt) {
             this.loading = true
-            storePreOrderFile({
+             storePreOrderFile({
                 file_type_id: this.file_type_id,
                 file: evt.target.files[0],
                 preorder_id: this.preorder_id,
@@ -256,10 +254,12 @@ export default {
                 this.getItems()
                 this.file_type_id = null
                 this.pickFile = null
-                this.file = null
-            }).catch(() => {
-                this.loading = false
-            })
+                this.$refs.file_dialog.value = null
+                this.item.file = null
+             }).catch(() => {
+            }).finally(() => {
+                 this.loading = false
+             })
 
         },
 

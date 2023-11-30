@@ -85,7 +85,7 @@
             </div>
         </q-banner>
 
-        <booking v-if="!blockedBooking && item.closedDate !== 0 && showBooking" id="preorder_booking" :blocked="blockedBooking" :data="item.booking"
+        <booking v-if="!blockedBooking && item.closedDate !== 0 && showBooking" id="preorder_booking" :blocked="blockedBooking" :data="item.booking" :options="bookingDates"
                  :getBooking="getBooking" :preorder_id="item.id" class="q-mt-md"/>
 
         <div class="row q-col-gutter-md">
@@ -197,7 +197,7 @@ export default {
             },
 
             transfer: {},
-
+            bookingDates: [],
             item: {
                 transferShow: false,
                 blockedVideo: false,
@@ -264,6 +264,7 @@ export default {
                 this.permissions.sendToApprove = res.permissions.sendToApprove
                 this.permissions.approveOrder = res.permissions.approveOrder
                 this.item = res.item
+                this.bookingDates = res.bookingDates
 
                 this.showBooking = true
             })

@@ -6,7 +6,7 @@
         :options="items"
         :model-value="field"
         option-value="id"
-        option-label="title"
+        option-label="region_title"
         map-options
         emit-value
         clearable
@@ -23,8 +23,8 @@
                     <q-icon name="factory"/>
                 </q-item-section>
                 <q-item-section>
-                    <q-item-label>{{ scope.opt.title }}</q-item-label>
-                    <q-item-label caption>{{ scope.opt.address }}</q-item-label>
+                    <q-item-label>{{ scope.opt.region_title }}</q-item-label>
+                    <q-item-label caption>{{ scope.opt.title }} | {{ scope.opt.address }}</q-item-label>
                 </q-item-section>
             </q-item>
         </template>

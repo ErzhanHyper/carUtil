@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\PreOrderCar;
 use App\Models\TransferOrder;
 use App\Services\AuthService;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 
@@ -189,9 +190,19 @@ class PreorderService
             }
         }
 
+        $closedDate = strtotime(date('d.m.Y', $preorder->date) . ' + 15 days');
+        $period = CarbonPeriod::create(date('d.m.Y', $preorder->date), date('Y-m-d', $closedDate));
+        $bookingDates = [];
+
+        foreach ($period as $date) {
+            if(strtotime($date) > strtotime(date('d.m.Y'))) {
+                $bookingDates[] = $date->format('Y/m/d');
+            }
+        }
         if ($can) {
             $data = [
                 'item' => new PreOrderResource($preorder),
+                'bookingDates' => $bookingDates,
                 'transfer' => $transferResource,
                 'permissions' => $this->permission($preorder)
             ];

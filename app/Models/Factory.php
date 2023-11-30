@@ -11,4 +11,9 @@ class Factory extends Model
 
     protected $table = 'factory';
     public $timestamps = false;
+
+    public function region()
+    {
+        return $this->belongsTo(Region::class, 'region_id', 'id');
+    }
 }

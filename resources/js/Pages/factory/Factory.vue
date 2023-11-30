@@ -13,6 +13,7 @@
             <tr>
                 <th class="text-left">Название</th>
                 <th class="text-left">Адрес</th>
+                <th class="text-left">Регион</th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +25,7 @@
                     </router-link>
                 </td>
                 <td>{{ item.address }}</td>
+                <td>{{ item.region.title }}</td>
             </tr>
             </template>
             <tr v-else><td>Нет записей</td></tr>

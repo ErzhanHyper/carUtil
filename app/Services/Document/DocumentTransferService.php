@@ -8,18 +8,19 @@ use App\Models\Car;
 use App\Models\Client;
 use App\Models\TransferDeal;
 use App\Models\TransferOrder;
+use App\Services\AmountConvertService;
 use App\Services\AuthService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class DocumentTransferService
 {
-    public function generateTransferContract($id)
-    {
-        $auth = app(AuthService::class)->auth();
 
+    public function setData($id, $request): array
+    {
         $data = [];
         $transfer = TransferOrder::find($id);
+        $itemData = json_decode($transfer->data);
         $deal = TransferDeal::find($transfer->transfer_deal_id);
         $client = Client::find($transfer->client_id);
         $client2 = Client::find($deal->client_id);
@@ -33,7 +34,7 @@ class DocumentTransferService
         $data['body_no'] = $car->body_no ?? '______';
         $data['chassis_no'] = $car->chassis_no ?? '______';
         $data['amount'] = $deal->amount ?? '______';
-        $data['amount_text'] = '______';
+        $data['amount_text'] = app(AmountConvertService::class)->convertToText($deal->amount);
 
         $data['owner_address'] = $client->address ?? '______';
         $data['receiver_address'] = $client2->address ?? '______';
@@ -51,9 +52,57 @@ class DocumentTransferService
         $data['receiver_ud_num'] = $client2->ud_num ?? '______';
         $data['receiver_ud_expired'] = $client2->ud_expired ?? '______';
         $data['receiver_ud_issued'] = $client2->ud_issued->title ?? '______';
+        $data['recycle_type_title'] = in_array($car->car_type_id, [1,2]) ? 'вышедшего из эксплуатации транспортного средства' : 'вышедшего из эксплуатации самоходной сельскохозяйственной техники';
+        $data['recycle_type_short_title'] = in_array($car->car_type_id, [1,2]) ? 'ВЭТС' : 'ВЭССХТ';
 
         $data['date'] = date('d.m.Y');
 
+        $data['data1'] = $itemData->type ?? '';
+        $data['data2'] = $itemData->data1 ?? '';
+        $data['data3'] = $itemData->data2 ?? '';
+        $data['data4'] = $itemData->data3 ?? '';
+        $data['data5'] = $itemData->data4 ?? '';
+        $data['data6'] = $itemData->data5 ?? '';
+        $data['data7'] = $itemData->data6 ?? '';
+        $data['data8'] = $itemData->data7 ?? '';
+        $data['data9'] = $itemData->data8 ?? '';
+
+        if(isset($request->type)) {
+            $data['data1'] = $request->type;
+        }
+        if(isset($request->data1)) {
+            $data['data2'] = $request->data1;
+        }
+        if(isset($request->data2)) {
+            $data['data3'] = $request->data2;
+        }
+        if(isset($request->data3)) {
+            $data['data4'] = $request->data3;
+        }
+        if(isset($request->data4)) {
+            $data['data5'] = $request->data4;
+        }
+        if(isset($request->data5)) {
+            $data['data6'] = $request->data5;
+        }
+        if(isset($request->data6)) {
+            $data['data7'] = $request->data6;
+        }
+        if(isset($request->data7)) {
+            $data['data8'] = $request->data7;
+        }
+        if(isset($request->data8)) {
+            $data['data9'] = $request->data8;
+        }
+
+        return $data;
+    }
+
+
+    public function generateTransferContract($request, $id)
+    {
+        $data = $this->setData($id, $request);
+        $transfer = TransferOrder::find($id);
 
         $data['owner_sign_qr'] = '<span> (____________________) <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br><br>_____________________________________ <sub style="position: relative;top:8px;margin-left: -170px">ФИО</sub></span>';
         $data['receiver_sign_qr'] = '<span> (____________________) <sub style="position: relative;top:8px;margin-left: -90px">Подпись</sub><br><br>____________________________________ <sub style="position: relative;top:8px;margin-left: -170px">ФИО</sub></span>';

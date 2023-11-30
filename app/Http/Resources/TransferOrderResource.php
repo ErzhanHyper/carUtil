@@ -37,7 +37,7 @@ class TransferOrderResource extends JsonResource
 
         $vehicleType = '';
 
-        if($car) {
+        if ($car) {
             if ($car->car_type_id === 1 || $car->car_type_id === 2) {
                 $vehicleType = 'car';
             } else {
@@ -45,23 +45,20 @@ class TransferOrderResource extends JsonResource
             }
         }
 
-        $deal = null;
         $amount = 0;
-        if($currentClient) {
-            $deal = TransferDeal::where('liner_id', $auth->id)->where('transfer_order_id', $this->id)->first();
-            if($deal) {
-                $currentClient = Client::find($deal->client_id);
-            }
+        $deal = TransferDeal::where('liner_id', $auth->id)->where('transfer_order_id', $this->id)->first();
+        if ($deal) {
+            $currentClient = Client::find($deal->client_id);
         }
         $transferDealAccept = TransferDeal::where('transfer_order_id', $this->id)->where('id', $this->transfer_deal_id)->first();
 
-        if($auth->id === $this->liner_id) {
+        if ($auth->id === $this->liner_id) {
             if ($transferDealAccept) {
                 $amount = $transferDealAccept->amount;
             }
-        }else{
+        } else {
             $transferDeal = TransferDeal::where('transfer_order_id', $this->id)->where('liner_id', $auth->id)->first();
-            if($transferDeal) {
+            if ($transferDeal) {
                 $amount = $transferDeal->amount;
             }
         }
@@ -72,13 +69,13 @@ class TransferOrderResource extends JsonResource
         $canAccept = true;
         $blocked = false;
 
-        if($transferDealAccept){
+        if ($transferDealAccept) {
             $canAccept = false;
         }
 
-        if($deal){
-            if($this->closed === 1) {
-                if($this->owner_sign != '' && $this->hash != ''){
+        if ($deal) {
+            if ($this->closed === 1) {
+                if ($this->owner_sign != '' && $this->hash != '') {
                     $canSign = true;
                 }
             }
@@ -87,7 +84,10 @@ class TransferOrderResource extends JsonResource
             $blocked = true;
         }
 
-        if($auth->id === $this->liner_id){
+        if ($auth->id === $this->liner_id) {
+            if ($this->closed === 1 && $this->owner_sign == '') {
+                $canSign = true;
+            }
             $isOwner = true;
         }
 

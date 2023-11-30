@@ -106,13 +106,31 @@ class FileController extends Controller
         $docs = [];
         $photos = [];
         $file_types = [];
-        $videos = [];
 
         if ($order) {
             if ($car->car_type_id === 1 || $car->car_type_id === 2) {
-                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [1,2,3,5,6,17,28, 18,19,20,21,22,23,24,26,27, 29])->get());
-                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,16])->get());
-                $file_types = FileType::whereIn('id', [1,2,5,6,17,28, 8,9,10,11,12,13,14,15,16, 18,19,20,21,22,23,24,26,27, 29])->get();
+
+                $docs_ids = [1,2,5,6,17,28, 18,19,20,21,22,23,24,26,27, 29];
+                $photos_ids = [8,9,10,11,12,13,14,15,16,36,37];
+                $required_ids = [];
+
+                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $docs_ids)->get());
+                if(count($docs) > 0) {
+                    foreach ($docs as $file) {
+                        if($file->file_type_id !== 28) {
+                            $required_ids[] = $file->file_type_id;
+                        }
+                    }
+                }
+
+                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $photos_ids)->get());
+                if(count($photos) > 0) {
+                    foreach ($photos as $file) {
+                        $required_ids[] = $file->file_type_id;
+                    }
+                }
+                $all = array_merge($docs_ids, $photos_ids);
+                $file_types = FileType::whereIn('id', $all)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
             } else if ($car->car_type_id === 3 || $car->car_type_id === 4) {
                 $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [1,2,3,13,14, 29])->get());
                 $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get());
@@ -192,14 +210,52 @@ class FileController extends Controller
 
         if ($preorder) {
             if ($preorder->recycle_type === 1) {
-                $docs = PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,5,6,17,28])->get());
-                $photos =  PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,36,37])->get());
-                $file_types = FileType::whereIn('id', [1,2,5,6,17,28, 8,9,10,11,12,13,14,15,36,37])->orderBy('weight')->get();
+                $docs_ids = [1,2,5,6,17,28];
+                $photos_ids = [8,9,10,11,12,13,14,15,36,37];
+
+
+                $docs = PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $docs_ids)->get());
+                $required_ids = [];
+                if(count($docs) > 0) {
+                    foreach ($docs as $file) {
+                        if($file->file_type_id !== 28) {
+                            $required_ids[] = $file->file_type_id;
+                        }
+                    }
+                }
+
+                $photos =  PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $photos_ids)->get());
+                if(count($photos) > 0) {
+                    foreach ($photos as $file) {
+                        $required_ids[] = $file->file_type_id;
+                    }
+                }
+                $all = array_merge($docs_ids, $photos_ids);
+                $file_types = FileType::whereIn('id', $all)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
 
             } else if ($preorder->recycle_type === 2) {
-                $docs = PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,13,14])->get());
-                $photos =  PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get());
-                $file_types = FileTypeAgro::whereIn('id', [1,2,3,13,14, 4,5,6,7,8,9,10,11])->get();
+
+                $docs_ids = [1,2,3,13,14];
+                $photos_ids = [4,5,6,7,8,9,10,11,12];
+                $required_ids = [];
+
+                $docs = PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $docs_ids)->get());
+                if(count($docs) > 0) {
+                    foreach ($docs as $file) {
+                        if($file->file_type_id !== 28) {
+                            $required_ids[] = $file->file_type_id;
+                        }
+                    }
+                }
+                $photos =  PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $photos_ids)->get());
+                if(count($photos) > 0) {
+                    foreach ($photos as $file) {
+                        $required_ids[] = $file->file_type_id;
+                    }
+                }
+
+                $all = array_merge($docs_ids, $photos_ids);
+                $file_types = FileTypeAgro::whereIn('id', $all)->whereNotIn('id', $required_ids)->get();
             }
         }
 

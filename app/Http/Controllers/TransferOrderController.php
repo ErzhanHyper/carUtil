@@ -25,7 +25,12 @@ class TransferOrderController extends Controller
     {
         try {
             $result['status'] = 200;
-            $result['data'] = app(TransferService::class)->getById($id);
+            $item = app(TransferService::class)->getById($id);
+            $itemData = json_decode($item->data);
+            $result['data'] = [
+                'item' => $item,
+                'contract' => $item->closed === 1 ? app(DocumentTransferService::class)->setData($id, null) : null
+            ];
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];

@@ -190,8 +190,14 @@ class TransferService
         ]));
 
         if ($sign && $sign_data != '') {
-            if($user->id === $transfer_order->liner_id && ($user->idnum === $sign_data->iin || $user->idnum === $sign_data->bin)) {
-                $this->ownerSign($id, $sign, $hash);
+            if($user->id === $transfer_order->liner_id
+//                && ($user->idnum === $sign_data->iin || $user->idnum === $sign_data->bin)
+            ) {
+                if(isset($request->contractData)){
+                    $transfer_order->data = json_encode($request->contractData);
+                }
+
+                $this->ownerSign($transfer_order, $sign, $hash);
                 $message = 'Успешно подписано';
                 $success = true;
             }
@@ -199,7 +205,7 @@ class TransferService
             if($user->id === $transfer_deal->liner_id
 //                && ($user->idnum === $sign_data->iin || $user->idnum === $sign_data->bin)
             ) {
-                $this->receiverSign($id, $sign, $hash);
+                $this->receiverSign($transfer_order, $sign, $hash);
 
                 $preorder = PreOrderCar::where('order_id', $transfer_order->order_id)->first();
 
@@ -238,18 +244,16 @@ class TransferService
     }
 
 
-    private function ownerSign($id, $sign, $hash)
+    private function ownerSign($transfer_order, $sign, $hash)
     {
-        $transfer_order = TransferOrder::find($id);
         $transfer_order->owner_sign = $sign;
         $transfer_order->owner_sign_time = time();
         $transfer_order->hash = $hash;
         $transfer_order->save();
     }
 
-    private function receiverSign($id, $sign, $hash)
+    private function receiverSign($transfer_order, $sign, $hash)
     {
-        $transfer_order = TransferOrder::find($id);
         $transfer_order->receiver_sign = $sign;
         $transfer_order->receiver_sign_time = time();
         $transfer_order->closed = 2;

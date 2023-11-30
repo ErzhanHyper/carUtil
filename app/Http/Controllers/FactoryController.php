@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FactoryResource;
 use App\Models\Factory;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ class FactoryController extends Controller
     public function get(){
         try {
             $result['status'] = 200;
-            $result['data'] = ['items' => Factory::all()];
+            $result['data'] = ['items' => FactoryResource::collection(Factory::all())];
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];
@@ -34,6 +35,7 @@ class FactoryController extends Controller
                 $data = new Factory();
                 $data->title = $request->title;
                 $data->address = $request->address;
+                $data->region_id = $request->region_id;
                 $data->save();
                 $result['data'] = $data;
                 $result['data']['success'] = true;
@@ -50,7 +52,7 @@ class FactoryController extends Controller
     public function getById($id){
         try {
             $result['status'] = 200;
-            $result['data'] = Factory::find($id);
+            $result['data'] = new FactoryResource(Factory::find($id));
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];
@@ -79,6 +81,9 @@ class FactoryController extends Controller
             }
             if($request->address) {
                 $factory->address = $request->address;
+            }
+            if($request->region) {
+                $factory->region_id = $request->region_id;
             }
             $factory->save();
             $result['status'] = 200;

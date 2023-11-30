@@ -16,6 +16,9 @@ class BookingOrderService
 
         $user = app(AuthService::class)->auth();
         $datetime = strtotime($request->datetime);
+
+        $date = strtotime(date('d.m.Y', $datetime) . ' 00:00:00');
+
         $factory_id = $request->factory_id;
 
         if (isset($request->preorder_id)) {
@@ -30,22 +33,26 @@ class BookingOrderService
                     throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, заявка была отклонена']]));
                 }
 
-                $closedDate = strtotime(date('d.m.Y', time()) . ' + 15 days');
+                $closedDate = strtotime(date('d.m.Y', $preorder->date) . ' + 15 days');
 
-                if ($datetime >= $closedDate) {
+                if ($date > $closedDate) {
                     throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, дата не больше 15 дней']]));
                 }
 
-                if ($datetime < time()) {
-                    throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, дата уже прошла']]));
+                if ($date < time()) {
+                    throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, выберите дату со следующего дня']]));
                 }
 
                 $closedDate2 = strtotime(date('d.m.Y', $preorder->date) . ' + 15 days');
 
                 $diffDate = $closedDate2 - time();
 
-                if ($datetime > $closedDate2) {
+                if ($date > $closedDate2) {
                     throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, дата не больше ' . date('j', $diffDate) . ' дней']]));
+                }
+
+                if(date('G', $datetime) > 18 ||  date('G', $datetime) < 9){
+                    throw new InvalidArgumentException(json_encode(['booking' => ['Бронь недоступен, время не выбрана']]));
                 }
 
                 $data = BookingOrder::where('factory_id', $factory_id)->where('datetime', $datetime)->first();
