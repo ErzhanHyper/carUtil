@@ -55,9 +55,8 @@
                          >
                         <q-icon name="file_copy" class="q-mr-sm" size="sm"  v-if="doc_id !== doc.id"></q-icon>
                         <q-circular-progress indeterminate rounded size="xs" v-if="doc_id === doc.id" color="primary" class="q-mr-xs"/>
-                        <a href="#" @click="getFile(doc.id)"
-                           class="text-dark">
-                            {{ getFileTypeTitle(doc.file_type_id) }}
+                        <a href="#" @click="getFile(doc.id)" class="text-dark">
+                            {{ doc.file_type.title }}
                         </a>
                         <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px"
                                 color="negative"
@@ -91,7 +90,7 @@
                 <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" v-for="(slide, i) in filesPhoto"
                                   :key="i">
                     <q-img :src="slide.base64Image" class="full-height cursor-pointer" @click="showImage(slide.base64Image)"/>
-                    <div class="text-body1">{{ getFileTypeTitle(slide.file_type_id) }}</div>
+                    <div class="text-body1">{{slide.file_type.title }}</div>
                     <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
                            style="position:absolute;right:7px;top:7px" v-if="!blocked"
                            @click="deleteFile({ type: 'photo', id: slide.id })" />
@@ -216,17 +215,6 @@ export default {
                 }
 
             })
-
-        },
-
-        getFileTypeTitle(id) {
-            let title = '';
-            this.filesOptions.filter(el => {
-                if (el.id === id) {
-                    title = el.title
-                }
-            })
-            return title
         },
 
         selectFile(evt) {

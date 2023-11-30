@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PreorderFileResource;
 use App\Http\Resources\FileResource;
 use App\Models\AgroFile;
 use App\Models\Car;
@@ -191,13 +192,13 @@ class FileController extends Controller
 
         if ($preorder) {
             if ($preorder->recycle_type === 1) {
-                $docs = CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,5,6,17,28])->get();
-                $photos =  CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,36])->get();
-                $file_types = FileType::whereIn('id', [1,2,5,6,17,28, 8,9,10,11,12,13,14,15,36])->get();
+                $docs = PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,5,6,17,28])->get());
+                $photos =  PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [8,9,10,11,12,13,14,15,36,37])->get());
+                $file_types = FileType::whereIn('id', [1,2,5,6,17,28, 8,9,10,11,12,13,14,15,36,37])->orderBy('weight')->get();
 
             } else if ($preorder->recycle_type === 2) {
-                $docs = AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,13,14])->get();
-                $photos =  AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get();
+                $docs = PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [1,2,3,13,14])->get());
+                $photos =  PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get());
                 $file_types = FileTypeAgro::whereIn('id', [1,2,3,13,14, 4,5,6,7,8,9,10,11])->get();
             }
         }

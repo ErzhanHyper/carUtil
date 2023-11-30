@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources;
 
+use App\Models\FileType;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CarFileResource extends JsonResource
+class PreorderFileResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,10 +15,14 @@ class CarFileResource extends JsonResource
      */
     public function toArray($request)
     {
+
+        $file_type = FileType::find($this->file_type_id);
+
         return [
             'id' => $this->id,
             'preorder_id' => $this->preorder_id,
             'file_type_id' => $this->file_type_id,
+            'file_type' => $file_type,
             'original_name' => $this->original_name,
             'client_id' => $this->client_id,
             'extension' => $this->extension,
