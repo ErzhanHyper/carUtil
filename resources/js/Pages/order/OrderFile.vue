@@ -285,6 +285,8 @@ export default {
                 this.file_type_id = null
                 this.pickFile = null
                 this.item.file = null
+            }).catch(() => {
+                this.loading = false
             })
         },
 

@@ -258,6 +258,7 @@ export default {
                 this.$refs.file_dialog.value = null
                 this.item.file = null
              }).catch(() => {
+                this.loading = false
             })
 
         },
