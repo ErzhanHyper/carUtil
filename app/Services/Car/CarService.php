@@ -75,7 +75,7 @@ class CarService
             'chassis_no' => 'required',
             'weight' => 'required',
             'm_model' => 'required',
-            'doors_count' => 'required',
+            'doors_count' => 'required|numeric|max:5',
             'wheels_count' => 'required',
             'wheels_protector_count' => 'required',
         ]);

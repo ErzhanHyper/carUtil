@@ -70,7 +70,7 @@
             <div class="row q-gutter-md q-mb-md">
                 <div class="col">
                     <q-input outlined dense square v-model="item.doors_count" label="Количество дверей" type="number"
-                             min="0" :readonly="blockedCustom"/>
+                             :min="0" :rules="doorsRules" :readonly="blockedCustom"/>
                 </div>
                 <div class="col">
                     <q-input outlined dense square v-model="item.wheels_count" label="Количество колес" type="number"
@@ -101,6 +101,14 @@ import {Notify} from "quasar";
 export default {
     components: {CategoryField},
     props: ['data', 'getCar', 'blocked', 'blockedCustom', 'vehicleType', 'preorder_id'],
+    setup () {
+        return {
+            doorsRules: [
+                val => (val !== null && val !== '') || 'Не больше 5',
+                val => (val > 0 && val < 6) || 'Не больше 5'
+            ],
+        }
+    },
 
     data() {
         return {
