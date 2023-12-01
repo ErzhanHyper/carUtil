@@ -80,8 +80,8 @@
             </q-carousel>
 
             <input type="file" ref="file_dialog" v-bind:value="uploadedFile"
-                   v-on:input="event => uploadFile(event)"
-                   @cancel="event => cancelFileDialog(event)"
+                   @change="event => uploadFile(event)"
+                   @cancel="event => cancelFileDialog()"
                    :readonly="blocked"
                    v-if="!blocked" class="hidden"/>
 
