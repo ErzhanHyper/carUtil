@@ -262,13 +262,14 @@ export default {
                 client_id: this.client_id
             }).then(() => {
                 this.getItems()
-                this.file_type_id = null
-                this.pickFile = null
-                this.$refs.file_dialog.value = null
-                this.item.file = null
              }).catch(() => {
                 this.loading = false
-            })
+            }).finally(() => {
+                 this.file_type_id = null
+                 this.pickFile = null
+                 this.$refs.file_dialog.value = null
+                 this.item.file = null
+             })
 
         },
 

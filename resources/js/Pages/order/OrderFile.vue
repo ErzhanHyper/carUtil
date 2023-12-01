@@ -283,13 +283,14 @@ export default {
                 order_id: this.order_id,
                 client_id: this.client_id
             }).then(() => {
-                this.$refs.file_dialog = null
                 this.getItems()
+            }).catch(() => {
+                this.loading = false
+            }).finally(() => {
                 this.file_type_id = null
                 this.pickFile = null
                 this.item.file = null
-            }).catch(() => {
-                this.loading = false
+                this.$refs.file_dialog = null
             })
         },
 
