@@ -81,7 +81,7 @@
 
             <input type="file" ref="file_dialog" v-bind:value="uploadedFile"
                    @change="event => uploadFile(event)"
-                   @cancel="event => cancelFileDialog()"
+                   @cancel="cancelFileDialog()"
                    :readonly="blocked"
                    v-if="!blocked" class="hidden"/>
 
@@ -246,10 +246,12 @@ export default {
         },
 
         selectFile(evt) {
-            this.$refs.file_dialog.value = this.uploadedFile;
-            this.file_type_id = evt
-            this.pickFile = this.$refs.file_dialog
-            this.pickFile.click();
+            if(evt && this.$refs.file_dialog) {
+                this.$refs.file_dialog.value = this.uploadedFile;
+                this.file_type_id = evt
+                this.pickFile = this.$refs.file_dialog
+                this.pickFile.click();
+            }
         },
 
         deleteFile() {
