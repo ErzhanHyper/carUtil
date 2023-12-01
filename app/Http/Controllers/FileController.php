@@ -91,7 +91,7 @@ class FileController extends Controller
 
         $validator = Validator::make($request->all(),
             [
-                'file' => 'required|' . $types,
+                'file' => 'required|file|max:2048|' . $types,
             ],
         );
 
@@ -202,7 +202,7 @@ class FileController extends Controller
 
         $validator = Validator::make($request->all(),
             [
-                'file' => 'required|' . $types,
+                'file' => 'required|file|max:2048|' . $types,
             ],
         );
 

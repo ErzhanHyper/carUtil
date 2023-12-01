@@ -264,9 +264,10 @@ export default {
                 client_id: this.client_id
             }).then(() => {
                 this.getItems()
-             }).catch(() => {
+             }).catch((res) => {
                 this.loading = false
-            }).finally(() => {
+                 this.showNotify(JSON.parse(res.message))
+             }).finally(() => {
                  this.file_type_id = null
                  this.item.file = {
                      title: ''
@@ -322,6 +323,21 @@ export default {
                 })
             }
         },
+
+        showNotify(messages) {
+            let messageData = []
+            Object.values(messages).map((el, i) => {
+                messageData.push('<div></div>*' + el[0])
+            });
+            Notify.create({
+                message: messageData,
+                position: 'top-right',
+                type: 'info',
+                html: true,
+                timeout: 20000,
+                actions: [{icon: 'close', color: 'white'}]
+            })
+        }
 
     },
 

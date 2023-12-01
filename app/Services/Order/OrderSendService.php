@@ -66,45 +66,39 @@ class OrderSendService
 
     private function processFile($order)
     {
-        $car = Car::where('order_id', $order->id)->first();
+        $car = $order->car;
 
-        if($car) {
-
-            if (in_array($car->car_type_id, [1, 2])) {
-                $file_type_ids = [8,9,10,11,12,13,14,15,16,18,36,37];
-                $file_types = FileType::whereIn('id', $file_type_ids)->orderBy('weight');
-                $count = 12;
-            } else {
-                $file_type_ids = [4,5,6,7,8,9,10,11,12];
-                $file_types = FileTypeAgro::whereIn('id', $file_type_ids);
-                $count = 9;
-            }
-
-            $files = File::select(['order_id', 'file_type_id'])->where('order_id', $order->id)->whereIn('file_type_id', $file_type_ids)->get();
-            $docs = File::where('order_id', $order->id)->whereIn('file_type_id', $file_type_ids)->get();
-
-            $required_ids = [];
-            if(count($docs) > 0) {
-                foreach ($docs as $file) {
-                    $required_ids[] = $file->file_type_id;
-                }
-            }
-            $file_types = $file_types->whereNotIn('id', $required_ids)->get();
-
-            if(count($file_types) > 0) {
-                if (count($file_types) <= $count) {
-                    $names = [Lang::get('messages.file_credentials')];
-
-                    foreach ($file_types as $item) {
-                        $names[] = [$item->title];
-                    }
-                    $this->setMessage(json_encode($names));
-                    return false;
-                }
-            }
-
-            return true;
+        if (!$car) {
+            return false;
         }
+
+        $file_type_ids = $car->car_type_id === 1 || $car->car_type_id === 2
+            ? [8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 36, 37]
+            : [4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+        $file_types = $car->car_type_id === 1 || $car->car_type_id === 2
+            ? FileType::whereIn('id', $file_type_ids)->orderBy('weight')
+            : FileTypeAgro::whereIn('id', $file_type_ids);
+
+        $docs = File::where('order_id', $order->id)->whereIn('file_type_id', $file_type_ids)->get();
+
+        $required_ids = $docs->pluck('file_type_id')->all();
+        $file_types = $file_types->whereNotIn('id', $required_ids)->get();
+
+        if(count($file_types) > 0) {
+            $count = $car->car_type_id === 1 || $car->car_type_id === 2 ? 12 : 9;
+            if (count($file_types) <= $count) {
+                $names = [Lang::get('messages.file_credentials')];
+
+                foreach ($file_types as $item) {
+                    $names[] = [$item->title];
+                }
+                $this->setMessage(json_encode($names));
+                return false;
+            }
+        }
+
+        return true;
     }
 
 

@@ -71,7 +71,7 @@ export function storePreOrderFile(params) {
         api.post('/file/preorder/store', params,  {headers: {'Content-Type': 'multipart/form-data'}}).then(response => {
             resolve(response.data)
         }).catch((e) => {
-            reject('Ошибка при загрузке')
+            reject(e.response.data)
         }).finally(() => {
         })
     })
@@ -82,7 +82,7 @@ export function storeOrderFile(params) {
         api.post('/file/order/store', params,  {headers: {'Content-Type': 'multipart/form-data'}}).then(response => {
             resolve(response.data)
         }).catch((e) => {
-            reject('Ошибка при загрузке')
+            reject(e.response.data)
         }).finally(() => {
         })
     })
