@@ -215,13 +215,15 @@ class PreorderSendService
         }
         $file_types = $file_types->whereNotIn('id', $required_ids)->get();
 
-        if (count($file_types) <= $count) {
-            $names = [Lang::get('messages.file_credentials')];
-            foreach ($file_types as $item){
-                $names[] = [$item->title];
+        if(count($file_types) > 0) {
+            if (count($file_types) <= $count) {
+                $names = [Lang::get('messages.file_credentials')];
+                foreach ($file_types as $item) {
+                    $names[] = [$item->title];
+                }
+                $this->setMessage(json_encode($names));
+                return false;
             }
-            $this->setMessage(json_encode($names));
-            return false;
         }
 
         return true;
