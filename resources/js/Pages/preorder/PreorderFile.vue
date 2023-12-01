@@ -98,9 +98,11 @@
 
             </q-carousel>
 
-            <input type="file" ref="file_dialog" v-bind:value="uploadedFile" class="hidden"
-                   @change="event => uploadFile(event)" :readonly="blocked"
-                   v-if="!blocked"/>
+            <input type="file" ref="file_dialog" v-bind:value="uploadedFile"
+                   v-on:input="event => uploadFile(event)"
+                   @cancel="event => cancelFileDialog(event)"
+                   :readonly="blocked"
+                   v-if="!blocked" class="hidden"/>
 
         </q-card-section>
 
@@ -221,6 +223,13 @@ export default {
             this.file_type_id = evt
             this.pickFile = this.$refs.file_dialog
             this.pickFile.click();
+        },
+
+        cancelFileDialog(){
+            this.$refs.file_dialog = null
+            this.file_type_id = null
+            this.pickFile = null
+            this.item.file = null
         },
 
         deleteFile(value) {

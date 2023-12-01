@@ -50,7 +50,7 @@
                     </q-btn>
                     <q-btn v-if="permissions.sendToApprove"
                            :disable="blocked"
-                           color="negative" icon="delete"
+                           color="pink-5" icon="delete"
                            label="Удалить заявку"
                            push
                            size="12px"

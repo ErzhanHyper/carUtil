@@ -7,10 +7,10 @@
         <q-btn v-if="item.isOwner && item.closed === 0" :to="'/preorder/'+item.order.preorder_id" class="q-mt-sm" color="blue-grey-5"
                icon="open_in_new" label="Перейти к заявке" size="11px"/>
 
-        <q-btn v-if="item.isOwner && item.closed !== 2" :loading="loading2" color="negative"
+        <q-btn v-if="item.isOwner && item.closed !== 2" :loading="loading2" color="pink-5"
                icon="close" label="Отменить продажу ТС/СХТ" size="11px"
                @click="removeTransfer"/>
-        <q-btn v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2" color="negative"
+        <q-btn v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2" color="pink-5"
                icon="close" label="Отменить предложение"
                size="11px" @click="removeTransferDeal"/>
     </div>

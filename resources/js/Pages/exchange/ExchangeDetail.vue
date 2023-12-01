@@ -21,7 +21,7 @@
 
             <template v-if="show && user.role === 'liner'">
                 <q-btn label="Подписать" size="12px" color="positive" icon="gesture" @click="send" v-if="item.canSign" :loading="loading2"/>
-                <q-btn label="Отменить" size="12px" color="negative" icon="close" class="q-ml-md" v-if="item.canDelete" :loading="loading3" @click="deleteData"/>
+                <q-btn label="Отменить" size="12px" color="pink-5" icon="close" class="q-ml-md" v-if="item.canDelete" :loading="loading3" @click="deleteData"/>
             </template>
         </div>
     </div>

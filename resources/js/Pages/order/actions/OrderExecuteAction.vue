@@ -13,7 +13,7 @@
         <q-btn :loading="loading"
                push
                size="12px"
-               color="negative"
+               color="pink-5"
                label="Отменить исполнение"
                icon="close"
                v-if="permissions.stop"
