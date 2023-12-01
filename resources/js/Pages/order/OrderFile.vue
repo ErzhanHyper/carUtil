@@ -291,7 +291,6 @@ export default {
         getOrderFile(id){
             this.doc_id = id
             getOrderFile(id, {params: {order_id: this.order_id}, responseType: 'arraybuffer'}).then((res) => {
-                console.log(res)
                 let parts = res.headers.get('Content-Disposition').split(';');
                 let filename = parts[1].split('=')[1];
                 FileDownload(res.data, filename)

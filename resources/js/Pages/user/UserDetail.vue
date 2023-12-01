@@ -49,7 +49,6 @@ export default {
         },
 
         updateData(){
-            console.log(this.item)
             this.loading = true
             updateUser(this.item.id, this.item).then(() => {
                 this.getData()

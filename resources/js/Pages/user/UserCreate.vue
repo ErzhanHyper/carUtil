@@ -53,7 +53,6 @@ export default {
             }).finally(() => {
                 this.loading = false
             }).catch((reject) => {
-                console.log(reject)
                 this.errors = reject.response.data
                 this.showBanner = true
             })

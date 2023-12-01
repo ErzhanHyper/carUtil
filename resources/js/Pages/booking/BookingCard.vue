@@ -138,8 +138,6 @@ export default {
     },
 
     created() {
-        console.log(this.options)
-
         if(this.data){
             this.item = this.data
         }else {
