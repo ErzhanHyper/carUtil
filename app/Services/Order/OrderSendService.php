@@ -73,7 +73,7 @@ class OrderSendService
             if (in_array($car->car_type_id, [1, 2])) {
                 $file_type_ids = [8,9,10,11,12,13,14,15,16,18,36,37];
                 $file_types = FileType::whereIn('id', $file_type_ids)->orderBy('weight');
-                $count = 11;
+                $count = 12;
             } else {
                 $file_type_ids = [4,5,6,7,8,9,10,11,12];
                 $file_types = FileTypeAgro::whereIn('id', $file_type_ids);
@@ -89,10 +89,11 @@ class OrderSendService
                     $required_ids[] = $file->file_type_id;
                 }
             }
+            $file_types = $file_types->whereNotIn('id', $required_ids)->get();
 
-            if(count($files) <= $count) {
+            if(count($file_types) <= $count) {
                 $names = [Lang::get('messages.file_credentials')];
-                $file_types = $file_types->whereNotIn('id', $required_ids)->get();
+
                 foreach ($file_types as $item){
                     $names[] = [$item->title];
                 }
