@@ -26,7 +26,7 @@
                         <q-badge v-if="item.closed === 1">На подписи</q-badge>
                     </template>
                     <template v-else>
-                        <q-badge v-if="item.closed === 1">В ожидании подписи</q-badge>
+                        <q-badge v-if="item.closed === 1">В ожидании подписи получателя</q-badge>
                     </template>
                 </td>
             </tr>

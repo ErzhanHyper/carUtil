@@ -38,7 +38,7 @@
 
                 <q-btn label="Выбрать" class="q-mr-sm" outline color="indigo-8" size="11px" icon="add" @click="acceptTransfer(item.id)" :loading="loading1" v-if="data.canAccept"/>
                 <q-btn icon="close" class="q-mr-sm" color="pink-5" size="sm" @click="closeDeal(item.id)" v-if="item.canClose" :loading="loading2">
-                    <q-tooltip class="bg-indigo text-body2" :offset="[10, 10]">
+                    <q-tooltip class="bg-indigo" :offset="[10, 10]">
                         Отменить выбор
                     </q-tooltip>
                 </q-btn>

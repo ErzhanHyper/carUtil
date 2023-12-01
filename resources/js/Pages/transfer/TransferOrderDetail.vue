@@ -24,7 +24,7 @@
                     выбрана
                 </q-chip>
                 <q-chip v-if="!item.canDeal && item.canSign" class="text-body1" color="blue-1" square>В ожидании
-                    подписи
+                    подписи получателя
                 </q-chip>
             </div>
 
