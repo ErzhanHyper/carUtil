@@ -140,7 +140,7 @@ class FileController extends Controller
                 $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $docs_ids)->get());
                 if(count($docs) > 0) {
                     foreach ($docs as $file) {
-                        if($file->file_type_id !== 28) {
+                        if($file->file_type_id !== 13) {
                             $required_ids[] = $file->file_type_id;
                         }
                     }
@@ -153,7 +153,7 @@ class FileController extends Controller
                     }
                 }
                 $all = array_merge($docs_ids, $photos_ids);
-                $file_types = FileTypeAgro::whereIn('id', $all)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
+                $file_types = FileTypeAgro::whereIn('id', $all)->whereNotIn('id', $required_ids)->get();
 
             }
         }
