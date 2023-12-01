@@ -114,6 +114,14 @@ export default {
         this.$emitter.on('contentLoaded', (value) => {
             this.contentLoad = value
         })
-    }
+
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            window.back = function() {
+                history.go(-1)
+            }
+        }
+    },
+
 }
+
 </script>
