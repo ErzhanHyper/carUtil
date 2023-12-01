@@ -133,9 +133,28 @@ class FileController extends Controller
                 $all = array_merge($docs_ids, $photos_ids);
                 $file_types = FileType::whereIn('id', $all)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
             } else if ($car->car_type_id === 3 || $car->car_type_id === 4) {
-                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [1,2,3,13,14, 29])->get());
-                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', [4,5,6,7,8,9,10,11,12])->get());
-                $file_types = FileTypeAgro::whereIn('id', [1,2,3,13,14, 4,5,6,7,8,9,10,11,12, 29])->get();
+                $docs_ids = [1,2,3,13,14, 29];
+                $photos_ids = [4,5,6,7,8,9,10,11,12];
+                $required_ids = [];
+
+                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $docs_ids)->get());
+                if(count($docs) > 0) {
+                    foreach ($docs as $file) {
+                        if($file->file_type_id !== 28) {
+                            $required_ids[] = $file->file_type_id;
+                        }
+                    }
+                }
+
+                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $photos_ids)->get());
+                if(count($photos) > 0) {
+                    foreach ($photos as $file) {
+                        $required_ids[] = $file->file_type_id;
+                    }
+                }
+                $all = array_merge($docs_ids, $photos_ids);
+                $file_types = FileTypeAgro::whereIn('id', $all)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
+
             }
         }
         return response()->json([
