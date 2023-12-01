@@ -228,9 +228,7 @@ export default {
         },
 
         cancelFileDialog(){
-            this.$refs.file_dialog = null
             this.file_type_id = null
-            this.pickFile = null
             this.item.file = {
                 title: ''
             }
