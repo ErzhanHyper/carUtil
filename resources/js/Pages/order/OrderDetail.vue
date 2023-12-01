@@ -115,7 +115,7 @@
                     <div class="col col-md-7 col-sm-12 col-xs-12">
                         <booking v-if="item.booking" :blocked="true" :data="item.booking" :getBooking="getBooking"
                                  class="q-mb-md"/>
-                        <car-card :blocked="true" :data="item.car" :getCar="getCar" :vehicleType="item.vehicleType"/>
+                        <car-card :blocked="true" :blockedCustom="true" :data="item.car" :getCar="getCar" :vehicleType="item.vehicleType"/>
                     </div>
                 </div>
                 <order-history :items="item.history"/>

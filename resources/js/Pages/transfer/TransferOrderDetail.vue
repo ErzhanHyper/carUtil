@@ -100,7 +100,7 @@
                     </q-card-section>
                 </q-card>
 
-                <car-card :blocked="true" :data="item.order.car" :order_id="item.order.id"
+                <car-card :blocked="true" :blockedCustom="true" :data="item.order.car" :order_id="item.order.id"
                           :vehicleType="item.vehicleType"/>
             </div>
 
