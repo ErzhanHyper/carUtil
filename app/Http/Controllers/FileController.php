@@ -309,7 +309,7 @@ class FileController extends Controller
             $file = File::find($id);
             if ($file) {
                 $order = Order::find($file->order_id);
-                if ($order && (($order->approve === 4 && $user->id === $order->user_id) || $order->approve === 0)) {
+                if ($order && (($order->approve === 4 && $user->id === $order->user_id) || $order->approve === 0 || ($order->status === 4 && $user->id === $order->user_id))) {
                     $path = 'order/files/'.$order->id.'/'.$file->original_name;
                     if(Storage::exists($path)) {
                         Storage::delete($path);
