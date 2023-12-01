@@ -2,10 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Models\FileType;
+use App\Models\FileTypeAgro;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PreorderFileResource extends JsonResource
+class FileTypeAgroResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,8 +15,7 @@ class PreorderFileResource extends JsonResource
      */
     public function toArray($request)
     {
-
-        $file_type = FileType::find($this->file_type_id);
+        $file_type = FileTypeAgro::find($this->file_type_id);
 
         return [
             'id' => $this->id,

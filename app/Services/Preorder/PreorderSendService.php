@@ -9,12 +9,14 @@ use App\Models\Car;
 use App\Models\CarFile;
 use App\Models\Client;
 use App\Models\FileType;
+use App\Models\FileTypeAgro;
 use App\Models\PreOrderCar;
 use App\Services\AuthService;
 use App\Services\Car\CarService;
 use App\Services\Client\ClientService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
+use InvalidArgumentException;
 
 class PreorderSendService
 {
@@ -57,10 +59,10 @@ class PreorderSendService
             $car = $this->processCar($preorder, $request->car);
             $file = $this->processFile($preorder);
 
-            if($car) {
+            if ($car) {
                 $preorder->car_id = $car->id;
             }
-            if($client){
+            if ($client) {
                 $preorder->client_id = $client->id;
             }
             $preorder->save();
@@ -86,8 +88,7 @@ class PreorderSendService
             //Проверка клиента на совпадение ИИН с учетной записью
             if ($preorder->status === config("constants.NEW_PREORDER") || $preorder->status === config("constants.RETURNED_BACK_PREORDER")) {
                 if ($user->idnum !== $request->client['idnum']) {
-                    $this->setMessage(json_encode(['vin' => [Lang::get('messages.iin_credentials_1')]]));
-                    return false;
+                    throw new InvalidArgumentException(json_encode(['vin' => [Lang::get('messages.iin_credentials_1')]]));
                 }
             }
 
@@ -98,8 +99,7 @@ class PreorderSendService
                     foreach ($car as $item) {
                         //Проверка на одобренную заявку с текущим VIN
                         if ($this->preorderService->isOrderAlreadyApproved($item->order_id)) {
-                            $this->setMessage(json_encode(['vin' => [Lang::get('messages.vin_credentials_1')]]));
-                            return false;
+                            throw new InvalidArgumentException(json_encode(['vin' => [Lang::get('messages.vin_credentials_1')]]));
                         }
 
                         //Поиск дубликатов предзаявок
@@ -109,8 +109,7 @@ class PreorderSendService
 
                         //Проверка на срок истечение дублирующих предзаявок
                         if ($preorderDuplicate && $this->preorderService->checkOrderReviewDate($item->id)) {
-                            $this->setMessage(json_encode(['vin' => [Lang::get('messages.vin_credentials_2')]]));
-                            return false;
+                            throw new InvalidArgumentException(json_encode(['vin' => [Lang::get('messages.vin_credentials_2')]]));
                         }
                     }
                 }
@@ -131,45 +130,6 @@ class PreorderSendService
         $this->message = $message;
     }
 
-
-    private function processFile($preorder)
-    {
-
-        if($preorder->recycle_type === 1) {
-            $file_type_ids = [1, 2, 8, 9, 10, 11, 12, 13, 14];
-            $files = CarFile::select(['preorder_id', 'file_type_id'])->where('preorder_id', $preorder->id)->whereIn('file_type_id', $file_type_ids)->get();
-        }else if($preorder->recycle_type === 2){
-            $file_type_ids = [1,4,5,6,7,8,9,10,11,12];
-            $files = AgroFile::select(['preorder_id', 'file_type_id'])->where('preorder_id', $preorder->id)->whereIn('file_type_id', $file_type_ids)->get();
-        }else{
-            $file_type_ids = [];
-        }
-
-
-        $required_ids = [];
-        if(count($files) > 0) {
-            foreach ($files as $file) {
-                $required_ids[] = $file->file_type_id;
-            }
-        }
-        if(count($files) <= 8) {
-            if($preorder->recycle_type === 1) {
-                $file_types = FileType::whereIn('id', $file_type_ids)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
-            }else if($preorder->recycle_type === 2){
-                $file_types = FileTypeAgro::whereIn('id', $file_type_ids)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
-            }
-            $names = [];
-            foreach ($file_types as $item){
-                $names[] = [$item->title];
-            }
-            $this->setMessage(json_encode($names));
-            return false;
-        }
-
-        return true;
-    }
-
-    //Проверка и заполнение данных о клиенте
     private function processClient($preorder, $request)
     {
         $client = Client::find($preorder->client_id);
@@ -188,7 +148,8 @@ class PreorderSendService
         return $client;
     }
 
-    //Проверка и заполнение данных о ТС/СХТ
+    //Проверка и заполнение данных о клиенте
+
     private function processCar($preorder, $request)
     {
         $car_request = new Request([
@@ -229,7 +190,44 @@ class PreorderSendService
         return $car;
     }
 
+    //Проверка и заполнение данных о ТС/СХТ
+
+    private function processFile($preorder)
+    {
+        if ($preorder->recycle_type === 1) {
+            $file_type_ids = [1, 2, 8, 9, 10, 11, 12, 13, 14];
+            $count = 9;
+            $files = CarFile::select(['preorder_id', 'file_type_id'])->where('preorder_id', $preorder->id)->whereIn('file_type_id', $file_type_ids)->get();
+            $file_types = FileType::whereIn('id', $file_type_ids)->orderBy('weight');
+
+        } else {
+            $count = 10;
+            $file_type_ids = [1, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+            $files = AgroFile::select(['preorder_id', 'file_type_id'])->where('preorder_id', $preorder->id)->whereIn('file_type_id', $file_type_ids)->get();
+            $file_types = FileTypeAgro::whereIn('id', $file_type_ids);
+        }
+
+        $required_ids = [];
+        if (count($files) > 0) {
+            foreach ($files as $file) {
+                $required_ids[] = $file->file_type_id;
+            }
+        }
+        if (count($files) <= $count) {
+            $names = [Lang::get('messages.file_credentials')];
+            $file_types = $file_types->whereNotIn('id', $required_ids)->get();
+            foreach ($file_types as $item){
+                $names[] = [$item->title];
+            }
+            $this->setMessage(json_encode($names));
+            return false;
+        }
+
+        return true;
+    }
+
     //Сохранение данных предзаявки
+
     private function sendToModerator($preorder, $client, $car)
     {
         $preorder->status = config("constants.SENDED_PREORDER");

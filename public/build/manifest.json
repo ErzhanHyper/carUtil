@@ -1,6 +1,6 @@
 {
-  "_index-2e815946.js": {
-    "file": "assets/index-2e815946.js",
+  "_index-a0dbcfaf.js": {
+    "file": "assets/index-a0dbcfaf.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -27,9 +27,9 @@
       "assets/app-652f37b5.css"
     ],
     "dynamicImports": [
-      "_index-2e815946.js"
+      "_index-a0dbcfaf.js"
     ],
-    "file": "assets/app-3e8d4c7f.js",
+    "file": "assets/app-d1d82b65.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },

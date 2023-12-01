@@ -1,6 +1,6 @@
 <template>
     <q-btn class="q-mr-md" flat round>
-        <q-icon color="blue-6" name="notifications"/>
+        <q-icon color="primary" name="notifications"/>
         <q-badge color="deep-orange" floating rounded style="margin-top: 5px" v-if="count > 0">{{ count }}</q-badge>
 
         <q-menu v-model="show" style="margin-top:4px!important; width: 300px">

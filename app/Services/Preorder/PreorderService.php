@@ -216,11 +216,12 @@ class PreorderService
     {
         $user = $this->authService->auth();
         $order = Order::find($preorder->order_id);
-
+        $car = Car::find($preorder->car_id);
         $canTransfer = false;
         $canSend = false;
         $canApprove = false;
         $blocked = true;
+        $blockedCar = true;
         $blockedBooking = true;
 
         if ($order) {
@@ -238,11 +239,15 @@ class PreorderService
                 }
             }
         }
-        if ($preorder->status === 0 || $preorder->status === 4) {
+        if (($preorder->status === 0 || $preorder->status === 4)) {
             if ($user->role === 'liner') {
                 $canSend = true;
                 $blocked = false;
             }
+        }
+
+        if(!$car){
+            $blockedCar = false;
         }
         if ($preorder->status === 1) {
             if ($user->role === 'moderator') {
@@ -254,6 +259,7 @@ class PreorderService
             'sendToApprove' => $canSend,
             'approveOrder' => $canApprove,
             'blocked' => $blocked,
+            'blockedCar' => $blockedCar,
             'blockedBooking' => $blockedBooking
         ];
     }

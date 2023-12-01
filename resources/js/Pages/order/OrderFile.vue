@@ -237,8 +237,9 @@ export default {
                         })
                     })
                 }
-
-            })
+            }).finally(() => {
+                this.loading = false
+            });
         },
 
         selectFile(evt) {
@@ -284,9 +285,7 @@ export default {
                 this.file_type_id = null
                 this.pickFile = null
                 this.item.file = null
-            }).finally(() => {
-                this.loading = false
-            });
+            })
         },
 
         getOrderFile(id){

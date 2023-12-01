@@ -45,22 +45,8 @@ export default {
                         this.$emitter.emit('orderActionEvent')
                     }
                     if (res.message && res.message !== '' && res.success === false) {
-                        let messageData = []
                         let messages = JSON.parse(res.message)
-                        messages.map((el, i) => {
-                            if(i > 0) {
-                                messageData.push("<br> " + el)
-                            }
-                        });
-                        Notify.create({
-                            message: messages[0],
-                            caption: messageData,
-                            position: 'top-right',
-                            type: 'info',
-                            html: true,
-                            timeout: 20000,
-                            actions: [{icon: 'close', color: 'white'}]
-                        })
+                        this.showNotify(messages)
                     }
                 }).finally(() => {
                     this.loading = false
@@ -88,6 +74,25 @@ export default {
                 })
             }
         },
+
+        showNotify(messages) {
+            let messageData = []
+            Object.values(messages).map((el, i) => {
+                if(i > 0) {
+                    messageData.push('<div></div>*' + el[0])
+                }
+            });
+            Notify.create({
+                caption: messageData,
+                message: messages[0],
+                position: 'top-right',
+                type: 'info',
+                html: true,
+                timeout: 20000,
+                actions: [{icon: 'close', color: 'white'}]
+            })
+        }
+
     },
 
     created() {

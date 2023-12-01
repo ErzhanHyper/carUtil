@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PreorderFileResource;
+use App\Http\Resources\FileTypeAgroResource;
+use App\Http\Resources\FileTypeResource;
 use App\Http\Resources\FileResource;
 use App\Models\AgroFile;
 use App\Models\Car;
@@ -212,10 +213,9 @@ class FileController extends Controller
             if ($preorder->recycle_type === 1) {
                 $docs_ids = [1,2,5,6,17,28];
                 $photos_ids = [8,9,10,11,12,13,14,15,36,37];
-
-
-                $docs = PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $docs_ids)->get());
                 $required_ids = [];
+
+                $docs = FileTypeResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $docs_ids)->get());
                 if(count($docs) > 0) {
                     foreach ($docs as $file) {
                         if($file->file_type_id !== 28) {
@@ -224,7 +224,7 @@ class FileController extends Controller
                     }
                 }
 
-                $photos =  PreorderFileResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $photos_ids)->get());
+                $photos =  FileTypeResource::collection(CarFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $photos_ids)->get());
                 if(count($photos) > 0) {
                     foreach ($photos as $file) {
                         $required_ids[] = $file->file_type_id;
@@ -239,7 +239,7 @@ class FileController extends Controller
                 $photos_ids = [4,5,6,7,8,9,10,11,12];
                 $required_ids = [];
 
-                $docs = PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $docs_ids)->get());
+                $docs = FileTypeAgroResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $docs_ids)->get());
                 if(count($docs) > 0) {
                     foreach ($docs as $file) {
                         if($file->file_type_id !== 28) {
@@ -247,7 +247,7 @@ class FileController extends Controller
                         }
                     }
                 }
-                $photos =  PreorderFileResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $photos_ids)->get());
+                $photos =  FileTypeAgroResource::collection(AgroFile::where('preorder_id', $preorder_id)->whereIn('file_type_id', $photos_ids)->get());
                 if(count($photos) > 0) {
                     foreach ($photos as $file) {
                         $required_ids[] = $file->file_type_id;
@@ -306,19 +306,15 @@ class FileController extends Controller
         $message = ['status' => 'can`t delete'];
 
         if($user->role === 'operator') {
-            $file_id = $id;
             $file = File::find($id);
             if ($file) {
                 $order = Order::find($file->order_id);
-                if ($order && (($order->status === 4 || $order->status === 0) || $order->approve === 4) && $user->id === $order->user_id) {
-                    File::where('order_id', $order->id)->where('id', $file_id)->first();
-                    if($file) {
-                        $path = 'order/files/'.$order->id.'/'.$file->original_name;
-                        if(Storage::exists($path)) {
-                            Storage::delete($path);
-                        }
-                        $file->delete();
+                if ($order && (($order->approve === 4 && $user->id === $order->user_id) || $order->approve === 0)) {
+                    $path = 'order/files/'.$order->id.'/'.$file->original_name;
+                    if(Storage::exists($path)) {
+                        Storage::delete($path);
                     }
+                    $file->delete();
                     $message = ['status' => 'deleted'];
                 }
             }

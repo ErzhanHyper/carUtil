@@ -129,8 +129,8 @@
                         На бронировании
                     </q-badge>
                     <q-badge v-if="item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0" class="q-pa-xs"
-                             color="green-5">
-                        На отправке
+                             color="teal-8">
+                        В работе
                     </q-badge>
                     <q-badge v-if="item.transfer && item.transfer.closed !== 2" class="q-pa-xs">
                         <router-link :to="'/transfer/order/'+item.transfer.id">Выставлен на продажу</router-link>

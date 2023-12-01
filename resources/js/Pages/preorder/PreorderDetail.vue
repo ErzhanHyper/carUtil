@@ -100,7 +100,8 @@
                     </div>
 
                     <div class="col col-md-7 col-sm-12 col-xs-12">
-                        <car-card :blocked="blocked"
+                        <car-card :blocked="blockedCar"
+                                  :blockedCustom="blocked"
                                   :data="item.car"
                                   :getCar="getCar"
                                   :preorder_id="item.id"
@@ -189,6 +190,7 @@ export default {
 
             transferOrder: false,
             blocked: true,
+            blockedCar: true,
             blockedBooking: true,
 
             loading: false,
@@ -262,6 +264,7 @@ export default {
                 this.show = true
                 this.transfer = res.transfer
                 this.blocked = res.permissions.blocked
+                this.blockedCar = res.permissions.blockedCar
                 this.blockedBooking = res.permissions.blockedBooking
                 this.permissions.transferOrder = res.permissions.transferOrder
                 this.permissions.sendToApprove = res.permissions.sendToApprove
@@ -296,14 +299,24 @@ export default {
                         if (res.message && res.message !== '' && res.success === false) {
                             if (res.message && res.message !== '') {
                                 let messages = JSON.parse(res.message)
-                                this.showNotify(messages)
+                                let messageData = []
+                                Object.values(messages).map((el, i) => {
+                                    if(i > 0) {
+                                        messageData.push('<div></div>*' + el[0])
+                                    }
+                                });
+                                this.showNotify(messageData, messages[0])
                             }
                         }
                     }
                 }).catch(reject => {
                     if (reject.message && reject.message !== '') {
                         let messages = JSON.parse(reject.message)
-                        this.showNotify(messages)
+                        let messageData = []
+                        Object.values(messages).map((el, i) => {
+                                messageData.push('<div></div>*' + el[0])
+                        });
+                        this.showNotify(messageData, '')
                     }
 
                 }).finally(() => {
@@ -327,14 +340,10 @@ export default {
             })
         },
 
-        showNotify(messages) {
-            let messageData = []
-            Object.values(messages).map((el, i) => {
-                messageData.push("<br> " + '*'+ el[0])
-            });
+        showNotify(messages, title) {
             Notify.create({
-                caption: messageData,
-                message: 'Не все данные заполнены',
+                caption: messages,
+                message: title ?? '',
                 position: 'top-right',
                 type: 'info',
                 html: true,

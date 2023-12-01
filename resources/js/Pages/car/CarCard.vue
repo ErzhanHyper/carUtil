@@ -20,7 +20,7 @@
 
             <div class="row">
                 <div class="col q-mb-lg">
-                    <category-field :readonly="blocked" :vehicleType="vehicleType" :data="item.category_id" v-model="item.category_id" @update:model-value="selectCategory()"/>
+                    <category-field :readonly="blockedCustom" :vehicleType="vehicleType" :data="item.category_id" v-model="item.category_id" @update:model-value="selectCategory()"/>
                 </div>
             </div>
 
@@ -70,11 +70,11 @@
             <div class="row q-gutter-md q-mb-md">
                 <div class="col">
                     <q-input outlined dense square v-model="item.doors_count" label="Количество дверей" type="number"
-                             min="0" :readonly="blocked"/>
+                             min="0" :readonly="blockedCustom"/>
                 </div>
                 <div class="col">
                     <q-input outlined dense square v-model="item.wheels_count" label="Количество колес" type="number"
-                             min="0" :readonly="blocked"/>
+                             min="0" :readonly="blockedCustom"/>
                 </div>
 
             </div>
@@ -82,7 +82,7 @@
             <div class="row q-gutter-md q-mb-sm">
                 <div class="col">
                     <q-input outlined dense square v-model="item.wheels_protector_count"
-                             label="Ограждающие покрытие колес" type="number" min="0" :readonly="blocked"/>
+                             label="Ограждающие покрытие колес" type="number" min="0" :readonly="blockedCustom"/>
                 </div>
             </div>
 
@@ -100,7 +100,7 @@ import {Notify} from "quasar";
 
 export default {
     components: {CategoryField},
-    props: ['data', 'getCar', 'blocked', 'vehicleType', 'preorder_id'],
+    props: ['data', 'getCar', 'blocked', 'blockedCustom', 'vehicleType', 'preorder_id'],
 
     data() {
         return {

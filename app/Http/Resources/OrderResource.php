@@ -52,7 +52,7 @@ class OrderResource extends JsonResource
             if ($this->car->car_type_id === 1 || $this->car->car_type_id === 2) {
                 $vehicleType = 'car';
                 if($this->preorder) {
-                    $files = PreorderFileResource::collection(CarFile::where('preorder_id', $this->preorder->id)->get());
+                    $files = FileTypeResource::collection(CarFile::where('preorder_id', $this->preorder->id)->get());
                 }
             } else {
                 $vehicleType = 'agro';

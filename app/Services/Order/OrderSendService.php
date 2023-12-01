@@ -4,32 +4,27 @@
 namespace App\Services\Order;
 
 
-use App\Http\Resources\FileResource;
 use App\Models\Car;
 use App\Models\File;
 use App\Models\FileType;
 use App\Models\FileTypeAgro;
 use App\Models\Order;
 use App\Services\AuthService;
+use App\Services\Order\OrderService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Symfony\Component\HttpFoundation\Request;
 
 class OrderSendService
 {
-
     protected OrderService $orderService;
     protected AuthService $authService;
     private string $message;
     private bool $success;
 
-    public function __construct(
-        AuthService $authService,
-        OrderService $orderService,
-    )
+    public function __construct(AuthService $authService, OrderService $orderService)
     {
         $this->message = '';
         $this->success = false;
-
         $this->authService = $authService;
         $this->orderService = $orderService;
     }
@@ -39,10 +34,9 @@ class OrderSendService
     {
         $this->resetValidationState();
         $user = $this->authService->auth();
-
         $order = Order::find($id);
-
         $can = false;
+
         if($order) {
             $can = $this->processFile($order);
         }
@@ -57,11 +51,11 @@ class OrderSendService
             $order->save();
             $this->success = true;
 
-//            $this->orderService->storeHistory(new Request([
-//                'action' => 'SENDED_TO_MODERATOR',
-//                'order_id' => $order->id,
-//                'user_id' => $user->id,
-//            ]));
+            $this->orderService->storeHistory(new Request([
+                'action' => 'SENDED_TO_MODERATOR',
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+            ]));
         }
 
         return [
@@ -77,9 +71,13 @@ class OrderSendService
         if($car) {
 
             if (in_array($car->car_type_id, [1, 2])) {
-                $file_type_ids = [8,9,10,11,12,13,14,15,16,36,37];
+                $file_type_ids = [8,9,10,11,12,13,14,15,16,18,36,37];
+                $file_types = FileType::whereIn('id', $file_type_ids)->orderBy('weight');
+                $count = 11;
             } else {
                 $file_type_ids = [4,5,6,7,8,9,10,11,12];
+                $file_types = FileTypeAgro::whereIn('id', $file_type_ids);
+                $count = 9;
             }
 
             $files = File::select(['order_id', 'file_type_id'])->where('order_id', $order->id)->whereIn('file_type_id', $file_type_ids)->get();
@@ -92,15 +90,11 @@ class OrderSendService
                 }
             }
 
-            if(count($files) <= 11) {
+            if(count($files) <= $count) {
                 $names = [Lang::get('messages.file_credentials')];
-                if (in_array($car->car_type_id, [1, 2])) {
-                    $file_types = FileType::whereIn('id', $file_type_ids)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
-                } else {
-                    $file_types = FileTypeAgro::whereIn('id', $file_type_ids)->whereNotIn('id', $required_ids)->orderBy('weight')->get();
-                }
+                $file_types = $file_types->whereNotIn('id', $required_ids)->get();
                 foreach ($file_types as $item){
-                    $names[] = $item->title;
+                    $names[] = [$item->title];
                 }
                 $this->setMessage(json_encode($names));
                 return false;

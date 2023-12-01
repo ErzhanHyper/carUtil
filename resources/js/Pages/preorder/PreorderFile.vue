@@ -52,8 +52,7 @@
             <template v-if="!onlyPhoto">
                 <template v-for="(doc, i) in filesDoc" :key="i">
 
-                    <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10"
-                         >
+                    <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10">
                         <q-icon name="file_copy" class="q-mr-sm" size="sm"  v-if="doc_id !== doc.id"></q-icon>
                         <q-circular-progress indeterminate rounded size="xs" v-if="doc_id === doc.id" color="primary" class="q-mr-xs"/>
                         <a href="#" @click="getFile(doc.id)" class="text-dark">
@@ -212,6 +211,8 @@ export default {
                     })
                 }
 
+            }).finally(() =>{
+                this.loading = false
             })
         },
 
@@ -257,9 +258,7 @@ export default {
                 this.$refs.file_dialog.value = null
                 this.item.file = null
              }).catch(() => {
-            }).finally(() => {
-                 this.loading = false
-             })
+            })
 
         },
 
