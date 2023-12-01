@@ -39,7 +39,7 @@
                                :transfer="transfer"/>
 
                 <div class="q-gutter-md">
-                    <q-btn v-if="permissions.sendToApprove"
+                    <q-btn v-if="permissions.sendToApprove && car_required && client_required"
                            :loading="loading"
                            color="blue-8"
                            icon="send" label="Отправить"
@@ -99,20 +99,21 @@
                         <!--                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>-->
                     </div>
 
-                    <div class="col col-md-7 col-sm-12 col-xs-12">
+                    <div class="col col-md-7 col-sm-12 col-xs-12" >
                         <car-card :blocked="blockedCar"
                                   :blockedCustom="blocked"
                                   :data="item.car"
                                   :getCar="getCar"
                                   :preorder_id="item.id"
-                                  :vehicleType="item.vehicleType">
+                                  :vehicleType="item.vehicleType"
+                                  v-show="client_required">
                         </car-card>
                     </div>
                 </div>
 
                 <preorder-history :comments="item.comment"/>
             </div>
-            <div v-show="item.car" class="col col-md-4 col-xs-12">
+            <div v-show="car_required" class="col col-md-4 col-xs-12">
                 <preorder-file
                     :blocked="blocked"
                     :client_id="item.client ? item.client.id : null"
@@ -183,6 +184,8 @@ export default {
         return {
             showDeleteDialog: false,
             disabled: false,
+            client_required: false,
+            car_required: false,
 
             show: false,
             showFile: false,
@@ -223,7 +226,32 @@ export default {
     computed: {
         ...mapGetters({
             user: 'auth/user'
-        })
+        }),
+
+        client_required(){
+            if(this.item.client &&
+                this.item.client.ud_num &&
+                this.item.client.ud_expired &&
+                this.item.client.region_id &&
+                this.item.client.address &&
+                this.item.client.phone &&
+                this.item.client.email &&
+                this.item.client.year
+            ) {
+                return true
+            }
+        },
+
+        car_required(){
+            if(this.item.car &&
+                this.item.car.wheels_count &&
+                this.item.car.wheels_protector_count &&
+                this.item.car.doors_count &&
+                this.item.car.category_id
+            ) {
+                return true
+            }
+        }
     },
 
     methods: {
