@@ -21,29 +21,32 @@ class OrderService
     public function getCollection($request): array
     {
         $user = app(AuthService::class)->auth();
-        $orders = Order::with(['car', 'client', 'preorder', 'transfer']);
-
-        if ($user->role === 'moderator') {
-            $orders->where('approve', '<>', 0)
-                ->when(isset($request->type) && $request->type != '', function ($query) use ($request) {
-                    $query->whereHas('car', function ($q) use ($request) {
-                        $q->where('car_type_id', $request->type === 'ВЭТС' ? [1, 2] : [3, 4]);
-                    });
-                });
-            $this->applyFilters($orders, $request);
-
-        } else if ($user->role === 'operator') {
-            $factory_id = $user->factory_id;
-            $orders->whereIn('approve', [0, 1, 2, 3, 4, 5])
-                ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked', 'order.executor_uid')
-                ->join('pre_order_car', 'order.id', 'pre_order_car.order_id')
-                ->where('pre_order_car.factory_id', $factory_id)
-                ->where('blocked', 0);
+        if ($user->role === 'moderator' || $user->role === 'operator') {
+            $orders = Order::with(['car', 'client', 'preorder', 'transfer']);
         }
 
         $data = [];
 
         if (isset($orders)) {
+
+            if ($user->role === 'moderator') {
+                $orders->where('approve', '<>', 0)
+                    ->when(isset($request->type) && $request->type != '', function ($query) use ($request) {
+                        $query->whereHas('car', function ($q) use ($request) {
+                            $q->where('car_type_id', $request->type === 'ВЭТС' ? [1, 2] : [3, 4]);
+                        });
+                    });
+                $this->applyFilters($orders, $request);
+
+            } else if ($user->role === 'operator') {
+                $factory_id = $user->factory_id;
+                $orders->whereIn('approve', [0, 1, 2, 3, 4, 5])
+                    ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked', 'order.executor_uid')
+                    ->join('pre_order_car', 'order.id', 'pre_order_car.order_id')
+                    ->where('pre_order_car.factory_id', $factory_id)
+                    ->where('blocked', 0);
+            }
+
             $paginate = 15;
             $pages = ceil($orders->count() / $paginate);
             $data = [
