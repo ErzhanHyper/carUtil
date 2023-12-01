@@ -246,7 +246,7 @@ export default {
         },
 
         selectFile(evt) {
-            if(evt && this.uploadedFile) {
+            if(evt) {
                 this.$refs.file_dialog.value = this.uploadedFile;
                 this.file_type_id = evt
                 this.pickFile = this.$refs.file_dialog
