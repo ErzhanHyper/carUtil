@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FileAgroResource;
 use App\Http\Resources\FileTypeAgroResource;
 use App\Http\Resources\FileTypeResource;
-use App\Http\Resources\FileResource;
+use App\Http\Resources\FileCarResource;
 use App\Models\AgroFile;
 use App\Models\Car;
 use App\Models\CarFile;
@@ -110,12 +111,11 @@ class FileController extends Controller
 
         if ($order) {
             if ($car->car_type_id === 1 || $car->car_type_id === 2) {
-
                 $docs_ids = [1,2,5,6,17,28, 18,19,20,21,22,23,24,26,27, 29];
                 $photos_ids = [8,9,10,11,12,13,14,15,16,36,37];
                 $required_ids = [];
 
-                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $docs_ids)->get());
+                $docs = FileCarResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $docs_ids)->get());
                 if(count($docs) > 0) {
                     foreach ($docs as $file) {
                         if($file->file_type_id !== 28) {
@@ -124,7 +124,7 @@ class FileController extends Controller
                     }
                 }
 
-                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $photos_ids)->get());
+                $photos =  FileCarResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $photos_ids)->get());
                 if(count($photos) > 0) {
                     foreach ($photos as $file) {
                         $required_ids[] = $file->file_type_id;
@@ -137,7 +137,7 @@ class FileController extends Controller
                 $photos_ids = [4,5,6,7,8,9,10,11,12];
                 $required_ids = [];
 
-                $docs = FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $docs_ids)->get());
+                $docs = FileAgroResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $docs_ids)->get());
                 if(count($docs) > 0) {
                     foreach ($docs as $file) {
                         if($file->file_type_id !== 13) {
@@ -146,7 +146,7 @@ class FileController extends Controller
                     }
                 }
 
-                $photos =  FileResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $photos_ids)->get());
+                $photos =  FileAgroResource::collection(File::where('order_id', $order->id)->whereIn('file_type_id', $photos_ids)->get());
                 if(count($photos) > 0) {
                     foreach ($photos as $file) {
                         $required_ids[] = $file->file_type_id;
