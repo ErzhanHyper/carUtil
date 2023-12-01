@@ -114,8 +114,6 @@ export default {
         this.$emitter.on('contentLoaded', (value) => {
             this.contentLoad = value
         })
-    },
-
+    }
 }
-
 </script>
