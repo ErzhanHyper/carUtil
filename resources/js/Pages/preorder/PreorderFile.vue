@@ -231,7 +231,9 @@ export default {
             this.$refs.file_dialog = null
             this.file_type_id = null
             this.pickFile = null
-            this.item.file = null
+            this.item.file = {
+                title: ''
+            }
         },
 
         deleteFile(value) {
@@ -268,9 +270,9 @@ export default {
                 this.loading = false
             }).finally(() => {
                  this.file_type_id = null
-                 this.pickFile = null
-                 this.$refs.file_dialog.value = null
-                 this.item.file = null
+                 this.item.file = {
+                     title: ''
+                 }
              })
 
         },

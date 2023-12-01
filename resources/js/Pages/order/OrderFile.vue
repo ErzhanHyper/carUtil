@@ -256,7 +256,9 @@ export default {
 
         cancelFileDialog(){
             this.file_type_id = null
-            this.item.file = {}
+            this.item.file = {
+                title: ''
+            }
         },
 
         deleteFile() {
@@ -295,7 +297,9 @@ export default {
                 this.loading = false
             }).finally(() => {
                 this.file_type_id = null
-                this.item.file = {}
+                this.item.file = {
+                    title: ''
+                }
             })
         },
 
