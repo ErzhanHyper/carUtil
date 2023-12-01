@@ -74,10 +74,30 @@ class FileController extends Controller
 
     public function storeOrderFile(Request $request)
     {
-
         $order_id = $request->order_id;
         $order = Order::find($order_id);
         $car = Car::where('order_id', $order->id)->first();
+        $types = 'mimes:pdf,doc,docx,xlsx,jpeg,png,jpg,jfif,webp';
+
+        if ($car->car_type_id === 1 || $car->car_type_id === 2) {
+            if (in_array($request->file_type_id, [8, 9, 10, 11, 12, 13, 14, 15, 16])) {
+                $types = 'mimes:jpeg,png,jpg,jfif';
+            }
+        }else{
+            if (in_array($request->file_type_id, [4,5,6,7,8,9,10,11,12])) {
+                $types = 'mimes:jpeg,png,jpg,jfif';
+            }
+        }
+
+        $validator = Validator::make($request->all(),
+            [
+                'file' => 'required|' . $types,
+            ],
+        );
+
+        if ($validator->fails()) {
+            throw new InvalidArgumentException($validator->messages());
+        }
 
         $file = $request->file;
         $original_name = time() . '_' . $file->getClientOriginalName();
