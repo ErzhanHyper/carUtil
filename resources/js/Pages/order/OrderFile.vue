@@ -254,6 +254,12 @@ export default {
             }
         },
 
+        cancelFileDialog(){
+            this.$refs.file_dialog = null
+            this.file_type_id = null
+            this.item.file = null
+        },
+
         deleteFile() {
             this.deleteDialog = false
             let value = this.item
@@ -290,17 +296,9 @@ export default {
                 this.loading = false
             }).finally(() => {
                 this.file_type_id = null
-                this.pickFile = null
                 this.item.file = null
                 this.$refs.file_dialog = null
             })
-        },
-
-        cancelFileDialog(){
-            this.$refs.file_dialog = null
-            this.file_type_id = null
-            this.pickFile = null
-            this.item.file = null
         },
 
         getOrderFile(id){
