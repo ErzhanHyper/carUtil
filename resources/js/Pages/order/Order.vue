@@ -171,7 +171,7 @@ export default {
         },
 
         setStatusColor(id) {
-            let color = 'blue-grey-3'
+            let color = 'blue-grey-8'
             if (id === 1) {
                 color = 'blue-grey-5'
             } else if (id === 2) {

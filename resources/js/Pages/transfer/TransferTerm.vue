@@ -93,9 +93,9 @@
 
                             <div style="text-indent: 40px">
                                 1) к примеру, <select v-model="item.type">
-                                <option>договор купли-продажи</option>
-                                <option>меня</option>
-                                <option>дарения</option>
+                                <option>Договор купли-продажи</option>
+                                <option>Меня</option>
+                                <option>Дарения</option>
                             </select> № <input v-model="item.data1" style="padding: 0"/> от <input v-model="item.data2"
                                                                                                    style="padding: 0"/>
                                 и т.п., вступившее в

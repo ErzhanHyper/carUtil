@@ -135,34 +135,6 @@ class OrderService
         return $response;
     }
 
-    //Отправить заявку на рассмотрение модератору
-    public function send($request, $id)
-    {
-        $user = app(AuthService::class)->auth();
-
-        $order = Order::find($id);
-
-        if ($order) {
-            $order->user_id = $user->id;
-            $order->approve = 1;
-            if ($order->status === 0) {
-                $order->status = 1;
-            }
-            $order->sended_to_approve = time();
-            $order->save();
-
-            $this->storeHistory(new Request([
-                'action' => 'SENDED_TO_MODERATOR',
-                'order_id' => $order->id,
-                'user_id' => $user->id,
-            ]));
-        }
-
-        return [
-            'success' => true
-        ];
-    }
-
     //Взять заявку на исполнение модератору
     public function executeRun($id)
     {

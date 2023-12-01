@@ -231,7 +231,7 @@ export default {
         downloadPFS() {
             this.loading = true
             getTransferContract(this.item.id, {responseType: 'arraybuffer'}).then(res => {
-                FileDownload(res, 'transfer_contract.pdf')
+                FileDownload(res, 'ПФС.pdf')
             }).finally(() => {
                 this.loading = false
             })

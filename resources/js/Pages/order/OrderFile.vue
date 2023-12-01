@@ -17,6 +17,7 @@
                 :readonly="blocked"
                 v-if="!blocked"
                 :loading="loading"
+                :disable="loading"
             >
                 <template v-slot:before>
                     <q-icon name="folder"/>
@@ -195,11 +196,9 @@ export default {
         },
 
         getItems() {
-            this.loading = true
             getOrderFileList({
                 order_id: this.order_id
             }).then(res => {
-                this.loading = false
                 this.filesAll = res.file_types
                 this.filesDoc = res.docs
                 this.filesPhoto = res.photos
@@ -265,10 +264,9 @@ export default {
                 }
             }
             deleteOrderFile(value.id).then(() => {
+                this.getItems()
                 if(value.doc.file_type_id === 29){
                     this.$emitter.emit('orderFileEvent')
-                }else{
-                    this.getItems()
                 }
             });
         },
@@ -286,7 +284,7 @@ export default {
                 this.file_type_id = null
                 this.pickFile = null
                 this.item.file = null
-            }).catch(() => {
+            }).finally(() => {
                 this.loading = false
             });
         },

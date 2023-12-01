@@ -4,7 +4,7 @@
 namespace App\Services;
 
 
-class AmountConvertService
+class PriceConvertService
 {
 
     public function convertToText(int $amount)

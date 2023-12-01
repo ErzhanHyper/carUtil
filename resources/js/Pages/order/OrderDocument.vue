@@ -1,22 +1,19 @@
 <template>
     <q-card flat>
         <q-card-section>
-            <div class="text-h6">Шаблоны документов</div>
-        </q-card-section>
-        <q-card-section>
+            <div class="text-h6 q-mb-md">Шаблоны документов</div>
             <div class="q-gutter-sm">
                 <q-btn :loading="loading1" square size="12px"
                        unelevated color="indigo-1"
                        class="text-indigo-10"
-                       flat
-                       dense
+
                        label="Сформировать заявление на ТС"
                        icon-right="edit_note"
                         @click="statementDoc"
                 />
-                <q-btn :loading="loading2" square size="12px" dense unelevated color="indigo-1" class="text-indigo-10" flat label="Сформировать акт комплектности"
+                <q-btn :loading="loading2" square size="12px"  unelevated color="indigo-1" class="text-indigo-10"  label="Сформировать акт комплектности"
                        icon-right="edit_note" @click="showComplectDialog = true" ></q-btn>
-                <q-btn :loading="loading3" square size="12px" unelevated color="indigo-1" class="text-indigo-10" flat dense label="Сформировать акт приема-передачи"
+                <q-btn :loading="loading3" square size="12px" unelevated color="indigo-1" class="text-indigo-10"   label="Сформировать акт приема-передачи"
                        icon-right="edit_note" @click="contractDoc"></q-btn>
             </div>
         </q-card-section>

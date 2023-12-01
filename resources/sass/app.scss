@@ -26,6 +26,10 @@ a {
     background-color: #f7e3aa!important;
 }
 
+.bg-info{
+    background-color: #3b4257 !important;
+}
+
 .primary, .text-primary{
     color: #1c3947!important;
 }
@@ -154,3 +158,11 @@ input:-webkit-autofill {
 //    opacity: .01;
 //    background-image: url('../img/login_back.jpeg');
 //}
+
+.q-notification{
+    max-width: 510px;
+    .q-notification__caption{
+        font-size: 1em;
+        opacity: .85;
+    }
+}

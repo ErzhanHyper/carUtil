@@ -8,7 +8,7 @@ use App\Models\Car;
 use App\Models\Client;
 use App\Models\TransferDeal;
 use App\Models\TransferOrder;
-use App\Services\AmountConvertService;
+use App\Services\PriceConvertService;
 use App\Services\AuthService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -34,7 +34,7 @@ class DocumentTransferService
         $data['body_no'] = $car->body_no ?? '______';
         $data['chassis_no'] = $car->chassis_no ?? '______';
         $data['amount'] = $deal->amount ?? '______';
-        $data['amount_text'] = app(AmountConvertService::class)->convertToText($deal->amount);
+        $data['amount_text'] = app(PriceConvertService::class)->convertToText($deal->amount);
 
         $data['owner_address'] = $client->address ?? '______';
         $data['receiver_address'] = $client2->address ?? '______';

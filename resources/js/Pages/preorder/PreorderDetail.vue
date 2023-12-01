@@ -2,7 +2,7 @@
     <div v-if="show">
         <q-banner v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)"
                   class="q-mb-md bg-indigo-1">
-            <div>Обработка заявки до 15 дней с момента одобрения</div>
+            <div>Обработка заявки до 15 дней с момента отправки на рассмотрение</div>
             <div v-if="item.closedDate !== 0">Осталось дней: <span
                 class="text-orange-9 text-weight-bold">{{ item.closedDate }}</span></div>
             <div v-else class="text-pink-8 text-weight-bold">Время истекло</div>
@@ -34,7 +34,8 @@
             </div>
 
             <div>
-                <preorder-sell v-if="item.order && !item.booking" :order_id="item.order.id" :show="permissions.transferOrder"
+                <preorder-sell v-if="item.order && !item.booking" :order_id="item.order.id"
+                               :show="permissions.transferOrder"
                                :transfer="transfer"/>
 
                 <div class="q-gutter-md">
@@ -63,7 +64,8 @@
         <div class="flex justify-between">
             <preorder-actions :preorder_id="item.id" :show="permissions.approveOrder"/>
             <order-kap v-if="user.role === 'moderator'" :blocked="item.status.id !== 1"
-                       :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}" :preorder_id="item.id"/>
+                       :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}"
+                       :preorder_id="item.id"/>
         </div>
 
         <template
@@ -85,8 +87,9 @@
             </div>
         </q-banner>
 
-        <booking v-if="!blockedBooking && item.closedDate !== 0 && showBooking" id="preorder_booking" :blocked="blockedBooking" :data="item.booking" :options="bookingDates"
-                 :getBooking="getBooking" :preorder_id="item.id" class="q-mt-md"/>
+        <booking v-if="!blockedBooking && item.closedDate !== 0 && showBooking" id="preorder_booking"
+                 :blocked="blockedBooking" :data="item.booking" :getBooking="getBooking"
+                 :options="bookingDates" :preorder_id="item.id" class="q-mt-md"/>
 
         <div class="row q-col-gutter-md">
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
@@ -291,13 +294,18 @@ export default {
                             })
                         }
                         if (res.message && res.message !== '' && res.success === false) {
-                            this.errors.push(res.message)
-                            this.showError = true
+                            if (res.message && res.message !== '') {
+                                let messages = JSON.parse(res.message)
+                                this.showNotify(messages)
+                            }
                         }
                     }
                 }).catch(reject => {
-                    this.errors = JSON.parse(reject.message)
-                    this.showError = true
+                    if (reject.message && reject.message !== '') {
+                        let messages = JSON.parse(reject.message)
+                        this.showNotify(messages)
+                    }
+
                 }).finally(() => {
                     this.loading = false
                     this.blocked = false
@@ -318,6 +326,22 @@ export default {
                 this.loading = false
             })
         },
+
+        showNotify(messages) {
+            let messageData = []
+            Object.values(messages).map((el, i) => {
+                messageData.push("<br> " + '*'+ el[0])
+            });
+            Notify.create({
+                caption: messageData,
+                message: 'Не все данные заполнены',
+                position: 'top-right',
+                type: 'info',
+                html: true,
+                timeout: 20000,
+                actions: [{icon: 'close', color: 'white'}]
+            })
+        }
     },
 
     created() {

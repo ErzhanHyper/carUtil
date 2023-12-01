@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Certificate\CertificateService;
 use App\Services\Order\OrderApproveService;
 use App\Services\Order\OrderCheckDuplicatesService;
+use App\Services\Order\OrderSendService;
 use App\Services\Order\OrderService;
 use Exception;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class OrderController extends Controller
 
     public function send(Request $request, $id)
     {
-        $data = app(OrderService::class)->send($request, $id);
+        $data = app(OrderSendService::class)->send($request, $id);
         return response()->json($data);
     }
 
