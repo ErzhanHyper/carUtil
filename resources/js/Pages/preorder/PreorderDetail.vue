@@ -52,7 +52,7 @@
             :client="client"
             :required="client_required && car_required"
             class="q-mt-md q-mb-md"
-            v-if="show"
+            v-if="showTimeline"
         />
 
         <div class="flex justify-end">
@@ -180,6 +180,7 @@ export default {
             show: false,
             showFile: false,
             showBooking: false,
+            showTimeline: false,
 
             transferOrder: false,
             blocked: true,
@@ -262,10 +263,12 @@ export default {
             this.show = false
             this.$emitter.emit('contentLoaded', true);
             this.showBooking = false
+            this.showTimeline = false
             getPreorderById(this.id).then(res => {
                 this.$emitter.emit('contentLoaded', false);
 
                 this.show = true
+                this.showTimeline = true
                 this.transfer = res.transfer
                 this.blocked = res.permissions.blocked
                 this.blockedCar = res.permissions.blockedCar
