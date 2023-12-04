@@ -103,12 +103,10 @@ export default {
         return {
             item: {
                 region_id: null,
-                bank_id: null,
-                iban: null,
-                ud_issued_id: null,
+                ud_issued_id: 1,
                 ud_num: null,
                 idnum: null,
-                client_type_id: null,
+                client_type_id: 1,
                 title: '',
             },
         }
@@ -117,7 +115,16 @@ export default {
     computed: {
         ...mapGetters({
             user: 'auth/user'
-        })
+        }),
+    },
+
+    watch: {
+        item: {
+            handler() {
+                this.$emitter.emit('ClientCardEvent')
+            },
+            deep: true
+        }
     },
 
     created() {
@@ -127,18 +134,18 @@ export default {
                 this.item.ud_expired = this.$moment(this.$moment(this.item.ud_expired, 'YYYY-MM-DD').toDate()).format('YYYY-MM-DD')
             }
         }else{
-            if(this.item.title == '' && this.user.profile) {
+            if(this.item.title === '' && this.user.profile) {
                 this.item.title = this.user.profile.fln
             }
-            if(!this.item.idnum || this.item.idnum == '') {
+            if(!this.item.idnum || this.item.idnum === '') {
                 this.item.idnum = this.user.idnum
             }
 
-            if((!this.item.phone || this.item.phone == '') && this.user.profile) {
+            if((!this.item.phone || this.item.phone === '') && this.user.profile) {
                 this.item.phone = this.user.profile.phone
             }
 
-            if((!this.item.email || this.item.email == '') && this.user.profile) {
+            if((!this.item.email || this.item.email === '') && this.user.profile) {
                 this.item.email = this.user.profile.email
             }
         }

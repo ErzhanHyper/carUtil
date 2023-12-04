@@ -52,7 +52,7 @@
                                    size="11px"
                                    label="Переоформить сертификат"
                                    dense
-                                   :loading="loading2"
+                                   :loading="loading2 && item_id===item.id"
                                    @click="exchangeCert(item.id)"
                                    v-if="item.showExchange">
                             </q-btn>
@@ -80,7 +80,7 @@
 
         <div class="col col-md-5">
             <span class="text-weight-bold text-body1">Передачи</span>
-            <q-markup-table flat bordered dense >
+            <q-markup-table flat bordered  >
                 <thead>
                 <tr>
                     <th class="text-left">#</th>
@@ -103,7 +103,7 @@
                     <td>{{ item.certificate ? item.certificate.title_1 : '' }}</td>
                     <td>{{ item.certificate ? item.certificate.idnum_1 : '' }}</td>
                     <td>
-                        <q-badge size="12px" v-if="item.approve === 0">В ожидании подписи</q-badge>
+                        <q-badge size="12px" v-if="item.approve === 0">В ожидании подписи получателя</q-badge>
                         <q-badge size="12px" v-if="item.approve === 1">На рассмотрении у модератора</q-badge>
                         <q-badge size="12px" color="positive" v-if="item.approve === 2">Одобрена</q-badge>
                         <q-badge size="12px" color="negative" v-if="item.approve === 3">Отклонена</q-badge>
@@ -144,6 +144,7 @@ export default {
 
             loading: false,
             loading2: false,
+            item_id: null,
             show: false
         }
     },
@@ -180,6 +181,7 @@ export default {
 
         exchangeCert(id) {
             this.loading2 = true
+            this.item_id = id
             storeExchange({certificateId: id}).then((res) => {
                 if(res && res.data && res.data.id) {
                     this.$router.push('/exchange/' + res.data.id)
@@ -191,6 +193,7 @@ export default {
                 })
             }).finally(() => {
                 this.loading2 = false
+                this.item_id = null
             })
         }
     },

@@ -4,23 +4,23 @@
         <div class="text-h6 text-primary">Погашения</div>
 
         <div class="flex justify-between q-gutter-md">
-            <q-btn label="Заблокировать сертифиакты" color="deep-orange-8" size="12px" push icon="lock" @click="blockCert" :loading="loading"/>
+            <q-btn :loading="loading" color="deep-orange-8" icon="lock" label="Заблокировать сертифиакты" push
+                   size="12px" @click="blockCert"/>
         </div>
     </div>
 
 
-
-    <q-card bordered flat >
+    <q-card bordered flat>
         <q-card-section style="max-width: 960px">
 
             <div class="q-gutter-y-md" style="max-width: 350px">
                 <q-option-group
                     v-model="panel"
-                    inline
                     :options="[
                       { label: 'Транспортное средство', value: 'ts' },
                       { label: 'Сельхозтехника', value: 'sxt' },
                     ]"
+                    inline
                 />
 
                 <q-tab-panels v-model="panel" animated class="shadow-2 rounded-borders">
@@ -35,31 +35,34 @@
                 </q-tab-panels>
             </div>
 
-            <div class="row q-gutter-md q-mb-md" v-for="(item, i) in items">
+            <div v-for="(item, i) in items" class="row q-gutter-md q-mb-md">
                 <div class="col">
-                    <q-input label="Номер сертификата" outlined dense v-model="item.cert_num" type="number" counter/>
+                    <q-input v-model="item.cert_num" counter dense label="Номер сертификата" outlined type="number"/>
                 </div>
                 <div class="col">
-                    <q-input v-model="item.cert_date" outlined dense type="date" hint="Дата выдачи" />
+                    <q-input v-model="item.cert_date" dense hint="Дата выдачи" outlined type="date"/>
                 </div>
                 <div class="col">
-                    <q-input label="ИИН/БИН владельца" outlined dense v-model="item.cert_idnum" counter type="number"/>
+                    <q-input v-model="item.cert_idnum" counter dense label="ИИН/БИН владельца" outlined type="number"/>
                 </div>
                 <div class="col">
-                    <q-btn icon="close" color="negative" size="sm" dense class="q-mt-sm" v-if="i > 0" @click="removeCert(i)"/>
+                    <q-btn v-if="i > 0" class="q-mt-sm" color="negative" dense icon="close" size="sm"
+                           @click="removeCert(i)"/>
                 </div>
             </div>
-            <q-btn label="Добавить сертификат" color="indigo-8" size="11px" icon="add" @click="addCert" v-if="(panel === 'ts') ? items.length < 2 : items.length < 4"/>
+            <q-btn v-if="(panel === 'ts') ? items.length < 2 : items.length < 4" color="indigo-8" icon="add"
+                   label="Добавить сертификат" size="11px"
+                   @click="addCert"/>
         </q-card-section>
     </q-card>
 </template>
 
 <script>
-import { ref } from 'vue'
+import {ref} from 'vue'
 import {storeSell} from "../../services/sell";
 
 export default {
-    setup () {
+    setup() {
         return {
             panel: ref('ts')
         }
@@ -78,17 +81,27 @@ export default {
         }
     },
 
+    watch: {
+        panel: {
+            handler() {
+                if (this.panel === 'ts' && this.items.length > 1) {
+                    this.items.splice(2, 2);
+                }
+            }
+        }
+    },
+
     methods: {
         addCert() {
-            if(this.panel === 'ts'){
-                if(this.items.length <= 1){
+            if (this.panel === 'ts') {
+                if (this.items.length <= 1) {
                     this.items.push({
-                        cert_num : '',
+                        cert_num: '',
                         cert_date: '',
                         cert_idnum: ''
                     })
                 }
-            }else {
+            } else {
                 if (this.items.length <= 3) {
                     this.items.push({
                         cert_num: '',
@@ -99,15 +112,15 @@ export default {
             }
         },
 
-        removeCert(i){
+        removeCert(i) {
             this.items.splice(i, 1);
         },
 
         blockCert() {
             this.loading = true
             storeSell({certs: JSON.stringify(this.items)}).then(res => {
-                if(res && res.success === true){
-                    this.$router.push('/sell/'+ res.data.id)
+                if (res && res.success === true) {
+                    this.$router.push('/sell/' + res.data.id)
                 }
             }).finally(() => {
                 this.loading = false

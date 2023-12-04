@@ -36,7 +36,7 @@
                 <q-badge color="positive" class="q-pa-xs q-mr-sm" v-if="item.ownerSigned" label="Подписано (Владелец)"></q-badge>
                 <q-badge color="positive" class="q-pa-xs q-mr-sm" dark square style="top: 2px" v-if="item.receiverSigned" label="Подписано (Получатель)"/>
 
-                <q-btn label="Выбрать" class="q-mr-sm" outline color="indigo-8" size="11px" icon="add" @click="acceptTransfer(item.id)" :loading="loading1" v-if="data.canAccept"/>
+                <q-btn label="Выбрать" class="q-mr-sm" outline color="indigo-8" size="11px" icon="add" @click="acceptTransfer(item.id)" :loading="loading1 && item_id === item.id" v-if="data.canAccept"/>
                 <q-btn icon="close" class="q-mr-sm" color="pink-5" size="sm" @click="closeDeal(item.id)" v-if="item.canClose" :loading="loading2">
                     <q-tooltip class="bg-indigo" :offset="[10, 10]">
                         Отменить выбор
@@ -70,6 +70,7 @@ export default {
             show: false,
             signDialog: false,
             transfer_id: null,
+            item_id: null,
             loading: false,
             loading1: false,
             loading2: false,
@@ -93,6 +94,7 @@ export default {
 
         acceptTransfer(id) {
             this.loading1 = true
+            this.item_id = id
             acceptTransferDeal(id).then(res => {
                 this.getData()
                 if (res && res.message !== '') {
@@ -105,6 +107,7 @@ export default {
                 this.$emitter.emit('TransferDealEvent');
             }).finally(() => {
                 this.loading1 = false
+                this.item_id = null
             })
         },
 

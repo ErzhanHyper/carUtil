@@ -170,7 +170,6 @@ class PreorderService
         $preorder = PreOrderCar::find($id);
 
         $data = [];
-
         $can = false;
 
         if ($user->role === 'moderator') {

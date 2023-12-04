@@ -1,41 +1,79 @@
 <template>
     <q-stepper
-        v-model="step"
         ref="stepper"
-        color="primary"
-        header-class="text-bold"
-        flat
+        v-model="step"
         bordered
+        color="primary"
+        done-color="green-4"
+        flat
     >
 
         <q-step
+            :done="step > 1"
             :name="1"
-            title="На рассмотрении у модератора"
             caption="Optional"
             icon="create_new_folder"
+            title="На рассмотрении у менеджера завода"
+        >
+
+            <order-send-action
+                :order_id="order_id"
+                :permissions="{
+                showSendToApproveAction: permit.can_send_to_approve,
+                showSendToIssueCertAction:  permit.can_send_to_issue_cert
+            }"
+                class="q-mt-sm"
+            />
+
+        </q-step>
+
+        <q-step
+            :caption="approve ? approve.title : ''"
             :done="step > 2"
-        >
-            3 дня согласно правилам
-            <br>
-            Взята в работу: 2023-09-02
-        </q-step>
-
-        <q-step
             :name="2"
-            title="На рассмотрении у оператора"
             icon="settings"
-            :done="step > 3"
+            title="На одобрении у модератора"
         >
-            For each
+            <order-approve-action
+                :order_id="order_id"
+                :show="permit.can_approve"
+            />
         </q-step>
 
         <q-step
+            :done="step > 3"
             :name="3"
-            title="На одобрении у модератора"
-            icon="add_comment"
-            disable
+            icon="videocam"
+            title="В ожидании получения видеозаписи"
         >
-            Try out different ad text to see what brings
+            <order-video-action
+                :order_id="order_id"
+                :permissions="{
+                        showVideoSendAction: permit.can_upload_video,
+                        showVideoRevision: permit.can_return_back
+                    }"/>
+
+            <order-send-action
+                :order_id="order_id"
+                :permissions="{
+                showSendToApproveAction: permit.can_send_to_approve,
+                showSendToIssueCertAction:  permit.can_send_to_issue_cert
+            }"
+                class="q-mt-sm"/>
+        </q-step>
+
+        <q-step
+            :done="step > 4"
+            :name="4"
+            icon="verified"
+            title="На выдаче сертификата"
+            :caption="approve.id === 3 && status.id === 3 ? status.title : ''"
+        >
+            <order-cert-action
+                v-if="permit.can_issue_cert"
+                :order_id="order_id"
+                :permissions="{showVideoRevision: permit.can_return_back, showIssueCert: permit.can_issue_cert}"
+                class="q-ml-xs q-mr-md"/>
         </q-step>
 
     </q-stepper>
@@ -44,11 +82,38 @@
 
 <script>
 import {ref} from 'vue'
+import OrderSendAction from "./actions/OrderSendAction.vue";
+import OrderApproveAction from "./actions/OrderApproveAction.vue";
+import OrderVideoAction from "./actions/OrderVideoAction.vue";
+import OrderCertAction from "./actions/OrderCertAction.vue";
 
 export default {
+    props: ['status', 'approve', 'permit', 'order_id'],
+
+    components: {
+        OrderSendAction,
+        OrderApproveAction,
+        OrderVideoAction,
+        OrderCertAction,
+    },
+
     setup() {
         return {
             step: ref(1)
+        }
+    },
+
+    created() {
+        if (this.status.id === 0) {
+            this.step = 1
+        } else if (this.status.id === 1 || this.status.id === 2) {
+            this.step = 2
+        } else if (this.status.id === 4) {
+            this.step = 3
+        } else if (this.status.id === 5) {
+            this.step = 4
+        } else if (this.status.id === 3) {
+            this.step = 5
         }
     }
 }

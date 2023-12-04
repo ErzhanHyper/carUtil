@@ -8,25 +8,15 @@
         </div>
 
         <div class="q-gutter-md" >
-
-            <q-btn color="indigo-8"
-                   size="12px"
-                   dense
-                   icon="download"
-                   icon-right="description"
-                   label="Заявление на перерегистрацию"
-                   class="text-weight-bold"
-                   :loading="loading1"
-                   @click="getExchangeDoc"/>
-
             <template v-if="show && user.role === 'liner'">
-                <q-btn label="Подписать" size="12px" color="positive" icon="gesture" @click="send" v-if="item.canSign" :loading="loading2"/>
+                <q-btn label="Подписать" size="12px" color="indigo-8" icon="gesture" @click="send" v-if="item.canSign" :loading="loading2"/>
                 <q-btn label="Отменить" size="12px" color="pink-5" icon="close" class="q-ml-md" v-if="item.canDelete" :loading="loading3" @click="deleteData"/>
             </template>
         </div>
     </div>
 
     <q-card v-if="show">
+
         <q-card-section>
             <div class="text-weight-bold q-mt-md">Владелец сертификата</div>
             <div>ФИО: {{ item.certificate ? item.certificate.title_1 : '' }}</div>
@@ -77,6 +67,15 @@
                     <exchange-file :data="item" :readonly="item.blocked"/>
                 </div>
             </div>
+            <q-btn color="primary"
+                   size="12px"
+                   dense
+                   icon="description"
+                   icon-right="download"
+                   label="Заявление на перерегистрацию"
+                   class="text-weight-bold"
+                   :loading="loading1"
+                   @click="getExchangeDoc"/>
         </q-card-section>
     </q-card>
 

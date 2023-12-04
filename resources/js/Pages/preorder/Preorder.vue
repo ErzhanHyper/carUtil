@@ -4,13 +4,7 @@
         <div class="text-h6 text-primary">Предзаявка</div>
 
         <div v-if="show && user.role === 'liner'" class="flex justify-between">
-            <q-btn class="q-ml-md text-weight-bold"
-                color="indigo-8"
-                icon="add"
-                label="Создать заявку"
-                push
-                @click="orderDialog = true"
-            />
+            <preorder-create />
         </div>
     </div>
 
@@ -167,55 +161,17 @@
         />
     </div>
 
-    <q-dialog v-model="orderDialog">
-        <q-card style="width: 600px; max-width: 500px;">
-            <q-card-section class="row items-center">
-                Создать заявку
-                <q-space/>
-                <q-btn v-close-popup dense flat icon="close" round/>
-            </q-card-section>
-
-            <q-card-section>
-                <q-select
-                    v-model="item.recycle_type"
-                    :model-value="item.recycle_type"
-                    :options="recycle_types"
-                    emit-value
-                    label="Тип заявки"
-                    map-options
-                    option-label="title"
-                    option-value="id"
-                    options-selected-class="text-deep-orange"
-                    square
-                >
-                    <template v-slot:option="scope">
-                        <q-item v-bind="scope.itemProps">
-                            <q-item-section avatar>
-                                <q-icon :name="scope.opt.icon"/>
-                            </q-item-section>
-                            <q-item-section>
-                                <q-item-label>{{ scope.opt.title }}</q-item-label>
-                                <q-item-label caption>{{ scope.opt.description }}</q-item-label>
-                            </q-item-section>
-                        </q-item>
-                    </template>
-                </q-select>
-            </q-card-section>
-
-            <q-card-section>
-                <q-btn :loading="loading" color="primary" icon="add" label="Выбрать" unelevated @click="create()"/>
-            </q-card-section>
-
-        </q-card>
-    </q-dialog>
 </template>
 
 <script>
-import {getOrderList, storeOrder} from "../../services/preorder";
-import {Notify} from "quasar";
+import {getOrderList} from "../../services/preorder";
 import {mapGetters} from "vuex";
-
+import PreorderCreate from './PreorderCreate.vue'
 export default {
+
+    components: {
+        PreorderCreate
+    },
 
     data() {
         return {
@@ -223,8 +179,6 @@ export default {
             sum: null,
 
             show: false,
-            orderDialog: false,
-            loading: false,
             loading1: false,
             loading2: false,
 
@@ -232,7 +186,6 @@ export default {
                 status: 1,
                 page: this.page
             },
-            recycleTypeRules: {},
 
             items: [],
             statuses: [
@@ -257,23 +210,6 @@ export default {
             page: 1,
             totalPage: 1,
 
-            item: {
-                recycle_type: null
-            },
-            recycle_types: [
-                {
-                    id: 1,
-                    icon: 'recycling',
-                    title: 'ВЭТС',
-                    description: 'Вышедшее из эксплуатации транспортное средство',
-                },
-                {
-                    id: 2,
-                    icon: 'recycling',
-                    title: 'ВЭССХТ',
-                    description: 'Вышедшей из эксплуатации сельхозтехники',
-                }
-            ]
         }
     },
 
@@ -337,30 +273,6 @@ export default {
                 page: this.page
             }
             this.getData()
-        },
-
-        create() {
-            if (!this.item.recycle_type) {
-                Notify.create({
-                    message: 'Выберите тип заявки',
-                    position: 'bottom',
-                    type: 'warning'
-                })
-            }
-
-            if (this.item.recycle_type) {
-                this.loading = true
-                storeOrder({
-                    recycle_type: this.item.recycle_type
-                }).then(res => {
-                    if (res.success === true) {
-                        this.orderDialog = false
-                        this.$router.push('/preorder/' + res.data.id)
-                    }
-                }).finally(() => {
-                    this.loading = false
-                })
-            }
         },
 
         getData() {

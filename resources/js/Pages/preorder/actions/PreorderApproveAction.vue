@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import {approveOrder, declineOrder, revisionOrder} from "../../services/preorder";
+import {approveOrder, declineOrder, revisionOrder} from "../../../services/preorder";
 import {Notify} from "quasar";
 import {mapGetters} from "vuex";
 

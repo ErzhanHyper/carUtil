@@ -4,14 +4,14 @@
                :loading="loading"
                color="blue-8"
                icon="send"
-               label="Отправить на рассмотрение модератору"
+               label="Отправить модератору"
                size="12px"
                square
                @click="sendData('send_to_moderator')">
         </q-btn>
         <q-btn v-if="permissions.showSendToIssueCertAction"
                :loading="loading"
-               color="light-green"
+               color="indigo-8"
                icon="send"
                label="Подписать и отправить модератору"
                size="12px"

@@ -36,7 +36,7 @@
 <script>
 import {mapGetters} from "vuex";
 import {Notify} from "quasar";
-import {storeTransfer} from "../../services/transfer";
+import {storeTransfer} from "../../../services/transfer";
 
 export default {
     props: ['show', 'order_id', 'transfer'],

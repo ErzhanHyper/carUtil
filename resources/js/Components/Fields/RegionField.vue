@@ -1,7 +1,6 @@
 <template>
     <q-select
         v-model="field"
-        use-input
         clearable
         input-debounce="0"
         label="Регион"

@@ -129,6 +129,18 @@ export default {
         }
     },
 
+    watch: {
+        item: {
+            handler() {
+                if(this.item.doors_count){
+                    console.log(this.item.doors_count)
+                }
+                this.$emitter.emit('CarCardEvent')
+            },
+            deep: true
+        }
+    },
+
     methods: {
 
         setVehicle(value) {

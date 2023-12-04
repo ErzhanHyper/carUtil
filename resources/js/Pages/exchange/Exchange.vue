@@ -55,7 +55,7 @@
                 <tr v-for="item in items">
                     <td>
                         <router-link :to="'/exchange/'+item.id" class="text-primary">
-                            <q-icon name="open_in_new"/>
+                            <q-icon name="open_in_new" size="sm"/>
                             {{ item.id }}
                         </router-link>
                     </td>

@@ -138,7 +138,7 @@ class ExchangeService
 
                     if($exchange) {
                         $success = true;
-                        $message = 'Передача была успешно иницирована!';
+                        $message = 'Передача была успешно инициирована!';
                         $data = $exchange;
 
                         Log::create([
@@ -168,9 +168,11 @@ class ExchangeService
         $exchange = Exchange::find($id);
         $cert = Certificate::find($exchange->certificate_id);
         $userType = 'owner';
-        $success = false;
         $message = 'Нет доступа';
         $messages = [];
+
+        $success = false;
+        $can = true;
 
         $validator = Validator::make($request->all(), [
             'title' => 'required',
@@ -182,56 +184,59 @@ class ExchangeService
         if ($validator->fails()) {
             $message = 'Не заполнены объязательные поля!';
             $messages =  $validator->messages();
+            $can = false;
         }
 
-        $log = Log::create([
-            'event' => 'sign',
-            'object_type' => 'exchange',
-            'object_id' => $exchange->id,
-            'when' => time(),
-            'object_before' => json_encode($exchange),
-        ]);
+        if($can) {
+            $log = Log::create([
+                'event' => 'sign',
+                'object_type' => 'exchange',
+                'object_id' => $exchange->id,
+                'when' => time(),
+                'object_before' => json_encode($exchange),
+            ]);
 
-        if ($exchange) {
-            $canSign = false;
-            if ($exchange->approve === 0) {
-                if ($cert->idnum_1 === $auth->idnum) {
-                    $canSign = true;
-                } else {
-                    if ($exchange->idnum === $auth->idnum) {
-                        $userType = 'receiver';
+            if ($exchange) {
+                $canSign = false;
+                if ($exchange->approve === 0) {
+                    if ($cert->idnum_1 === $auth->idnum) {
                         $canSign = true;
+                    } else {
+                        if ($exchange->idnum === $auth->idnum) {
+                            $userType = 'receiver';
+                            $canSign = true;
+                        }
                     }
                 }
-            }
-            if ($userType === 'owner' && $canSign) {
-                if($request->idnum === $auth->idnum){
-                    return [
-                        'success' => $success,
-                        'message' => 'ИИН не должен совпадать с вашим',
-                    ];
-                }
-                $signedData = $this->signOwner($request, $id);
-                $message = $signedData['message'];
-                if($signedData['success'] === true){
-                    $success = true;
-                    $exchangeAfter = Exchange::find($id);
-                    $log->object_after = json_encode($exchangeAfter);
-                    $log->save();
-                }
-            } else if ($userType === 'receiver' && $canSign) {
-                $signedData = $this->signReceiver($request, $id);
-                $message = $signedData['message'];
+                if ($userType === 'owner' && $canSign) {
+                    if ($request->idnum === $auth->idnum) {
+                        return [
+                            'success' => $success,
+                            'message' => 'ИИН не должен совпадать с вашим',
+                        ];
+                    }
+                    $signedData = $this->signOwner($request, $id);
+                    $message = $signedData['message'];
+                    if ($signedData['success'] === true) {
+                        $success = true;
+                        $exchangeAfter = Exchange::find($id);
+                        $log->object_after = json_encode($exchangeAfter);
+                        $log->save();
+                    }
+                } else if ($userType === 'receiver' && $canSign) {
+                    $signedData = $this->signReceiver($request, $id);
+                    $message = $signedData['message'];
 
-                if($signedData['success'] === true){
-                    $this->sendToApprove($id);
-                    $success = true;
-                    $exchangeAfter = Exchange::find($id);
-                    $log->object_after = json_encode($exchangeAfter);
-                    $log->save();
+                    if ($signedData['success'] === true) {
+                        $this->sendToApprove($id);
+                        $success = true;
+                        $exchangeAfter = Exchange::find($id);
+                        $log->object_after = json_encode($exchangeAfter);
+                        $log->save();
+                    }
+                } else {
+                    $message = 'Ошибка подписи!';
                 }
-            }else{
-                $message = 'Ошибка подписи!';
             }
         }
 

@@ -1,7 +1,8 @@
 <template>
     <div v-if="show">
-        <q-banner v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)"
-                  class="q-mb-md bg-indigo-1">
+        <q-banner
+            v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)"
+            class="q-mb-md bg-indigo-1">
             <div>Обработка заявки до 15 дней с момента отправки на рассмотрение</div>
             <div v-if="item.closedDate !== 0">Осталось дней: <span
                 class="text-orange-9 text-weight-bold">{{ item.closedDate }}</span></div>
@@ -9,45 +10,26 @@
         </q-banner>
 
         <div class="flex justify-between">
-            <div class="q-mb-md">
+            <div class="q-mb-sm">
                 <span v-if="item.vehicleType"
                       :class="(item.vehicleType === 'car') ? 'text-teal-9' : 'text-orange-9'"
                       class="text-body1 q-mt-sm">
                         {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
                     </span>
-                <span :class="'text-'+setStatusColor(item.status.id)"> - {{ item.status.title }}
-
-                    <template
-                        v-if="item.booking && item.order && item.order.status.id === 0 && item.order.blocked === 0">
-                        | <q-badge class="q-pa-xs" color="green-5">
-                            На отправке
-                        </q-badge>
-                    </template>
-
-                    <span v-if="item.order && item.order.status.id === 3"
-                          class="text-green-8 text-overline"> | Сертификат выдан</span>
-                </span>
                 <div v-if="item.order" class="text-body1 text-weight-bold text-blue-grey-8">
                     № заявки: {{ item.order.id }}
                 </div>
-
             </div>
-
             <div>
-                <preorder-sell v-if="item.order && !item.booking" :order_id="item.order.id"
-                               :show="permissions.transferOrder"
-                               :transfer="transfer"/>
+                <preorder-sell-action
+                    v-if="item.order && !booking"
+                    :order_id="item.order.id"
+                    :show="permissions.transferOrder"
+                    :transfer="transfer"
+                />
 
                 <div class="q-gutter-md">
-                    <q-btn v-if="permissions.sendToApprove && car_required && client_required"
-                           :loading="loading"
-                           color="blue-8"
-                           icon="send" label="Отправить"
-                           push
-                           size="12px"
-                           @click="sendData"
-                    >
-                    </q-btn>
+
                     <q-btn v-if="permissions.sendToApprove"
                            :disable="blocked"
                            color="pink-5" icon="delete"
@@ -61,10 +43,21 @@
             </div>
         </div>
 
-        <div class="flex justify-between">
-            <preorder-actions :preorder_id="item.id" :show="permissions.approveOrder"/>
+        <preorder-timeline
+            :order_status="item.order ? item.order.status : null"
+            :preorder_status="item.status"
+            :preorder_id="item.id"
+            :permissions="permissions"
+            :car="car"
+            :client="client"
+            :required="client_required && car_required"
+            class="q-mt-md q-mb-md"
+            v-if="show"
+        />
+
+        <div class="flex justify-end">
             <order-kap v-if="user.role === 'moderator'" :blocked="item.status.id !== 1"
-                       :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: item.client.idnum}"
+                       :data="{vin: car.vin, grnz: car.grnz, iinbin: client.idnum}"
                        :preorder_id="item.id"/>
         </div>
 
@@ -88,25 +81,25 @@
         </q-banner>
 
         <booking v-if="!blockedBooking && item.closedDate !== 0 && showBooking" id="preorder_booking"
-                 :blocked="blockedBooking" :data="item.booking" :getBooking="getBooking"
+                 :blocked="blockedBooking" :data="booking" :getBooking="getBooking"
                  :options="bookingDates" :preorder_id="item.id" class="q-mt-md"/>
 
         <div class="row q-col-gutter-md">
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
                 <div class="row q-col-gutter-md q-mt-xs">
                     <div class="col col-md-5 col-sm-12 col-xs-12">
-                        <client-card :blocked="blocked" :data="item.client" :getClient="getClient"/>
+                        <client-card :blocked="blocked" :data="client" :getClient="getClient"/>
                         <!--                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>-->
                     </div>
 
-                    <div class="col col-md-7 col-sm-12 col-xs-12" >
-                        <car-card :blocked="blockedCar"
+                    <div class="col col-md-7 col-sm-12 col-xs-12">
+                        <car-card v-show="client_required"
+                                  :blocked="blockedCar"
                                   :blockedCustom="blocked"
-                                  :data="item.car"
+                                  :data="car"
                                   :getCar="getCar"
                                   :preorder_id="item.id"
-                                  :vehicleType="item.vehicleType"
-                                  v-show="client_required">
+                                  :vehicleType="item.vehicleType">
                         </car-card>
                     </div>
                 </div>
@@ -116,7 +109,7 @@
             <div v-show="car_required" class="col col-md-4 col-xs-12">
                 <preorder-file
                     :blocked="blocked"
-                    :client_id="item.client ? item.client.id : null"
+                    :client_id="client ? client.id : null"
                     :data="item.file"
                     :preorder_id="item.id"
                     :transfer="transfer"
@@ -147,37 +140,34 @@
 <script>
 import {Notify} from "quasar";
 import {mapGetters} from "vuex";
-import {deletePreorder, getPreorderById, sendOrder} from "../../services/preorder";
+import {deletePreorder, getPreorderById} from "../../services/preorder";
 
-import PreorderFile from "@/Pages/preorder/PreorderFile.vue";
-import PreorderActions from "@/Pages/preorder/PreorderAction.vue";
-import PreorderTimeline from "./PreorderTimeline.vue";
+import PreorderFile from "./PreorderFile.vue";
 import PreorderHistory from "./PreorderHistory.vue";
-import PreorderSell from "./PreorderSell.vue";
-
-import OrderTimeline from "@/Pages/order/OrderTimeline.vue";
+import PreorderSellAction from "./actions/PreorderSellAction.vue";
 
 import CarCard from "../car/CarCard.vue";
 import Booking from "../booking/BookingCard.vue";
 import ClientCard from "../client/ClientCard.vue";
 import ClientProxy from "../client/ClientProxy.vue";
 import OrderKap from "../order/OrderKap.vue";
+import OrderTimeline from "@/Pages/order/OrderTimeline.vue";
+import PreorderTimeline from "./PreorderTimeline.vue";
 
 export default {
     props: ['id'],
 
     components: {
+        PreorderTimeline,
+        PreorderSellAction,
         OrderKap,
-        PreorderSell,
         ClientProxy,
         PreorderHistory,
-        PreorderTimeline,
         Booking,
         CarCard,
         PreorderFile,
         OrderTimeline,
         ClientCard,
-        PreorderActions
     },
 
     data() {
@@ -211,14 +201,15 @@ export default {
                 blockedVideo: false,
                 recycle_type: null,
                 category: null,
-                client: {},
-                car: {},
-                booking: {},
                 file: {},
                 files: [],
                 factory: null,
                 proxy: null,
             },
+
+            client: {},
+            car: {},
+            booking: {}
 
         }
     },
@@ -228,26 +219,25 @@ export default {
             user: 'auth/user'
         }),
 
-        client_required(){
-            if(this.item.client &&
-                this.item.client.ud_num &&
-                this.item.client.ud_expired &&
-                this.item.client.region_id &&
-                this.item.client.address &&
-                this.item.client.phone &&
-                this.item.client.email &&
-                this.item.client.year
+        client_required() {
+            if (this.client &&
+                this.client.ud_num &&
+                this.client.ud_expired &&
+                this.client.region_id &&
+                this.client.address &&
+                this.client.phone &&
+                this.client.year
             ) {
                 return true
             }
         },
 
-        car_required(){
-            if(this.item.car &&
-                this.item.car.wheels_count &&
-                this.item.car.wheels_protector_count &&
-                this.item.car.doors_count &&
-                this.item.car.category_id
+        car_required() {
+            if (this.car &&
+                this.car.category_id &&
+                this.car.wheels_count &&
+                this.car.doors_count &&
+                this.car.wheels_protector_count
             ) {
                 return true
             }
@@ -256,34 +246,20 @@ export default {
 
     methods: {
 
-        setStatusColor(id) {
-            let color = 'blue-grey-5'
-            if (id === 1) {
-                color = 'blue-5'
-            } else if (id === 2) {
-                color = 'green-5'
-            } else if (id === 3) {
-                color = 'pink-5'
-            } else if (id === 4) {
-                color = 'orange-5'
-            }
-
-            return color;
-        },
-
         getBooking(value) {
-            this.item.booking = value
+            this.booking = value
         },
 
         getClient(value) {
-            this.item.client = value
+            this.client = value
         },
 
         getCar(value) {
-            this.item.car = value
+            this.car = value
         },
 
         getData() {
+            this.show = false
             this.$emitter.emit('contentLoaded', true);
             this.showBooking = false
             getPreorderById(this.id).then(res => {
@@ -297,61 +273,15 @@ export default {
                 this.permissions.transferOrder = res.permissions.transferOrder
                 this.permissions.sendToApprove = res.permissions.sendToApprove
                 this.permissions.approveOrder = res.permissions.approveOrder
-                this.item = res.item
                 this.bookingDates = res.bookingDates
+
+                this.item = res.item
+                this.client = res.item.client
+                this.car = res.item.car
+                this.booking = res.item.booking
 
                 this.showBooking = true
             })
-        },
-
-        sendData() {
-            this.blocked = true
-            this.errors = []
-            this.showError = false
-
-            this.$emitter.emit('ClientCardEvent')
-            this.$emitter.emit('CarCardEvent')
-
-            if ((this.item.status && this.item.status.id === 0) || this.item.status && this.item.status.id === 4) {
-                this.loading = true
-                sendOrder(this.id, this.item).then(res => {
-                    if (res) {
-                        if (res.success) {
-                            this.getData()
-                            Notify.create({
-                                message: res.message,
-                                position: 'bottom',
-                                type: 'positive'
-                            })
-                        }
-                        if (res.message && res.message !== '' && res.success === false) {
-                            if (res.message && res.message !== '') {
-                                let messages = JSON.parse(res.message)
-                                let messageData = []
-                                Object.values(messages).map((el, i) => {
-                                    if(i > 0) {
-                                        messageData.push('<div></div>*' + el[0])
-                                    }
-                                });
-                                this.showNotify(messageData, messages[0])
-                            }
-                        }
-                    }
-                }).catch(reject => {
-                    if (reject.message && reject.message !== '') {
-                        let messages = JSON.parse(reject.message)
-                        let messageData = []
-                        Object.values(messages).map((el, i) => {
-                                messageData.push('<div></div>*' + el[0])
-                        });
-                        this.showNotify(messageData, '')
-                    }
-
-                }).finally(() => {
-                    this.loading = false
-                    this.blocked = false
-                })
-            }
         },
 
         deleteData() {
@@ -367,18 +297,6 @@ export default {
                 this.loading = false
             })
         },
-
-        showNotify(messages, title) {
-            Notify.create({
-                caption: messages,
-                message: title ?? '',
-                position: 'top-right',
-                type: 'info',
-                html: true,
-                timeout: 20000,
-                actions: [{icon: 'close', color: 'white'}]
-            })
-        }
     },
 
     created() {
@@ -388,6 +306,15 @@ export default {
     mounted() {
         this.$emitter.on('preorderActionEvent', () => {
             this.getData()
+        })
+
+        this.$emitter.on('preorderSendActionEvent', (value) => {
+            this.blocked = false
+            this.disabled = false
+            if (value) {
+                this.blocked = true
+                this.disabled = true
+            }
         })
 
         this.$emitter.on('preorderSellEvent', () => {

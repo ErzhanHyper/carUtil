@@ -9,7 +9,6 @@
                         dense
                         label="Тип заявки"
                         outlined
-                        rounded
                         transition-hide="jump-up"
                         transition-show="jump-up"
                     />

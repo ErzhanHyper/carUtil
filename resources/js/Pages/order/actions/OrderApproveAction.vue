@@ -1,54 +1,59 @@
 <template>
-    <div class="q-gutter-sm">
-        <q-btn :loading="loading"
-               square size="12px"
-               color="light-green"
-               label="Одобрить"
-               @click="send('approve')"
-               icon="send"
-               :disabled="disabled"
-               v-if="show">
-        </q-btn>
+    <div v-if="show">
+        <div class="q-gutter-sm">
+            <q-btn v-if="show"
+                   :disabled="disabled" :loading="loading"
+                   color="light-green"
+                   icon="send"
+                   label="Одобрить"
+                   size="12px"
+                   square
+                   @click="send('approve')">
+            </q-btn>
 
-        <q-btn square size="12px"
-               color="orange-5"
-               label="На доработку"
-               @click="send('revision')"
-               icon="keyboard_return"
-               v-if="show">
-        </q-btn>
+            <q-btn v-if="show" color="orange-5"
+                   icon="keyboard_return"
+                   label="На доработку"
+                   size="12px"
+                   square
+                   @click="send('revision')">
+            </q-btn>
 
-<!--        <q-btn square size="12px"-->
-<!--               color="red-5"-->
-<!--               label="Отклонить"-->
-<!--               @click="send('decline')"-->
-<!--               icon="block"-->
-<!--               v-if="show">-->
-<!--        </q-btn>-->
+            <!--        <q-btn square size="12px"-->
+            <!--               color="red-5"-->
+            <!--               label="Отклонить"-->
+            <!--               @click="send('decline')"-->
+            <!--               icon="block"-->
+            <!--               v-if="show">-->
+            <!--        </q-btn>-->
+        </div>
+
+        <q-dialog v-model="commentDialog" persistent>
+            <q-card style="width: 800px">
+                <q-card-section class="flex justify-between">
+                    <q-space/>
+                    <q-icon v-close-popup class="cursor-pointer" flat name="close" size="sm"/>
+                </q-card-section>
+                <q-card-section>
+                    <q-input v-model="comment" class="text-body1" label="Комментарий" outlined rows="3"
+                             type="textarea"/>
+                </q-card-section>
+                <q-card-actions>
+                    <q-space/>
+                    <q-btn v-if="action === 'decline'" :loading="loading2" color="primary" label="Отправить"
+                           @click="declineAction"/>
+                    <q-btn v-if="action === 'revision'" :loading="loading2" color="primary" label="Отправить"
+                           @click="revisionAction"/>
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </div>
-
-    <q-dialog v-model="commentDialog" persistent>
-        <q-card style="width: 800px">
-          <q-card-section class="flex justify-between">
-          <q-space/>
-            <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
-          </q-card-section>
-          <q-card-section>
-                <q-input type="textarea" v-model="comment" outlined rows="3" label="Комментарий" class="text-body1"/>
-            </q-card-section>
-            <q-card-actions>
-                <q-space/>
-                <q-btn label="Отправить" color="primary" @click="declineAction" :loading="loading2" v-if="action === 'decline'"/>
-                <q-btn label="Отправить" color="primary" @click="revisionAction" :loading="loading2" v-if="action === 'revision'"/>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
 
 </template>
 
 <script>
 import {signData} from "../../../services/sign";
-import {declineOrder, revisionOrder, approveOrder, revisionVideoOrder} from "../../../services/order";
+import {approveOrder, declineOrder, revisionOrder} from "../../../services/order";
 import {Notify} from "quasar";
 import {mapGetters} from "vuex";
 
@@ -56,7 +61,7 @@ export default {
     props: ['order_id', 'show'],
 
     data() {
-        return{
+        return {
             commentDialog: false,
             loading: false,
             loading1: false,
@@ -79,10 +84,10 @@ export default {
             if (value === 'approve') {
                 this.loading = true
                 signData().then(res => {
-                    if(res) {
+                    if (res) {
                         this.signHash = res
                         this.approveAction()
-                    }else{
+                    } else {
                         this.loading = false
                     }
                 }).catch(() => {
@@ -99,7 +104,7 @@ export default {
                 comment: this.comment,
                 sign: this.signHash,
             }).then((res) => {
-                if(res) {
+                if (res) {
                     if (res.success) {
                         this.commentDialog = false
                         this.$emitter.emit('orderActionEvent')
@@ -119,7 +124,7 @@ export default {
 
         declineAction() {
             this.loading2 = true
-            declineOrder(this.order_id,{
+            declineOrder(this.order_id, {
                 comment: this.comment,
             }).then(() => {
                 this.commentDialog = false

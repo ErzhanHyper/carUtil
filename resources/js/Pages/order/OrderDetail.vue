@@ -9,60 +9,36 @@
                     {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
                 </span>
                 <span class="text-body1 text-blue-grey-7"> <b> - №{{ item.id }}</b></span>
-                <div v-if="item.status.id !== 3" :class="'text-'+setStatusColor(item.approve.id)">
-                    {{ item.approve.title }}
-                </div>
-                <div v-if="item.status.id === 5 || item.status.id === 3"
-                     :class="'text-'+setStatusColor(item.status.id)">
-                    {{ item.status.title }}
-                </div>
+                <!--                <div v-if="item.status.id !== 3" :class="'text-'+setStatusColor(item.approve.id)">-->
+                <!--                    {{ item.approve.title }}-->
+                <!--                </div>-->
+                <!--                <div v-if="item.status.id === 5 || item.status.id === 3"-->
+                <!--                     :class="'text-'+setStatusColor(item.status.id)">-->
+                <!--                    {{ item.status.title }}-->
+                <!--                </div>-->
                 <div v-if="item.executor" class="text-caption">
                     Исполнитель: {{ item.executor.title }}
                 </div>
                 <div v-if="item.user" class="text-caption">
                     Менеджер ТБО: {{ item.user.title }}
                 </div>
-                <div v-if="item.approve.id === 3 && item.status.id === 4" :class="'text-deep-orange'">
-                    В ожидании получения видеозаписи ТС/СХТ
-                    <q-tooltip v-if="user.role === 'operator'" :offset="[10, 10]" class="bg-indigo text-body2">
-                        Зайдите в мобильное приложение и сделайте видеозапись ТС/СХТ и отправьте видеозапись по номеру
-                        заявки
-                    </q-tooltip>
-                </div>
             </div>
 
-            <order-execute-action
-                :order_id="item.id"
-                :permissions="{
-                    start: permit.can_execute,
-                    stop: permit.can_approve && item.executor
-                }"
-            />
-
-        </div>
-        <div class="flex justify-between">
-            <div class="flex">
-
-                <order-approve-action
-                    v-if="user.role === 'moderator'"
-                    :order_id="item.id"
-                    :show="permit.can_approve"
-                />
-
-                <order-cert-action
-                    v-if="permit.can_issue_cert"
-                    :order_id="item.id"
-                    :show="permit.can_issue_cert"
-                    class="q-ml-xs q-mr-md"
-                />
-
-                <order-video-action
+            <div>
+                <order-execute-action
                     :order_id="item.id"
                     :permissions="{
-                        showVideoSendAction: permit.can_upload_video,
-                        showVideoRevision: permit.can_return_back
-                    }"
-                />
+                    start: permit.can_execute,
+                    stop: permit.can_approve && item.executor
+                }"/>
+            </div>
+        </div>
+
+        <order-timeline v-if="showTimeline" :approve="item.approve" :status="item.status" :permit="permit" :order_id="item.id" class="q-mb-md"/>
+
+        <div class="flex justify-between q-mx-sm">
+            <div class="flex">
+
             </div>
             <div>
                 <q-btn
@@ -72,26 +48,15 @@
                     icon="search"
                     label="Проверка дубликатов"
                     size="12px"
-                    @click="getDuplicate"
-                />
+                    @click="getDuplicate"/>
 
                 <order-kap
                     v-if="user.role === 'moderator' && item.executor"
                     :blocked="!permit.can_approve"
                     :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: (item.client ? item.client.idnum : '')}"
-                    :order_id="item.id"
-                />
+                    :order_id="item.id"/>
             </div>
         </div>
-
-        <order-send-action
-            :order_id="item.id"
-            :permissions="{
-                showSendToApproveAction: permit.can_send_to_approve,
-                showSendToIssueCertAction:  permit.can_send_to_issue_cert
-            }"
-            class="q-mt-sm"
-        />
 
         <q-banner v-if="showError" class="q-mb-sm bg-orange-1 q-mt-md">
             <div v-for="error in errors">
@@ -115,7 +80,8 @@
                     <div class="col col-md-7 col-sm-12 col-xs-12">
                         <booking v-if="item.booking" :blocked="true" :data="item.booking" :getBooking="getBooking"
                                  class="q-mb-md"/>
-                        <car-card :blocked="true" :blockedCustom="true" :data="item.car" :getCar="getCar" :vehicleType="item.vehicleType"/>
+                        <car-card :blocked="true" :blockedCustom="true" :data="item.car" :getCar="getCar"
+                                  :vehicleType="item.vehicleType"/>
                     </div>
                 </div>
                 <order-history :items="item.history"/>
@@ -175,11 +141,7 @@ import CarCard from "@/Pages/car/CarCard.vue";
 import Booking from "@/Pages/booking/BookingCard.vue";
 import PreorderFile from "@/Pages/preorder/PreorderFile.vue"
 
-import OrderApproveAction from "./actions/OrderApproveAction.vue";
 import OrderExecuteAction from "./actions/OrderExecuteAction.vue";
-import OrderSendAction from "./actions/OrderSendAction.vue";
-import OrderVideoAction from "./actions/OrderVideoAction.vue";
-import OrderCertAction from "./actions/OrderCertAction.vue";
 
 import OrderKap from "./OrderKap.vue";
 import OrderDuplicates from "./OrderDuplicates.vue";
@@ -191,12 +153,8 @@ export default {
     components: {
         OrderDuplicates,
         OrderKap,
-        OrderCertAction,
-        OrderVideoAction,
-        OrderSendAction,
         OrderExecuteAction,
         OrderHistory,
-        OrderApproveAction,
         OrderDocument,
         ClientProxy,
         Booking,
@@ -216,6 +174,7 @@ export default {
             showDuplicatesDialog: false,
             disabled: true,
             showData: false,
+            showTimeline: false,
             showFile: false,
             showProxy: false,
             loading: false,
@@ -285,10 +244,12 @@ export default {
 
         getData() {
             this.$emitter.emit('contentLoaded', true);
+            this.showTimeline = false
             getOrderItem(this.id, {}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
                 this.showData = true
                 this.showFile = true
+                this.showTimeline = true
                 this.item = res.item
 
                 if (res.permissions) {
@@ -298,7 +259,7 @@ export default {
             })
         },
 
-        getDuplicate(){
+        getDuplicate() {
             this.$emitter.emit('duplicateDialogEvent')
         }
     },

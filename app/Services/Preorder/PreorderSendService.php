@@ -61,11 +61,8 @@ class PreorderSendService
 
             if ($car) {
                 $preorder->car_id = $car->id;
+                $preorder->save();
             }
-            if ($client) {
-                $preorder->client_id = $client->id;
-            }
-            $preorder->save();
 
             if ($client && $car && $file) {
                 $this->sendToModerator($preorder, $client, $car);
@@ -137,8 +134,14 @@ class PreorderSendService
         if ($preorder->status === config("constants.NEW_PREORDER")) {
             if ($client) {
                 return $this->clientService->update($request, $client->id);
+            }else{
+                $client1 = $this->clientService->create($request);
+                if ($client1) {
+                    $preorder->client_id = $client1->id;
+                    $preorder->save();
+                }
+                return $client1;
             }
-            return $this->clientService->create($request);
         } elseif ($preorder->status === config("constants.RETURNED_BACK_PREORDER")) {
             if ($client) {
                 return $this->clientService->update($request, $client->id);

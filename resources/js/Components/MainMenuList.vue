@@ -1,7 +1,7 @@
 <template>
 
-    <q-toolbar class="bg-primary text-white text-center">
-        <q-toolbar-title>АО &laquo;Жасыл Даму&raquo;</q-toolbar-title>
+    <q-toolbar class="bg-primary text-white text-center ">
+        <q-toolbar-title class="text-uppercase text-overline text-weight-bold">Жасыл Даму</q-toolbar-title>
     </q-toolbar>
 
     <q-separator color="grey-8" />

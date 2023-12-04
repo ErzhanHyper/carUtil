@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Category;
+use App\Models\Client;
 use App\Models\Factory;
 use App\Models\File;
 use App\Models\Liner;
@@ -51,6 +52,9 @@ class PreOrderResource extends JsonResource
         if($user->role === 'liner') {
             if ($this->client && $this->client->idnum === $user->idnum) {
                 $client = new ClientResource($this->client);
+            }else{
+                $clientFind = Client::where('idnum', $user->idnum)->orderByDesc('id')->first();
+                $client = $clientFind ? new ClientResource($clientFind) : null;
             }
         }else{
             $client = new ClientResource($this->client);
