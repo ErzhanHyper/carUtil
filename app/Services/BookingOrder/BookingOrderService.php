@@ -11,6 +11,23 @@ use InvalidArgumentException;
 
 class BookingOrderService
 {
+
+    public function get($request)
+    {
+        $data = BookingOrder::where('factory_id', $request->factory)->get();
+
+        $datetime = [];
+
+        foreach ($data as $item) {
+            $datetime[] = [
+                'id' => $item->id,
+                'datetime' => date('Y-m-d h:i', $item->datetime),
+            ];
+        }
+
+        return $datetime;
+    }
+
     public function store($request)
     {
 
@@ -82,6 +99,28 @@ class BookingOrderService
             }
 
         }
+    }
+
+    public function delete($request)
+    {
+        $booking = BookingOrder::find($request->id);
+        $preorder = PreOrderCar::find($request->preorder_id);
+        $user = app(AuthService::class)->auth();
+        $success = false;
+
+        if($booking && $preorder){
+            if($preorder->liner_id === $user->id) {
+                $preorder->booking_id = null;
+                $preorder->factory_id = null;
+                if ($preorder->save()) {
+                    $booking->delete();
+                    $success = true;
+                }
+            }
+        }
+        return [
+            'success' => $success
+        ];
     }
 
 

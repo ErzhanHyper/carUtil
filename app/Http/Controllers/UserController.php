@@ -49,7 +49,6 @@ class UserController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-
         $validator = Validator::make($request->all(),
             [
                 'login' => 'required',
@@ -106,7 +105,6 @@ class UserController extends Controller
             'message' => $message,
             'success' => $success
         ], $status);
-
     }
 
     public function update(Request $request, $id): JsonResponse
@@ -156,7 +154,6 @@ class UserController extends Controller
             'message' => 'Успешно обновлено',
             'success' => true
         ], 200);
-
     }
 
     public function role()
@@ -191,6 +188,7 @@ class UserController extends Controller
                 'name' => 'operator-chief'
             ],
         ];
+
         return response()->json($role);
     }
 }

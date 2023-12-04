@@ -17,8 +17,9 @@
                     </q-btn>
                     <div v-else></div>
                 </div>
+                <q-separator color="blue-grey-1"/>
+
                 <template v-for="item in items" v-if="items.length > 0">
-                    <q-separator color="blue-grey-1"/>
                     <q-banner class="q-px-xs flex items-center">
                         <template v-slot:avatar>
                             <q-icon color="blue-3" name="edit_note"/>
@@ -35,6 +36,8 @@
                         <div class="text-right" style="font-size: 11px">{{ item.time }}</div>
                     </q-banner>
                 </template>
+
+                <div v-if="items.length === 0" class="text-caption">Нет записей</div>
             </div>
         </q-menu>
     </q-btn>

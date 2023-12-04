@@ -8,44 +8,7 @@
         </div>
     </div>
 
-    <q-card v-if="show && user.role === 'moderator'" bordered class="q-mb-none q-mt-md" flat square>
-        <q-card-section>
-            <div class="row q-col-gutter-md">
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.vin" dense label="VIN" outlined/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.grnz" dense label="ГРНЗ" outlined/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.title" dense label="ФИО" outlined/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.idnum" dense label="ИИН/БИН" outlined/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-select
-                        v-model="filter.status"
-                        :options="statuses"
-                        dense
-                        emit-value
-                        label="Статус"
-                        map-options
-                        option-label="title"
-                        option-value="id"
-                        outlined
-                        transition-hide="jump-up"
-                        transition-show="jump-up"
-                    />
-                </div>
-                <div class="col col-md-2 col-sm-2 col-xs-12">
-                    <q-btn :loading="loading1" color="blue-8" icon="search" round @click="applyFilter"/>
-                    <q-btn :loading="loading2" class="q-ml-sm" color="orange-8" icon="close" round size="sm"
-                           @click="resetFilter"/>
-                </div>
-            </div>
-        </q-card-section>
-    </q-card>
+    <preorder-filter :apply-action="applyFilter" :filter="filter" v-if="user && user.role === 'moderator'" class="q-mb-lg"/>
 
     <q-markup-table bordered dense flat>
         <thead>
@@ -167,9 +130,11 @@
 import {getOrderList} from "../../services/preorder";
 import {mapGetters} from "vuex";
 import PreorderCreate from './PreorderCreate.vue'
+import PreorderFilter from "./PreorderFilter.vue";
 export default {
 
     components: {
+        PreorderFilter,
         PreorderCreate
     },
 
@@ -188,24 +153,6 @@ export default {
             },
 
             items: [],
-            statuses: [
-                {
-                    id: 1,
-                    title: 'На рассмотрении'
-                },
-                {
-                    id: 2,
-                    title: 'Одобрена'
-                },
-                {
-                    id: 3,
-                    title: 'Отклонена'
-                },
-                {
-                    id: 4,
-                    title: 'Возвращена на доработку'
-                },
-            ],
 
             page: 1,
             totalPage: 1,
@@ -263,16 +210,20 @@ export default {
             return color;
         },
 
-        applyFilter() {
+        applyFilter(value) {
+            this.items = []
             this.page = 1
-            this.getData({params: this.filter})
-        },
+            this.filter.page = this.page
+            this.filter = value
+            this.show = false
+            this.totalPage = 1
+            getOrderList({params: this.filter}).then(res => {
+                this.items = res.items
+                this.show = true
+                this.totalPage = res.pages
 
-        resetFilter() {
-            this.filter = {
-                page: this.page
-            }
-            this.getData()
+                this.$emitter.emit('FilterApplyEvent')
+            })
         },
 
         getData() {

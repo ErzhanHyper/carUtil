@@ -41,14 +41,14 @@ export default {
 
         async signIn({dispatch}, credentials) {
             let response = await api.post('login', credentials)
-            dispatch('attempt', response.data.data.hash)
+            dispatch('attempt', response.data.hash)
 
             return response
         },
 
         async signInMobile({dispatch}, credentials) {
             let response = await api.post('loginMobile', credentials)
-            dispatch('attempt', response.data.data.hash)
+            dispatch('attempt', response.data.hash)
         },
 
         async attempt({commit, state}, token) {

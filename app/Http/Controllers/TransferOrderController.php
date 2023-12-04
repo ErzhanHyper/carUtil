@@ -72,7 +72,6 @@ class TransferOrderController extends Controller
             $result['data'] = ['message' => $e->getMessage()];
         }
         return response()->json($result['data'], $result['status']);
-
     }
 
     public function delete($id)

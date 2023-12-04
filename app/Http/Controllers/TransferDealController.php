@@ -23,9 +23,6 @@ class TransferDealController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         try {
@@ -38,9 +35,6 @@ class TransferDealController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function accept($id)
     {
         try {
@@ -76,14 +70,5 @@ class TransferDealController extends Controller
             $result['data'] = ['message' => $e->getMessage()];
         }
         return response()->json($result['data'], $result['status']);
-
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(TransferDeal $transferDeal)
-    {
-        //
     }
 }

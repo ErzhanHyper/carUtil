@@ -2,133 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Liner;
 use App\Models\Session;
-use App\Models\User;
 use App\Services\AuthService;
 use App\Services\EdsService;
+use App\Services\LinerService;
+use App\Services\UserService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
 
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         try {
-            $data = app(AuthService::class)->secure($request);
-            $result = ['status' => 200, 'data' => $data];
+            $result['status'] = 200;
+            $result['data'] = app(AuthService::class)->secure($request);
         } catch (Exception $e) {
-            $result = [
-                'status' => 500,
-                'error' => $e->getMessage()
-            ];
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-        return response()->json($result, $result['status']);
-
+        return response()->json($result['data'], $result['status']);
     }
 
-    public function loginMobile(Request $request)
+    public function loginMobile(Request $request): JsonResponse
     {
         try {
             $data = app(AuthService::class)->secureMobile($request);
-            $result = ['status' => 200, 'data' => $data];
+            $result['status'] = 200;
+            $result['data'] = $data;
         } catch (Exception $e) {
-            $result = [
-                'status' => 500,
-                'error' => $e->getMessage()
-            ];
+            $result['status'] = 500;
+            $result['data'] = ['message' => $e->getMessage()];
         }
-        return response()->json($result, $result['status']);
-
+        return response()->json($result['data'], $result['status']);
     }
 
     public function get()
     {
-        $idnum = app(AuthService::class)->auth();
-
-        return response()->json($idnum);
+        return response()->json(app(AuthService::class)->auth());
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $token = $request->header('Authorization');
         $token = Str::substr($token, 7);
         $session = Session::where('token', $token)->first();
-
         if ($session) {
             $session->delete();
         }
-
         return response()->json('logout');
     }
-
 
     public function update(Request $request)
     {
         $user = app(AuthService::class)->auth();
-
-        if($user->role === 'liner') {
-            $liner = Liner::find($request->id);
-            if ($liner) {
-                if ($liner->id === $user->id) {
-                    $profile = json_decode($liner->profile);
-
-                    if ($request->phone) {
-                        $profile->phone = $request->phone;
-                    }
-
-                    if ($request->email) {
-                        $profile->email = $request->email;
-                    }
-
-                    if ($request->password && $request->password_confirm) {
-                        if ($request->password === $request->password_confirm) {
-                            $liner->password = md5($request->password . 'KZ.UNIDADE.2016');
-                        }
-                    }
-
-                    $profile = json_encode($profile);
-                    $liner->profile = $profile;
-
-                }
-                $liner->save();
-            }
-        }else{
-            $manager = User::find($request->id);
-            if($manager){
-                if($manager->id === $user->id){
-                    if ($request->password && $request->password_confirm) {
-                        if ($request->password === $request->password_confirm) {
-                            $manager->password = md5($request->password . 'KZ.UNIDADE.2016');
-                        }
-                    }
-                    $manager->email = $request->email;
-                    $manager->phone = $request->phone;
-
-                    $manager->title = $request->title;
-
-
-                    if($request->custom_1){
-                        $manager->custom_1 = $request->custom_1;
-                    }
-                    if($request->for_docs){
-                        $manager->for_docs = $request->for_docs;
-                    }
-
-                    $manager->save();
-                }
-            }
+        if ($user->role === 'liner') {
+            return app(LinerService::class)->update($request);
+        } else {
+            return app(UserService::class)->update($request);
         }
-
     }
 
-
-    public function checkEds(Request $request) {
-        $check = app(EdsService::class)->check($request);
-
-        return response()->json($check);
+    public function checkEds(Request $request): JsonResponse
+    {
+        return response()->json(app(EdsService::class)->check($request));
     }
 }

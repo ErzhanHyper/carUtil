@@ -31,8 +31,8 @@ class OrderService
 
             if ($user->role === 'moderator') {
                 $orders->where('approve', '<>', 0)
-                    ->when(isset($request->type) && $request->type != '', function ($query) use ($request) {
-                        $query->whereHas('car', function ($q) use ($request) {
+                    ->when($request->filled('type'), function ($query) use ($request) {
+                        $query->with('car:id,car_type_id,order_id')->whereHas('car', function ($q) use ($request) {
                             $q->where('car_type_id', $request->type === 'ВЭТС' ? [1, 2] : [3, 4]);
                         });
                     });

@@ -10,7 +10,7 @@
         </div>
     </div>
 
-    <order-filter :filter="filter" :apply-action="applyFilter" :reset-action="resetFilter" v-if="user && user.role === 'moderator' && showFilter"/>
+    <order-filter :filter="filter" :apply-action="applyFilter" v-if="user && user.role === 'moderator' && showFilter" class="q-mb-lg"/>
 
     <q-markup-table flat bordered dense>
         <thead>
@@ -139,7 +139,7 @@ export default {
                     id: 2,
                     icon: 'recycling',
                     title: 'ВЭССХТ',
-                    description: 'Вышедшей из эксплуатации сельхозтехники',
+                    description: 'Вышедшее из эксплуатации сельхозтехника',
                 }
             ]
         }
@@ -196,17 +196,20 @@ export default {
             return result
         },
 
-        applyFilter(value){
+        async applyFilter(value){
+            this.items = []
             this.page = 1
             this.filter.page = this.page
             this.filter = value
-            this.getData()
-        },
+            this.show = false
+            this.totalPage = 1
+            await getOrderList({params: this.filter}).then(res => {
+                this.$emitter.emit('FilterApplyEvent');
 
-        resetFilter(value){
-            this.page = 1
-            this.filter = value
-            this.getData()
+                this.items = res.items
+                this.show = true
+                this.totalPage = res.pages
+            })
         },
 
         create() {

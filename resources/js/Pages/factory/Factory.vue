@@ -25,7 +25,7 @@
                     </router-link>
                 </td>
                 <td>{{ item.address }}</td>
-                <td>{{ item.region.title }}</td>
+                <td>{{ item.region ? item.region.title : '' }}</td>
             </tr>
             </template>
             <tr v-else><td>Нет записей</td></tr>
