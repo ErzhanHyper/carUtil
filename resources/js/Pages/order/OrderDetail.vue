@@ -84,7 +84,14 @@
                                   :vehicleType="item.vehicleType"/>
                     </div>
                 </div>
-                <order-history :items="item.history"/>
+                <q-list bordered class="rounded-borders q-mt-md">
+                <q-expansion-item
+                    expand-separator
+                    icon="history"
+                    label="История">
+                    <order-history :items="item.history" class="q-pa-md"/>
+                </q-expansion-item>
+                </q-list>
             </div>
 
             <div class="col col-md-4 col-xs-12">

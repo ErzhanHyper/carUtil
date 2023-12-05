@@ -13,6 +13,10 @@
             icon="create_new_folder"
             title="На рассмотрении у менеджера завода"
         >
+            <div class="text-indigo-8 q-mb-sm" v-if=" history.length > 0">
+                {{ history[0].action === 'RETURNED_TO_OPERATOR' ? history[0].comment : '' }}
+            </div>
+
             <order-send-action
                 :order_id="order_id"
                 :permissions="{
@@ -21,10 +25,6 @@
             }"
                 class="q-mt-sm"
             />
-
-            <div class="text-indigo-8" v-if=" history.length > 0 && user && user.role === 'operator'">
-                {{ history[0].action === 'RETURNED_TO_OPERATOR' ? history[0].comment : '' }}
-            </div>
 
         </q-step>
 
@@ -52,7 +52,7 @@
                 Получение видеозаписи через мобильное приложение от менеджера завода
             </div>
 
-            <div class="text-indigo-8" v-if=" history.length > 0 && user && user.role === 'operator'">
+            <div class="text-indigo-8 q-mb-sm" v-if=" history.length > 0 && user && user.role === 'operator'">
                 {{ history[0].action === 'RETURNED_TO_OPERATOR_AFTER_SIGN' ? history[0].comment : '' }}
             </div>
 
