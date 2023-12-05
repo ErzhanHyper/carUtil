@@ -10,6 +10,10 @@
 
     <preorder-filter :apply-action="applyFilter" :filter="filter" v-if="user && user.role === 'moderator'" class="q-mb-lg"/>
 
+    <q-scroll-area
+        :visible="true"
+        style="height: calc(100vh - 340px);"
+    >
     <q-markup-table bordered dense flat>
         <thead>
         <tr>
@@ -18,7 +22,7 @@
             <th class="text-left">Категория</th>
             <th class="text-left">ФИО/Наименование</th>
             <th class="text-left">ИИН/БИН</th>
-            <th class="text-left">Дата создания</th>
+            <th class="text-left">Дата отправки</th>
             <th class="text-left">Статус</th>
             <th class="text-left"></th>
         </tr>
@@ -53,7 +57,7 @@
                     </template>
                     <template v-else>-</template>
                 </td>
-                <td class="text-left"> {{ (item.date) ? item.date : '-' }}</td>
+                <td class="text-left"> {{ (item.sended_dt) ? item.sended_dt : '-' }}</td>
                 <td class="text-left">
                     <q-chip :color="setStatusColor(item.status.id)" class="text-overline" dark size="12px"
                             square>
@@ -112,10 +116,11 @@
             size="2em"
         />
     </div>
+    </q-scroll-area>
 
     <div class="q-pa-lg flex flex-center">
         <q-pagination
-            v-if="items.length > 0"
+            v-if="items.length > 10"
             v-model="page"
             :max="totalPage"
             :max-pages="10"

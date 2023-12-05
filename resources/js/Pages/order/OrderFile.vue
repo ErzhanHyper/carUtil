@@ -1,6 +1,6 @@
 <template>
     <q-card flat>
-        <q-card-section>
+        <q-card-section >
             <q-select
                 square v-model="item.file"
                 label="Файл"
@@ -30,9 +30,9 @@
 <!--            <div class="text-body2">Загруженные файлы</div>-->
         </q-card-section>
 
-        <q-separator inset/>
+        <q-separator inset v-if="!filesEmpty"/>
 
-        <q-card-section>
+        <q-card-section >
 
             <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-weight-bold" v-if="certificate_id">
                 <a href="#" class="text-primary" @click="getCert(certificate_id)">
@@ -146,6 +146,7 @@ import {
 import FileDownload from "js-file-download";
 import {Notify} from "quasar";
 import {generateCertificate} from "../../services/certificate";
+import {mapGetters} from "vuex";
 
 export default {
 
@@ -181,9 +182,16 @@ export default {
 
             filesDoc: [],
             filesPhoto: [],
-            filesOptions: []
+            filesOptions: [],
+            filesEmpty: false,
 
         }
+    },
+
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
     },
 
     methods: {
@@ -349,6 +357,10 @@ export default {
 
     created() {
         this.getItems()
+
+        if(this.user && this.user.role === 'moderator' && (this.filesDoc.length === 0 && this.filesPhoto.length === 0)){
+            this.filesEmpty = true
+        }
     },
 
     mounted(){

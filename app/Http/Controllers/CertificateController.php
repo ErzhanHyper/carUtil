@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Certificate;
 use App\Services\Certificate\CertificateService;
 use App\Services\CheckupService;
 use Illuminate\Http\JsonResponse;
@@ -15,13 +14,11 @@ class CertificateController extends Controller
      */
     public function get(Request $request): JsonResponse
     {
-        $data = app(CertificateService::class)->getCollection($request);
-        return response()->json($data);
+        return response()->json(app(CertificateService::class)->getCollection($request));
     }
 
     public function checkById(Request $request, $id): JsonResponse
     {
-        $data = app(CheckupService::class)->checkCertById($id);
-        return response()->json($data);
+        return response()->json(app(CheckupService::class)->checkCertById($id));
     }
 }

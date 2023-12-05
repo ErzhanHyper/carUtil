@@ -43,6 +43,29 @@ class OrderResource extends JsonResource
             default => '',
         };
 
+        $globalStatus = '';
+        if($this->status === 0){
+            $globalStatus = 'Новая заявка';
+        }
+        if($this->status === 2 || $this->status === 1){
+            $globalStatus = 'На рассмотрении';
+        }
+        if($this->status === 2 && $this->approve === 3){
+            $globalStatus = 'Одобрено';
+        }
+        if($this->status === 2 && $this->approve === 2){
+            $globalStatus = 'Отказано';
+        }
+        if($this->status === 4){
+            $globalStatus = 'В ожидании видеозаписи';
+        }
+        if($this->status === 5){
+            $globalStatus = 'На выдаче сертификата';
+        }
+        if($this->status === 3){
+            $globalStatus = 'Завершено';
+        }
+
         $booking = null;
         $categories = [];
         $files = [];
@@ -101,6 +124,7 @@ class OrderResource extends JsonResource
             'transfer' => $this->transfer,
             'vehicleType' => $vehicleType,
             'history' => $history,
+            'globalStatus' => $globalStatus
         ];
     }
 }

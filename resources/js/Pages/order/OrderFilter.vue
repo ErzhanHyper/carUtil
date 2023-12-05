@@ -17,7 +17,7 @@
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-input v-model="item.vin" dense label="VIN" outlined clearable/>
                 </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
+                <div class="col col-md-1 col-sm-6 col-xs-12">
                     <q-input v-model="item.grnz" dense label="ГРНЗ" outlined clearable/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
@@ -41,7 +41,7 @@
                         clearable
                     />
                 </div>
-                <div class="col col-md-2 col-sm-2 col-xs-12">
+                <div class="col col-md-1 col-sm-1 col-xs-12">
                     <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
                 </div>
             </div>

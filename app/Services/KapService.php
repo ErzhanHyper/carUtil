@@ -66,7 +66,7 @@ class KapService
 
         if($user->role === 'liner') {
             $preorder_id = $request->preorder_id;
-            $kap_request = KapRequest::where('iinbin', $user->idnum)->orderByDesc('created_at')->first();
+//            $kap_request = KapRequest::where('iinbin', $user->idnum)->orderByDesc('created_at')->first();
 
             if ($preorder_id) {
                 $preorder = PreOrderCar::find($preorder_id);
@@ -74,7 +74,7 @@ class KapService
                     $client = Client::find($preorder->client_id);
                     if ($client) {
                         $message = 'Клиент найден';
-                        $kap_request = KapRequest::where('iinbin', $client->idnum)->orderByDesc('created_at')->first();
+//                        $kap_request = KapRequest::where('iinbin', $client->idnum)->orderByDesc('created_at')->first();
                     }
                 }
             }

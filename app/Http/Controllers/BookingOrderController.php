@@ -10,19 +10,16 @@ class BookingOrderController extends Controller
 {
     public function get(Request $request): JsonResponse
     {
-        $data = app(BookingOrderService::class)->get($request);
-        return response()->json($data);
+        return response()->json(app(BookingOrderService::class)->get($request));
     }
 
     public function store(Request $request): JsonResponse
     {
-        $data = app(BookingOrderService::class)->store($request);
-        return response()->json($data);
+        return response()->json(app(BookingOrderService::class)->store($request));
     }
 
     public function delete(Request $request): JsonResponse
     {
-        $data = app(BookingOrderService::class)->delete($request);
-        return response()->json($data);
+        return response()->json(app(BookingOrderService::class)->delete($request));
     }
 }

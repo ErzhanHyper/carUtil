@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Services\CategoryService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function get(Request $request)
+    public function get(Request $request): JsonResponse
     {
         if($request->type === 'car'){
             $data = Category::whereIn('id', [1,2,3,4,5,6])->get();
@@ -20,7 +21,7 @@ class CategoryController extends Controller
         return response()->json(['items' => $data]);
     }
 
-    public function getComplect(Request $request)
+    public function getComplect(Request $request): JsonResponse
     {
         $data = app(CategoryService::class)->complect($request->category);
         return response()->json(['items' => $data]);

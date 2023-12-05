@@ -4,17 +4,14 @@
 namespace App\Services\Preorder;
 
 use App\Http\Controllers\FileController;
-use App\Http\Resources\PreOrderResource;
-use App\Http\Resources\TransferOrderResource;
 use App\Models\AgroFile;
 use App\Models\Car;
 use App\Models\CarFile;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\PreOrderCar;
-use App\Models\TransferOrder;
+use App\Models\PreorderComment;
 use App\Services\AuthService;
-use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 
@@ -24,68 +21,12 @@ class PreorderService
     private bool $success;
     private string $message;
 
-    public function __construct(
-        AuthService $authService,
-    )
+    public function __construct(AuthService $authService)
     {
         $this->success = false;
         $this->message = '';
 
         $this->authService = $authService;
-    }
-
-    public function getCollection($request)
-    {
-        $user = $this->authService->auth();
-        $data = [];
-
-        if ($user->role === 'liner' || $user->role === 'moderator') {
-            $preorder = PreOrderCar::with(['car', 'client']);
-
-            if($preorder) {
-                if ($user->role === 'liner') {
-                    $preorder->where('liner_id', $user->id);
-                } else if ($user->role === 'moderator') {
-                    $preorder->whereNot('status', 0);
-                    $this->applyFilters($preorder, $request);
-                }
-            }
-        }
-
-        if (isset($preorder)) {
-            $paginate = 10;
-            $pages = round($preorder->count() / $paginate);
-            if ($pages == 0) {
-                $pages = 1;
-            }
-            $data = [
-                'pages' => $pages,
-                'page' => $request->page ?? 1,
-                'items' => PreOrderResource::collection($preorder->orderByDesc('date')->paginate($paginate))
-            ];
-        }
-        return $data;
-    }
-
-    private function applyFilters($preorder, $request): void
-    {
-        foreach (['title', 'idnum'] as $filter) {
-            if (isset($request->$filter) && $request->$filter != '') {
-                $clientIds = Client::select(['id', 'title', 'idnum'])->where($filter, 'like', '%' . $request->$filter . '%')->pluck('id')->toArray();
-                $preorder->whereIn('client_id', $clientIds);
-            }
-        }
-        foreach (['vin', 'grnz'] as $filter) {
-            if (isset($request->$filter) && $request->$filter != '') {
-                $orderIds = Car::select(['vin', 'grnz', 'order_id'])->where($filter, 'like', '%' . $request->$filter . '%')->pluck('order_id')->toArray();
-                $preorder->whereIn('order_id', $orderIds);
-            }
-        }
-        foreach (['status'] as $filter) {
-            if (isset($request->$filter) && $request->$filter != '') {
-                $preorder->where('status', $request->$filter);
-            }
-        }
     }
 
     public function store($query)
@@ -110,6 +51,7 @@ class PreorderService
                 'client_id' => $client ? $client->id : null,
             ]);
             $preorder->save();
+
             $this->success = true;
             $this->message = Lang::get('messages.preorder_created');
         }
@@ -164,115 +106,53 @@ class PreorderService
     }
 
     //Проверка на истечение срока рассмотрение заявки
-    public function getById($id)
-    {
-        $user = app(AuthService::class)->auth();
-        $preorder = PreOrderCar::find($id);
-
-        $data = [];
-        $can = false;
-
-        if ($user->role === 'moderator') {
-            $can = true;
-        } else if ($user->role === 'liner') {
-            if ($user->id === $preorder->liner_id) {
-                $can = true;
-            }
-        }
-
-        $transferResource = null;
-        $order = Order::find($preorder->order_id);
-        if($order) {
-            $transfer = TransferOrder::where('order_id', $order->id)->first();
-            if($transfer) {
-                $transferResource = new TransferOrderResource($transfer);
-            }
-        }
-
-        $closedDate = strtotime(date('d.m.Y', $preorder->date) . ' + 15 days');
-        $period = CarbonPeriod::create(date('d.m.Y', $preorder->date), date('Y-m-d', $closedDate));
-        $bookingDates = [];
-
-        foreach ($period as $date) {
-            if(strtotime($date) > strtotime(date('d.m.Y'))) {
-                $bookingDates[] = $date->format('Y/m/d');
-            }
-        }
-        if ($can) {
-            $data = [
-                'item' => new PreOrderResource($preorder),
-                'bookingDates' => $bookingDates,
-                'transfer' => $transferResource,
-                'permissions' => $this->permission($preorder)
-            ];
-        }
-
-        return $data;
-    }
-
-    //Предоставление доступа о действиях для фронта(для отображения кнопок)
-    private function permission($preorder): array
-    {
-        $user = $this->authService->auth();
-        $order = Order::find($preorder->order_id);
-        $car = Car::find($preorder->car_id);
-        $canTransfer = false;
-        $canSend = false;
-        $canApprove = false;
-        $blocked = true;
-        $blockedCar = true;
-        $blockedBooking = true;
-
-        if ($order) {
-            $transfer = TransferOrder::where('order_id', $order->id)->first();
-            if ($user->role === 'liner') {
-                if ($preorder->status === 2 && $order->status === 0 && $order->approve === 0) {
-                    if ($transfer && $transfer->closed !== 2) {
-                        $blockedBooking = true;
-                    } else {
-                        $blockedBooking = false;
-                    }
-                }
-                if ($order->status === 0 && !$transfer && $order->approve === 0 && $this->checkOrderReviewDate($preorder->car_id)) {
-                    $canTransfer = true;
-                }
-            }
-        }
-        if (($preorder->status === 0 || $preorder->status === 4)) {
-            if ($user->role === 'liner') {
-                $canSend = true;
-                $blocked = false;
-            }
-        }
-
-        if(!$car){
-            $blockedCar = false;
-        }
-        if ($preorder->status === 1) {
-            if ($user->role === 'moderator') {
-                $canApprove = true;
-            }
-        }
-        return [
-            'transferOrder' => $canTransfer,
-            'sendToApprove' => $canSend,
-            'approveOrder' => $canApprove,
-            'blocked' => $blocked,
-            'blockedCar' => $blockedCar,
-            'blockedBooking' => $blockedBooking
-        ];
-    }
-
     public function checkOrderReviewDate($car_id): bool
     {
         $user = app(AuthService::class)->auth();
-        $preorder = PreOrderCar::where('liner_id', $user->id)->where('car_id', $car_id)->whereIn('status', [1, 2])->first();
+        $preorder = PreOrderCar::select(['liner_id', 'car_id', 'status', 'sended_dt'])->where('liner_id', $user->id)->where('car_id', $car_id)->whereIn('status', [1, 2])->first();
 
         if (!$preorder) {
             return false;
         }
-        $closedDate = strtotime(date('d.m.Y', $preorder->date) . ' + 15 days');
+        $closedDate = strtotime(date('d.m.Y', $preorder->sended_dt) . ' + 15 days');
 
         return $closedDate >= time();
+    }
+
+    public function getClosedDays($preorder_id): int
+    {
+        $preorder = PreOrderCar::find($preorder_id);
+        $closedDays = 0;
+
+        if ($preorder) {
+            $datetime = date('d.m.Y', $preorder->sended_dt);
+            $closedDate = strtotime($datetime . ' + 15 days');
+            if ($closedDate >= time()) {
+                $diffDate = $closedDate - time();
+                $closedDays = (int)date('j', $diffDate);
+            }
+        }
+        return $closedDays;
+    }
+
+    public function comment($request, $id)
+    {
+        $user = $this->authService->auth();
+        $user_id = null;
+        $liner_id = null;
+        if ($user->role === 'liner') {
+            $liner_id = $user->id;
+        }
+        if ($user->role === 'moderator') {
+            $user_id = $user->id;
+        }
+        $comment = new PreorderComment;
+        $comment->preorder_id = $id;
+        $comment->comment = $request->comment;
+        $comment->action = $request->status;
+        $comment->created_at = time();
+        $comment->user_id = $user_id;
+        $comment->liner_id = $liner_id;
+        $comment->save();
     }
 }

@@ -10,18 +10,18 @@ use Illuminate\Http\Request;
 
 class DocumentController extends Controller
 {
-    public function getStatement($id){
-
+    public function getStatement($id)
+    {
         return app(DocumentService::class)->generateStatement($id);
     }
 
-    public function getContract($id){
-
+    public function getContract($id)
+    {
         return app(DocumentService::class)->generateContract($id);
     }
 
-    public function getExchangeApplication($id){
-
+    public function getExchangeApplication($id)
+    {
         return app(DocumentService::class)->generateExchangeApplication($id);
     }
 

@@ -102,7 +102,6 @@ input:-webkit-autofill {
 
 
 #preorder_booking{
-    max-width: 444px;
     width: 100%;
 }
 
@@ -110,7 +109,7 @@ input:-webkit-autofill {
 .q-page-container.active{
     opacity: .7;
     pointer-events: none;
-    filter: blur(2px);
+    filter: blur(1px);
 }
 
 .router-link-exact-active .q-item{
@@ -165,4 +164,8 @@ input:-webkit-autofill {
         font-size: 1em;
         opacity: .85;
     }
+}
+
+.q-stepper--horizontal .q-stepper__step-inner{
+    padding: 14px 24px!important;
 }

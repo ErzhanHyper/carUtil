@@ -181,6 +181,7 @@ export default {
             blocked: true,
             blockedVideo: true,
             showError: false,
+            eventLoad: false,
 
             order: null,
             signHash: '',
@@ -243,11 +244,15 @@ export default {
         },
 
         getData() {
-            this.$emitter.emit('contentLoaded', true);
+            if(!this.eventLoad) {
+                this.$emitter.emit('contentLoaded', true);
+            }
             this.showTimeline = false
             getOrderItem(this.id, {}).then(res => {
-                this.$emitter.emit('contentLoaded', false);
-                this.showData = true
+                if(!this.eventLoad) {
+                    this.$emitter.emit('contentLoaded', false);
+                    this.showData = true
+                }
                 this.showFile = true
                 this.showTimeline = true
                 this.item = res.item
@@ -270,12 +275,15 @@ export default {
 
     mounted() {
         this.$emitter.on('orderFileEvent', () => {
+            this.eventLoad = true
             this.getData()
         })
         this.$emitter.on('orderActionEvent', () => {
+            this.eventLoad = true
             this.getData()
         })
         this.$emitter.on('VideoSendEvent', () => {
+            this.eventLoad = true
             this.getData()
         })
         this.$emitter.on('orderBlockEvent', (value) => {

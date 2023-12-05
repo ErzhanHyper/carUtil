@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Lang;
 class PreorderApproveService
 {
 
-    protected PreorderCommentService $history;
     protected AuthService $authService;
     protected PreorderService $preorderService;
     protected OrderService $orderService;
@@ -24,7 +23,6 @@ class PreorderApproveService
     private bool $success;
 
     public function __construct(
-        PreorderCommentService $history,
         AuthService $authService,
         PreorderService $preorderService,
         OrderService $orderService
@@ -32,7 +30,6 @@ class PreorderApproveService
     {
         $this->message = '';
         $this->success = false;
-        $this->history = $history;
         $this->authService = $authService;
         $this->preorderService = $preorderService;
         $this->orderService = $orderService;
@@ -47,7 +44,7 @@ class PreorderApproveService
         $preorder->status = config("constants.DECLINED_PREORDER");
         $preorder->save();
 
-        $this->history->run(new Request([
+        $this->preorderService->comment(new Request([
             'status' => 'DECLINED',
             'comment' => $commentText
         ]), $preorder->id);
@@ -64,7 +61,7 @@ class PreorderApproveService
         $preorder->status = config("constants.RETURNED_BACK_PREORDER");
         $preorder->save();
 
-        $this->history->run(new Request([
+        $this->preorderService->comment(new Request([
             'status' => 'RETURNED_BACK_LINER',
             'comment' => $commentText
         ]), $preorder->id);
@@ -91,7 +88,7 @@ class PreorderApproveService
                     if ($car->save()) {
                         $preorder->order_id = $order->id;
                         $preorder->save();
-                        $this->history->run(new Request([
+                        $this->preorderService->comment(new Request([
                             'status' => 'APPROVED',
                         ]), $preorder->id);
 

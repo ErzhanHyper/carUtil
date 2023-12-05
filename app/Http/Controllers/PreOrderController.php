@@ -4,18 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Services\KapService;
 use App\Services\Preorder\PreorderApproveService;
+use App\Services\Preorder\PreorderDataService;
 use App\Services\Preorder\PreorderSendService;
 use App\Services\Preorder\PreorderService;
-use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PreOrderController extends Controller
 {
-    public function get(Request $request)
+    public function get(Request $request): JsonResponse
     {
         try {
             $result['status'] = 200;
-            $result['data'] = app(PreorderService::class)->getCollection($request);
+            $result['data'] = app(PreorderDataService::class)->getCollection($request);
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];
@@ -23,13 +25,12 @@ class PreOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function getById($id)
+    public function getById($id): JsonResponse
     {
-        $data = app(PreorderService::class)->getById($id);
-        return response()->json($data);
+        return response()->json(app(PreorderDataService::class)->getById($id));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -41,7 +42,7 @@ class PreOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function send(Request $request, $id)
+    public function send(Request $request, $id): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -53,7 +54,7 @@ class PreOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function delete($id)
+    public function delete($id): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -65,25 +66,8 @@ class PreOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function approve(Request $request, $id)
+    public function searchFromKap(Request $request): JsonResponse
     {
-        $data = app(PreorderApproveService::class)->approve($request, $id);
-        return response()->json($data);
-    }
-
-    public function decline(Request $request, $id)
-    {
-        $data = app(PreorderApproveService::class)->decline($request, $id);
-        return response()->json($data);
-    }
-
-    public function revision(Request $request, $id)
-    {
-        $data = app(PreorderApproveService::class)->revision($request, $id);
-        return response()->json($data);
-    }
-
-    public function searchFromKap(Request $request){
         try {
             $result['status'] = 200;
             $result['data'] = app(KapService::class)->get($request);
@@ -94,7 +78,8 @@ class PreOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function kapHistory(Request $request){
+    public function kapHistory(Request $request): JsonResponse
+    {
         try {
             $result['status'] = 200;
             $result['data'] = app(KapService::class)->history($request);
@@ -104,4 +89,20 @@ class PreOrderController extends Controller
         }
         return response()->json($result['data'], $result['status']);
     }
+
+    public function approve(Request $request, $id): JsonResponse
+    {
+        return response()->json(app(PreorderApproveService::class)->approve($request, $id));
+    }
+
+    public function decline(Request $request, $id): JsonResponse
+    {
+        return response()->json(app(PreorderApproveService::class)->decline($request, $id));
+    }
+
+    public function revision(Request $request, $id): JsonResponse
+    {
+        return response()->json(app(PreorderApproveService::class)->revision($request, $id));
+    }
+
 }

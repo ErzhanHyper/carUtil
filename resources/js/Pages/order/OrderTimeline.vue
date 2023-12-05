@@ -2,20 +2,18 @@
     <q-stepper
         ref="stepper"
         v-model="step"
-        bordered
         color="primary"
         done-color="green-4"
         flat
+        bordered
     >
 
         <q-step
             :done="step > 1"
             :name="1"
-            caption="Optional"
             icon="create_new_folder"
             title="На рассмотрении у менеджера завода"
         >
-
             <order-send-action
                 :order_id="order_id"
                 :permissions="{
@@ -24,7 +22,6 @@
             }"
                 class="q-mt-sm"
             />
-
         </q-step>
 
         <q-step
@@ -44,8 +41,12 @@
             :done="step > 3"
             :name="3"
             icon="videocam"
+            :caption="step >3 ? 'Отправлена' : ''"
             title="В ожидании получения видеозаписи"
         >
+            <div v-if="user && user.role === 'moderator'">
+                Получение видеозаписи через мобильное приложение от менеджера завода
+            </div>
             <order-video-action
                 :order_id="order_id"
                 :permissions="{
@@ -86,6 +87,7 @@ import OrderSendAction from "./actions/OrderSendAction.vue";
 import OrderApproveAction from "./actions/OrderApproveAction.vue";
 import OrderVideoAction from "./actions/OrderVideoAction.vue";
 import OrderCertAction from "./actions/OrderCertAction.vue";
+import {mapGetters} from "vuex";
 
 export default {
     props: ['status', 'approve', 'permit', 'order_id'],
@@ -101,6 +103,12 @@ export default {
         return {
             step: ref(1)
         }
+    },
+
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
     },
 
     created() {

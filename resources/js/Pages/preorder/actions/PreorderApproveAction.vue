@@ -24,7 +24,6 @@
             <q-card-section>
                 <q-input type="textarea" v-model="comment" outlined rows="3" label="Комментарий"/>
             </q-card-section>
-
             <q-card-actions>
                 <q-space/>
                 <q-btn label="Отправить" color="primary" @click="declineAction" :loading="loading2" v-if="action === 'decline'"/>

@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Services\Document\DocumentTransferService;
 use App\Services\Transfer\TransferService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TransferOrderController extends Controller
 {
-    public function get(Request $request)
+    public function get(Request $request): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -21,7 +22,7 @@ class TransferOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function getById($id)
+    public function getById($id): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -38,7 +39,7 @@ class TransferOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function getCurrent(Request $request)
+    public function getCurrent(Request $request): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -50,7 +51,7 @@ class TransferOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -62,7 +63,7 @@ class TransferOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function sign(Request $request, $id)
+    public function sign(Request $request, $id): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -74,7 +75,7 @@ class TransferOrderController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function delete($id)
+    public function delete($id): JsonResponse
     {
         try {
             $result['status'] = 200;

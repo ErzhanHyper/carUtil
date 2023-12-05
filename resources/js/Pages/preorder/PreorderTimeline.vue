@@ -29,6 +29,7 @@
             icon="settings"
             title="На рассмотрении у модератора"
         >
+            <div class="text-caption q-mb-sm">Дата отправки: {{ data.sended_dt }}</div>
             <preorder-approve-action
                 :preorder_id="preorder_id"
                 :show="permissions.approveOrder"
@@ -46,6 +47,7 @@
             :name="3"
             icon="settings"
             title="На бронировании"
+            :caption="booking ? 'Дата и время забронирована' : ''"
         >
         </q-step>
 
@@ -54,6 +56,7 @@
             :name="4"
             icon="settings"
             title="На рассмотрении у менеджера завода"
+            :caption="step > 4 ? 'Подписано' : ''"
         >
 
         </q-step>
@@ -76,7 +79,7 @@ import PreorderApproveAction from "./actions/PreorderApproveAction.vue";
 import PreorderSendAction from "./actions/PreorderSendAction.vue";
 
 export default {
-    props: ['preorder_status', 'order_status', 'preorder_id', 'permissions', 'car', 'client', 'required'],
+    props: ['preorder_status', 'order_status', 'preorder_id', 'permissions', 'car', 'client', 'required', 'preorder', 'data', 'booking'],
 
     components: {
         PreorderApproveAction,
@@ -129,10 +132,9 @@ export default {
         }
 
         if(this.order_status) {
-            console.log(this.order_status.id)
-            if (this.preorder_status.id === 2 && this.order_status.id === 0) {
+            if (this.preorder_status.id === 2 && this.order_status.id === 0 && !this.booking) {
                 this.step = 3
-            } else if (this.preorder_status.id === 2 && (this.order_status.id === 1 || this.order_status.id === 2 || this.order_status.id === 4)) {
+            } else if (this.preorder_status.id === 2 && this.booking && (this.order_status.id === 0 || this.order_status.id === 1 || this.order_status.id === 2 || this.order_status.id === 4)) {
                 this.step = 4
             } else if (this.preorder_status.id === 2 && this.order_status.id === 5) {
                 this.step = 5

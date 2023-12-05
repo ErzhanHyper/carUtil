@@ -20,8 +20,6 @@ use InvalidArgumentException;
 
 class PreorderSendService
 {
-
-    protected PreorderCommentService $history;
     protected AuthService $authService;
     protected ClientService $clientService;
     protected CarService $carService;
@@ -29,18 +27,11 @@ class PreorderSendService
     private string $message;
     private bool $success;
 
-    public function __construct(
-        PreorderCommentService $history,
-        AuthService $authService,
-        ClientService $clientService,
-        CarService $carService,
-        PreorderService $preorderService,
-    )
+    public function __construct(AuthService $authService,ClientService $clientService, CarService $carService, PreorderService $preorderService)
     {
         $this->message = '';
         $this->success = false;
 
-        $this->history = $history;
         $this->authService = $authService;
         $this->clientService = $clientService;
         $this->carService = $carService;
@@ -127,6 +118,7 @@ class PreorderSendService
         $this->message = $message;
     }
 
+    //Проверка и заполнение данных о клиенте
     private function processClient($preorder, $request)
     {
         $client = Client::find($preorder->client_id);
@@ -151,8 +143,7 @@ class PreorderSendService
         return $client;
     }
 
-    //Проверка и заполнение данных о клиенте
-
+    //Проверка и заполнение данных о ТС/СХТ
     private function processCar($preorder, $request)
     {
         $car_request = new Request([
@@ -193,8 +184,6 @@ class PreorderSendService
         return $car;
     }
 
-    //Проверка и заполнение данных о ТС/СХТ
-
     private function processFile($preorder)
     {
         if ($preorder->recycle_type === 1) {
@@ -233,7 +222,6 @@ class PreorderSendService
     }
 
     //Сохранение данных предзаявки
-
     private function sendToModerator($preorder, $client, $car)
     {
         $preorder->status = config("constants.SENDED_PREORDER");
@@ -243,7 +231,7 @@ class PreorderSendService
         $car->car_type_id = ($preorder->recycle_type === 1) ? 1 : 3;
         $car->save();
 
-        $this->history->run(new Request([
+        $this->preorderService->comment(new Request([
             'status' => 'SEND_TO_MODERATOR',
         ]), $preorder->id);
 

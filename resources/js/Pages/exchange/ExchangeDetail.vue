@@ -3,20 +3,24 @@
         <div class="text-h6 text-primary">
             Переоформление сертификата
             <br>
-            <div class="text-overline text-blue-5 text-uppercase" v-if="show && user.role === 'liner' && (item.approve === 0 || item.approve === 1)">{{ item.info }}</div>
-            <div class="text-overline text-blue-5 text-uppercase" v-if="show && user.role === 'moderator'">{{ item.status.title }}</div>
+            <div v-if="show && user.role === 'liner' && (item.approve === 0 || item.approve === 1)"
+                 class="text-overline text-blue-5 text-uppercase">{{ item.info }}
+            </div>
+            <div v-if="show && user.role === 'moderator'" class="text-overline text-blue-5 text-uppercase">
+                {{ item.status.title }}
+            </div>
         </div>
 
-        <div class="q-gutter-md" >
+        <div class="q-gutter-md">
             <template v-if="show && user.role === 'liner'">
-                <q-btn label="Подписать" size="12px" color="indigo-8" icon="gesture" @click="send" v-if="item.canSign" :loading="loading2"/>
-                <q-btn label="Отменить" size="12px" color="pink-5" icon="close" class="q-ml-md" v-if="item.canDelete" :loading="loading3" @click="deleteData"/>
+                <q-btn v-if="item.canDelete" :loading="loading3" class="q-ml-md" color="pink-5" icon="close"
+                       label="Отменить"
+                       size="12px" @click="deleteData"/>
             </template>
         </div>
     </div>
 
     <q-card v-if="show">
-
         <q-card-section>
             <div class="text-weight-bold q-mt-md">Владелец сертификата</div>
             <div>ФИО: {{ item.certificate ? item.certificate.title_1 : '' }}</div>
@@ -26,27 +30,29 @@
         <q-card-section>
             <div class="row q-col-gutter">
                 <div class="col col-md-4 col-xs-12">
-                    <address-field outlined dense label="Адрес владельца" v-model="item.cert_owner_address"
-                                   :readonly="item.blocked"/>
+                    <address-field v-model="item.cert_owner_address" :readonly="item.blocked" dense
+                                   label="Адрес владельца"
+                                   outlined/>
                 </div>
             </div>
             <div class="row q-col-gutter q-my-md">
                 <div class="col col-md-4 col-xs-12">
-                    <name-field outlined dense label="ФИО получателя" v-model="item.title" :readonly="item.blocked"/>
-                </div>
-            </div>
-
-            <div class="row q-col-gutter q-my-md">
-                <div class="col col-md-4 col-xs-12">
-                    <client-id-field outlined dense label="ИИН/БИН получателя" v-model="item.idnum"
-                                     :readonly="item.blocked"/>
+                    <name-field v-model="item.title" :readonly="item.blocked" dense label="ФИО получателя" outlined/>
                 </div>
             </div>
 
             <div class="row q-col-gutter q-my-md">
                 <div class="col col-md-4 col-xs-12">
-                    <phone-field outlined dense label="Контактный телефон получателя" v-model="item.phone"
-                                 :readonly="item.blocked"/>
+                    <client-id-field v-model="item.idnum" :readonly="item.blocked" dense label="ИИН/БИН получателя"
+                                     outlined/>
+                </div>
+            </div>
+
+            <div class="row q-col-gutter q-my-md">
+                <div class="col col-md-4 col-xs-12">
+                    <phone-field v-model="item.phone" :readonly="item.blocked" dense
+                                 label="Контактный телефон получателя"
+                                 outlined/>
                 </div>
             </div>
 
@@ -55,7 +61,7 @@
                 государственной регистрации юридического лица, документ, подтверждающий полномочия представителя,
                 копия документа, удостоверяющего личность представителя) и лица, которому данный сертификат передается
                 прилагаю на
-                <input v-model="item.page" style="width: 60px;margin-top: -10px" type="number" min="1"/>
+                <input v-model="item.page" min="1" style="width: 60px;margin-top: -10px" type="number"/>
                 листах.
             </div>
 
@@ -67,20 +73,25 @@
                     <exchange-file :data="item" :readonly="item.blocked"/>
                 </div>
             </div>
-            <q-btn color="primary"
+
+            <q-btn v-if="item.canSign" :loading="loading2" color="indigo-8" icon="gesture" label="Подписать"
                    size="12px"
-                   dense
+                   @click="send" class="q-mr-md"/>
+
+            <q-btn :loading="loading1"
+                   color="primary"
                    icon="description"
                    icon-right="download"
                    label="Заявление на перерегистрацию"
-                   class="text-weight-bold"
-                   :loading="loading1"
-                   @click="getExchangeDoc"/>
+                   size="12px"
+                   @click="getExchangeDoc" />
+
         </q-card-section>
     </q-card>
 
     <div class="q-mt-md">
-        <exchange-action :show="item.status !== 0" :data="item" v-if="user && user.role === 'moderator' && item.approve === 1"/>
+        <exchange-action v-if="user && user.role === 'moderator' && item.approve === 1" :data="item"
+                         :show="item.status !== 0"/>
     </div>
 
 </template>
@@ -99,7 +110,6 @@ import {mapGetters} from "vuex";
 import {Notify} from "quasar";
 import {getExchangeApp} from "../../services/document";
 import FileDownload from "js-file-download";
-import {generateCertificate} from "../../services/certificate";
 
 export default {
     components: {ExchangeAction, PhoneField, ClientIdField, NameField, AddressField, ExchangeFile},
@@ -109,8 +119,8 @@ export default {
         return {
             show: false,
             loading1: false,
-            loading2:false,
-            loading3:false,
+            loading2: false,
+            loading3: false,
             item: {
                 page: 2,
                 blocked: true,
@@ -141,7 +151,7 @@ export default {
             this.$emitter.emit('contentLoaded', true);
             getExchangeById(this.id).then(res => {
                 this.$emitter.emit('contentLoaded', false);
-                if(res && res.id) {
+                if (res && res.id) {
                     this.item = res
                     this.show = true
                 }
@@ -150,7 +160,7 @@ export default {
 
         send() {
             signData().then(res => {
-                if(res){
+                if (res) {
                     this.loading2 = true
                     updateExchange(this.item.id, {
                         sign: res,
@@ -160,15 +170,15 @@ export default {
                         page: this.item.page,
                         phone: this.item.phone,
                     }).then((res) => {
-                        if(res) {
+                        if (res) {
                             if (res.success) {
                                 this.getData()
                             }
-                            if ( res.message && res.message !== '') {
+                            if (res.message && res.message !== '') {
                                 Notify.create({
                                     message: res.message,
-                                    position: 'bottom',
-                                    type: res.success ? 'positive' : 'warning'
+                                    position: 'top-right',
+                                    type: res.success ? 'positive' : 'info'
                                 })
                             }
                         }
@@ -182,7 +192,7 @@ export default {
         deleteData() {
             this.loading3 = true
             deleteExchange(this.item.id).then((res) => {
-                if(res && res.success === true){
+                if (res && res.success === true) {
                     this.$router.push('/certificate')
                 }
             }).finally(() => {
@@ -195,7 +205,7 @@ export default {
         this.getData()
     },
 
-    mounted(){
+    mounted() {
         this.$emitter.on('ExchangeActionEvent', () => {
             this.getData();
         })

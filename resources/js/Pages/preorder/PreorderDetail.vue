@@ -1,16 +1,7 @@
 <template>
     <div v-if="show">
-        <q-banner
-            v-if="user.role === 'liner' && (item.order && item.order.status.id !== 3)"
-            class="q-mb-md bg-indigo-1">
-            <div>Обработка заявки до 15 дней с момента отправки на рассмотрение</div>
-            <div v-if="item.closedDate !== 0">Осталось дней: <span
-                class="text-orange-9 text-weight-bold">{{ item.closedDate }}</span></div>
-            <div v-else class="text-pink-8 text-weight-bold">Время истекло</div>
-        </q-banner>
-
-        <div class="flex justify-between">
-            <div class="q-mb-sm">
+        <div class="flex justify-between q-mb-md">
+            <div>
                 <span v-if="item.vehicleType"
                       :class="(item.vehicleType === 'car') ? 'text-teal-9' : 'text-orange-9'"
                       class="text-body1 q-mt-sm">
@@ -43,16 +34,26 @@
             </div>
         </div>
 
+        <q-banner
+            v-if="user.role === 'liner' && ((item.status.id > 0 && !item.order) || (item.order && item.order.status.id !== 3))"
+            class="bg-orange-1">
+            <div class="text-caption">Обработка заявки 15 дней с момента отправки на рассмотрение</div>
+            <div v-if="closedDays !== 0">Осталось дней: <span
+                class="text-pink-5">{{ closedDays }}</span></div>
+            <div v-else class="text-pink-5">Время истекло</div>
+        </q-banner>
         <preorder-timeline
-            :order_status="item.order ? item.order.status : null"
-            :preorder_status="item.status"
-            :preorder_id="item.id"
-            :permissions="permissions"
+            v-if="showTimeline"
+            :booking="booking"
             :car="car"
             :client="client"
+            :data="{sended_dt: item.sended_dt}"
+            :order_status="item.order ? item.order.status : null"
+            :permissions="permissions"
+            :preorder_id="item.id"
+            :preorder_status="item.status"
             :required="client_required && car_required"
-            class="q-mt-md q-mb-md"
-            v-if="showTimeline"
+            class="q-mb-md"
         />
 
         <div class="flex justify-end">
@@ -80,10 +81,6 @@
             </div>
         </q-banner>
 
-        <booking v-if="!blockedBooking && item.closedDate !== 0 && showBooking" id="preorder_booking"
-                 :blocked="blockedBooking" :data="booking" :getBooking="getBooking"
-                 :options="bookingDates" :preorder_id="item.id" class="q-mt-md"/>
-
         <div class="row q-col-gutter-md">
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
                 <div class="row q-col-gutter-md q-mt-xs">
@@ -93,6 +90,10 @@
                     </div>
 
                     <div class="col col-md-7 col-sm-12 col-xs-12">
+                        <booking v-if="!blockedBooking && closedDays !== 0 && showBooking" id="preorder_booking"
+                                 :blocked="blockedBooking" :data="booking" :getBooking="getBooking"
+                                 :options="bookingDates" :preorder_id="item.id" class="q-mb-md"/>
+
                         <car-card v-show="client_required"
                                   :blocked="blockedCar"
                                   :blockedCustom="blocked"
@@ -106,7 +107,7 @@
 
                 <preorder-history :comments="item.comment"/>
             </div>
-            <div v-show="car_required" class="col col-md-4 col-xs-12">
+            <div v-show="(car_required && (item.status.id === 0 || item.status.id === 4)) || item.status.id === 1 || item.status.id === 2 || item.status.id === 3" class="col col-md-4 col-xs-12">
                 <preorder-file
                     :blocked="blocked"
                     :client_id="client ? client.id : null"
@@ -189,6 +190,8 @@ export default {
 
             loading: false,
             showError: false,
+            eventLoad: false,
+
             errors: [],
             permissions: {
                 sendToApprove: false,
@@ -210,7 +213,9 @@ export default {
 
             client: {},
             car: {},
-            booking: {}
+            booking: {},
+
+            closedDays: 0
 
         }
     },
@@ -260,15 +265,20 @@ export default {
         },
 
         getData() {
-            this.show = false
-            this.$emitter.emit('contentLoaded', true);
+            if(this.eventLoad === false) {
+                this.show = false
+                this.$emitter.emit('contentLoaded', true);
+            }
             this.showBooking = false
             this.showTimeline = false
             getPreorderById(this.id).then(res => {
-                this.$emitter.emit('contentLoaded', false);
+                if(this.eventLoad === false) {
+                    this.$emitter.emit('contentLoaded', false);
+                    this.show = true
+                }
 
-                this.show = true
                 this.showTimeline = true
+                this.closedDays = res.closedDays
                 this.transfer = res.transfer
                 this.blocked = res.permissions.blocked
                 this.blockedCar = res.permissions.blockedCar
@@ -284,6 +294,8 @@ export default {
                 this.booking = res.item.booking
 
                 this.showBooking = true
+                this.eventLoad = false
+
             })
         },
 
@@ -308,10 +320,12 @@ export default {
 
     mounted() {
         this.$emitter.on('preorderActionEvent', () => {
+            this.eventLoad = true
             this.getData()
         })
 
         this.$emitter.on('preorderSendActionEvent', (value) => {
+            this.eventLoad = true
             this.blocked = false
             this.disabled = false
             if (value) {
@@ -321,10 +335,12 @@ export default {
         })
 
         this.$emitter.on('preorderSellEvent', () => {
+            this.eventLoad = true
             this.getData()
         })
 
         this.$emitter.on('BookingCardEvent', () => {
+            this.eventLoad = true
             this.getData()
         })
 

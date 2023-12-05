@@ -2,7 +2,7 @@
     <div v-if="show">
         <div class="q-gutter-sm">
             <q-btn v-if="show"
-                   :disabled="disabled" :loading="loading"
+                   :disabled="loading2" :loading="loading"
                    color="light-green"
                    icon="send"
                    label="Одобрить"
@@ -16,6 +16,8 @@
                    label="На доработку"
                    size="12px"
                    square
+                   :disabled="loading"
+                   :loading="loading2"
                    @click="send('revision')">
             </q-btn>
 
@@ -119,20 +121,21 @@ export default {
                 }
             }).finally(() => {
                 this.loading = false
+
             })
         },
 
-        declineAction() {
-            this.loading2 = true
-            declineOrder(this.order_id, {
-                comment: this.comment,
-            }).then(() => {
-                this.commentDialog = false
-                this.$emitter.emit('orderActionEvent')
-            }).finally(() => {
-                this.loading2 = false
-            })
-        },
+        // declineAction() {
+        //     this.loading2 = true
+        //     declineOrder(this.order_id, {
+        //         comment: this.comment,
+        //     }).then(() => {
+        //         this.commentDialog = false
+        //         this.$emitter.emit('orderActionEvent')
+        //     }).finally(() => {
+        //         this.loading2 = false
+        //     })
+        // },
 
         revisionAction() {
             this.loading2 = true

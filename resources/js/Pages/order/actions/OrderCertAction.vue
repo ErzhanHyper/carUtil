@@ -1,6 +1,7 @@
 <template>
     <div class="q-gutter-sm">
         <q-btn :loading="loading"
+               :disable="loading1"
                square size="12px"
                color="light-green"
                label="Выдать сертификат"
@@ -10,6 +11,7 @@
         </q-btn>
         <q-btn square size="12px"
                :loading="loading1"
+               :disable="loading"
                color="orange-5"
                label="На доработку"
                @click="commentDialog = true"

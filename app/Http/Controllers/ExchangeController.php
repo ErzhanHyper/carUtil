@@ -22,14 +22,13 @@ class ExchangeController extends Controller
     {
         try {
             $result['status'] = 200;
-            $result['data'] = app(ExchangeService::class)->getCollection($request->params);
+            $result['data'] = app(ExchangeService::class)->getCollection($request);
         } catch (Exception $e) {
             $result['status'] = 500;
             $result['data'] = ['message' => $e->getMessage()];
         }
         return response()->json($result['data'], $result['status']);
     }
-
 
     public function getById($id)
     {

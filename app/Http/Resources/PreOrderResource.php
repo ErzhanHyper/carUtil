@@ -2,15 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Category;
 use App\Models\Client;
 use App\Models\Factory;
-use App\Models\File;
 use App\Models\Liner;
-use App\Models\Order;
-use App\Models\TransferOrder;
 use App\Services\AuthService;
-use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PreOrderResource extends JsonResource
@@ -33,31 +28,18 @@ class PreOrderResource extends JsonResource
             default => '',
         };
 
-        if ($this->recycle_type === 1) {
-            $vehicleType = 'car';
-        } else {
-            $vehicleType = 'agro';
-        }
-
-        $date = date('d.m.Y', $this->date);
-        $closedDate = strtotime($date . ' + 15 days');
-        if($closedDate >= time()){
-            $diffDate = $closedDate - time();
-            $closedDays = date('j', $diffDate);
-        }else{
-            $closedDays = 0;
-        }
-
         $client = null;
-        if($user->role === 'liner') {
+        if ($user->role === 'liner') {
             if ($this->client && $this->client->idnum === $user->idnum) {
                 $client = new ClientResource($this->client);
-            }else{
+            } else {
                 $clientFind = Client::where('idnum', $user->idnum)->orderByDesc('id')->first();
                 $client = $clientFind ? new ClientResource($clientFind) : null;
             }
-        }else{
-            $client = new ClientResource($this->client);
+        } else {
+            if ($this->client) {
+                $client = new ClientResource($this->client);
+            }
         }
 
         return [
@@ -73,10 +55,9 @@ class PreOrderResource extends JsonResource
             'factory' => Factory::find($this->factory_id),
             'booking' => new BookingOrderResource($this->booking),
             'date' => date('d.m.Y H:i', $this->date),
-            'files' => $vehicleType === 'car' ? $this->car_file : $this->agro_file,
+            'sended_dt' => date('d.m.Y H:i', $this->sended_dt),
             'comment' => PreOrderHistoryResource::collection($this->history),
-            'vehicleType' => $vehicleType,
-            'closedDate' => $closedDays
+            'vehicleType' => $this->recycle_type === 1 ? 'car' : 'agro',
         ];
     }
 }

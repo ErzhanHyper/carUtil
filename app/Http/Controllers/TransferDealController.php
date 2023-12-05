@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TransferDeal;
 use App\Services\Transfer\TransferDealService;
-use App\Services\Transfer\TransferService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TransferDealController extends Controller
 {
 
-    public function get(Request $request)
+    public function get(Request $request): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -23,7 +22,7 @@ class TransferDealController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -35,7 +34,7 @@ class TransferDealController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function accept($id)
+    public function accept($id): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -47,7 +46,7 @@ class TransferDealController extends Controller
         return response()->json($result['data'], $result['status']);
     }
 
-    public function close($id)
+    public function close($id): JsonResponse
     {
         try {
             $result['status'] = 200;
@@ -57,10 +56,9 @@ class TransferDealController extends Controller
             $result['data'] = ['message' => $e->getMessage()];
         }
         return response()->json($result['data'], $result['status']);
-
     }
 
-    public function delete($id)
+    public function delete($id): JsonResponse
     {
         try {
             $result['status'] = 200;
