@@ -112,9 +112,9 @@ export default {
     },
 
     created() {
-        if (this.status.id === 0) {
+        if (this.status.id === 0 && (this.approve.id === 0 || this.approve.id === 1 || this.approve.id === 4)) {
             this.step = 1
-        } else if (this.status.id === 1 || this.status.id === 2) {
+        } else if (this.status.id === 1 || this.status.id === 2 && this.approve.id !== 4) {
             this.step = 2
         } else if (this.status.id === 4) {
             this.step = 3
