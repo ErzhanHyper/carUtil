@@ -11,6 +11,8 @@
         emit-value
         clearable
         options-selected-class="text-deep-orange"
+        transition-hide="jump-up"
+        transition-show="jump-up"
         outlined
         dense
         class="q-mb-xs"

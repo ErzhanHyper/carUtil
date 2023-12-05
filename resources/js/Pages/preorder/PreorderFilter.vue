@@ -1,18 +1,18 @@
 <template>
-    <q-card bordered class="q-mb-lg q-mt-md" flat square>
-        <q-card-section>
+    <q-card flat square>
+        <q-card-section class="q-pa-none">
             <div class="row q-col-gutter-md">
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.vin" dense label="VIN" outlined clearable/>
+                    <q-input v-model="filter.vin" dense label="VIN" outlined clearable standout="bg-blue-grey-1" class="text-uppercase"/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.grnz" dense label="ГРНЗ" outlined clearable/>
+                    <q-input v-model="filter.grnz" dense label="ГРНЗ" outlined clearable standout="bg-blue-grey-1" class="text-uppercase"/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.title" dense label="ФИО" outlined clearable/>
+                    <q-input v-model="filter.title" dense label="ФИО" outlined clearable standout="bg-blue-grey-1"/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.idnum" dense label="ИИН/БИН" outlined clearable/>
+                    <q-input v-model="filter.idnum" dense label="ИИН/БИН" outlined clearable standout="bg-blue-grey-1"/>
                 </div>
                 <div class="col col-md-2 col-sm-6 col-xs-12">
                     <q-select
@@ -30,7 +30,7 @@
                         transition-show="jump-up"
                     />
                 </div>
-                <div class="col col-md-2 col-sm-2 col-xs-12">
+                <div class="col col-md-1 col-sm-2 col-xs-12">
                     <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
                 </div>
             </div>

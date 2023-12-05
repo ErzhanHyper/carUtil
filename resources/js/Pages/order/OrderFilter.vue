@@ -1,49 +1,56 @@
 <template>
-    <q-card bordered class="q-mb-none q-mt-md" flat square>
-        <q-card-section>
-            <div class="row q-col-gutter-md">
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-select
-                        v-model="item.type"
-                        :options="['ВЭТС', 'ВЭССХТ']"
-                        dense
-                        label="Тип заявки"
-                        outlined
-                        transition-hide="jump-up"
-                        transition-show="jump-up"
-                        clearable
-                    />
+    <q-card flat square>
+        <q-card-section class="q-pa-none row q-col-gutter-md">
+            <div class="col col-lg-11 col-xs-12 col-sm-12">
+
+                <div class="row q-col-gutter-md">
+                    <div class="col col-md-2 col-sm-6 col-xs-12">
+                        <q-select
+                            v-model="item.type"
+                            :options="['ВЭТС', 'ВЭССХТ']"
+                            clearable
+                            dense
+                            label="Тип заявки"
+                            outlined
+                            transition-hide="jump-up"
+                            transition-show="jump-up"
+                        />
+                    </div>
+                    <div class="col col-md-2 col-sm-6 col-xs-12">
+                        <q-input v-model="item.vin" class="text-uppercase" clearable dense label="VIN" outlined
+                                 standout="bg-blue-grey-1"/>
+                    </div>
+                    <div class="col col-md-2 col-sm-6 col-xs-12">
+                        <q-input v-model="item.grnz" class="text-uppercase" clearable dense label="ГРНЗ" outlined
+                                 standout="bg-blue-grey-1"/>
+                    </div>
+                    <div class="col col-md-2 col-sm-6 col-xs-12">
+                        <q-input v-model="item.title" clearable dense label="ФИО" outlined standout="bg-blue-grey-1"/>
+                    </div>
+                    <div class="col col-md-2 col-sm-6 col-xs-12">
+                        <q-input v-model="item.idnum" clearable dense label="ИИН/БИН" outlined
+                                 standout="bg-blue-grey-1"/>
+                    </div>
+                    <div class="col col-md-2 col-sm-6 col-xs-12">
+                        <q-select
+                            v-model="item.approve"
+                            :options="statuses"
+                            clearable
+                            dense
+                            emit-value
+                            label="Статус"
+                            map-options
+                            option-label="title" option-value="id"
+                            outlined
+                            transition-hide="jump-up"
+                            transition-show="jump-up"
+                        />
+                    </div>
                 </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="item.vin" dense label="VIN" outlined clearable/>
-                </div>
-                <div class="col col-md-1 col-sm-6 col-xs-12">
-                    <q-input v-model="item.grnz" dense label="ГРНЗ" outlined clearable/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="item.title" dense label="ФИО" outlined clearable/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="item.idnum" dense label="ИИН/БИН" outlined clearable/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-select
-                        v-model="item.approve"
-                        :options="statuses"
-                        dense
-                        emit-value
-                        label="Статус"
-                        map-options
-                        option-label="title"
-                        option-value="id" outlined
-                        transition-hide="jump-up"
-                        transition-show="jump-up"
-                        clearable
-                    />
-                </div>
-                <div class="col col-md-1 col-sm-1 col-xs-12">
-                    <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
-                </div>
+            </div>
+
+            <div class="col col-lg-1 col-xs-12 col-sm-12 ">
+                <q-btn :loading="loading1" color="blue-8" round icon="search" @click="applyFilter"/>
             </div>
 
         </q-card-section>
@@ -98,7 +105,7 @@ export default {
             this.item = this.filter
         }
 
-        this.$emitter.on('FilterApplyEvent',  () => {
+        this.$emitter.on('FilterApplyEvent', () => {
             this.loading1 = false
         })
     }

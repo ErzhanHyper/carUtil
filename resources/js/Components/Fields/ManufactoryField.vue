@@ -11,6 +11,8 @@
         map-options
         style="width: 100%"
         hide-hint
+        transition-hide="jump-up"
+        transition-show="jump-up"
     >
     </q-select>
 </template>

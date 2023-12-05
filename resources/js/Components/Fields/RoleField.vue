@@ -11,6 +11,8 @@
         clearable
         style="width: 100%"
         input-debounce="0"
+        transition-hide="jump-up"
+        transition-show="jump-up"
     />
 </template>
 

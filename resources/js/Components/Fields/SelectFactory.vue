@@ -13,6 +13,8 @@
         @filter="filterFn"
         :loading="(items.length === 0)"
         style="width: 100%"
+        transition-hide="jump-up"
+        transition-show="jump-up"
     >
         <template v-slot:no-option>
             <q-item>

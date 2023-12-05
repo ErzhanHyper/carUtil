@@ -8,11 +8,11 @@
         </div>
     </div>
 
-    <preorder-filter :apply-action="applyFilter" :filter="filter" v-if="user && user.role === 'moderator'" class="q-mb-lg"/>
+    <preorder-filter :apply-action="applyFilter" :filter="filter" v-if="user && user.role === 'moderator'" class="q-mb-md"/>
 
     <q-scroll-area
         :visible="true"
-        style="height: calc(100vh - 340px);"
+        style="height: calc(100vh - 280px);"
     >
     <q-markup-table bordered dense flat>
         <thead>
@@ -120,7 +120,7 @@
 
     <div class="q-pa-lg flex flex-center">
         <q-pagination
-            v-if="items.length > 10"
+            v-if="totalPage > 1"
             v-model="page"
             :max="totalPage"
             :max-pages="10"
@@ -216,19 +216,10 @@ export default {
         },
 
         applyFilter(value) {
-            this.items = []
             this.page = 1
             this.filter.page = this.page
             this.filter = value
-            this.show = false
-            this.totalPage = 1
-            getOrderList({params: this.filter}).then(res => {
-                this.items = res.items
-                this.show = true
-                this.totalPage = res.pages
-
-                this.$emitter.emit('FilterApplyEvent')
-            })
+            this.getData()
         },
 
         getData() {
@@ -236,6 +227,8 @@ export default {
             this.filter.page = this.page
             getOrderList({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
+                this.$emitter.emit('FilterApplyEvent')
+
                 this.items = res.items
                 this.totalPage = res.pages
             }).finally(() => {

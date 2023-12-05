@@ -10,11 +10,11 @@
     </div>
 
     <order-filter v-if="user && user.role === 'moderator' && showFilter" :apply-action="applyFilter" :filter="filter"
-                  class="q-mb-lg"/>
+                  class="q-mb-md"/>
 
     <q-scroll-area
         :visible="true"
-        style="height: calc(100vh - 340px);"
+        style="height: calc(100vh - 270px);"
     >
         <q-markup-table bordered dense flat>
             <thead>
@@ -88,7 +88,7 @@
 
     <div class="q-pa-lg flex flex-center">
         <q-pagination
-            v-if="items.length > 10"
+            v-if="totalPage > 1"
             v-model="page"
             :max="totalPage"
             :max-pages="10"
@@ -105,6 +105,7 @@ import {mapGetters} from "vuex";
 import {generateCertificate} from "../../services/certificate";
 import FileDownload from "js-file-download";
 import OrderFilter from "./OrderFilter.vue";
+import api from "../../api";
 
 export default {
     components: {OrderFilter},
@@ -191,11 +192,7 @@ export default {
             this.page = 1
             this.filter.page = this.page
             this.filter = value
-            await getOrderList({params: this.filter}).then(res => {
-                this.$emitter.emit('FilterApplyEvent');
-                this.items = res.items
-                this.totalPage = res.pages
-            })
+            this.getData()
         },
 
         create() {
@@ -225,7 +222,7 @@ export default {
             this.$emitter.emit('contentLoaded', true);
             getOrderList({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
-
+                this.$emitter.emit('FilterApplyEvent');
                 this.show = true
                 this.items = res.items
                 this.totalPage = res.pages

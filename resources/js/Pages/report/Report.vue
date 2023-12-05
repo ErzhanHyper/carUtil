@@ -35,7 +35,7 @@
                             <q-input type="date" hint="конец" v-model="exchange.end"/>
                         </div>
                     </div>
-                    <q-btn label="Запустить" color="indigo-8" size="12px" class="q-mt-md" @click="runExchange" :loading="loading3"/>
+                    <q-btn label="Запустить" color="blue-grey-8" size="12px" class="q-mt-md" @click="runExchange" :loading="loading3"/>
                 </q-card-section>
             </q-card>
         </div>
@@ -58,7 +58,7 @@
                             <q-input type="date" hint="конец" v-model="cert.end"/>
                         </div>
                     </div>
-                    <q-btn label="Запустить" color="teal-8" size="12px" class="q-mt-md" @click="runCert" :loading="loading1"/>
+                    <q-btn label="Запустить" color="blue-grey-8" size="12px" class="q-mt-md" @click="runCert" :loading="loading1"/>
                 </q-card-section>
             </q-card>
         </div>
@@ -77,7 +77,7 @@
                             <q-input type="date" hint="конец" v-model="actions.end"/>
                         </div>
                     </div>
-                    <q-btn label="Запустить" color="blue-8" size="12px" class="q-mt-md" @click="runAction" :loading="loading4"/>
+                    <q-btn label="Запустить" color="indigo-8" size="12px" class="q-mt-md" @click="runAction" :loading="loading4"/>
                 </q-card-section>
             </q-card>
         </div>

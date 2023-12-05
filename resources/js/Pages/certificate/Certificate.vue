@@ -35,9 +35,12 @@
                         <td class="text-left">{{ item.status }}</td>
                         <td class="text-left">{{ item.sum }} &#8376;</td>
                         <td class="text-left">
-                            <q-btn icon="verified"
-                                   color="light-green-8"
-                                   size="11px"
+                            <q-btn
+                                push
+                                    color="green-5"
+                                   size="10px"
+                                    icon="verified"
+                                    dense
                                    label="Скачать"
                                    icon-right="download"
                                    @click="downloadCert(item.id)"
@@ -45,13 +48,14 @@
                         </td>
 
                         <td class="text-right">
-                            <q-btn icon="verified"
-
-                                   icon-right="sync_alt"
+                            <q-btn
+                                push
                                    color="pink-10"
-                                   size="11px"
-                                   label="Переоформить сертификат"
+                                   icon-right="sync_alt"
+                                   icon="verified"
                                    dense
+                                   size="10px"
+                                   label="Переоформить"
                                    :loading="loading2 && item_id===item.id"
                                    @click="exchangeCert(item.id)"
                                    v-if="item.showExchange">

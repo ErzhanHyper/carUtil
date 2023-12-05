@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Certificate\CertificateService;
 use App\Services\Order\OrderApproveService;
 use App\Services\Order\OrderCheckDuplicatesService;
+use App\Services\Order\OrderDataService;
 use App\Services\Order\OrderSendService;
 use App\Services\Order\OrderService;
 use Exception;
@@ -15,13 +16,13 @@ class OrderController extends Controller
 {
     public function get(Request $request)
     {
-        $data = app(OrderService::class)->getCollection($request);
+        $data = app(OrderDataService::class)->getCollection($request);
         return response()->json($data);
     }
 
     public function getById($id)
     {
-        $data = app(OrderService::class)->getById($id);
+        $data = app(OrderDataService::class)->getById($id);
         return response()->json($data);
     }
 

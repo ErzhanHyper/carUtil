@@ -9,6 +9,8 @@
         style="width: 100%"
         hide-hint
         options-selected-class="text-deep-orange"
+        transition-hide="jump-up"
+        transition-show="jump-up"
     >
         <template v-slot:option="scope">
             <q-expansion-item

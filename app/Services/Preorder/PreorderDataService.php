@@ -128,11 +128,8 @@ class PreorderDataService
     public function getCollection($request): array
     {
         $user = $this->authService->auth();
-        $data = [];
-
         if ($user->role === 'liner' || $user->role === 'moderator') {
-            $preorder = PreOrderCar::with(['car', 'client']);
-
+            $preorder = PreOrderCar::orderByDesc('date');
             if($preorder) {
                 if ($user->role === 'liner') {
                     $preorder->where('liner_id', $user->id);
@@ -141,21 +138,17 @@ class PreorderDataService
                     $this->applyFilters($preorder, $request);
                 }
             }
-        }
 
-        if (isset($preorder)) {
-            $paginate = 10;
-            $pages = round($preorder->count() / $paginate);
-            if ($pages == 0) {
-                $pages = 1;
-            }
-            $data = [
-                'pages' => $pages,
-                'page' => $request->page ?? 1,
-                'items' => PreOrderResource::collection($preorder->orderByDesc('date')->paginate($paginate))
+            $paginate = 20;
+            $items = $preorder->paginate($paginate, ['*'], 'page', $request->page ?? 1);
+            return [
+                'pages' => $items->lastPage(),
+                'page' => $items->currentPage(),
+                'items' => PreOrderResource::collection($items),
             ];
         }
-        return $data;
+
+        return [];
     }
 
     private function applyFilters($preorder, $request): void

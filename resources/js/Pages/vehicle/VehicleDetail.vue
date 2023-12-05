@@ -4,7 +4,7 @@
             <vehicle-form :data="item"/>
             <div class="q-gutter-md q-mt-md">
                 <q-btn :loading="loading" label="Сохранить" icon="edit" color="primary" @click="updateData"/>
-                <q-btn :loading="loading" label="Удалить" icon="delete" color="negative" @click="showDeleteDialog = true"/>
+<!--                <q-btn :loading="loading" label="Удалить" icon="delete" color="negative" @click="showDeleteDialog = true"/>-->
             </div>
         </q-card-section>
     </q-card>
@@ -67,19 +67,19 @@ export default {
             })
         },
 
-        deleteData() {
-            this.loading = true
-            deleteVehicle(this.item.id).then(() => {
-                this.$router.push('/vehicle')
-                Notify.create({
-                    message: 'Удалено',
-                    position: 'bottom',
-                    type: 'negative'
-                })
-            }).finally(() =>{
-                this.loading = false
-            })
-        }
+        // deleteData() {
+        //     this.loading = true
+        //     deleteVehicle(this.item.id).then(() => {
+        //         this.$router.push('/vehicle')
+        //         Notify.create({
+        //             message: 'Удалено',
+        //             position: 'bottom',
+        //             type: 'negative'
+        //         })
+        //     }).finally(() =>{
+        //         this.loading = false
+        //     })
+        // }
     },
 
     created(){
