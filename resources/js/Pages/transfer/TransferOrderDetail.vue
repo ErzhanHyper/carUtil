@@ -1,40 +1,46 @@
 <template>
 
-    <div class="q-gutter-sm text-right" v-if="show">
-        <q-btn v-if="item.canSign" class="q-mt-sm" color="indigo-8" icon="gesture" label="Подписать"
-               size="12px" @click="showSignDialog"/>
+    <div v-if="show" class="flex justify-between flex-center">
 
-        <q-btn v-if="item.isOwner && item.closed === 0" :to="'/preorder/'+item.order.preorder_id" class="q-mt-sm" color="blue-grey-5"
-               icon="open_in_new" label="Перейти к заявке" size="11px"/>
+        <div>
+            <div v-if="!item.canDeal" class="q-gutter-sm text-deep-orange-8">
+                <span v-if="!item.canDeal && item.canSign" class="text-body1" square>
+                    Предложение выбрана
+                </span>
+                <span v-if="!item.canDeal && item.canSign" class="text-body1" color="blue-1" square>
+                | В ожидании подписи получателя
+                </span>
+            </div>
+        </div>
 
-        <q-btn v-if="item.isOwner && item.closed !== 2" :loading="loading2" color="pink-5"
-               icon="close" label="Отменить продажу ТС/СХТ" size="11px"
-               @click="removeTransfer"/>
-        <q-btn v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2" color="pink-5"
-               icon="close" label="Отменить предложение"
-               size="11px" @click="removeTransferDeal"/>
+        <div class="q-gutter-sm text-right ">
+            <q-btn v-if="item.canSign" class="q-mt-sm" color="indigo-8" icon="gesture" label="Подписать"
+                   size="12px" @click="showSignDialog"/>
+
+            <q-btn v-if="item.isOwner && item.closed === 0" :to="'/preorder/'+item.order.preorder_id" class="q-mt-sm"
+                   color="blue-grey-5"
+                   icon="open_in_new" label="Перейти к заявке" size="11px"/>
+
+            <q-btn v-if="item.isOwner && item.closed !== 2" :loading="loading2" color="pink-5"
+                   icon="close" label="Отменить продажу ТС/СХТ" size="11px"
+                   @click="removeTransfer"/>
+            <q-btn v-if="!item.isOwner && item.closed !== 2 && deal_id" :loading="loading2" color="pink-5"
+                   icon="close" label="Отменить предложение"
+                   size="11px" @click="removeTransferDeal"/>
+        </div>
     </div>
 
     <transfer-deal v-if="show && item.isOwner" :id="item.id" :data="item"/>
 
     <template v-if="!item.canDeal">
-        <div class="q-mt-md flex justify-between">
+        <div class=" flex justify-between">
             <div class="q-gutter-sm">
-                <q-chip v-if="!item.canDeal && item.canSign" class="text-body1" color="blue-1" square>Предложение
-                    выбрана
-                </q-chip>
-                <q-chip v-if="!item.canDeal && item.canSign" class="text-body1" color="blue-1" square>В ожидании
-                    подписи получателя
-                </q-chip>
-            </div>
-
-            <div class="q-gutter-sm">
-
                 <q-btn v-if="item.closed === 2" :loading="loading" class="q-mt-sm q-mr-md" color="deep-orange-10"
                        icon="picture_as_pdf"
                        label="Скачать договор" size="12px" @click="downloadPFS"/>
 
-                <q-btn v-if="item.closed === 2" :to="'/preorder/'+item.order.preorder_id" class="q-mt-sm" color="blue-grey-5"
+                <q-btn v-if="item.closed === 2" :to="'/preorder/'+item.order.preorder_id" class="q-mt-sm"
+                       color="blue-grey-5"
                        icon="open_in_new" label="Перейти к заявке" size="11px"/>
             </div>
 
@@ -112,7 +118,7 @@
 
     </div>
 
-    <transfer-term v-if="show" :id="item.id" :contract="contract" :canGenerate="item.isOwner"/>
+    <transfer-term v-if="show" :id="item.id" :canGenerate="item.isOwner" :contract="contract"/>
 
 
 </template>
@@ -171,7 +177,7 @@ export default {
 
     methods: {
 
-        showSignDialog(){
+        showSignDialog() {
             this.$emitter.emit('transferSignDialog', true);
         },
 

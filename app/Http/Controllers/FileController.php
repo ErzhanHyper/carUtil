@@ -191,7 +191,7 @@ class FileController extends Controller
         $types = 'mimes:pdf,doc,docx,xlsx,jpeg,png,jpg,jfif,webp';
 
         if($preorder->recycle_type === 1) {
-            if (in_array($request->file_type_id, [8, 9, 10, 11, 12, 13, 14, 15, 16])) {
+            if (in_array($request->file_type_id, [8, 9, 10, 11, 12, 13, 14, 15, 16, 36, 37])) {
                 $types = 'mimes:jpeg,png,jpg,jfif';
             }
         }else{

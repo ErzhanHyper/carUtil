@@ -30,6 +30,9 @@
             title="На рассмотрении у модератора"
         >
             <div class="text-caption q-mb-sm">Дата отправки: {{ data.sended_dt }}</div>
+            <div class="text-indigo-8 q-mb-md" v-if=" history.length > 0">
+                {{ history[0].action === 'RETURNED_BACK_LINER' ? history[0].comment : '' }}
+            </div>
             <preorder-approve-action
                 :preorder_id="preorder_id"
                 :show="permissions.approveOrder"
@@ -79,7 +82,7 @@ import PreorderApproveAction from "./actions/PreorderApproveAction.vue";
 import PreorderSendAction from "./actions/PreorderSendAction.vue";
 
 export default {
-    props: ['preorder_status', 'order_status', 'preorder_id', 'permissions', 'car', 'client', 'required', 'preorder', 'data', 'booking'],
+    props: ['preorder_status', 'order_status', 'preorder_id', 'permissions', 'car', 'client', 'required', 'preorder', 'data', 'booking', 'history'],
 
     components: {
         PreorderApproveAction,

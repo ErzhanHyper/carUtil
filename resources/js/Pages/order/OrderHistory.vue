@@ -15,6 +15,9 @@
             </template>
         </q-timeline>
     </div>
+    <div v-else>
+        Нет записей
+    </div>
 </template>
 
 <script>

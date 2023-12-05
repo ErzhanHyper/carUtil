@@ -42,6 +42,7 @@
                 class="text-pink-5">{{ closedDays }}</span></div>
             <div v-else class="text-pink-5">Время истекло</div>
         </q-banner>
+
         <preorder-timeline
             v-if="showTimeline"
             :booking="booking"
@@ -53,6 +54,7 @@
             :preorder_id="item.id"
             :preorder_status="item.status"
             :required="client_required && car_required"
+            :history="item.comment"
             class="q-mb-md"
         />
 
