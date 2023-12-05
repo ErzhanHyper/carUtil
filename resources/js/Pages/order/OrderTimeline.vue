@@ -45,7 +45,7 @@
             :done="step > 3"
             :name="3"
             icon="videocam"
-            :caption="step >3 ? 'Отправлена' : ''"
+            :caption="step >3 ? 'Подписана' : ''"
             title="В ожидании получения видеозаписи"
         >
             <div v-if="user && user.role === 'moderator'">

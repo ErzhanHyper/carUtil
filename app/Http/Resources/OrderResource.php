@@ -27,8 +27,8 @@ class OrderResource extends JsonResource
         $approve = match ($this->approve) {
             0 => 'Новая заявка',
             1 => 'На рассмотрении',
-            2 => 'Отказано',
-            3 => 'Одобрено',
+            2 => 'Отказана',
+            3 => 'Одобрена',
             4 => 'Возвращена на доработку',
             default => '',
         };
