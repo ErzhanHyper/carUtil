@@ -105,7 +105,15 @@
                     </div>
                 </div>
 
-                <preorder-history :comments="item.comment"/>
+                <q-list bordered class="rounded-borders q-mt-md">
+                    <q-expansion-item
+                        expand-separator
+                        icon="history"
+                        label="История">
+                        <preorder-history :comments="item.comment" class="q-pa-md"/>
+                    </q-expansion-item>
+                </q-list>
+
             </div>
             <div v-show="(car_required && (item.status.id === 0 || item.status.id === 4)) || item.status.id === 1 || item.status.id === 2 || item.status.id === 3" class="col col-md-4 col-xs-12">
                 <preorder-file
