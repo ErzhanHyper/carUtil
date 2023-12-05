@@ -3,7 +3,7 @@
         <div class="text-h6 text-primary">Пользователи</div>
 
         <div class="flex justify-between">
-            <q-btn class="text-weight-bold" color="indigo-8" icon="add" label="Создать пользователя" push
+            <q-btn class="text-weight-bold" color="indigo-8" icon="add" label="Добавить" push
                    to="/user/create"/>
         </div>
     </div>
@@ -13,27 +13,27 @@
             <div class="col col-lg-11 col-xs-12 col-sm-12">
                 <div class="row q-col-gutter-md">
                     <div class="col col-md-2 col-sm-6 col-xs-12">
-                        <q-input v-model="filter.idnum" dense label="ИИН" outlined/>
+                        <q-input v-model="filter.idnum" dense label="ИИН" outlined clearable/>
                     </div>
                     <div class="col col-md-2 col-sm-6 col-xs-12">
-                        <q-input v-model="filter.title" dense label="ФИО" outlined/>
+                        <q-input v-model="filter.title" dense label="ФИО" outlined clearable/>
                     </div>
                     <div class="col col-md-2 col-sm-6 col-xs-12">
-                        <role-field v-model="filter.role" dense outlined/>
+                        <role-field v-model="filter.role" dense outlined clearable/>
                     </div>
 
                     <div class="col col-md-2 col-sm-6 col-xs-12">
-                        <region-field v-model="filter.region" dense emit-value map-options outlined/>
+                        <region-field v-model="filter.region" dense emit-value map-options outlined clearable/>
                     </div>
 
                     <div class="col col-md-2 col-sm-6 col-xs-12">
                         <manufactory-field v-model="filter.manufacture" dense label="Производители (для диллеров)"
-                                           outlined/>
+                                           outlined clearable/>
                     </div>
 
                     <div class="col col-md-2 col-sm-6 col-xs-12">
                         <factory-field v-model="filter.factory" :square="false" dense
-                                       label="Заводы (для региональных менеджеров)" outlined/>
+                                       label="Заводы (для региональных менеджеров)" outlined clearable/>
                     </div>
                 </div>
             </div>

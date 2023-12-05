@@ -14,7 +14,6 @@
         emit-value
         map-options
         style="width: 100%"
-        v-if="items.length > 0"
     >
         <template v-slot:no-option>
             <q-item>

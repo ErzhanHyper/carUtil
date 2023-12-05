@@ -42,7 +42,7 @@ class RefFactoryController extends Controller
                     $ref_factoy->where('class', $request->class);
                 }
 
-                $paginate = 15;
+                $paginate = 20;
                 $pages = round($ref_factoy->count() / $paginate);
                 if ($pages == 0) {
                     $pages = 1;
