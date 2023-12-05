@@ -7,7 +7,6 @@
         flat
         bordered
     >
-
         <q-step
             :done="step > 1"
             :name="1"
@@ -22,6 +21,11 @@
             }"
                 class="q-mt-sm"
             />
+
+            <div class="text-indigo-8" v-if=" history.length > 0 && user && user.role === 'operator'">
+                {{ history[0].action === 'RETURNED_TO_OPERATOR' ? history[0].comment : '' }}
+            </div>
+
         </q-step>
 
         <q-step
@@ -47,6 +51,11 @@
             <div v-if="user && user.role === 'moderator'">
                 Получение видеозаписи через мобильное приложение от менеджера завода
             </div>
+
+            <div class="text-indigo-8" v-if=" history.length > 0 && user && user.role === 'operator'">
+                {{ history[0].action === 'RETURNED_TO_OPERATOR_AFTER_SIGN' ? history[0].comment : '' }}
+            </div>
+
             <order-video-action
                 :order_id="order_id"
                 :permissions="{
@@ -90,7 +99,7 @@ import OrderCertAction from "./actions/OrderCertAction.vue";
 import {mapGetters} from "vuex";
 
 export default {
-    props: ['status', 'approve', 'permit', 'order_id'],
+    props: ['status', 'approve', 'permit', 'order_id', 'history'],
 
     components: {
         OrderSendAction,
@@ -114,7 +123,7 @@ export default {
     created() {
         if (this.status.id === 0 && (this.approve.id === 0 || this.approve.id === 1 || this.approve.id === 4)) {
             this.step = 1
-        } else if (this.status.id === 1 || this.status.id === 2 && this.approve.id !== 4) {
+        } else if ((this.status.id === 1 || this.status.id === 2) && this.approve.id === 1) {
             this.step = 2
         } else if (this.status.id === 4) {
             this.step = 3

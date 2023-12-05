@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <order-timeline v-if="showTimeline" :approve="item.approve" :status="item.status" :permit="permit" :order_id="item.id" class="q-mb-md"/>
+        <order-timeline v-if="showTimeline" :approve="item.approve" :status="item.status" :permit="permit" :order_id="item.id" :history="item.history" class="q-mb-md"/>
 
         <div class="flex justify-between q-mx-sm">
             <div class="flex">
