@@ -70,7 +70,7 @@ class CertificateService
             $car = Car::where('order_id', $order->id)->first();
             $cert = Certificate::where('car_id', $car->id)->first();
             if ($cert && $car) {
-                return $this->generateCert($request, $cert->id);
+                return app(DocumentCertService::class)->generateCert($request, $cert->id);
             }
         }
     }

@@ -15,9 +15,6 @@ class CheckupService
 {
         public function checkCertById($id)
         {
-
-            $show_result = false;
-            $cert = null;
             $ex2 = null;
             $ex3 = null;
             $ex4 = null;
@@ -26,7 +23,6 @@ class CheckupService
             $cert = Certificate::find($id);
 
             if($cert) {
-                $show_result = true;
                 // а где же инфа про переоформления?
                 if ($cert->title_2) {
                     $ex2 = new ExchangeResource(Exchange::where('certificate_id', $cert->id)->first());
