@@ -300,8 +300,10 @@ class OrderService
                 }
             } else if ($order->approve === 3) {
                 if ($order->status === 5) {
-                    if ($video && $order->car->certificate == '') {
-                        $canIssueCert = true;
+                    if($order->executor_uid === $user->id) {
+                        if ($video && $order->car->certificate == '') {
+                            $canIssueCert = true;
+                        }
                     }
                 }
             }
