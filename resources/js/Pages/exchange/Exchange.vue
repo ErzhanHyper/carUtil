@@ -4,39 +4,6 @@
         <div class="text-h6 text-primary">Передачи сертификатов</div>
     </div>
 
-    <q-card class="q-mb-none q-mt-md" bordered square flat>
-        <q-card-section>
-            <div class="row q-col-gutter-md">
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Номер передачи" v-model="filter.idnum" outlined dense/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Номер сертификата" v-model="filter.title" outlined dense/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ФИО" v-model="filter.title" outlined dense/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="ИИН/БИН" v-model="filter.title" outlined dense/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Статус" v-model="filter.title" outlined dense/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Дата (с)" v-model="filter.title" outlined dense type="date"/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input label="Дата (до)" v-model="filter.title" outlined dense type="date"/>
-                </div>
-                <div class="col col-md-2 col-sm-2 col-xs-12">
-                    <q-btn icon="search" round @click="applyFilter" color="blue-8" :loading="loading1"/>
-                    <q-btn icon="close" round @click="resetFilter" color="orange-8" size="sm" class="q-ml-sm"
-                           :loading="loading2"/>
-                </div>
-            </div>
-        </q-card-section>
-    </q-card>
-
     <div v-if="show">
         <q-markup-table flat bordered dense >
             <thead>

@@ -8,7 +8,7 @@
                       class="text-body1 q-mt-sm">
                     {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
                 </span>
-                <span class="text-body1 text-blue-grey-7"> <b> - №{{ item.id }}</b></span>
+                <span class="text-body1 text-blue-grey-7"><b> - №{{ item.id }}</b></span>
                 <!--                <div v-if="item.status.id !== 3" :class="'text-'+setStatusColor(item.approve.id)">-->
                 <!--                    {{ item.approve.title }}-->
                 <!--                </div>-->

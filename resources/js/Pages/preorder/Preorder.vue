@@ -40,7 +40,7 @@
                     <span class="text-primary">{{ (item.car) ? item.car.grnz : '-' }}</span>
                 </td>
                 <td class="text-left">
-                    <q-chip :color="(item.vehicleType === 'car') ? 'teal-1' : 'orange-1'" size="12px">
+                    <q-chip :color="(item.vehicleType === 'car') ? 'blue-grey-1' : 'orange-1'" size="12px">
                         {{ (item.car) ? (item.car.category ? item.car.category.title_ru + ' | ' : '') : '' }}
                         {{ (item.vehicleType) ? ((item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
                     </q-chip>

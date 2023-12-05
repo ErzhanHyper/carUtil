@@ -38,7 +38,7 @@
                         <q-btn :label="item.id" :to="'/order/'+item.id" color="primary" dense flat icon="open_in_new"/>
                     </td>
                     <td class="text-left">
-                        <q-chip v-if="item.vehicleType" :color="(item.vehicleType === 'car') ? 'teal-1' : 'orange-1'"
+                        <q-chip v-if="item.vehicleType" :color="(item.vehicleType === 'car') ? 'blue-grey-1' : 'orange-1'"
                                 size="12px">
                             {{ (item.car) ? (item.car.category ? item.car.category.title_ru : '') : '-' }} | {{
                                 (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ'

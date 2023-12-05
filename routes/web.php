@@ -178,8 +178,6 @@ Route::prefix('app')->group(function () {
             Route::get('/{id}/preorder/agroImage', [\App\Http\Controllers\FileController::class, 'getAgroFileImage']);
             Route::get('/{id}/exchange/download', [\App\Http\Controllers\FileController::class, 'downloadExchangeFile']);
             Route::get('/{id}/sell/download', [\App\Http\Controllers\FileController::class, 'downloadSellFile']);
-
-
         });
 
         Route::prefix('factory')->group(function () {
