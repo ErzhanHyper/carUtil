@@ -1,146 +1,159 @@
 <template>
-    <q-card flat>
-        <q-card-section >
-            <q-select
-                square v-model="item.file"
-                label="Файл"
-                :options="filesOptions"
-                :model-value="item.file"
-                option-label="title"
-                option-value="id"
-                map-options
-                emit-value
-                @update:model-value="evt => selectFile(evt)"
-                class="q-mb-sm"
-                outlined
-                dense
-                :readonly="blocked"
-                v-if="!blocked"
-                :loading="loading"
-                :disable="loading"
-            >
-                <template v-slot:before>
-                    <q-icon name="folder"/>
-                </template>
-                <template v-slot:append>
-                    <q-btn round dense flat icon="add"/>
-                </template>
-            </q-select>
+    <div>
+        <q-card flat>
+            <q-card-section v-if="!blocked">
+                <q-select
+                     v-model="item.file"
+                    :disable="loading"
+                    :loading="loading"
+                    :model-value="item.file"
+                    :options="filesOptions"
+                    :readonly="blocked"
+                    class="q-mb-sm"
+                    dense
+                    emit-value
+                    label="Файл"
+                    map-options
+                    option-label="title"
+                    option-value="id"
+                    outlined
+                    square
+                    @update:model-value="evt => selectFile(evt)"
+                >
+                    <template v-slot:before>
+                        <q-icon name="folder"/>
+                    </template>
+                    <template v-slot:append>
+                        <q-btn dense flat icon="add" round/>
+                    </template>
+                </q-select>
 
-<!--            <div class="text-body2">Загруженные файлы</div>-->
-        </q-card-section>
+                <!--            <div class="text-body2">Загруженные файлы</div>-->
+            </q-card-section>
 
-        <q-separator inset v-if="!filesEmpty"/>
+            <q-separator v-if="!blocked" inset/>
 
-        <q-card-section >
+            <q-card-section>
 
-            <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-weight-bold" v-if="certificate_id">
-                <a href="#" class="text-primary" @click="getCert(certificate_id)">
-                <q-icon :name="'verified'" class="q-mr-sm" size="sm" v-if="!loading1"></q-icon>
-                 <q-circular-progress indeterminate rounded size="xs" v-if="loading1" color="primary" class="q-mr-xs"/>
-                Скидочный сертификат
-                </a>
-            </div>
-
-            <template v-for="(doc, i) in filesDoc" :key="i">
-                <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10">
-                    <q-icon :name="(doc.file_type_id === 29) ? 'videocam' : 'insert_drive_file'" class="q-mr-sm" size="sm" v-if="doc_id !== doc.id"></q-icon>
-                    <q-circular-progress indeterminate rounded size="xs" v-if="doc_id === doc.id" color="primary" class="q-mr-xs"/>
-                    <a href="#" @click="getOrderFile(doc.id)" class="text-dark" v-if="doc.file_type_id !== 29">
-                        {{ doc.file_type.title }}
+                <div v-if="certificate_id"
+                     class="flex no-wrap flex-start q-mb-sm text-left relative-position text-weight-bold">
+                    <a class="text-primary" href="#" @click="getCert(certificate_id)">
+                        <q-icon v-if="!loading1" :name="'verified'" class="q-mr-sm" size="sm"></q-icon>
+                        <q-circular-progress v-if="loading1" class="q-mr-xs" color="primary" indeterminate rounded
+                                             size="xs"/>
+                        Скидочный сертификат
                     </a>
-                    <a href="#" @click="showFileDialog = true" class="text-indigo-5 text-weight-bold text-body1" v-if="doc.file_type_id === 29">
-                        {{ doc.file_type.title }}
-                        <div class="text-caption">({{ doc.created_at }})</div>
-                    </a>
-                    <q-icon name="close" class="q-ml-sm cursor-pointer" size="xs" style="margin-top: 2px" color="negative"
-                            v-if="(!blocked || (blocked && doc.file_type_id === 29 && !blockedVideo))" @click="showDeleteDialog({doc: doc, type: 'doc', id: doc.id })">
-                    </q-icon>
                 </div>
-            </template>
 
-            <q-carousel
-                animated
-                v-model="slide"
-                arrows
-                control-color="pink-5"
-                infinite
-                v-if="filesPhoto.length > 0 && photoFind"
-            >
-                <template v-for="(slide, i) in filesPhoto" :key="i">
-                    <q-carousel-slide :name="i+1" class="q-pb-lg relative-position" >
-                        <q-img :src="slide.base64Image" class="full-height cursor-pointer" @click="showImage(slide.base64Image)"/>
-                        <div class="text-body1">{{ slide.file_type.title }}</div>
-                        <q-btn size="xs" dense round icon="close" color="pink-5" class="q-mb-xs"
-                               style="position:absolute;right:7px;top:7px" v-if="!blocked"
-                               @click="showDeleteDialog({ type: 'photo', id: slide.id })"
-                        />
-                    </q-carousel-slide>
+                <template v-for="(doc, i) in filesDoc" :key="i">
+                    <div class="flex no-wrap flex-start q-mb-sm text-left relative-position text-deep-orange-10">
+                        <q-icon v-if="doc_id !== doc.id" :name="(doc.file_type_id === 29) ? 'videocam' : 'insert_drive_file'"
+                                class="q-mr-sm" size="sm"></q-icon>
+                        <q-circular-progress v-if="doc_id === doc.id" class="q-mr-xs" color="primary" indeterminate rounded
+                                             size="xs"/>
+                        <a v-if="doc.file_type_id !== 29" class="text-dark" href="#" @click="getOrderFile(doc.id)">
+                            {{ doc.file_type.title }}
+                        </a>
+                        <a v-if="doc.file_type_id === 29" class="text-indigo-5 text-weight-bold text-body1" href="#"
+                           @click="showFileDialog = true">
+                            {{ doc.file_type.title }}
+                            <div class="text-caption">({{ doc.created_at }})</div>
+                        </a>
+                        <q-icon v-if="(!blocked || (blocked && doc.file_type_id === 29 && !blockedVideo))" class="q-ml-sm cursor-pointer" color="negative" name="close"
+                                size="xs"
+                                style="margin-top: 2px"
+                                @click="showDeleteDialog({doc: doc, type: 'doc', id: doc.id })">
+                        </q-icon>
+                    </div>
                 </template>
-            </q-carousel>
 
-            <input type="file" ref="file_dialog" v-bind:value="uploadedFile"
-                   @change="event => uploadFile(event)"
-                   @cancel="cancelFileDialog()"
-                   :readonly="blocked"
-                   v-if="!blocked" class="hidden"/>
+                <q-carousel
+                    v-if="filesPhoto.length > 0 && photoFind"
+                    v-model="slide"
+                    animated
+                    arrows
+                    control-color="pink-5"
+                    infinite
+                >
+                    <template v-for="(slide, i) in filesPhoto" :key="i">
+                        <q-carousel-slide :name="i+1" class="q-pb-lg relative-position">
+                            <q-img :src="slide.base64Image" class="full-height cursor-pointer"
+                                   @click="showImage(slide.base64Image)"/>
+                            <div class="text-body1">{{ slide.file_type.title }}</div>
+                            <q-btn v-if="!blocked" class="q-mb-xs" color="pink-5" dense icon="close" round
+                                   size="xs" style="position:absolute;right:7px;top:7px"
+                                   @click="showDeleteDialog({ type: 'photo', id: slide.id })"
+                            />
+                        </q-carousel-slide>
+                    </template>
+                </q-carousel>
 
-        </q-card-section>
+                <input v-if="!blocked" ref="file_dialog" :readonly="blocked"
+                       class="hidden"
+                       type="file"
+                       v-bind:value="uploadedFile"
+                       @cancel="cancelFileDialog()" @change="event => uploadFile(event)"/>
 
-    </q-card>
-
-    <q-dialog v-model="showFileDialog">
-        <q-card>
-            <q-card-section class="flex q-py-sm">
-                <div class="text-h6">Видеозапись</div>
-                <q-space/>
-                <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
             </q-card-section>
 
-            <q-separator />
-
-            <q-card-section style="max-height: 80vh" class="scroll">
-                <video :src="videoFile" controls style="width: 100%;max-height: 60vh;"/>
-            </q-card-section>
-
-            <q-separator />
         </q-card>
-    </q-dialog>
 
-    <q-dialog v-model="fileDialog">
-        <q-card style="width: 100%;max-width:1200px;">
-            <q-card-section class="flex justify-between q-py-xs q-px-xs">
-                <q-space/>
-                <q-icon name="close" size="sm" flat v-close-popup class="cursor-pointer"/>
-            </q-card-section>
-            <q-card-section >
-                <q-img :src="base64Image" />
-            </q-card-section>
-        </q-card>
-    </q-dialog>
+        <q-dialog v-model="showFileDialog">
+            <q-card>
+                <q-card-section class="flex q-py-sm">
+                    <div class="text-h6">Видеозапись</div>
+                    <q-space/>
+                    <q-icon v-close-popup class="cursor-pointer" flat name="close" size="sm"/>
+                </q-card-section>
 
-    <q-dialog v-model="deleteDialog" size="xs">
-        <q-card style="width: 600px">
-            <q-card-section class="row items-center q-pb-none">
-                <div class="text-body1">Вы действительно хотите удалить файл?</div>
-                <q-space/>
-                <q-btn v-close-popup dense flat icon="close" round/>
-            </q-card-section>
-            <q-card-actions class="q-mt-md q-mx-sm q-mb-sm">
-                <q-btn :loading="loading" color="pink-5" label="Да" @click="deleteFile()"/>
-                <q-space/>
-                <q-btn v-close-popup color="primary" label="Нет"/>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
+                <q-separator/>
+
+                <q-card-section class="scroll" style="max-height: 80vh">
+                    <video :src="videoFile" controls style="width: 100%;max-height: 60vh;"/>
+                </q-card-section>
+
+                <q-separator/>
+            </q-card>
+        </q-dialog>
+
+        <q-dialog v-model="fileDialog">
+            <q-card style="width: 100%;max-width:1200px;">
+                <q-card-section class="flex justify-between q-py-xs q-px-xs">
+                    <q-space/>
+                    <q-icon v-close-popup class="cursor-pointer" flat name="close" size="sm"/>
+                </q-card-section>
+                <q-card-section>
+                    <q-img :src="base64Image"/>
+                </q-card-section>
+            </q-card>
+        </q-dialog>
+
+        <q-dialog v-model="deleteDialog" size="xs">
+            <q-card style="width: 600px">
+                <q-card-section class="row items-center q-pb-none">
+                    <div class="text-body1">Вы действительно хотите удалить файл?</div>
+                    <q-space/>
+                    <q-btn v-close-popup dense flat icon="close" round/>
+                </q-card-section>
+                <q-card-actions class="q-mt-md q-mx-sm q-mb-sm">
+                    <q-btn :loading="loading" color="pink-5" label="Да" @click="deleteFile()"/>
+                    <q-space/>
+                    <q-btn v-close-popup color="primary" label="Нет"/>
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+    </div>
 
 </template>
 
 <script>
 import {ref} from 'vue'
 import {
-    deleteOrderFile,getOrderFile,
-    getOrderFileList, getOrderImage, getOrderVideo,
+    deleteOrderFile,
+    getOrderFile,
+    getOrderFileList,
+    getOrderImage,
+    getOrderVideo,
     storeOrderFile
 } from "../../services/file";
 import FileDownload from "js-file-download";
@@ -196,12 +209,12 @@ export default {
 
     methods: {
 
-        showDeleteDialog(value){
+        showDeleteDialog(value) {
             this.deleteDialog = true
             this.item = value
         },
 
-        showImage(image){
+        showImage(image) {
             this.fileDialog = true
             this.base64Image = image
         },
@@ -216,32 +229,32 @@ export default {
                 this.filesOptions = []
 
                 res.file_types.map(el => {
-                    if(el.id !== 29){
+                    if (el.id !== 29) {
                         this.filesOptions.push(el)
                     }
                 })
                 this.filesDoc.map(el => {
-                    if(el.file_type_id === 29) {
+                    if (el.file_type_id === 29) {
                         getOrderVideo(el.id, {params: {order_id: this.order_id}}).then((value) => {
-                            if(value.data) {
+                            if (value.data) {
                                 this.videoFile = 'data:video/webm;base64,' + value.data
                             }
                         })
                     }
                 })
-                if(this.vehicleType === 'agro') {
+                if (this.vehicleType === 'agro') {
                     this.filesPhoto.filter(el => {
                         getOrderImage(el.id, {params: {order_id: this.order_id}}).then((value) => {
-                            if(value.data) {
+                            if (value.data) {
                                 this.photoFind = true
                                 return el.base64Image = 'data:image/jpeg;base64,' + value.data
                             }
                         })
                     })
-                }else if(this.vehicleType === 'car'){
+                } else if (this.vehicleType === 'car') {
                     this.filesPhoto.filter(el => {
                         getOrderImage(el.id, {params: {order_id: this.order_id}}).then((value) => {
-                            if(value.data) {
+                            if (value.data) {
                                 this.photoFind = true
                                 return el.base64Image = 'data:image/jpeg;base64,' + value.data
                             }
@@ -254,7 +267,7 @@ export default {
         },
 
         selectFile(evt) {
-            if(evt) {
+            if (evt) {
                 this.$refs.file_dialog.value = this.uploadedFile;
                 this.file_type_id = evt
                 this.pickFile = this.$refs.file_dialog
@@ -262,7 +275,7 @@ export default {
             }
         },
 
-        cancelFileDialog(){
+        cancelFileDialog() {
             this.file_type_id = null
             this.item.file = {
                 title: ''
@@ -286,7 +299,7 @@ export default {
             }
             deleteOrderFile(value.id).then(() => {
                 this.getItems()
-                if(value.doc.file_type_id === 29){
+                if (value.doc.file_type_id === 29) {
                     this.$emitter.emit('orderFileEvent')
                 }
             });
@@ -312,7 +325,7 @@ export default {
             })
         },
 
-        getOrderFile(id){
+        getOrderFile(id) {
             this.doc_id = id
             getOrderFile(id, {params: {order_id: this.order_id}, responseType: 'arraybuffer'}).then((res) => {
                 let parts = res.headers.get('Content-Disposition').split(';');
@@ -358,12 +371,12 @@ export default {
     created() {
         this.getItems()
 
-        if(this.user && this.user.role === 'moderator' && (this.filesDoc.length === 0 && this.filesPhoto.length === 0)){
+        if (this.user && this.user.role === 'moderator' && (this.filesDoc.length === 0 && this.filesPhoto.length === 0 || !this.certificate_id)) {
             this.filesEmpty = true
         }
     },
 
-    mounted(){
+    mounted() {
         this.$emitter.on('VideoSendEvent', () => {
             this.getItems()
         })

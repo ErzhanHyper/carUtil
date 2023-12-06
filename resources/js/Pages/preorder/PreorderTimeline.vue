@@ -25,7 +25,7 @@
         <q-step
             :done="step > 2"
             :name="2"
-            :caption="preorder_status.title"
+            :caption="preorder_status.id !== 1 ?  preorder_status.title : ''"
             icon="settings"
             title="На рассмотрении у модератора"
         >

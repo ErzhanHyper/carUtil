@@ -83,9 +83,9 @@
             </div>
         </q-banner>
 
-        <div class="row q-col-gutter-md">
+        <div class="row q-col-gutter-md q-mt-xs">
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
-                <div class="row q-col-gutter-md q-mt-xs">
+                <div class="row q-col-gutter-md">
                     <div class="col col-md-5 col-sm-12 col-xs-12">
                         <client-card :blocked="blocked" :data="client" :getClient="getClient"/>
                         <!--                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>-->
@@ -107,9 +107,10 @@
                     </div>
                 </div>
 
-                <q-list bordered class="rounded-borders q-mt-md">
+                <q-list bordered class="q-mt-md">
                     <q-expansion-item
                         expand-separator
+                        class="bg-white"
                         icon="history"
                         label="История">
                         <preorder-history :comments="item.comment" class="q-pa-md"/>

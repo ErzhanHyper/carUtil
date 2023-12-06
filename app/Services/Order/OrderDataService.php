@@ -16,7 +16,7 @@ class OrderDataService
     {
         $user = app(AuthService::class)->auth();
         if ($user->role === 'moderator' || $user->role === 'operator') {
-            $orders = Order::select(['id', 'client_id', 'created', 'user_id', 'executor_uid', 'approve', 'status', 'blocked'])->orderByDesc('created');
+            $orders = Order::select(['id', 'client_id', 'created', 'sended_to_approve', 'user_id', 'executor_uid', 'approve', 'status', 'blocked'])->orderByDesc('created');
 
             if ($user->role === 'moderator') {
                 $orders->where('approve', '<>', 0)
@@ -35,7 +35,6 @@ class OrderDataService
                     ->where('pre_order_car.factory_id', $factory_id)
                     ->where('blocked', 0);
             }
-
             $paginate = 20;
             $items = $orders->paginate($paginate, ['*'], 'page', $request->page ?? 1);
             return [
@@ -63,7 +62,7 @@ class OrderDataService
         }
         foreach (['approve'] as $filter) {
             if (isset($request->$filter) && $request->$filter != '') {
-                $orders->where('approve', $request->$filter);
+                $orders->whereIn('approve', $request->$filter);
             }
         }
     }

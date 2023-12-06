@@ -1,8 +1,8 @@
 import api from "../api";
 
-export function getCertificateList(params) {
+export function findCertificateById(id, params) {
     return new Promise((resolve, reject) => {
-        api.get('/certificate', params).then(response => {
+        api.get('/checkup/'+id+'/getCert', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')
@@ -11,9 +11,9 @@ export function getCertificateList(params) {
     })
 }
 
-export function generateCertificate(id, params) {
+export function findCertificateByOrderId(id, params) {
     return new Promise((resolve, reject) => {
-        api.get('/certificate/'+id+'/file', params).then(response => {
+        api.get('/checkup/'+id+'/downloadCert', params).then(response => {
             resolve(response.data)
         }).catch((e) => {
             reject('Ошибка при загрузке')

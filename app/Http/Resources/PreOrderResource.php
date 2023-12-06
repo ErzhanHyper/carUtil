@@ -48,14 +48,16 @@ class PreOrderResource extends JsonResource
                 'id' => $this->status,
                 'title' => $status
             ],
+            'date' => date('d.m.Y H:i', $this->date),
+            'sended_dt' => date('d.m.Y H:i', $this->sended_dt),
+
             'car' => new CarResource($this->car),
             'client' => $client,
             'order' => new OrderResource($this->order),
             'liner' => Liner::find($this->liner_id),
             'factory' => Factory::find($this->factory_id),
-            'booking' => new BookingOrderResource($this->booking),
-            'date' => date('d.m.Y H:i', $this->date),
-            'sended_dt' => date('d.m.Y H:i', $this->sended_dt),
+            'booking' => $this->booking ? new BookingOrderResource($this->booking) : null,
+
             'comment' => PreOrderHistoryResource::collection($this->history),
             'vehicleType' => $this->recycle_type === 1 ? 'car' : 'agro',
         ];

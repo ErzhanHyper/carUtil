@@ -2,16 +2,8 @@
 
 namespace App\Http\Resources;
 
-use App\Models\AgroFile;
 use App\Models\BookingOrder;
-use App\Models\CarFile;
-use App\Models\Category;
-use App\Models\File;
-use App\Models\PreOrderCar;
 use App\Models\User;
-use App\Services\AuthService;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
@@ -44,56 +36,46 @@ class OrderResource extends JsonResource
         };
 
         $globalStatus = '';
-        if($this->status === 0){
+        if ($this->status === 0) {
             $globalStatus = 'Новая заявка';
         }
-        if($this->status === 2 || $this->status === 1){
+        if ($this->status === 2 || $this->status === 1) {
             $globalStatus = 'На рассмотрении';
         }
-        if($this->status === 2 && $this->approve === 3){
+        if ($this->status === 2 && $this->approve === 3) {
             $globalStatus = 'Одобрено';
         }
-        if($this->status === 2 && $this->approve === 2){
+        if ($this->status === 2 && $this->approve === 2) {
             $globalStatus = 'Отказано';
         }
-        if($this->status === 4){
+        if ($this->status === 4) {
             $globalStatus = 'В ожидании видеозаписи';
         }
-        if($this->status === 5){
+        if ($this->status === 5) {
             $globalStatus = 'На выдаче сертификата';
         }
-        if($this->status === 3){
+        if ($this->status === 3) {
             $globalStatus = 'Завершено';
         }
 
         $booking = null;
-        $categories = [];
-        $files = [];
         $vehicleType = '';
 
-        if($this->car) {
+        if ($this->car) {
             if ($this->car->car_type_id === 1 || $this->car->car_type_id === 2) {
                 $vehicleType = 'car';
-                if($this->preorder) {
-                    $files = FileTypeResource::collection(CarFile::where('preorder_id', $this->preorder->id)->get());
-                }
             } else {
                 $vehicleType = 'agro';
-                if($this->preorder) {
-                    $files = AgroFile::where('preorder_id', $this->preorder->id)->get();
-                }
             }
         }
 
-        if($this->preorder && $this->preorder->booking_id) {
+        if ($this->preorder && $this->preorder->booking_id) {
             $booking = BookingOrder::find($this->preorder->booking_id);
             $booking = new BookingOrderResource($booking);
         }
 
-
         $history = [];
-
-        if($this->history) {
+        if ($this->history) {
             $history = OrderHistoryResource::collection($this->history);
         }
 
@@ -112,15 +94,10 @@ class OrderResource extends JsonResource
             'created' => date('d.m.Y H:i', $this->created),
             'user' => User::find($this->user_id),
             'executor' => User::find($this->executor_uid),
-            'order_type' => $this->order_type,
-            'pay_approve' => $this->pay_approve,
             'sended_to_approve' => date('d.m.Y H:i', $this->sended_to_approve),
-            'sended_to_pay' => date('d.m.Y H:i', $this->sended_to_pay),
             'preorder_id' => $this->preorder ? $this->preorder->id : null,
             'booking' => $booking,
             'blocked' => $this->blocked,
-            'files' => $files,
-            'categories' => $categories,
             'transfer' => $this->transfer,
             'vehicleType' => $vehicleType,
             'history' => $history,

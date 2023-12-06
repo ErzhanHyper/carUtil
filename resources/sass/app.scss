@@ -1,6 +1,7 @@
 body {
     margin: 0;
     padding: 0;
+    background: #e5ebf2;
     //-webkit-user-select: none; /* Safari */
     //user-select: none;
 }
@@ -20,7 +21,7 @@ a {
 }
 
 .bg-primary{
-    background-color: #11222b !important;
+    background-color: #2a3643 !important;
 }
 .bg-warning{
     background-color: #f7e3aa!important;
@@ -48,14 +49,14 @@ a{
     border-radius: 3px;
 }
 
-.q-table{
-    tbody tr{
-        background: #ffffff;
-        &:nth-child(2n){
-            background: #fcfaff;
-        }
-    }
-}
+//.q-table{
+//    tbody tr{
+//        background: #ffffff;
+//        &:nth-child(2n){
+//            background: #fcfaff;
+//        }
+//    }
+//}
 
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;

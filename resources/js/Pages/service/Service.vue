@@ -277,9 +277,9 @@
 </template>
 
 <script>
-import {findCertificateById, generateCertificate} from "../../services/certificate";
+import {generateCertificate} from "../../services/certificate";
 import FileDownload from "js-file-download";
-import {findCertificateByOrderId} from "../../services/order";
+import {findCertificateById, findCertificateByOrderId} from "../../services/checkup";
 import {Notify} from "quasar";
 
 export default {

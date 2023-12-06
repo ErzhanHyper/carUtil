@@ -3,7 +3,7 @@
 
     <q-layout view="lHh LpR fFf" v-if="authenticated">
 
-        <q-header elevated class="bg-white text-dark">
+        <q-header class=" text-dark" style="background: #f6fafe">
             <q-linear-progress indeterminate color="warning" size="md" v-if="contentLoad" style="position: fixed;top: 0"/>
             <q-toolbar>
                 <q-btn dense flat round icon="menu" @click="toggleLeftDrawer"/>

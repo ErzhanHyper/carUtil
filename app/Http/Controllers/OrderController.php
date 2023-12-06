@@ -98,13 +98,4 @@ class OrderController extends Controller
         return response()->json($data);
     }
 
-    public function downloadCertByOrderId(Request $request, $id)
-    {
-
-        $data = app(CertificateService::class)->downloadCertByOrderId($request, $id);
-        if($data) {
-            return $data;
-        }
-    }
-
 }

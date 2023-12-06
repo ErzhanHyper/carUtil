@@ -1,6 +1,6 @@
 <template>
 
-    <div class="q-gutter-sm q-mb-md q-mt-xs flex justify-between">
+    <div class="q-gutter-sm q-mb-md flex justify-between">
         <div class="text-h6 text-primary">Погашения сертификатов</div>
         <div class="flex justify-between">
             <q-btn color="indigo-8" push icon="add" label="Создать" class="q-ml-md text-weight-bold" to="/sell/create" v-if="user && user.role === 'dealer-light'"/>

@@ -1,6 +1,5 @@
 <template>
     <q-card flat>
-
         <q-card-section v-if="!blocked">
             <div v-if="vehicleType === 'car'" class="text-caption text-blue-grey-8">
                 <div class="q-mb-xs">* Допускается отсутствие деревянных конструкции ВЭТС категорий N1, N2, N3.</div>
@@ -14,7 +13,7 @@
             </div>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section v-if="!blocked">
             <q-select
                 square v-model="item.file"
                 label="Файл"
@@ -29,7 +28,6 @@
                 outlined
                 dense
                 :readonly="blocked"
-                v-if="!blocked"
                 :loading="loading"
                 :disable="loading"
             >
@@ -40,12 +38,12 @@
                     <q-btn round dense flat icon="add"/>
                 </template>
             </q-select>
-
 <!--            <div class="text-body2" v-if="filesDoc.length > 0 || filesPhoto.length > 0 || (transfer && transfer.closed === 2)">Загруженные файлы</div>-->
-            <div v-if="user.role === 'moderator' && (filesDoc.length === 0 && filesPhoto.length === 0 && (!transfer))">Файлы отсутствуют</div>
         </q-card-section>
 
-        <q-separator inset/>
+        <div v-if="user.role === 'moderator' && (filesDoc.length === 0 && filesPhoto.length === 0 && (!transfer))">Файлы отсутствуют</div>
+
+        <q-separator inset v-if="!blocked"/>
 
         <q-card-section>
 

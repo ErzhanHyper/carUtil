@@ -1,5 +1,5 @@
 <template>
-    <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
+    <div class="q-gutter-sm q-mb-sm flex justify-between items-center">
         <div class="text-h6 text-primary">Модели ТС</div>
         <div class="flex justify-between">
             <q-btn class="q-ml-md text-weight-bold" color="indigo-8" icon="add" label="Добавить" push
@@ -7,35 +7,12 @@
         </div>
     </div>
 
-    <q-card class="q-mb-md q-mt-lg" flat square>
-        <q-card-section class="q-pa-none">
-            <div class="row q-col-gutter-md">
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <manufactory-field v-model="filter.manufacture" dense option-value="title" outlined clearable/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.brand" dense label="Марка" outlined clearable/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.model" dense label="Модель" outlined clearable/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <category-field v-model="filter.category" dense outlined clearable square="false"/>
-                </div>
-                <div class="col col-md-2 col-sm-6 col-xs-12">
-                    <q-input v-model="filter.class" dense label="Класс" outlined type="number" clearable/>
-                </div>
-                <div class="col col-lg-1 col-xs-12 col-sm-12">
-                    <q-btn :loading="loading1" color="blue-8" icon="search" round @click="applyFilter"/>
-                </div>
-            </div>
-        </q-card-section>
-    </q-card>
+    <main-filter v-if="showFilter" :apply-action="applyFilter" :data="filter" :filters="['brand', 'class', 'model', 'category', 'manufacture']" class="q-mb-md"/>
 
     <q-scroll-area
         v-if="show"
         :visible="true"
-        style="height: calc(100vh - 300px);"
+        style="height: calc(100vh - 270px);"
     >
         <q-markup-table bordered dense flat>
             <thead>
@@ -86,17 +63,18 @@
 
 <script>
 import {getVehicleList} from "../../services/vehicle";
-import ManufactoryField from "../../Components/Fields/ManufactoryField.vue";
-import CategoryField from "../../Components/Fields/CategoryField.vue";
+import MainFilter from "../../Components/MainFilter.vue";
+import {mapGetters} from "vuex";
 
 export default {
-    components: {CategoryField, ManufactoryField},
+    components: {MainFilter},
     data() {
         return {
             items: [],
             filter: {
                 page: this.page
             },
+            showFilter: false,
 
             show: false,
             loading1: false,
@@ -107,20 +85,19 @@ export default {
         }
     },
 
+    computed: {
+        ...mapGetters({
+            user: 'auth/user'
+        })
+    },
+
     methods: {
 
-        applyFilter() {
+        async applyFilter(value) {
             this.page = 1
             this.filter.page = this.page
+            this.filter = value
             this.getData()
-            this.loading1 = true
-        },
-
-        resetFilter() {
-            this.page = 1
-            this.filter = {}
-            this.getData()
-            this.loading2 = true
         },
 
         getData() {
@@ -133,6 +110,10 @@ export default {
                 this.show = true
                 this.loading1 = false
                 this.loading2 = false
+            }).finally(() => {
+                if(this.user && this.user.role === 'moderator'){
+                    this.showFilter = true
+                }
             })
         }
     },

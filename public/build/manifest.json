@@ -1,6 +1,6 @@
 {
-  "_index-82ce2eae.js": {
-    "file": "assets/index-82ce2eae.js",
+  "_index-092adba5.js": {
+    "file": "assets/index-092adba5.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -15,7 +15,7 @@
     "src": "node_modules/@quasar/extras/material-icons/web-font/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2"
   },
   "resources/js/app.css": {
-    "file": "assets/app-ce7c4971.css",
+    "file": "assets/app-fde4f152.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.js": {
@@ -24,17 +24,17 @@
       "assets/flUhRq6tzZclQEJ-Vdg-IuiaDsNa-fd84f88b.woff"
     ],
     "css": [
-      "assets/app-ce7c4971.css"
+      "assets/app-fde4f152.css"
     ],
     "dynamicImports": [
-      "_index-82ce2eae.js"
+      "_index-092adba5.js"
     ],
-    "file": "assets/app-cc67fc58.js",
+    "file": "assets/app-098c9e91.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-34813d0c.css",
+    "file": "assets/app-8d3c7d99.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

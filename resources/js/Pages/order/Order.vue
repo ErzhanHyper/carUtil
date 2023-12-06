@@ -1,22 +1,19 @@
 <template>
 
-    <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
-        <div class="text-h6 text-primary">Заявки</div>
-        <!--        <div>-->
-        <!--            <q-btn v-if="user && user.role === 'moderator'" color="indigo-8" @click="showFilter = !showFilter">-->
-        <!--                <q-icon name="sort"></q-icon>-->
-        <!--            </q-btn>-->
-        <!--        </div>-->
+    <div class="q-gutter-sm q-mb-md flex justify-between">
+        <div class="text-h6 text-primary">
+            Заявки
+            <div class="text-caption text-blue-grey-5">Показано в списке - {{ items.length }}</div>
+        </div>
     </div>
 
-    <order-filter v-if="user && user.role === 'moderator' && showFilter" :apply-action="applyFilter" :filter="filter"
-                  class="q-mb-md"/>
+    <main-filter v-if="showFilter" :apply-action="applyFilter" :data="filter" :filters="['order_type', 'vin', 'grnz', 'fio', 'idnum', 'order_status']" class="q-mb-md"/>
 
     <q-scroll-area
         :visible="true"
-        style="height: calc(100vh - 270px);"
+        style="height: calc(100vh - 300px);"
     >
-        <q-markup-table bordered dense flat>
+        <q-markup-table dense flat wrap-cells>
             <thead>
             <tr>
                 <th class="text-left">ID</th>
@@ -27,6 +24,7 @@
                 <th class="text-left">ИИН/БИН</th>
                 <th class="text-left">Регион</th>
                 <th class="text-left">Дата создания</th>
+                <th class="text-left">Дата отправки</th>
                 <th class="text-left">Статус</th>
                 <th class="text-left">Исполнитель</th>
             </tr>
@@ -34,11 +32,15 @@
             <tbody>
             <template v-if="show && items.length > 0">
                 <tr v-for="(item, i) in items" :key="i">
-                    <td class="text-left ">
-                        <q-btn :label="item.id" :to="'/order/'+item.id" color="primary" dense flat icon="open_in_new"/>
+                    <td class="text-left">
+                        <div style="width: 90px">
+                            <q-btn :label="item.id" :to="'/order/'+item.id" color="primary" dense flat
+                                   icon="open_in_new"/>
+                        </div>
                     </td>
                     <td class="text-left">
-                        <q-chip v-if="item.vehicleType" :color="(item.vehicleType === 'car') ? 'blue-grey-1' : 'orange-1'"
+                        <q-chip v-if="item.vehicleType"
+                                :color="(item.vehicleType === 'car') ? 'blue-grey-1' : 'orange-1'"
                                 size="12px">
                             {{ (item.car) ? (item.car.category ? item.car.category.title_ru : '') : '-' }} | {{
                                 (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ'
@@ -49,16 +51,20 @@
                     <td class="text-left">{{ (item.car) ? item.car.vin : '-' }}</td>
                     <td class="text-left">{{ (item.car) ? item.car.grnz : '-' }}</td>
 
-                    <td class="text-left">{{ (item.client) ? item.client.title : '-' }}</td>
+                    <td class="text-left ">
+                        {{ (item.client) ? item.client.title : '-' }}
+                    </td>
                     <td class="text-left">{{ (item.client) ? item.client.idnum : '-' }}</td>
                     <td class="text-left">{{
                             (item.client && item.client.region) ? item.client.region.title : '-'
                         }}
                     </td>
                     <td class="text-left">{{ (item.created) ? item.created : '-' }}</td>
+                    <td class="text-left">{{ (item.sended_to_approve) ? item.sended_to_approve : '-' }}</td>
+
                     <td class="text-left">
                         <div class="q-gutter-sm">
-                            <q-chip :color="setStatusColor(item.globalStatus)" dark size="12px" outline>
+                            <q-chip :color="setStatusColor(item.globalStatus)" dark outline size="12px">
                                 {{ item.globalStatus }}
                             </q-chip>
                         </div>
@@ -66,6 +72,11 @@
                     <td>
                         <div v-if="item.executor" style="width: 180px;white-space: normal; font-size: 12px">
                             {{ item.executor.title }}
+                            <br>
+                            <q-badge v-if="item.approve.id === 2 || item.approve.id === 3 || item.approve.id === 4"
+                                     :color="setStatusColor(item.approve.title)">
+                                {{ item.approve.title }}
+                            </q-badge>
                         </div>
                         <div v-else>-</div>
                     </td>
@@ -104,16 +115,15 @@ import {getOrderList} from "../../services/order";
 import {mapGetters} from "vuex";
 import {generateCertificate} from "../../services/certificate";
 import FileDownload from "js-file-download";
-import OrderFilter from "./OrderFilter.vue";
-import api from "../../api";
+import MainFilter from "../../Components/MainFilter.vue";
 
 export default {
-    components: {OrderFilter},
+    components: {MainFilter},
     data() {
         return {
             data: null,
             show: false,
-            showFilter: true,
+            showFilter: false,
             orderDialog: false,
             loading: false,
 
@@ -164,16 +174,18 @@ export default {
                 color = 'blue-grey-5'
             } else if (id === 'На рассмотрении') {
                 color = 'blue-5'
-            } else if (id === 'Одобрено') {
+            } else if (id === 'Одобрена') {
                 color = 'teal-8'
-            } else if (id === 'Отказано') {
+            } else if (id === 'Отказана') {
                 color = 'pink-5'
             } else if (id === 'В ожидании видеозаписи') {
                 color = 'deep-orange-5'
-            }else if (id === 'На выдаче сертификата') {
+            } else if (id === 'На выдаче сертификата') {
                 color = 'blue-grey-8'
-            }else if (id === 'Завершено') {
+            } else if (id === 'Завершено') {
                 color = 'green-5'
+            } else if (id === 'Возвращена на доработку') {
+                color = 'deep-orange-8'
             }
 
             return color;
@@ -226,6 +238,10 @@ export default {
                 this.show = true
                 this.items = res.items
                 this.totalPage = res.pages
+            }).finally(()=> {
+                if(this.user && this.user.role === 'moderator'){
+                    this.showFilter = true
+                }
             })
         }
     },

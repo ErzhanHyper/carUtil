@@ -167,7 +167,7 @@ class PreorderDataService
         }
         foreach (['status'] as $filter) {
             if (isset($request->$filter) && $request->$filter != '') {
-                $preorder->where('status', $request->$filter);
+                $preorder->whereIn('status', $request->$filter);
             }
         }
     }

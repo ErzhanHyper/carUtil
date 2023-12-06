@@ -1,20 +1,22 @@
 <template>
 
-    <div class="q-gutter-sm q-mb-md q-mt-xs flex justify-between">
-        <div class="text-h6 text-primary">Предзаявка</div>
+    <div class="q-gutter-sm q-mb-md flex justify-between items-center">
+        <div class="text-h6 text-primary">Предзаявка
+            <div class="text-caption text-blue-grey-5">Показано в списке - {{ items.length }}</div>
+        </div>
 
         <div v-if="show && user.role === 'liner'" class="flex justify-between">
             <preorder-create />
         </div>
     </div>
 
-    <preorder-filter :apply-action="applyFilter" :filter="filter" v-if="user && user.role === 'moderator'" class="q-mb-md"/>
+    <main-filter v-if="showFilter" :apply-action="applyFilter" :data="filter" :filters="['vin', 'grnz', 'fio', 'idnum', 'preorder_status']" class="q-mb-md"/>
 
     <q-scroll-area
         :visible="true"
-        style="height: calc(100vh - 280px);"
+        style="height: calc(100vh - 300px);"
     >
-    <q-markup-table bordered dense flat>
+    <q-markup-table  dense flat>
         <thead>
         <tr>
             <th class="text-left">VIN</th>
@@ -135,11 +137,12 @@
 import {getOrderList} from "../../services/preorder";
 import {mapGetters} from "vuex";
 import PreorderCreate from './PreorderCreate.vue'
-import PreorderFilter from "./PreorderFilter.vue";
+import MainFilter from "../../Components/MainFilter.vue";
+
 export default {
 
     components: {
-        PreorderFilter,
+        MainFilter,
         PreorderCreate
     },
 
@@ -153,9 +156,10 @@ export default {
             loading2: false,
 
             filter: {
-                status: 1,
+                status: [1],
                 page: this.page
             },
+            showFilter: false,
 
             items: [],
 
@@ -233,12 +237,16 @@ export default {
                 this.totalPage = res.pages
             }).finally(() => {
                 this.show = true
+                if(this.user && this.user.role === 'moderator'){
+                    this.showFilter = true
+                }
             })
         }
     },
 
     created() {
         this.getData()
-    }
+    },
+
 }
 </script>

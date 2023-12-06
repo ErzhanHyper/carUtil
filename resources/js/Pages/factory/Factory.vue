@@ -1,5 +1,5 @@
 <template>
-    <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
+    <div class="q-gutter-sm q-mb-sm flex justify-between items-center">
         <div class="text-h6 text-primary">Заводы</div>
 
         <div class="flex justify-between">

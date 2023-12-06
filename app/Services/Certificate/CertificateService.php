@@ -61,17 +61,4 @@ class CertificateService
             }
         }
     }
-
-    public function downloadCertByOrderId($request, $id)
-    {
-        $order = Order::find($id);
-
-        if($order) {
-            $car = Car::where('order_id', $order->id)->first();
-            $cert = Certificate::where('car_id', $car->id)->first();
-            if ($cert && $car) {
-                return app(DocumentCertService::class)->generateCert($request, $cert->id);
-            }
-        }
-    }
 }

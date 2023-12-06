@@ -38,7 +38,7 @@ class UserController extends Controller
             $user->where('custom_3', $request->region);
         }
 
-        return UserResource::collection($user->paginate(20))->response();
+        return UserResource::collection($user->paginate(50))->response();
     }
 
     public function getById($id)

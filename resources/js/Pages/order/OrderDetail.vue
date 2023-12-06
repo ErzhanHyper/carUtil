@@ -69,10 +69,9 @@
             </div>
         </q-banner>
 
-        <div class="row q-col-gutter-md">
-
+        <div class="row q-col-gutter-md q-mt-xs">
             <div class="col col-md-8 col-sm-12 col-xs-12 ">
-                <div class="row q-col-gutter-md q-mt-xs">
+                <div class="row q-col-gutter-md">
                     <div class="col col-md-5 col-sm-12 col-xs-12">
                         <client-card :blocked="true" :data="item.client" :getClient="getClient"/>
                         <!--                        <client-proxy :item="item" :blocked="blocked" v-if="user.role === 'liner' || item.proxy"/>-->
@@ -84,8 +83,9 @@
                                   :vehicleType="item.vehicleType"/>
                     </div>
                 </div>
-                <q-list bordered class="rounded-borders q-mt-md">
+                <q-list bordered class=" q-mt-md">
                 <q-expansion-item
+                    class="bg-white"
                     expand-separator
                     icon="history"
                     label="История">
@@ -112,10 +112,7 @@
                 />
 
                 <template v-if="user && user.role==='moderator'">
-                    <q-separator class="q-my-lg"/>
-
-                    <div class="q-px-md q-mt-lg text-body1 text-weight-bold">Файлы предзаявки</div>
-
+                    <div class="q-px-md q-mt-lg q-mb-xs text-body1 text-weight-bold">Файлы предзаявки</div>
                     <PreorderFile
                         v-if="item.client"
                         :blocked="true"
@@ -123,7 +120,8 @@
                         :preorder_id="item.preorder_id"
                         :transfer="item.transfer"
                         :vehicleType="item.vehicleType"
-                    />
+                    >
+                    </PreorderFile>
                 </template>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <template>
-    <div class="q-gutter-sm q-mb-sm q-mt-xs flex justify-between">
+    <div class="q-gutter-sm q-mb-sm flex justify-between items-center">
         <div class="text-h6 text-primary">Производители</div>
         <div class="flex justify-between">
             <q-btn color="indigo-8" push icon="add" label="Добавить" class="q-ml-md text-weight-bold" to="/manufacture/create"/>

@@ -1,0 +1,281 @@
+<template>
+    <q-card class="transparent" flat square>
+        <q-card-section class="q-pa-none">
+
+            <div class="flex wrap items-start">
+                <q-select
+                    v-if="filters.includes('order_type')"
+                    v-model="item.type"
+                    :options="['ВЭТС', 'ВЭССХТ']"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    label="Тип заявки"
+                    outlined
+                    style="width: 140px"
+                    transition-hide="jump-up"
+                    transition-show="jump-up"
+                />
+
+                <q-input
+                    v-if="filters.includes('vin')"
+                    v-model="item.vin"
+                    class="text-uppercase q-mr-sm"
+                    clearable
+                    dense
+                    label="VIN"
+                    outlined
+                    standout="bg-blue-grey-1"
+                />
+
+                <q-input
+                    v-if="filters.includes('grnz')"
+                    v-model="item.grnz"
+                    class="text-uppercase q-mr-sm"
+                    clearable
+                    dense
+                    label="ГРНЗ"
+                    outlined
+                    standout="bg-blue-grey-1"
+                />
+
+                <q-input
+                    v-if="filters.includes('fio')"
+                    v-model="item.title"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    label="ФИО"
+                    outlined
+                    standout="bg-blue-grey-1"
+                />
+
+                <q-input
+                    v-if="filters.includes('idnum')"
+                    v-model="item.idnum"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    label="ИИН/БИН"
+                    outlined
+                    standout="bg-blue-grey-1"
+                />
+
+                <q-select
+                    v-if="filters.includes('order_status')"
+                    v-model="item.approve"
+                    :options="statuses1"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    emit-value
+                    label="Статус"
+                    map-options
+                    menu-shrink
+                    multiple
+                    option-label="title"
+                    option-value="id"
+                    options-cover
+                    options-dense
+                    outlined
+                    style="width: 280px"
+                    transition-hide="jump-up"
+                    transition-show="jump-up"
+                />
+
+                <q-select
+                    v-if="filters.includes('preorder_status')"
+                    v-model="item.status"
+                    :options="statuses2"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    emit-value
+                    label="Статус"
+                    map-options
+                    menu-shrink
+                    multiple
+                    option-label="title"
+                    option-value="id"
+                    options-cover
+                    options-dense
+                    outlined
+                    style="width: 280px"
+                    transition-hide="jump-up"
+                    transition-show="jump-up"
+                />
+
+                <manufacture-field
+                    v-if="filters.includes('manufacture')"
+                    v-model="data.manufacture"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    option-value="title"
+                    outlined
+                    style="width: 280px"
+                />
+
+                <q-input
+                    v-if="filters.includes('brand')"
+                    v-model="data.brand"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    label="Марка"
+                    outlined
+                />
+
+                <q-input
+                    v-if="filters.includes('model')"
+                    v-model="data.model"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    label="Модель"
+                    outlined
+                />
+
+                <category-field
+                    v-if="filters.includes('category')"
+                    v-model="data.category"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    outlined
+                    square="false"
+                    style="width: 180px"
+                />
+
+                <q-input
+                    v-if="filters.includes('class')"
+                    v-model="data.class"
+                    class="q-mr-sm"
+                    clearable
+                    dense
+                    label="Класс"
+                    outlined
+                    type="number"
+                />
+
+                <role-field
+                    v-if="filters.includes('role')"
+                    v-model="data.role"
+                    clearable
+                    dense
+                    outlined
+                    class="q-mr-sm"
+                    style="width: 180px"
+                />
+
+                <region-field
+                    v-if="filters.includes('region')"
+                    v-model="data.region"
+                    clearable
+                    dense
+                    emit-value
+                    map-options
+                    outlined
+                    class="q-mr-sm"
+                    style="width: 180px"
+                />
+
+                <factory-field
+                    v-if="filters.includes('factory')"
+                    v-model="data.factory"
+                    label="Заводы"
+                    :square="false"
+                    clearable
+                    dense
+                    outlined
+                    class="q-mr-sm"
+                    style="width: 180px"
+                />
+
+                <q-btn :loading="loading1" color="blue-grey" icon="search" round @click="applyFilter"/>
+
+            </div>
+        </q-card-section>
+    </q-card>
+</template>
+
+<script>
+
+import ManufactureField from "@/Components/Fields/ManufactoryField.vue";
+import CategoryField from "@/Components/Fields/CategoryField.vue";
+import RoleField from "@/Components/Fields/RoleField.vue";
+import FactoryField from "@/Components/Fields/FactoryField.vue";
+import RegionField from "@/Components/Fields/RegionField.vue";
+
+export default {
+    props: ['data', 'applyAction', 'resetAction', 'filters'],
+    components: {RoleField, CategoryField, ManufactureField, FactoryField, RegionField},
+
+    data() {
+        return {
+            loading1: false,
+            item: {},
+
+            statuses1: [
+                {
+                    id: 1,
+                    title: 'На рассмотрении',
+                },
+                {
+                    id: 2,
+                    title: 'Отказано',
+                },
+                {
+                    id: 3,
+                    title: 'Одобрено',
+                },
+                {
+                    id: 4,
+                    title: 'Возвращена на доработку',
+                },
+            ],
+
+            statuses2: [
+                {
+                    id: 1,
+                    title: 'На рассмотрении'
+                },
+                {
+                    id: 2,
+                    title: 'Одобрена'
+                },
+                {
+                    id: 3,
+                    title: 'Отклонена'
+                },
+                {
+                    id: 4,
+                    title: 'Возвращена на доработку'
+                },
+            ],
+        }
+    },
+
+    methods: {
+        applyFilter() {
+            this.loading1 = true
+            this.applyAction(this.item)
+        },
+
+        resetFilter() {
+            this.item = {}
+            this.resetAction(this.item)
+        },
+    },
+
+    mounted() {
+        if (this.data) {
+            this.item = this.data
+        }
+
+        this.$emitter.on('FilterApplyEvent', () => {
+            this.loading1 = false
+        })
+    }
+}
+</script>

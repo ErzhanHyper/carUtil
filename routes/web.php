@@ -38,6 +38,13 @@ Route::prefix('app')->group(function () {
         Route::post('booking/order', [\App\Http\Controllers\BookingOrderController::class, 'get']);
         Route::post('booking/order/delete', [\App\Http\Controllers\BookingOrderController::class, 'delete']);
 
+        Route::prefix('checkup')->group(function () {
+            Route::middleware(['isModerator'])->group(function () {
+                Route::get('{id}/getCert', [\App\Http\Controllers\CheckupController::class, 'getCertById']);
+                Route::get('{id}/downloadCert', [\App\Http\Controllers\CheckupController::class, 'downloadCertByOrderId']);
+            });
+        });
+
         Route::prefix('document')->group(function () {
             Route::middleware(['isOperator'])->group(function () {
                 Route::get('/order/{id}/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
@@ -103,19 +110,12 @@ Route::prefix('app')->group(function () {
                 Route::put('{id}/revisionVideo', [\App\Http\Controllers\OrderController::class, 'revisionVideo']);
 
                 Route::post('/cert', [\App\Http\Controllers\OrderController::class, 'cert']);
-
-                Route::get('{id}/certificate/download', [\App\Http\Controllers\OrderController::class, 'downloadCertByOrderId']);
-
             });
         });
 
         Route::prefix('certificate')->group(function () {
             Route::get('/', [\App\Http\Controllers\CertificateController::class, 'get'])->name('certificate');
             Route::get('{id}/file', [\App\Http\Controllers\DocumentController::class, 'getCertificate']);
-
-            Route::middleware(['isModerator'])->group(function () {
-                Route::get('{id}/check', [\App\Http\Controllers\CertificateController::class, 'checkById']);
-            });
         });
 
         Route::prefix('notification')->group(function () {
