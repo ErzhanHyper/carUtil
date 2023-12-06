@@ -52,6 +52,10 @@
                 Получение видеозаписи через мобильное приложение от менеджера завода
             </div>
 
+            <div v-if="user && user.role === 'operator'">
+               Отправьте видеозапись через мобильное приложение
+            </div>
+
             <div class="text-indigo-8 q-mb-sm" v-if=" history.length > 0 && user && user.role === 'operator'">
                 {{ history[0].action === 'RETURNED_TO_OPERATOR_AFTER_SIGN' ? history[0].comment : '' }}
             </div>
