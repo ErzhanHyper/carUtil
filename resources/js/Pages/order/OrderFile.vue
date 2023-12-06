@@ -264,6 +264,9 @@ export default {
                 }
             }).finally(() => {
                 this.loading = false
+                if (this.user && this.user.role === 'moderator' && (this.filesDoc.length === 0 && this.filesPhoto.length === 0 || !this.certificate_id || this.photoFind)) {
+                    this.filesEmpty = true
+                }
             });
         },
 
@@ -371,10 +374,6 @@ export default {
 
     created() {
         this.getItems()
-
-        if (this.user && this.user.role === 'moderator' && (this.filesDoc.length === 0 && this.filesPhoto.length === 0 || !this.certificate_id)) {
-            this.filesEmpty = true
-        }
     },
 
     mounted() {
