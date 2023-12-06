@@ -41,7 +41,7 @@
 <!--            <div class="text-body2" v-if="filesDoc.length > 0 || filesPhoto.length > 0 || (transfer && transfer.closed === 2)">Загруженные файлы</div>-->
         </q-card-section>
 
-        <div v-if="user.role === 'moderator' && (filesDoc.length === 0 && filesPhoto.length === 0 && (!transfer))">Файлы отсутствуют</div>
+        <div class="q-pa-md" v-if="user.role === 'moderator' && (filesDoc.length === 0 && filesPhoto.length === 0 && (!transfer))">Файлы отсутствуют</div>
 
         <q-separator inset v-if="!blocked"/>
 

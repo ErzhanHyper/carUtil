@@ -30,6 +30,7 @@
 
                 <!--            <div class="text-body2">Загруженные файлы</div>-->
             </q-card-section>
+            <div class="q-pa-md" v-if="filesEmpty">Файлы отсутствуют</div>
 
             <q-separator v-if="!blocked" inset/>
 
