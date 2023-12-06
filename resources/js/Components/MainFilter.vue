@@ -7,7 +7,7 @@
                     v-if="filters.includes('order_type')"
                     v-model="item.type"
                     :options="['ВЭТС', 'ВЭССХТ']"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
                     clearable
                     dense
                     label="Тип заявки"
@@ -20,7 +20,7 @@
                 <q-input
                     v-if="filters.includes('vin')"
                     v-model="item.vin"
-                    class="text-uppercase q-mr-sm"
+                    class="responsive_field text-uppercase q-mr-sm q-mb-sm"
                     clearable
                     dense
                     label="VIN"
@@ -31,7 +31,7 @@
                 <q-input
                     v-if="filters.includes('grnz')"
                     v-model="item.grnz"
-                    class="text-uppercase q-mr-sm"
+                    class=" responsive_field text-uppercase q-mr-sm q-mb-sm"
                     clearable
                     dense
                     label="ГРНЗ"
@@ -42,7 +42,7 @@
                 <q-input
                     v-if="filters.includes('fio')"
                     v-model="item.title"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
                     clearable
                     dense
                     label="ФИО"
@@ -53,7 +53,7 @@
                 <q-input
                     v-if="filters.includes('idnum')"
                     v-model="item.idnum"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
                     clearable
                     dense
                     label="ИИН/БИН"
@@ -65,7 +65,8 @@
                     v-if="filters.includes('order_status')"
                     v-model="item.approve"
                     :options="statuses1"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     emit-value
@@ -87,7 +88,8 @@
                     v-if="filters.includes('preorder_status')"
                     v-model="item.status"
                     :options="statuses2"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     emit-value
@@ -108,7 +110,8 @@
                 <manufacture-field
                     v-if="filters.includes('manufacture')"
                     v-model="data.manufacture"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     option-value="title"
@@ -119,7 +122,8 @@
                 <q-input
                     v-if="filters.includes('brand')"
                     v-model="data.brand"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     label="Марка"
@@ -129,7 +133,8 @@
                 <q-input
                     v-if="filters.includes('model')"
                     v-model="data.model"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     label="Модель"
@@ -139,7 +144,8 @@
                 <category-field
                     v-if="filters.includes('category')"
                     v-model="data.category"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     outlined
@@ -150,7 +156,8 @@
                 <q-input
                     v-if="filters.includes('class')"
                     v-model="data.class"
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     label="Класс"
@@ -164,7 +171,8 @@
                     clearable
                     dense
                     outlined
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     style="width: 180px"
                 />
 
@@ -176,7 +184,8 @@
                     emit-value
                     map-options
                     outlined
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     style="width: 180px"
                 />
 
@@ -188,12 +197,12 @@
                     clearable
                     dense
                     outlined
-                    class="q-mr-sm"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    standout="bg-blue-grey-1"
                     style="width: 180px"
                 />
 
                 <q-btn :loading="loading1" color="blue-grey" icon="search" round @click="applyFilter"/>
-
             </div>
         </q-card-section>
     </q-card>

@@ -11,7 +11,7 @@
 
     <q-scroll-area
         :visible="true"
-        style="height: calc(100vh - 300px);"
+        style="height: calc(100vh - 260px);"
     >
         <q-markup-table dense flat wrap-cells>
             <thead>
@@ -97,12 +97,13 @@
 
     </q-scroll-area>
 
-    <div class="q-pa-lg flex flex-center">
+    <div class="q-pa-sm flex flex-center">
         <q-pagination
             v-if="totalPage > 1"
             v-model="page"
             :max="totalPage"
             :max-pages="10"
+            size="12px"
             direction-links
             @click="getData()"
         />
@@ -240,7 +241,11 @@ export default {
                 this.totalPage = res.pages
             }).finally(()=> {
                 if(this.user && this.user.role === 'moderator'){
-                    this.showFilter = true
+                    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                        this.showFilter = false
+                    }else {
+                        this.showFilter = true
+                    }
                 }
             })
         }
@@ -248,6 +253,10 @@ export default {
 
     created() {
         this.getData()
+    },
+
+    mounted(){
+
     }
 }
 </script>

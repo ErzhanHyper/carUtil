@@ -7,6 +7,7 @@
             <div class="col col-md-12 col-xs-12">
                 <client-id-field v-model="data.login" outlined dense/>
             </div>
+            
             <div class="col col-md-12 col-xs-12">
                 <name-field v-model="data.title" outlined dense/>
             </div>

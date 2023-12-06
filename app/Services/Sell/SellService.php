@@ -16,10 +16,15 @@ class SellService
 {
     public function getCollection()
     {
+        $user = app(AuthService::class)->auth();
         $data = Sell::orderByDesc('created');
 
+        if($user->role === 'dealer-light'){
+            $data->where('user_id', $user->id);
+        }
+
         if (isset($data)) {
-            $paginate = 5;
+            $paginate = 20;
             $pages = round($data->count() / $paginate);
             if ($pages == 0) {
                 $pages = 1;

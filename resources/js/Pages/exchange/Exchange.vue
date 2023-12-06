@@ -4,8 +4,11 @@
         <div class="text-h6 text-primary">Передачи сертификатов</div>
     </div>
 
-    <div v-if="show">
-        <q-markup-table flat bordered dense >
+    <q-scroll-area
+        :visible="true"
+        style="height: calc(100vh - 170px);"
+    >
+        <q-markup-table bordered dense flat>
             <thead>
             <tr>
                 <th class="text-left">#</th>
@@ -18,7 +21,7 @@
             </tr>
             </thead>
             <tbody>
-                <template v-if="items.length > 0">
+            <template v-if="show && items.length > 0">
                 <tr v-for="item in items">
                     <td>
                         <router-link :to="'/exchange/'+item.id" class="text-primary">
@@ -31,25 +34,27 @@
                     <td>{{ item.idnum }}</td>
                     <td>{{ item.created }}</td>
                     <td>{{ item.sended_to_approve }}</td>
-                    <td><q-chip :color="setStatusColor(item.status.id)" v-if="item.status" dark size="12px" square>{{ item.status.title }}</q-chip></td>
+                    <td>
+                        <q-chip v-if="item.status" :color="setStatusColor(item.status.id)" dark size="12px" square>
+                            {{ item.status.title }}
+                        </q-chip>
+                    </td>
                 </tr>
-                </template>
-                <tr v-else><td>Нет записей</td></tr>
+            </template>
+            <div v-if="show && items.length === 0" class="q-ma-xs">Нет записей</div>
             </tbody>
         </q-markup-table>
-    </div>
+    </q-scroll-area>
 
-    <template v-else>Нет записей</template>
-
-    <div class="q-pa-lg flex flex-center">
+    <div class="q-pa-sm flex flex-center">
         <q-pagination
+            v-if="totalPage > 1"
             v-model="page"
-            :min="1"
             :max="totalPage"
-            max-pages="10"
+            :max-pages="10"
             direction-links
+            size="12px"
             @click="getData()"
-            v-if="items.length > 0"
         />
     </div>
 
@@ -76,17 +81,17 @@ export default {
 
         setStatusColor(id) {
             let color = 'blue-grey-5'
-            if(id === 1){
+            if (id === 1) {
                 color = 'blue-5'
-            }else if(id === 2){
+            } else if (id === 2) {
                 color = 'green-5'
-            }else if(id === 3){
+            } else if (id === 3) {
                 color = 'pink-5'
             }
             return color
         },
 
-        applyFilter(){
+        applyFilter() {
 
         },
 
@@ -96,11 +101,13 @@ export default {
 
         getData() {
             this.$emitter.emit('contentLoaded', true);
-            getExchangeList({params: {
-                page: this.page
-            }}).then(res => {
+            getExchangeList({
+                params: {
+                    page: this.page
+                }
+            }).then(res => {
                 this.$emitter.emit('contentLoaded', false);
-                if(res) {
+                if (res) {
                     this.show = true
                     this.items = res.items
                     this.totalPage = res.pages

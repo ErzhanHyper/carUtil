@@ -12,7 +12,7 @@
     <q-scroll-area
         v-if="show"
         :visible="true"
-        style="height: calc(100vh - 270px);"
+        style="height: calc(100vh - 240px);"
     >
         <q-markup-table bordered dense flat>
             <thead>
@@ -47,14 +47,14 @@
     </q-scroll-area>
 
 
-    <div class="q-pa-lg flex flex-center">
+    <div class="q-pa-sm flex flex-center">
         <q-pagination
-            v-if="items.length > 0"
+            v-if="totalPage > 1"
             v-model="page"
             :max="totalPage"
-            :min="1"
+            :max-pages="10"
             direction-links
-            max-pages="10"
+            size="12px"
             @click="getData()"
         />
     </div>

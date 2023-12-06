@@ -1,6 +1,6 @@
 <template>
 
-    <div class="q-gutter-sm q-mb-md flex justify-between">
+    <div class="q-gutter-sm q-mb-md flex justify-between items-center">
         <div class="text-h6 text-primary">Погашения сертификатов</div>
         <div class="flex justify-between">
             <q-btn color="indigo-8" push icon="add" label="Создать" class="q-ml-md text-weight-bold" to="/sell/create" v-if="user && user.role === 'dealer-light'"/>
@@ -34,6 +34,10 @@
 <!--        </q-card-section>-->
 <!--    </q-card>-->
 
+    <q-scroll-area
+        :visible="true"
+        style="height: calc(100vh - 200px);"
+    >
     <q-markup-table flat bordered dense>
         <thead>
         <tr>
@@ -67,13 +71,15 @@
 
         </tbody>
     </q-markup-table>
+    </q-scroll-area>
 
-    <div class="q-pa-lg flex flex-center" v-if="items.length > 0">
+    <div class="q-pa-sm flex flex-center">
         <q-pagination
+            v-if="totalPage > 1"
             v-model="page"
-            :min="1"
             :max="totalPage"
-            max-pages="10"
+            :max-pages="10"
+            size="12px"
             direction-links
             @click="getData()"
         />

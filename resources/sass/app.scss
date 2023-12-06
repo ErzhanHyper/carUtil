@@ -170,3 +170,13 @@ input:-webkit-autofill {
 .q-stepper--horizontal .q-stepper__step-inner{
     padding: 14px 24px!important;
 }
+
+.responsive_field {
+
+}
+
+@media (max-width: 600px) {
+    .responsive_field {
+        width: 100%!important;
+    }
+}

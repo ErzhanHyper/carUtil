@@ -120,12 +120,13 @@
     </div>
     </q-scroll-area>
 
-    <div class="q-pa-lg flex flex-center">
+    <div class="q-pa-sm flex flex-center">
         <q-pagination
             v-if="totalPage > 1"
             v-model="page"
             :max="totalPage"
             :max-pages="10"
+            size="12px"
             direction-links
             @click="getData()"
         />
