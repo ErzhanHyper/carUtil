@@ -16,16 +16,28 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Auth Routes
 Route::prefix('app')->group(function () {
-    Route::post('login', [\App\Http\Controllers\AuthController::class, 'login']);
-    Route::post('loginMobile', [\App\Http\Controllers\AuthController::class, 'loginMobile']);
+    require __DIR__ . '/auth.php';
+});
 
+// Document Routes
+Route::prefix('app')->group(function () {
+    require __DIR__ . '/document.php';
+});
+
+// File Routes
+Route::prefix('app')->group(function () {
+    require __DIR__ . '/file.php';
+});
+
+// Order Routes
+Route::prefix('app')->group(function () {
+    require __DIR__ . '/order.php';
+});
+
+Route::prefix('app')->group(function () {
     Route::middleware(['checkToken'])->group(function () {
-
-        Route::post('logout', [\App\Http\Controllers\AuthController::class, 'logout']);
-        Route::post('user', [\App\Http\Controllers\AuthController::class, 'get']);
-        Route::post('profile/update', [\App\Http\Controllers\AuthController::class, 'update']);
-
         Route::get('category', [\App\Http\Controllers\CategoryController::class, 'get']);
         Route::get('category/complect', [\App\Http\Controllers\CategoryController::class, 'getComplect']);
 
@@ -43,20 +55,6 @@ Route::prefix('app')->group(function () {
                 Route::get('{id}/getCert', [\App\Http\Controllers\CheckupController::class, 'getCertById']);
                 Route::get('{id}/downloadCert', [\App\Http\Controllers\CheckupController::class, 'downloadCertByOrderId']);
             });
-        });
-
-        Route::prefix('document')->group(function () {
-            Route::middleware(['isOperator'])->group(function () {
-                Route::get('/order/{id}/statement', [\App\Http\Controllers\DocumentController::class, 'getStatement']);
-                Route::get('/order/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getContract']);
-                Route::get('/order/{id}/complect', [\App\Http\Controllers\DocumentController::class, 'getComplect']);
-            });
-            Route::middleware(['isModerator'])->group(function () {
-                Route::get('/kap/{id}/reference', [\App\Http\Controllers\DocumentController::class, 'getKapReference']);
-            });
-            Route::get('/sell/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getSellApplication']);
-            Route::get('/transfer/{id}/contract', [\App\Http\Controllers\DocumentController::class, 'getTransferContract']);
-            Route::get('/exchange/{id}/application', [\App\Http\Controllers\DocumentController::class, 'getExchangeApplication']);
         });
 
         Route::middleware(['isModerator'])->group(function () {
@@ -85,31 +83,6 @@ Route::prefix('app')->group(function () {
                 Route::put('{id}/approve', [\App\Http\Controllers\PreOrderController::class, 'approve']);
                 Route::put('{id}/decline', [\App\Http\Controllers\PreOrderController::class, 'decline']);
                 Route::put('{id}/revision', [\App\Http\Controllers\PreOrderController::class, 'revision']);
-            });
-        });
-
-        Route::prefix('order')->group(function () {
-            Route::get('/', [\App\Http\Controllers\OrderController::class, 'get'])->name('order');
-            Route::get('{id}/get', [\App\Http\Controllers\OrderController::class, 'getById']);
-            Route::put('{id}/sign', [\App\Http\Controllers\OrderController::class, 'sign']);
-            Route::put('{id}/send', [\App\Http\Controllers\OrderController::class, 'send']);
-
-            Route::middleware(['isOperator'])->group(function () {
-                Route::post('{id}/video', [\App\Http\Controllers\OrderController::class, 'video']);
-            });
-
-            Route::middleware(['isModerator'])->group(function () {
-                Route::get('{id}/duplicates', [\App\Http\Controllers\OrderController::class, 'getDuplicatesById']);
-
-                Route::put('{id}/executeRun', [\App\Http\Controllers\OrderController::class, 'executeRun']);
-                Route::put('{id}/executeClose', [\App\Http\Controllers\OrderController::class, 'executeClose']);
-
-                Route::put('{id}/approve', [\App\Http\Controllers\OrderController::class, 'approve']);
-                Route::put('{id}/decline', [\App\Http\Controllers\OrderController::class, 'decline']);
-                Route::put('{id}/revision', [\App\Http\Controllers\OrderController::class, 'revision']);
-                Route::put('{id}/revisionVideo', [\App\Http\Controllers\OrderController::class, 'revisionVideo']);
-
-                Route::post('/cert', [\App\Http\Controllers\OrderController::class, 'cert']);
             });
         });
 
@@ -156,28 +129,6 @@ Route::prefix('app')->group(function () {
                 Route::put('/{id}/close', [\App\Http\Controllers\TransferDealController::class, 'close']);
                 Route::put('/{id}/delete', [\App\Http\Controllers\TransferDealController::class, 'delete']);
             });
-        });
-
-        Route::prefix('file')->group(function () {
-            Route::post('/order/store', [\App\Http\Controllers\FileController::class, 'storeOrderFile']);
-            Route::post('/order/get', [\App\Http\Controllers\FileController::class, 'getOrderFile']);
-            Route::delete('{id}/order', [\App\Http\Controllers\FileController::class, 'deleteOrderFile']);
-            Route::get('/order/{id}/generatePFS', [\App\Http\Controllers\FileController::class, 'generateOrderPFS']);
-
-            Route::post('/preorder/store', [\App\Http\Controllers\FileController::class, 'storePreOrderFile']);
-            Route::post('/preorder/get', [\App\Http\Controllers\FileController::class, 'getPreOrderFile']);
-            Route::post('/preorder/delete', [\App\Http\Controllers\FileController::class, 'deletePreOrderFile']);
-
-            Route::get('/{id}/order/doc', [\App\Http\Controllers\FileController::class, 'getFile']);
-            Route::get('/{id}/order/image', [\App\Http\Controllers\FileController::class, 'getImage']);
-            Route::get('/{id}/order/video', [\App\Http\Controllers\FileController::class, 'getVideo']);
-
-            Route::get('/{id}/preorder/carFile', [\App\Http\Controllers\FileController::class, 'getCarFile']);
-            Route::get('/{id}/preorder/carImage', [\App\Http\Controllers\FileController::class, 'getCarFileImage']);
-            Route::get('/{id}/preorder/agroFile', [\App\Http\Controllers\FileController::class, 'getAgroFile']);
-            Route::get('/{id}/preorder/agroImage', [\App\Http\Controllers\FileController::class, 'getAgroFileImage']);
-            Route::get('/{id}/exchange/download', [\App\Http\Controllers\FileController::class, 'downloadExchangeFile']);
-            Route::get('/{id}/sell/download', [\App\Http\Controllers\FileController::class, 'downloadSellFile']);
         });
 
         Route::prefix('factory')->group(function () {
