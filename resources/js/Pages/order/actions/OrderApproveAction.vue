@@ -7,7 +7,7 @@
                    icon="send"
                    label="Одобрить"
                    size="12px"
-                   square
+                   push
                    @click="send('approve')">
             </q-btn>
 
@@ -15,7 +15,7 @@
                    icon="keyboard_return"
                    label="На доработку"
                    size="12px"
-                   square
+                   push
                    :disabled="loading"
                    :loading="loading2"
                    @click="send('revision')">

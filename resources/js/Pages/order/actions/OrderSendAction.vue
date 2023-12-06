@@ -6,7 +6,7 @@
                icon="send"
                label="Отправить модератору"
                size="12px"
-               square
+               push
                @click="sendData('send_to_moderator')">
         </q-btn>
         <q-btn v-if="permissions.showSendToIssueCertAction"
@@ -15,7 +15,7 @@
                icon="send"
                label="Подписать и отправить модератору"
                size="12px"
-               square
+               push
                @click="sendData('sign_uploaded_video')">
         </q-btn>
     </div>

@@ -2,14 +2,14 @@
     <div class="q-gutter-sm">
         <q-btn :loading="loading"
                :disable="loading1"
-               square size="12px"
+               push size="12px"
                color="light-green"
                label="Выдать сертификат"
                icon="verified"
                @click="issueCert()"
                v-if="permissions.showIssueCert">
         </q-btn>
-        <q-btn square size="12px"
+        <q-btn push size="12px"
                :loading="loading1"
                :disable="loading"
                color="orange-5"
