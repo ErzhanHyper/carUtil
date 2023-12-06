@@ -124,7 +124,7 @@ export default {
         return {
             data: null,
             show: false,
-            showFilter: true,
+            showFilter: false,
             orderDialog: false,
             loading: false,
 
@@ -239,7 +239,7 @@ export default {
                 this.items = res.items
                 this.totalPage = res.pages
             }).finally(()=> {
-                if(this.user && this.user.role === 'moderator'){
+                if(this.user && (this.user.role === 'moderator' || this.user.role === 'operator')){
                     if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
                         this.showFilter = false
                     }else {
