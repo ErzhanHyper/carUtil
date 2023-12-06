@@ -124,7 +124,7 @@ export default {
         return {
             data: null,
             show: false,
-            showFilter: false,
+            showFilter: true,
             orderDialog: false,
             loading: false,
 
@@ -235,7 +235,6 @@ export default {
             this.$emitter.emit('contentLoaded', true);
             getOrderList({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
-                this.$emitter.emit('FilterApplyEvent');
                 this.show = true
                 this.items = res.items
                 this.totalPage = res.pages

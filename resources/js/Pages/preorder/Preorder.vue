@@ -14,7 +14,7 @@
 
     <q-scroll-area
         :visible="true"
-        style="height: calc(100vh - 300px);"
+        :style="'height: calc(100vh - ' + windowHeight + ')'"
     >
     <q-markup-table  dense flat>
         <thead>
@@ -151,6 +151,7 @@ export default {
         return {
             data: null,
             sum: null,
+            windowHeight: '200px',
 
             show: false,
             loading1: false,
@@ -232,14 +233,13 @@ export default {
             this.filter.page = this.page
             getOrderList({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
-                this.$emitter.emit('FilterApplyEvent')
-
                 this.items = res.items
                 this.totalPage = res.pages
             }).finally(() => {
                 this.show = true
                 if(this.user && this.user.role === 'moderator'){
                     this.showFilter = true
+                    this.windowHeight = '260px'
                 }
             })
         }

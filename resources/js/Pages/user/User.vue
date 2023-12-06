@@ -117,6 +117,7 @@ export default {
             this.$emitter.emit('contentLoaded', true);
             getUserCollection({params: this.filter}).then(res => {
                 this.$emitter.emit('contentLoaded', false);
+                this.$emitter.emit('FilterApplyEvent');
                 this.items = res.data
                 this.totalPage = res.meta.last_page
             }).finally(() => {

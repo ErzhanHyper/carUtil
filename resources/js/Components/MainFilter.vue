@@ -282,8 +282,8 @@ export default {
             this.item = this.data
         }
 
-        this.$emitter.on('FilterApplyEvent', () => {
-            this.loading1 = false
+        this.$emitter.on('contentLoaded', (value) => {
+            this.loading1 = value
         })
     }
 }
