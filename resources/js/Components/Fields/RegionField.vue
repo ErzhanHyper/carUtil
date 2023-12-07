@@ -3,6 +3,8 @@
         v-model="field"
         clearable
         input-debounce="0"
+        options-cover
+        options-dense
         transition-hide="jump-up"
         transition-show="jump-up"
         label="Регион"

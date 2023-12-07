@@ -34,13 +34,14 @@
             </div>
         </div>
 
-        <q-banner
-            v-if="user.role === 'liner' && ((item.status.id > 0 && !item.order) || (item.order && item.order.status.id !== 3))"
-            class="bg-orange-1">
-            <div class="text-caption">Обработка заявки 15 дней с момента отправки на рассмотрение</div>
-            <div v-if="closedDays !== 0">Осталось дней: <span
-                class="text-pink-5">{{ closedDays }}</span></div>
-            <div v-else class="text-pink-5">Время истекло</div>
+        <q-banner v-if="((!item.order) || (item.order && item.order.status.id !== 3))" class="bg-orange-1">
+            <div>Обработка заявки 15 дней с момента отправки на рассмотрение</div>
+            <div
+                v-if="((item.status.id > 0 && !item.order) || (item.order && item.order.status.id !== 3))">
+                <div v-if="closedDays !== 0">Осталось дней: <span
+                    class="text-pink-5">{{ closedDays }}</span></div>
+                <div v-else class="text-pink-5">Время истекло</div>
+            </div>
         </q-banner>
 
         <preorder-timeline
@@ -49,12 +50,12 @@
             :car="car"
             :client="client"
             :data="{sended_dt: item.sended_dt}"
+            :history="item.comment"
             :order_status="item.order ? item.order.status : null"
             :permissions="permissions"
             :preorder_id="item.id"
             :preorder_status="item.status"
             :required="client_required && car_required"
-            :history="item.comment"
             class="q-mb-md"
         />
 
@@ -109,8 +110,8 @@
 
                 <q-list bordered class="q-mt-md">
                     <q-expansion-item
-                        expand-separator
                         class="bg-white"
+                        expand-separator
                         icon="history"
                         label="История">
                         <preorder-history :comments="item.comment" class="q-pa-md"/>
@@ -118,7 +119,9 @@
                 </q-list>
 
             </div>
-            <div v-show="(car_required && (item.status.id === 0 || item.status.id === 4)) || item.status.id === 1 || item.status.id === 2 || item.status.id === 3" class="col col-md-4 col-xs-12">
+            <div
+                v-show="(car_required && (item.status.id === 0 || item.status.id === 4)) || item.status.id === 1 || item.status.id === 2 || item.status.id === 3"
+                class="col col-md-4 col-xs-12">
                 <preorder-file
                     :blocked="blocked"
                     :client_id="client ? client.id : null"
@@ -276,14 +279,14 @@ export default {
         },
 
         getData() {
-            if(this.eventLoad === false) {
+            if (this.eventLoad === false) {
                 this.show = false
                 this.$emitter.emit('contentLoaded', true);
             }
             this.showBooking = false
             this.showTimeline = false
             getPreorderById(this.id).then(res => {
-                if(this.eventLoad === false) {
+                if (this.eventLoad === false) {
                     this.$emitter.emit('contentLoaded', false);
                     this.show = true
                 }

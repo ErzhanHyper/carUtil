@@ -3,18 +3,17 @@
         <q-card-section class="q-pa-none">
 
             <div class="flex wrap items-start">
-                <q-select
-                    v-if="filters.includes('order_type')"
-                    v-model="item.type"
-                    :options="['ВЭТС', 'ВЭССХТ']"
-                    class="responsive_field q-mr-sm q-mb-sm"
+
+                <q-input
+                    v-if="filters.includes('id')"
+                    v-model="item.id"
+                    class="responsive_field text-uppercase q-mr-sm q-mb-sm"
                     clearable
                     dense
-                    label="Тип заявки"
+                    label="№"
                     outlined
-                    style="width: 140px"
-                    transition-hide="jump-up"
-                    transition-show="jump-up"
+                    standout="bg-blue-grey-1"
+                    style="width: 120px"
                 />
 
                 <q-input
@@ -26,6 +25,7 @@
                     label="VIN"
                     outlined
                     standout="bg-blue-grey-1"
+                    style="width: 200px"
                 />
 
                 <q-input
@@ -37,6 +37,7 @@
                     label="ГРНЗ"
                     outlined
                     standout="bg-blue-grey-1"
+                    style="width: 140px"
                 />
 
                 <q-input
@@ -48,6 +49,7 @@
                     label="ФИО"
                     outlined
                     standout="bg-blue-grey-1"
+                    style="width: 220px"
                 />
 
                 <q-input
@@ -62,15 +64,28 @@
                 />
 
                 <q-select
+                    v-if="filters.includes('order_type')"
+                    v-model="item.type"
+                    :options="['ВЭТС', 'ВЭССХТ']"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    clearable
+                    dense
+                    label="Тип заявки"
+                    outlined
+                    style="width: 140px"
+                    transition-hide="jump-up"
+                    transition-show="jump-up"
+                />
+
+                <q-select
                     v-if="filters.includes('order_status')"
                     v-model="item.approve"
                     :options="statuses1"
                     class="responsive_field q-mr-sm q-mb-sm"
-                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     emit-value
-                    label="Статус"
+                    label="Статус одобрения"
                     map-options
                     menu-shrink
                     multiple
@@ -79,7 +94,31 @@
                     options-cover
                     options-dense
                     outlined
-                    style="width: 280px"
+                    standout="bg-blue-grey-1"
+                    style="width: 200px"
+                    transition-hide="jump-up"
+                    transition-show="jump-up"
+                />
+
+                <q-select
+                    v-if="filters.includes('order_status')"
+                    v-model="item.status"
+                    :options="statuses3"
+                    class="responsive_field q-mr-sm q-mb-sm"
+                    clearable
+                    dense
+                    emit-value
+                    label="Статус заявки"
+                    map-options
+                    menu-shrink
+                    multiple
+                    option-label="title"
+                    option-value="id"
+                    options-cover
+                    options-dense
+                    outlined
+                    standout="bg-blue-grey-1"
+                    style="width: 200px"
                     transition-hide="jump-up"
                     transition-show="jump-up"
                 />
@@ -89,7 +128,6 @@
                     v-model="item.status"
                     :options="statuses2"
                     class="responsive_field q-mr-sm q-mb-sm"
-                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     emit-value
@@ -102,6 +140,7 @@
                     options-cover
                     options-dense
                     outlined
+                    standout="bg-blue-grey-1"
                     style="width: 280px"
                     transition-hide="jump-up"
                     transition-show="jump-up"
@@ -111,11 +150,11 @@
                     v-if="filters.includes('manufacture')"
                     v-model="data.manufacture"
                     class="responsive_field q-mr-sm q-mb-sm"
-                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     option-value="title"
                     outlined
+                    standout="bg-blue-grey-1"
                     style="width: 280px"
                 />
 
@@ -123,33 +162,33 @@
                     v-if="filters.includes('brand')"
                     v-model="data.brand"
                     class="responsive_field q-mr-sm q-mb-sm"
-                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     label="Марка"
                     outlined
+                    standout="bg-blue-grey-1"
                 />
 
                 <q-input
                     v-if="filters.includes('model')"
                     v-model="data.model"
                     class="responsive_field q-mr-sm q-mb-sm"
-                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     label="Модель"
                     outlined
+                    standout="bg-blue-grey-1"
                 />
 
                 <category-field
                     v-if="filters.includes('category')"
                     v-model="data.category"
                     class="responsive_field q-mr-sm q-mb-sm"
-                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     outlined
                     square="false"
+                    standout="bg-blue-grey-1"
                     style="width: 180px"
                 />
 
@@ -157,21 +196,21 @@
                     v-if="filters.includes('class')"
                     v-model="data.class"
                     class="responsive_field q-mr-sm q-mb-sm"
-                    standout="bg-blue-grey-1"
                     clearable
                     dense
                     label="Класс"
                     outlined
+                    standout="bg-blue-grey-1"
                     type="number"
                 />
 
                 <role-field
                     v-if="filters.includes('role')"
                     v-model="data.role"
+                    class="responsive_field q-mr-sm q-mb-sm"
                     clearable
                     dense
                     outlined
-                    class="responsive_field q-mr-sm q-mb-sm"
                     standout="bg-blue-grey-1"
                     style="width: 180px"
                 />
@@ -179,12 +218,12 @@
                 <region-field
                     v-if="filters.includes('region')"
                     v-model="data.region"
+                    class="responsive_field q-mr-sm q-mb-sm"
                     clearable
                     dense
                     emit-value
                     map-options
                     outlined
-                    class="responsive_field q-mr-sm q-mb-sm"
                     standout="bg-blue-grey-1"
                     style="width: 180px"
                 />
@@ -192,12 +231,12 @@
                 <factory-field
                     v-if="filters.includes('factory')"
                     v-model="data.factory"
-                    label="Заводы"
                     :square="false"
+                    class="responsive_field q-mr-sm q-mb-sm"
                     clearable
                     dense
+                    label="Заводы"
                     outlined
-                    class="responsive_field q-mr-sm q-mb-sm"
                     standout="bg-blue-grey-1"
                     style="width: 180px"
                 />
@@ -260,6 +299,28 @@ export default {
                 {
                     id: 4,
                     title: 'Возвращена на доработку'
+                },
+            ],
+            statuses3: [
+                {
+                    id: 1,
+                    title: 'Открыта'
+                },
+                {
+                    id: 2,
+                    title: 'В работе'
+                },
+                {
+                    id: 3,
+                    title: 'Завершено'
+                },
+                {
+                    id: 4,
+                    title: 'В ожидании видеозаписи'
+                },
+                {
+                    id: 5,
+                    title: 'На выдаче сертификата'
                 },
             ],
         }

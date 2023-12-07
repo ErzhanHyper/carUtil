@@ -88,18 +88,6 @@ export function storeOrderFile(params) {
     })
 }
 
-export function generateOrderPFS(id, params) {
-    return new Promise((resolve, reject) => {
-        api.get('file/order/'+id+'/generatePFS/', params).then(response => {
-            resolve(response.data)
-        }).catch((e) => {
-            reject('Ошибка при загрузке')
-        }).finally(() => {
-        })
-    })
-}
-
-
 export function getOrderFile(id, params) {
     return new Promise((resolve, reject) => {
         api.get('file/'+id+'/order/doc', params).then(response => {

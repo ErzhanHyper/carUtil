@@ -13,6 +13,8 @@
         @filter="filterFn"
         :loading="(items.length === 0)"
         style="width: 100%"
+        options-cover
+        options-dense
         transition-hide="jump-up"
         transition-show="jump-up"
     >

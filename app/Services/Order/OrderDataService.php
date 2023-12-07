@@ -16,25 +16,21 @@ class OrderDataService
     {
         $user = app(AuthService::class)->auth();
         if ($user->role === 'moderator' || $user->role === 'operator') {
-            $orders = Order::select(['id', 'client_id', 'created', 'sended_to_approve', 'user_id', 'executor_uid', 'approve', 'status', 'blocked'])->orderByDesc('created');
-
+            $orders = Order::orderByDesc('created');
             if ($user->role === 'moderator') {
-                $orders->where('approve', '<>', 0)
-                    ->when($request->filled('type'), function ($query) use ($request) {
-                        $query->with('car:id,car_type_id,order_id')->whereHas('car', function ($q) use ($request) {
-                            $q->where('car_type_id', $request->type === 'ВЭТС' ? [1, 2] : [3, 4]);
-                        });
-                    });
-                $this->applyFilters($orders, $request);
-
+                 $orders->select(['id', 'client_id', 'created', 'sended_to_approve', 'user_id', 'executor_uid', 'approve', 'status', 'order_type']);
+                $orders->where('approve', '<>', 0);
             } else if ($user->role === 'operator') {
                 $factory_id = $user->factory_id;
-                $orders->whereIn('approve', [0, 1, 2, 3, 4, 5])
-                    ->select('order.id', 'order.client_id', 'order.approve', 'order.status', 'order.blocked', 'order.executor_uid')
+                $orders->select(['order.id', 'order.approve', 'order.status', 'order.executor_uid', 'order.user_id', 'order.client_id', 'order.order_type'])
+                    ->orderByDesc('created')
+                    ->whereIn('order.approve', [0, 1, 2, 3, 4, 5])
                     ->join('pre_order_car', 'order.id', 'pre_order_car.order_id')
                     ->where('pre_order_car.factory_id', $factory_id)
-                    ->where('blocked', 0);
+                    ->where('order.blocked', 0);
             }
+
+            $this->applyFilters($orders, $request);
             $paginate = 20;
             $items = $orders->paginate($paginate, ['*'], 'page', $request->page ?? 1);
             return [
@@ -48,21 +44,38 @@ class OrderDataService
 
     private function applyFilters($orders, $request): void
     {
+        $user = app(AuthService::class)->auth();
+
+        $prefix = '';
+        if($user->role === 'operator'){
+            $prefix = 'order.';
+        }
+        $orders->when($request->filled('type'), function ($query) use ($request) {
+            $query->with('car:id,car_type_id,order_id,category_id,vin,grnz')->whereHas('car', function ($q) use ($request) {
+                $q->where('car_type_id', $request->type === 'ВЭТС' ? [1, 2] : [3, 4]);
+            });
+        });
+
         foreach (['title', 'idnum'] as $filter) {
             if (isset($request->$filter) && $request->$filter != '') {
                 $clientIds = Client::select(['id', 'title', 'idnum'])->where($filter, 'like', '%' . $request->$filter . '%')->pluck('id')->toArray();
-                $orders->whereIn('client_id', $clientIds);
+                $orders->whereIn($prefix.'client_id', $clientIds);
             }
         }
         foreach (['vin', 'grnz'] as $filter) {
             if (isset($request->$filter) && $request->$filter != '') {
                 $orderIds = Car::select(['vin', 'grnz', 'order_id'])->where($filter, 'like', '%' . $request->$filter . '%')->pluck('order_id')->toArray();
-                $orders->whereIn('id', $orderIds);
+                $orders->whereIn($prefix.'id', $orderIds);
             }
         }
-        foreach (['approve'] as $filter) {
+        foreach (['status', 'approve'] as $filter) {
+            if (isset($request->$filter)) {
+                $orders->whereIn($prefix.$filter, $request->$filter);
+            }
+        }
+        foreach (['id'] as $filter) {
             if (isset($request->$filter) && $request->$filter != '') {
-                $orders->whereIn('approve', $request->$filter);
+                $orders->where($prefix.$filter, $request->$filter);
             }
         }
     }
@@ -132,7 +145,7 @@ class OrderDataService
                 }
             } else if ($order->approve === 3) {
                 if ($order->status === 5) {
-                    if($order->executor_uid === $user->id) {
+                    if ($order->executor_uid === $user->id) {
                         if ($video && $order->car->certificate == '') {
                             $canIssueCert = true;
                         }

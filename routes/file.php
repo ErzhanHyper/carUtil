@@ -7,7 +7,6 @@ Route::prefix('file')->group(function () {
     Route::post('order/store', [FileController::class, 'storeOrderFile']);
     Route::post('order/get', [FileController::class, 'getOrderFile']);
     Route::delete('{id}/order', [FileController::class, 'deleteOrderFile']);
-    Route::get('order/{id}/generatePFS', [FileController::class, 'generateOrderPFS']);
 
     Route::post('preorder/store', [FileController::class, 'storePreOrderFile']);
     Route::post('preorder/get', [FileController::class, 'getPreOrderFile']);
@@ -21,6 +20,7 @@ Route::prefix('file')->group(function () {
     Route::get('{id}/preorder/carImage', [FileController::class, 'getCarFileImage']);
     Route::get('{id}/preorder/agroFile', [FileController::class, 'getAgroFile']);
     Route::get('{id}/preorder/agroImage', [FileController::class, 'getAgroFileImage']);
+
     Route::get('{id}/exchange/download', [FileController::class, 'downloadExchangeFile']);
     Route::get('{id}/sell/download', [FileController::class, 'downloadSellFile']);
 });

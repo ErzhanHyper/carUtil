@@ -25,6 +25,11 @@
                 emit-value
                 @update:model-value="evt => selectFile(evt)"
                 class="q-mb-sm"
+                standout="bg-blue-grey-1"
+                options-cover
+                options-dense
+                transition-hide="jump-up"
+                transition-show="jump-up"
                 outlined
                 dense
                 :readonly="blocked"

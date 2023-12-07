@@ -18,6 +18,10 @@
                     option-value="id"
                     outlined
                     square
+                     options-cover
+                     options-dense
+                     transition-hide="jump-up"
+                     transition-show="jump-up"
                     @update:model-value="evt => selectFile(evt)"
                 >
                     <template v-slot:before>

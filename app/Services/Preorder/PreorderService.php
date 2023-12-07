@@ -155,4 +155,41 @@ class PreorderService
         $comment->liner_id = $liner_id;
         $comment->save();
     }
+
+    public function status($id): array
+    {
+        $globalStatus = [];
+        $preorder = PreOrderCar::find($id);
+
+        if ($preorder->status === 0) {
+            $globalStatus['title'] = 'Формирование заявки';
+            $globalStatus['id'] = 0;
+        }else if ($preorder->status === 1 && !$preorder->order && !$preorder->booking) {
+            $globalStatus['title'] = 'На рассмотрении';
+            $globalStatus['id'] = 1;
+        }else if ($preorder->status === 2 && $preorder->order->status === 0 && !$preorder->booking && $preorder->order) {
+            $globalStatus['title'] = 'Одобрена';
+            $globalStatus['id'] = 2;
+        }else if ($preorder->status === 3) {
+            $globalStatus['title'] = 'Отклонена';
+            $globalStatus['id'] = 3;
+        }else if ($preorder->status === 4) {
+            $globalStatus['title'] = 'Возвращена на доработку';
+            $globalStatus['id'] = 4;
+        }else if ($preorder->status === 2 && $preorder->order && $preorder->order->status === 0 && $preorder->booking) {
+            $globalStatus['title'] = 'На бронировании';
+            $globalStatus['id'] = 5;
+        }else if ($preorder->status === 2 && $preorder->order && $preorder->booking && ($preorder->order->status === 1 || $preorder->order->status === 2 || $preorder->order->status === 4)) {
+            $globalStatus['title'] = 'На рассмотрении у менеджера завода';
+            $globalStatus['id'] = 6;
+        }else if ($preorder->status === 2 && $preorder->booking && $preorder->order->status === 5) {
+            $globalStatus['title'] = 'На выдаче сертификата';
+            $globalStatus['id'] = 7;
+        }else if ($preorder->status === 2 && $preorder->booking && $preorder->order->status === 3) {
+            $globalStatus['title'] = 'Завершено';
+            $globalStatus['id'] = 8;
+        }
+
+       return $globalStatus;
+    }
 }

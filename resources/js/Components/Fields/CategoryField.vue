@@ -4,6 +4,8 @@
               map-options
               emit-value
               option-label="title_ru" option-value="id" :readonly="blocked"
+              options-cover
+              options-dense
               transition-hide="jump-up"
               transition-show="jump-up"
     :loading="options.length === 0"/>

@@ -7,7 +7,7 @@
         </div>
     </div>
 
-    <main-filter v-if="showFilter" :apply-action="applyFilter" :data="filter" :filters="['order_type', 'vin', 'grnz', 'fio', 'idnum', 'order_status']" class="q-mb-md"/>
+    <main-filter v-if="showFilter" :apply-action="applyFilter" :data="filter" :filters="['id','order_type', 'vin', 'grnz', 'fio', 'idnum', 'order_status']" class="q-mb-md"/>
 
     <q-scroll-area
         :visible="true"
@@ -17,6 +17,7 @@
             <thead>
             <tr>
                 <th class="text-left">ID</th>
+                <th class="text-left">Тип заявки</th>
                 <th class="text-left">Категория</th>
                 <th class="text-left">VIN</th>
                 <th class="text-left">ГРНЗ</th>
@@ -38,6 +39,7 @@
                                    icon="open_in_new"/>
                         </div>
                     </td>
+                    <td class="text-left">{{ (item.order_type) ? item.order_type : '-' }}</td>
                     <td class="text-left">
                         <q-chip v-if="item.vehicleType"
                                 :color="(item.vehicleType === 'car') ? 'blue-grey-1' : 'orange-1'"
@@ -176,7 +178,7 @@ export default {
             } else if (id === 'На рассмотрении') {
                 color = 'blue-5'
             } else if (id === 'Одобрена') {
-                color = 'teal-8'
+                color = 'teal-5'
             } else if (id === 'Отказана') {
                 color = 'pink-5'
             } else if (id === 'В ожидании видеозаписи') {

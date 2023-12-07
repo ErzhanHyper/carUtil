@@ -206,9 +206,9 @@
                 </div>
             </q-card-section>
             <q-card-actions align="center" class="q-py-sm">
-                <q-btn v-if="item.type && canGenerate" :loading="loading2" color="blue-8" icon="edit"
+                <q-btn v-if="item.type && canGenerate" :loading="loading2" :disabled="!show || loading1" color="blue-8" icon="edit"
                        label="Сформировать договор" @click="generateDoc()"/>
-                <q-btn v-if="ready" :loading="loading1" color="indigo-8" icon="gesture"
+                <q-btn v-if="ready" :loading="loading1" :disabled="!show" color="indigo-8" icon="gesture"
                        label="Подписать" @click="signTransfer()"/>
             </q-card-actions>
         </q-card>
@@ -236,7 +236,7 @@ export default {
             loading1: false,
             loading2: false,
             ready: false,
-            item: {}
+            item: {},
         }
     },
 

@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Factory;
 use App\Models\Liner;
 use App\Services\AuthService;
+use App\Services\Preorder\PreorderService;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PreOrderResource extends JsonResource
@@ -48,6 +49,7 @@ class PreOrderResource extends JsonResource
                 'id' => $this->status,
                 'title' => $status
             ],
+            'globalStatus' => app(PreorderService::class)->status($this->id),
             'date' => date('d.m.Y H:i', $this->date),
             'sended_dt' => date('d.m.Y H:i', $this->sended_dt),
 

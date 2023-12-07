@@ -5,17 +5,17 @@
 
         <q-menu v-model="show" style="margin-top:4px!important; width: 300px">
             <div class="no-wrap q-px-sm">
-                <div class="flex justify-between items-center q-pa-sm">
+                <div class="flex items-center q-pa-sm">
                     <q-icon color="blue-grey-5" name="notifications"/>
-                    <div>Уведомления</div>
-                    <q-btn :loading="loading" dense flat size="sm" v-if="count > 0" >
-                        <q-icon color="pink-4" name="delete_sweep" @click="clearAll()">
-                            <q-tooltip>
-                                Очистить все
-                            </q-tooltip>
-                        </q-icon>
-                    </q-btn>
-                    <div v-else></div>
+                    <div class="q-ml-sm">Уведомления</div>
+<!--                    <q-btn :loading="loading" dense flat size="sm" v-if="count > 0" >-->
+<!--                        <q-icon color="pink-4" name="delete_sweep" @click="clearAll()">-->
+<!--                            <q-tooltip>-->
+<!--                                Очистить все-->
+<!--                            </q-tooltip>-->
+<!--                        </q-icon>-->
+<!--                    </q-btn>-->
+<!--                    <div v-else></div>-->
                 </div>
                 <q-separator color="blue-grey-1"/>
 

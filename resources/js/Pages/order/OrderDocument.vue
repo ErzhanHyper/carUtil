@@ -50,7 +50,6 @@
 
 <script>
 import {getComplectApp, getContractDoc, getStatementDoc} from "../../services/document";
-import {generateOrderPFS} from "../../services/file";
 import FileDownload from "js-file-download";
 import {getCategoryComplectList} from "../../services/category";
 

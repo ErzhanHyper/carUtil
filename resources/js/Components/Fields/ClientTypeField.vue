@@ -1,5 +1,7 @@
 <template>
     <q-select square v-model="field" :options="options" option-value="id" option-label="title" label="Физ./Юр. лицо" map-options emit-value
+              options-cover
+              options-dense
               transition-hide="jump-up"
               transition-show="jump-up"
     />
