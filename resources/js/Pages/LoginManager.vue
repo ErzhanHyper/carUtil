@@ -4,7 +4,7 @@
             <q-page class="bg-blue-grey-10 window-height window-width row justify-center items-center"  id="loginPage">
                 <div class="column">
                     <div class="row">
-                        <h5 class="text-h5 text-white q-my-md">ВЭТС/ВЭССХТ</h5>
+                        <h5 class="text-h5 text-white q-my-md">CarUtil</h5>
                     </div>
                     <div class="row">
                         <q-card square bordered class="q-pa-sm shadow-1" style="max-width: 480px;width: calc(100vw - 40px)">
@@ -162,12 +162,12 @@ export default {
             const storageType = activeTokens[0] || NCALayerClient.fileStorageType;
 
             let base64EncodedSignature;
-            try {
-                base64EncodedSignature = await ncalayerClient.getKeyInfo(storageType, 'MTEK');
-            } catch (error) {
-                this.loading = false
-                return;
-            }
+            // try {
+            //     base64EncodedSignature = await ncalayerClient.getKeyInfo(storageType, 'MTEK');
+            // } catch (error) {
+            //     this.loading = false
+            //     return;
+            // }
 
             this.signIn({data: base64EncodedSignature, auth_point: 'manager'}).then((res) => {
                 if(res.data.role === 'dealer-light'){

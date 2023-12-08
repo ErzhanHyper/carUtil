@@ -5,7 +5,7 @@
                 <span v-if="item.vehicleType"
                       :class="(item.vehicleType === 'car') ? 'text-teal-9' : 'text-orange-9'"
                       class="text-body1 q-mt-sm">
-                        {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
+                        {{ (item.vehicleType === 'car') ? '1' : '2' }}
                     </span>
                 <div v-if="item.order" class="text-body1 text-weight-bold text-blue-grey-8">
                     № заявки: {{ item.order.id }}
@@ -59,12 +59,6 @@
             class="q-mb-md"
         />
 
-        <div class="flex justify-end">
-            <order-kap v-if="user.role === 'moderator'" :blocked="item.status.id !== 1"
-                       :data="{vin: car.vin, grnz: car.grnz, iinbin: client.idnum}"
-                       :preorder_id="item.id"/>
-        </div>
-
         <template
             v-if="item.comment.length > 0 && item.comment[0].text && user.role === 'liner' && (item.status.id === 0 || item.status.id === 4)">
             <q-banner :class="(item.comment[0].action === 'approve') ? 'bg-green-1' : 'bg-purple-1'"
@@ -114,7 +108,7 @@
                         expand-separator
                         icon="history"
                         label="История">
-                        <preorder-history :comments="item.comment" class="q-pa-md"/>
+                        <order-history :items="item.comment" class="q-pa-md"/>
                     </q-expansion-item>
                 </q-list>
 
@@ -158,14 +152,14 @@ import {mapGetters} from "vuex";
 import {deletePreorder, getPreorderById} from "../../services/preorder";
 
 import PreorderFile from "./PreorderFile.vue";
-import PreorderHistory from "./PreorderHistory.vue";
+import OrderHistory from "@/Components/OrderHistory.vue";
+
 import PreorderSellAction from "./actions/PreorderSellAction.vue";
 
 import CarCard from "../car/CarCard.vue";
 import Booking from "../booking/BookingCard.vue";
 import ClientCard from "../client/ClientCard.vue";
 import ClientProxy from "../client/ClientProxy.vue";
-import OrderKap from "../order/OrderKap.vue";
 import OrderTimeline from "@/Pages/order/OrderTimeline.vue";
 import PreorderTimeline from "./PreorderTimeline.vue";
 
@@ -175,9 +169,8 @@ export default {
     components: {
         PreorderTimeline,
         PreorderSellAction,
-        OrderKap,
         ClientProxy,
-        PreorderHistory,
+        OrderHistory,
         Booking,
         CarCard,
         PreorderFile,

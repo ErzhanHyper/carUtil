@@ -66,7 +66,7 @@
                 <q-select
                     v-if="filters.includes('order_type')"
                     v-model="item.type"
-                    :options="['ВЭТС', 'ВЭССХТ']"
+                    :options="['1', '2']"
                     class="responsive_field q-mr-sm q-mb-sm"
                     clearable
                     dense

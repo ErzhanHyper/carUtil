@@ -171,8 +171,8 @@ class DocumentService
         $data['ud_num'] = $client->ud_num;
         $data['ud_expired'] = $client->ud_expired;
         $data['ud_issued'] = $client->ud_issued->title;
-        $data['operator_company'] = 'АО «Жасыл Даму»';
-        $data['operator_req'] = 'АО «Жасыл Даму»';
+        $data['operator_company'] = '';
+        $data['operator_req'] = '';
 
         $factory = Factory::find($auth->factory_id);
         $data['factory_name'] = $factory->title;
@@ -215,8 +215,8 @@ class DocumentService
         $data['ud_num'] = $client->ud_num;
         $data['ud_expired'] = $client->ud_expired;
         $data['ud_issued'] = $client->ud_issued->title;
-        $data['operator_company'] = 'АО «Жасыл Даму»';
-        $data['operator_req'] = 'АО «Жасыл Даму»';
+        $data['operator_company'] = '';
+        $data['operator_req'] = '';
 
         $factory = Factory::find($auth->factory_id);
         $data['factory_name'] = $factory->title ?? '';

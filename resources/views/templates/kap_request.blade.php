@@ -60,18 +60,6 @@
   </style>
 </head>
 <body>
-    <div class="page">
-        <div class="padding">
-            <h1>{{ $data['header'] }}</h1>
-            <p class="center">{!! $data['description'] !!}</p>
-            <div class="left"><p>{{ $data['author'] }}</p></div>
-            <div class="right"><p>{!! $data['date'] !!}</p></div>
-            <div style="clear: both;"></div>
-            <div class="response">{!! $data['response'] !!}</div>
-            <div>
-              <p class="center" style="margin-top: 20px; margin-bottom: 20px;">{!! $data['qr'] !!}</p>
-            </div>
-        </div>
-    </div>
+
 </body>
 </html>

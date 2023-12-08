@@ -6,7 +6,7 @@ import '@quasar/extras/material-icons/material-icons.css'
 import 'quasar/src/css/index.sass'
 import '../sass/app.scss'
 import App from "./Components/App.vue";
-import middleware from '@/modules/middleware.js'
+import middleware from './modules/middleware.js'
 import './services/interceptors'
 
 import moment from 'moment';
@@ -14,8 +14,8 @@ import 'moment/dist/locale/ru'
 moment.locale('ru')
 import emitter from '@/mitt';
 import '@/store/subscriber.js';
-import store from '@/store/index.js';
-store.dispatch('auth/attempt', localStorage.getItem('token__auto.recycle.kz'))
+import store from './store/index.js';
+store.dispatch('auth/attempt', localStorage.getItem('token__recycle'))
 
 import router from './router.js';
 middleware(router)
@@ -31,7 +31,7 @@ myApp.use(Quasar, {
         Notify
     },
     config: {
-        notify: { /* look at QuasarConfOptions from the API card */ }
+        notify: {}
     }
 });
 myApp.use(router);

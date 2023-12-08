@@ -6,7 +6,7 @@
                 <span v-if="item.vehicleType"
                       :class="(item.vehicleType === 'car') ? 'text-teal-9' : 'text-orange-9'"
                       class="text-body1 q-mt-sm">
-                    {{ (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ' }}
+                    {{ (item.vehicleType === 'car') ? '1' : '2' }}
                 </span>
                 <span class="text-body1 text-blue-grey-7"><b> - №{{ item.id }}</b></span>
                 <!--                <div v-if="item.status.id !== 3" :class="'text-'+setStatusColor(item.approve.id)">-->
@@ -49,12 +49,6 @@
                     label="Проверка дубликатов"
                     size="12px"
                     @click="getDuplicate"/>
-
-                <order-kap
-                    v-if="user.role === 'moderator' && item.executor"
-                    :blocked="!permit.can_approve"
-                    :data="{vin:item.car.vin, grnz: item.car.grnz, iinbin: (item.client ? item.client.idnum : '')}"
-                    :order_id="item.id"/>
             </div>
         </div>
 
@@ -148,16 +142,14 @@ import PreorderFile from "@/Pages/preorder/PreorderFile.vue"
 
 import OrderExecuteAction from "./actions/OrderExecuteAction.vue";
 
-import OrderKap from "./OrderKap.vue";
 import OrderDuplicates from "./OrderDuplicates.vue";
-import OrderHistory from "./OrderHistory.vue";
+import OrderHistory from "@/Components/OrderHistory.vue";
 import OrderDocument from "./OrderDocument.vue";
 import OrderFile from "./OrderFile.vue";
 
 export default {
     components: {
         OrderDuplicates,
-        OrderKap,
         OrderExecuteAction,
         OrderHistory,
         OrderDocument,

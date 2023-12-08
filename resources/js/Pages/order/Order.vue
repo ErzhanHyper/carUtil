@@ -45,7 +45,7 @@
                                 :color="(item.vehicleType === 'car') ? 'blue-grey-1' : 'orange-1'"
                                 size="12px">
                             {{ (item.car) ? (item.car.category ? item.car.category.title_ru : '') : '-' }} | {{
-                                (item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ'
+                                (item.vehicleType === 'car') ? '1' : '2'
                             }}
                         </q-chip>
                         <q-space/>
@@ -150,13 +150,13 @@ export default {
                 {
                     id: 1,
                     icon: 'recycling',
-                    title: 'ВЭТС',
+                    title: '1',
                     description: 'Вышедшее из эксплуатации транспортное средство',
                 },
                 {
                     id: 2,
                     icon: 'recycling',
-                    title: 'ВЭССХТ',
+                    title: '2',
                     description: 'Вышедшее из эксплуатации сельхозтехника',
                 }
             ]

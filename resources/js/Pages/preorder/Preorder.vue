@@ -43,7 +43,7 @@
                 <td class="text-left">
                     <q-chip :color="(item.vehicleType === 'car') ? 'blue-grey-5' : 'orange-8'" size="12px" outline>
                         {{ (item.car) ? (item.car.category ? item.car.category.title_ru + ' | ' : '') : '' }}
-                        {{ (item.vehicleType) ? ((item.vehicleType === 'car') ? 'ВЭТС' : 'ВЭССХТ') : '-' }}
+                        {{ (item.vehicleType) ? ((item.vehicleType === 'car') ? '1' : '2') : '-' }}
                     </q-chip>
                 </td>
                 <td class="text-left">

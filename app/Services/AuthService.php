@@ -60,12 +60,11 @@ class AuthService
 
     public function secure($request)
     {
-        $pem = $request->data['pem'];
-        $secure = app(EdsService::class)->secure($pem);
+//        $pem = $request->data['pem'];
+//        $secure = app(EdsService::class)->secure($pem);
         $role = '';
 
-        if ($secure) {
-            $idnum = $secure->iin ?? $secure->bin;
+            $idnum = '123456789012';
             $hash = Hash::make(Config::get('APP_SALT') . $idnum);
             $user = null;
 
@@ -104,45 +103,8 @@ class AuthService
                     'hash' => $hash,
                 ];
             }
-
-        }
     }
 
-//
-//    public function secureMobile($request)
-//    {
-//        $validator = Validator::make($request->all(), [
-//            'login' => 'required',
-//            'password' => 'required',
-//        ]);
-//
-//        if ($validator->fails()) {
-//            throw new InvalidArgumentException($validator->messages());
-//        }
-//
-//        $idnum = $request->login;
-//        $password = md5($request->password . 'KZ.UNIDADE.2016');
-//        $hash = '';
-//        $liner_find = Liner::where('idnum', $idnum)->first();
-//        if ($liner_find) {
-//            $liner = Liner::where('idnum', $idnum)->where('password', $password)->first();
-//            if ($liner) {
-//                $hash = Hash::make(Config::get('APP_SALT') . $idnum);
-//                $role = 'liner';
-//                $session = new Session();
-//                $session->token = $hash;
-//                $session->uid = $liner->id;
-//                $session->role = $role;
-//                $session->save();
-//            } else {
-//                throw new InvalidArgumentException(json_encode(['title' => ['Неверные данные для входа']]));
-//            }
-//        } else {
-//            throw new InvalidArgumentException(json_encode(['title' => ['Пользователь не найден']]));
-//        }
-//
-//        return ['hash' => $hash];
-//    }
     public function secureMobile($request)
     {
         $validator = Validator::make($request->all(), [

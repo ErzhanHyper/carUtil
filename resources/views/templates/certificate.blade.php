@@ -71,18 +71,6 @@
     </style>
 </head>
 <body>
-<div class="page">
-    <h1>СКИДОЧНЫЙ СЕРТИФИКАТ</h1>
-    <p class="center">{{ $data['z_num'] }}</p>
-    <p style="text-align: justify;"><strong>{{ $data['pre'] }}</strong></p>
-    <p style="text-align: justify;">{!! $data['detail1'] !!}</p>
-    <p style="text-align: justify;">{!! $data['detail2'] !!}</p>
-    <p style="text-align: justify;">{!! $data['detail3'] !!}</p>
-    <div class="left"><p><strong>{{ $data['z_date'] }}</strong></p></div>
-    <div class="right"><p><strong>{{ $data['z_to'] }}</strong></p></div>
-    <div style="clear: both;"></div>
-    <p class="center" style="margin-top: 50px; margin-bottom: 0px;">{!! $data['z_qr1'] !!} {!! $data['z_qr2'] !!} {!! $data['z_qr3'] !!} {!! $data['z_qr4'] !!}</p>
-    <p style="margin: 0 auto; max-width: 85%;font-size: 11px;text-align: justify;line-height: 1.1">{{ $data['text_subtitle'] }}</p>
-</div>
+
 </body>
 </html>

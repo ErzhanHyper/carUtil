@@ -1,5 +1,4 @@
 <template>
-
     <q-btn class="q-ml-md text-weight-bold"
            color="indigo-8"
            icon="add"
@@ -46,7 +45,6 @@
             <q-card-section>
                 <q-btn :loading="loading" color="indigo-8" icon="add" label="Выбрать" unelevated @click="create()"/>
             </q-card-section>
-
         </q-card>
     </q-dialog>
 </template>
@@ -58,7 +56,7 @@ import {storeOrder} from "../../services/preorder";
 export default {
 
     data() {
-        return{
+        return {
             dialog: false,
             loading: false,
             item: {
@@ -69,14 +67,14 @@ export default {
                 {
                     id: 1,
                     icon: 'recycling',
-                    title: 'ВЭТС',
-                    description: 'Вышедшее из эксплуатации транспортное средство',
+                    title: '1',
+                    description: 'CarUtil',
                 },
                 {
                     id: 2,
                     icon: 'recycling',
-                    title: 'ВЭССХТ',
-                    description: 'Вышедшей из эксплуатации сельхозтехники',
+                    title: '2',
+                    description: 'CarUtil',
                 }
             ]
         }

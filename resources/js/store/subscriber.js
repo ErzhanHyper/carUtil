@@ -8,10 +8,10 @@ store.subscribe((mutation) => {
 
             if (mutation.payload) {
                 api.defaults.headers.common['Authorization'] = `Bearer ${mutation.payload}`
-                window.localStorage.setItem('token__auto.recycle.kz', mutation.payload)
+                window.localStorage.setItem('token__recycle', mutation.payload)
             }else{
                 api.defaults.headers.common['Authorization'] = null
-                window.localStorage.removeItem('token__auto.recycle.kz')
+                window.localStorage.removeItem('token__recycle')
             }
 
             break;

@@ -4,7 +4,7 @@
             <q-page class=" window-height window-width row justify-center items-center" id="loginPage">
                 <div class="column">
                     <div class="row">
-                        <h5 class="text-h5 text-white q-my-md">ВЭТС/ВЭССХТ</h5>
+                        <h5 class="text-h5 text-white q-my-md">CarUtil</h5>
                     </div>
                     <div class="row">
                         <q-card square bordered class="q-pa-sm shadow-1"
@@ -29,18 +29,6 @@
                                            @click="login" :loading="loading"/>
                                 </q-form>
                             </q-card-section>
-
-<!--                            <q-card-section id="mobileAuth">-->
-
-<!--                                <q-form class="q-gutter-md  q-mt-md">-->
-<!--                                    <q-input label="ИИН" outlined dense v-model="idnum" :model-value="idnum"  />-->
-<!--                                    <q-input label="Пароль" outlined dense type="password" v-model="password" autocomplete="off"-->
-<!--                                             :model-value="password"/>-->
-
-<!--                                    <q-btn unelevated color="light-green-7" size="md" label="Войти" push-->
-<!--                                           @click="loginMobile" :loading="loading"/>-->
-<!--                                </q-form>-->
-<!--                            </q-card-section>-->
                         </q-card>
                     </div>
                 </div>
@@ -118,12 +106,12 @@ export default {
             const storageType = activeTokens[0] || NCALayerClient.fileStorageType;
 
             let base64EncodedSignature;
-            try {
-                base64EncodedSignature = await ncalayerClient.getKeyInfo(storageType, 'MTEK');
-            } catch (error) {
-                this.loading = false
-                return;
-            }
+            // try {
+            //     base64EncodedSignature = await ncalayerClient.getKeyInfo(storageType, 'MTEK');
+            // } catch (error) {
+            //     this.loading = false
+            //     return;
+            // }
 
             this.signIn({data: base64EncodedSignature, auth_point: 'liner'}).then(() => {
                 this.$router.replace({
@@ -138,27 +126,6 @@ export default {
             })
             return base64EncodedSignature;
         },
-
-
-        // loginMobile() {
-        //     this.loading = true
-        //     this.showBanner = false
-        //     this.errors = []
-        //
-        //     this.signInMobile({
-        //         login: this.idnum,
-        //         password: this.password
-        //     }).then(() => {
-        //         this.$router.replace({
-        //             name: 'preorder'
-        //         })
-        //     }).catch(reject => {
-        //         this.errors = JSON.parse(reject.response.data.error)
-        //         this.showBanner = true
-        //     }).finally(() => {
-        //         this.loading = false
-        //     })
-        // },
 
     },
 

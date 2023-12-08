@@ -9,7 +9,6 @@
                 <q-btn dense flat round icon="menu" @click="toggleLeftDrawer"/>
 
                 <q-toolbar-title class="text-subtitle2 text-weight-bold text-blue-grey-7">
-                    ВЭТС/ВЭССХТ
                 </q-toolbar-title>
 
                 <div class="profile-btn flex flex-center">
